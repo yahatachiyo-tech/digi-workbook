@@ -1,0 +1,47 @@
+# 校内開発用（index.html が公開用なので不要）
+digital_workbook_v1.html
+
+# 著作物（実教出版の教科書 PDF）
+textbook/
+
+# スクリーンショット・撮影ツール
+screenshots*/
+
+# Node.js
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# エディタ
+.vscode/
+.idea/
+*.swp
+
+# Claude Code 作業領域
+.claude/
+
+# 会話履歴（個人情報を含む可能性）
+会話履歴_全文.md
+
+# HANDOFF・メモ（プロジェクト内部メモ）
+HANDOFF_引き継ぎ.md
+STARTUP_起動プロンプト.md
+DEPLOY_手順.md
+
+# 仕様書（公開不要、管理文書）
+digital_workbook_design_spec.md
+
+# 内部メモ・テンプレート
+STUDENT_ROSTER_テンプレート.txt
+SESSION_END_CHECKLIST_セッション終了チェックリスト.md
+他のPCで継続するには.txt
+新規 テキスト ドキュメント.txt
+
+# skills 関連（プロジェクト固有）
+.agents/
+skills-lock.json
+
+# 過去の検証サンプル等
+01_sample/
