@@ -2993,17 +2993,19 @@
                 });
                 const diagLen = Math.hypot(W, H);
                 const EXT = Math.min(diagLen, Math.max(105, maxCornerDist + 35));
-                const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+                // 【BUG FIX 2026-04-24】:
+                //   以前は x と y を独立に clamp していたが、これだと非直交方向（45°等）の
+                //   線の傾きが崩れる。SVG は viewBox 外を自動的にクリップするので、
+                //   傾きを保ったまま EXT ぶん両方向に延長するだけでよい。
+                //   問4（45°方向）の破線が作用点を通らない／角度が違うバグはこの修正で解消。
                 c.decomposeAxes = c.directions.map(d => {
-                    // 単位化（既に単位ベクトルだが念のため）
                     const len = Math.hypot(d.dx, d.dy) || 1;
                     const ux = d.dx / len, uy = d.dy / len;
-                    // 原点から両方向に EXT だけ伸ばす（キャンバスに収まるようクランプ）
                     return {
-                        x1: clamp(o.x - ux * EXT, 5, W - 5),
-                        y1: clamp(o.y - uy * EXT, 5, H - 5),
-                        x2: clamp(o.x + ux * EXT, 5, W - 5),
-                        y2: clamp(o.y + uy * EXT, 5, H - 5),
+                        x1: o.x - ux * EXT,
+                        y1: o.y - uy * EXT,
+                        x2: o.x + ux * EXT,
+                        y2: o.y + uy * EXT,
                         color: '#8a8a8a',
                         dirIdx: c.directions.indexOf(d)
                     };
