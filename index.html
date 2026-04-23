@@ -1610,7 +1610,6 @@
                             <div class="login-intro-eyebrow">Digital Workbook</div>
                             <div class="login-intro-title">機械設計<br>デジタルワーク</div>
                             <div class="login-intro-lead">
-                                第2章「機械に働く力」の学習ワークブック。<br>
                                 出席番号と名前を入力してはじめましょう。
                             </div>
                         </div>
@@ -1661,7 +1660,7 @@
             <div class="screen menu-screen" id="menuScreen">
                 <div class="menu-header">
                     <div>
-                        <div class="menu-title">第2章 機械に働く力</div>
+                        <div class="menu-title">機械設計 デジタルワーク</div>
                         <div class="user-info" id="userInfo"></div>
                     </div>
                     <button class="btn logout-btn" onclick="app.logout()">ログアウト</button>
@@ -1755,6 +1754,11 @@
     <script>
         // ===== DATA DEFINITIONS =====
 
+        // GAS Web App endpoint (anonymous logging)
+        // 仕様書§13.1: 完全バックグラウンド送信、匿名化（氏名・学校名・クラス名は送信しない）
+        // 教員モード（40番）は送信しない、サイレント失敗、CORS 回避（mode: 'no-cors'）
+        const LOG_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzZ7sQ56VolFl2ayXfNFAE6WJIqtYmgphR2jgnRbnxwPABd7f8vty19kqtV5GK3Z0ydqg/exec';
+
         // 【校内版では実名ロスターを定義していたが、GitHub Pages 配信のため空に変更】
         // 将来、名簿照合に戻す場合は 1番〜36番 + 40番の形式で復活可能
         const STUDENT_ROSTER = {};
@@ -1792,6 +1796,15 @@
                 id: '1-4',
                 title: '作用線が交わる2力の合成',
                 subtitle: '力の三角形と力の平行四辺形（作図）',
+                level: '基礎',
+                completed: false,
+                score: 0,
+                total: 0
+            },
+            {
+                id: '1-5',
+                title: '作図による力の分解',
+                subtitle: '平行四辺形の逆操作（分力 Fx, Fy を求める）',
                 level: '基礎',
                 completed: false,
                 score: 0,
@@ -2325,6 +2338,94 @@
             }
         ];
 
+        // Problems for sub-unit 1-5: drawing – force decomposition
+        const PROBLEMS_1_5 = [
+            {
+                id: 1,
+                type: 'drawing', method: 'decomposition',
+                sentence: '図のように大きさ 50 N の力 F が与えられている。作図によって、水平方向と垂直方向の 2 つの分力に分解しなさい。',
+                condition: '水平・垂直に分解（F = 50 N、1マス = 10 N）',
+                canvasType: '2d',
+                fMagnitude: 50,
+                fVector: { x: 3, y: 4 },
+                expectedFx: 30,
+                expectedFy: 40,
+                fxUnit: 'N',
+                fyUnit: 'N',
+                stage0Choices: [
+                    { value: 'decomposed', label: '分力 Fx, Fy' },
+                    { value: 'resultant',  label: '合力 F' },
+                    { value: 'application-point', label: '力 F の作用点' }
+                ],
+                stage0Correct: 'decomposed',
+                stage1Choices: [
+                    { value: 'horizontal-vertical', label: '水平・垂直' },
+                    { value: 'other',               label: 'それ以外' }
+                ],
+                stage1Correct: 'horizontal-vertical',
+                stage2Text: '<strong>分力 Fx, Fy を求めるには</strong>、平行四辺形の逆操作を使います。<br><br>合成では2つの力の矢印を2辺とする平行四辺形を作り、対角線が合力でした。<br>分解はその逆で、<strong>力 F が平行四辺形の対角線</strong>になるように、分解方向と平行な2辺を作ります。',
+                hint_b: '力 F の先端は、マス目の上のどの点にありますか。まず位置を確認してください。',
+                hint_a: '分解は合成の逆の作業です。合成では2つの力の矢印を2辺とする平行四辺形を作り、対角線が合力でした。分解では、力 F が平行四辺形の対角線になるように、分解方向と平行な2辺を作ります。',
+                hint_c: '教科書25ページ「作図による力の分解」と図2-8を確認してください。'
+            },
+            {
+                id: 2,
+                type: 'drawing', method: 'decomposition',
+                sentence: '図のように大きさ 50 N の力 F が与えられている。作図によって、水平方向と垂直方向の 2 つの分力に分解しなさい。',
+                condition: '水平・垂直に分解（F = 50 N、1マス = 10 N）',
+                canvasType: '2d',
+                fMagnitude: 50,
+                fVector: { x: 4, y: 3 },
+                expectedFx: 40,
+                expectedFy: 30,
+                fxUnit: 'N',
+                fyUnit: 'N',
+                stage0Choices: [
+                    { value: 'decomposed', label: '分力 Fx, Fy' },
+                    { value: 'resultant',  label: '合力 F' },
+                    { value: 'application-point', label: '力 F の作用点' }
+                ],
+                stage0Correct: 'decomposed',
+                stage1Choices: [
+                    { value: 'horizontal-vertical', label: '水平・垂直' },
+                    { value: 'other',               label: 'それ以外' }
+                ],
+                stage1Correct: 'horizontal-vertical',
+                stage2Text: '<strong>分力 Fx, Fy を求めるには</strong>、平行四辺形の逆操作を使います。<br><br>合成では2つの力の矢印を2辺とする平行四辺形を作り、対角線が合力でした。<br>分解はその逆で、<strong>力 F が平行四辺形の対角線</strong>になるように、分解方向と平行な2辺を作ります。',
+                hint_b: '力 F の先端は、マス目の上のどの点にありますか。問1と向きを比べてみてください。',
+                hint_a: '分解は合成の逆の作業です。合成では2つの力の矢印を2辺とする平行四辺形を作り、対角線が合力でした。分解では、力 F が平行四辺形の対角線になるように、分解方向と平行な2辺を作ります。',
+                hint_c: '教科書25ページ「作図による力の分解」と図2-8を確認してください。'
+            },
+            {
+                id: 3,
+                type: 'drawing', method: 'decomposition',
+                sentence: '図のように大きさ 100 N の力 F が与えられている。作図によって、水平方向と垂直方向の 2 つの分力に分解しなさい。',
+                condition: '水平・垂直に分解（F = 100 N、1マス = 10 N）',
+                canvasType: '2d',
+                fMagnitude: 100,
+                fVector: { x: 8, y: 6 },
+                expectedFx: 80,
+                expectedFy: 60,
+                fxUnit: 'N',
+                fyUnit: 'N',
+                stage0Choices: [
+                    { value: 'decomposed', label: '分力 Fx, Fy' },
+                    { value: 'resultant',  label: '合力 F' },
+                    { value: 'application-point', label: '力 F の作用点' }
+                ],
+                stage0Correct: 'decomposed',
+                stage1Choices: [
+                    { value: 'horizontal-vertical', label: '水平・垂直' },
+                    { value: 'other',               label: 'それ以外' }
+                ],
+                stage1Correct: 'horizontal-vertical',
+                stage2Text: '<strong>分力 Fx, Fy を求めるには</strong>、平行四辺形の逆操作を使います。<br><br>合成では2つの力の矢印を2辺とする平行四辺形を作り、対角線が合力でした。<br>分解はその逆で、<strong>力 F が平行四辺形の対角線</strong>になるように、分解方向と平行な2辺を作ります。',
+                hint_b: '1 マスは 10 N です。凡例を確認してください。大きさ 100 N の力 F は矢印の長さで何マス分になりますか。',
+                hint_a: '分解は合成の逆の作業です。合成では2つの力の矢印を2辺とする平行四辺形を作り、対角線が合力でした。分解では、力 F が平行四辺形の対角線になるように、分解方向と平行な2辺を作ります。マスの数え方は問1・問2と同じです。',
+                hint_c: '教科書25ページ「作図による力の分解」と図2-8を確認してください。'
+            }
+        ];
+
         const HINTS_1_3 = {
             stage0: {
                 b: '問題文の末尾に「求めよ」とある量を探してください。',
@@ -2399,6 +2500,36 @@
                     a: 'O（始点）から、2本の平行線が交わる点（平行四辺形の反対側のかど）までをタップしてください。',
                     c: '教科書24ページ 図2-4⒜ を確認してください。'
                 }
+            }
+        };
+
+        // 1-5 のヒント（作図による力の分解）
+        // Stage 3 はサブステージ（stage3a: 1本目の平行線、stage3b: 2本目の平行線）
+        const HINTS_1_5 = {
+            stage0: {
+                b: '問題文の末尾を読んでください。何を求める問題ですか。',
+                a: '「2つの分力に分解しなさい」とあります。求めるのは 2 つの分力の大きさと向きです。',
+                c: '教科書25ページ「作図による力の分解」を確認してください。'
+            },
+            stage1: {
+                b: '問題文に「○○方向と○○方向の 2 つの分力に分解」とあります。どの 2 方向に分けますか。',
+                a: '図に描かれている 2 本の直線（分解する方向）を確認してください。力 F をこの 2 方向に分けます。',
+                c: '教科書25ページ 図2-8 を確認してください。'
+            },
+            stage3a: {
+                b: '分解は合成の逆の作業です。1 本目の平行線を引きます。力 F の先端から、水平方向または垂直方向のどちらかと平行な線を引いてください。',
+                a: '引いた 1 本目の平行線は、もう一方の分解方向の直線とどこで交わりますか。その交点が片方の分力の先端になります。',
+                c: '教科書25ページ 図2-8 を確認してください。'
+            },
+            stage3b: {
+                b: '2 本目の平行線を引きます。力 F の先端から、1 本目で選ばなかった方の方向（水平を選んだなら垂直、垂直を選んだなら水平）と平行な線を引いてください。',
+                a: '2 本目の平行線が引けると、1 本目と 2 本目の平行線、分解方向の 2 本の直線で、力 F を対角線とする平行四辺形が完成します。2 つの分力は、作用点を始点にそれぞれの分解方向に沿った 2 辺です。',
+                c: '教科書25ページ 図2-8 を確認してください。'
+            },
+            stage4: {
+                b: '凡例（1マス = 10 N）をもとに、それぞれの分力の矢印が何マス分あるかを数えてください。',
+                a: '作用点から、それぞれの平行線との交点までが分力の矢印です。マス数 × 10 N が分力の大きさです。',
+                c: '教科書25ページ 図2-8 を確認してください。'
             }
         };
 
@@ -2650,6 +2781,7 @@
                 if (unitId === '1-2') return PROBLEMS_1_2.length;
                 if (unitId === '1-3') return PROBLEMS_1_3.length;
                 if (unitId === '1-4') return PROBLEMS_1_4.length;
+                if (unitId === '1-5') return PROBLEMS_1_5.length;
                 if (unitId === '2-1') return PROBLEMS_2_1.length;
                 return 0;
             }
@@ -2696,6 +2828,7 @@
                 else if (this.currentUnitId === '1-2') problems = PROBLEMS_1_2;
                 else if (this.currentUnitId === '1-3') problems = PROBLEMS_1_3;
                 else if (this.currentUnitId === '1-4') problems = PROBLEMS_1_4;
+                else if (this.currentUnitId === '1-5') problems = PROBLEMS_1_5;
                 else if (this.currentUnitId === '2-1') problems = PROBLEMS_2_1;
 
                 if (this.currentProblemIndex >= problems.length) {
@@ -2704,6 +2837,12 @@
                 }
 
                 const problem = problems[this.currentProblemIndex];
+                // 1-5（分解）: canvas 未構築ならここで組み立てる
+                //   既存の 2D 描画関数は problem.canvas.{origin, givenArrows, width, height} に依存するため、
+                //   fMagnitude / fVector から canvas メタデータを派生させる。
+                if (problem.method === 'decomposition' && !problem.canvas) {
+                    this._buildDecompositionCanvas(problem);
+                }
                 this.showScreen('problemScreen');
                 this.problemStartTime = Date.now();
                 // Reset to stage 0 for each new calc problem (level feature disabled)
@@ -2720,6 +2859,51 @@
                 this.selectedPassThrough = null;
                 this.completedParallels = [];
                 this.renderProblem(problem);
+            }
+
+            // 1-5（分解）用: fMagnitude / fVector から canvas メタデータを派生
+            //   既存の 2D 描画関数（build2dCanvas / buildStaticCanvas）と互換な canvas を構築する。
+            //   作用点 O = (70, 245) 固定、1マス=10 N（35px）、水平・垂直分解を前提。
+            _buildDecompositionCanvas(problem) {
+                const CELL = 35;
+                const ox = 70, oy = 245;
+                const vx = problem.fVector.x;
+                const vy = problem.fVector.y;
+                const fTipX = ox + vx * CELL;
+                const fTipY = oy - vy * CELL;  // 画面 Y は下向き正なのでマイナス
+                // Fx（水平分力）の先端: (fTipX, oy)
+                // Fy（垂直分力）の先端: (ox,    fTipY)
+                const fxTip = { x: fTipX, y: oy };
+                const fyTip = { x: ox,    y: fTipY };
+                problem.canvas = {
+                    width: 360, height: 280,
+                    scaleLabel: '1マス = 10 N',
+                    origin: { x: ox, y: oy },
+                    // F 本体を givenArrows[0] として扱う（既存描画系が givenArrows を期待するため）。
+                    // 色は F 本体 #d23a2a。
+                    givenArrows: [
+                        {
+                            x1: ox, y1: oy, x2: fTipX, y2: fTipY,
+                            color: '#d23a2a',
+                            label: `F = ${problem.fMagnitude} N`,
+                            lx: (ox + fTipX) / 2 - 20,
+                            ly: (oy + fTipY) / 2 - 8
+                        }
+                    ],
+                    // 分解方向の破線（水平 X 軸・垂直 Y 軸）を問題図として表示する。
+                    //   fxTip（水平分力の終端）, fyTip（垂直分力の終端）をカバーするよう余裕を持たせる。
+                    decomposeAxes: [
+                        // X 軸（水平方向）: 作用点から fxTip より右まで
+                        { x1: ox, y1: oy, x2: Math.max(340, fxTip.x + 10), y2: oy, color: '#8a8a8a' },
+                        // Y 軸（垂直方向）: 作用点から fyTip より上まで
+                        { x1: ox, y1: oy, x2: ox, y2: Math.min(20, fyTip.y - 10), color: '#8a8a8a' }
+                    ],
+                    fTip: { x: fTipX, y: fTipY },
+                    fxTip: fxTip,
+                    fyTip: fyTip,
+                    // 正解の分力終点（Stage 5 で使う）
+                    correctEnd: { x: fTipX, y: fTipY }
+                };
             }
 
             renderProblem(problem) {
@@ -2739,6 +2923,7 @@
                     if (this.currentUnitId === '1-2') problems = PROBLEMS_1_2;
                     else if (this.currentUnitId === '1-3') problems = PROBLEMS_1_3;
                     else if (this.currentUnitId === '1-4') problems = PROBLEMS_1_4;
+                    else if (this.currentUnitId === '1-5') problems = PROBLEMS_1_5;
                     else if (this.currentUnitId === '2-1') problems = PROBLEMS_2_1;
                     sidebarList.innerHTML = problems.map((p, i) =>
                         `<li class="${i === this.currentProblemIndex ? 'is-active' : ''}">問 ${p.id}</li>`
@@ -2753,6 +2938,8 @@
                         helpHTML = '<ol><li>空欄をタップ</li><li>候補から選ぶ</li><li>すべて埋めたら「確認」</li><li>迷ったら「ヒント」</li></ol>';
                     } else if (this.currentUnitId === '1-3' || this.currentUnitId === '1-4') {
                         helpHTML = '<ol><li>問題文を確認</li><li>ステップに沿って作図</li><li>各ステップで「確認」</li><li>迷ったら「ヒント」</li></ol>';
+                    } else if (this.currentUnitId === '1-5') {
+                        helpHTML = '<ol><li>問題文で力 F を確認</li><li>分解方向を選ぶ</li><li>F の先端から平行線を2本引く</li><li>分力の大きさを入力</li></ol>';
                     } else {
                         helpHTML = '<ol><li>問題文から条件を読み取る</li><li>ステップに沿って進む</li><li>電卓で計算して入力</li><li>迷ったら「ヒント」</li></ol>';
                     }
@@ -2767,7 +2954,7 @@
                 // Handle different problem types
                 if (this.currentUnitId === '2-1') {
                     this.renderCalculationProblem(problem, content);
-                } else if (this.currentUnitId === '1-3' || this.currentUnitId === '1-4') {
+                } else if (this.currentUnitId === '1-3' || this.currentUnitId === '1-4' || this.currentUnitId === '1-5') {
                     this.drawingStageIndex = 0;
                     this.drawingState = 'idle';
                     this.drawStart = null;
@@ -3035,14 +3222,25 @@
 
             renderDrawingProblem(problem, content) {
                 const stageIndex = this.drawingStageIndex;
-                const stageLabels = [
-                    '求める量を確認する',
-                    '2力の関係を確認する',
-                    '合力の求め方を確認する',
-                    '合力の矢印を描く',
-                    '合力の大きさを求める',
-                    '答えの意味を確認'
-                ];
+                // 1-5（分解）は「合力」「合力の大きさ」ではなく「分力」「分力の大きさ」を扱う
+                const isDecompose = problem.method === 'decomposition';
+                const stageLabels = isDecompose
+                    ? [
+                        '求める量を確認する',
+                        '分解方向を確認する',
+                        '分解の求め方を確認する',
+                        '分力を作図する',
+                        '分力の大きさを求める',
+                        '答えの意味を確認'
+                    ]
+                    : [
+                        '求める量を確認する',
+                        '2力の関係を確認する',
+                        '合力の求め方を確認する',
+                        '合力の矢印を描く',
+                        '合力の大きさを求める',
+                        '答えの意味を確認'
+                    ];
                 const header = `
                     <div class="calc-problem-persistent">${problem.sentence}</div>
                     <div class="calc-stage-label" style="margin-bottom:12px;">${stageLabels[stageIndex] || ''}</div>
@@ -3050,11 +3248,16 @@
 
                 if (stageIndex === 0) {
                     // Stage 0: 事実抽出 — 求める量を選ぶ
-                    const options = this.shuffleArray([
-                        { value: 'resultant', label: '合力 F' },
-                        { value: 'comp',      label: '分力 F₁, F₂' },
-                        { value: 'direction', label: '合力の向き（方向のみ）' }
-                    ]);
+                    //   1-5 のようにデータ駆動の stage0Choices を持つ問題はそれを使う。
+                    //   従来の 1-1〜1-4 は後方互換の固定3択にフォールバック。
+                    const rawOptions = Array.isArray(problem.stage0Choices) && problem.stage0Choices.length > 0
+                        ? problem.stage0Choices
+                        : [
+                            { value: 'resultant', label: '合力 F' },
+                            { value: 'comp',      label: '分力 F₁, F₂' },
+                            { value: 'direction', label: '合力の向き（方向のみ）' }
+                        ];
+                    const options = this.shuffleArray(rawOptions);
                     const chipsHTML = options.map(o =>
                         `<div class="calc-chip" data-value="${o.value}">${o.label}</div>`
                     ).join('');
@@ -3084,14 +3287,16 @@
                     `;
                 }
                 else if (stageIndex === 1) {
-                    // Stage 1: 2力の関係を確認する
+                    // Stage 1: 2力の関係を確認する（分解では分解方向を確認する）
                     const choices = this.shuffleArray([...problem.stage1Choices]);
                     const chipsHTML = choices.map(o =>
                         `<div class="calc-chip" data-value="${o.value}">${o.label}</div>`
                     ).join('');
-                    const q1d = problem.canvasType === '1d'
-                        ? '図の2つの力の矢印を見て、向きの関係を選んでください。'
-                        : '図の2つの力の矢印の関係を選んでください。';
+                    const q1d = isDecompose
+                        ? '図の分解方向を見て、どの 2 方向に分解しますか。'
+                        : (problem.canvasType === '1d'
+                            ? '図の2つの力の矢印を見て、向きの関係を選んでください。'
+                            : '図の2つの力の矢印の関係を選んでください。');
                     const staticCanvas = this.buildStaticCanvas(problem, {showCandidates:false, showUserArrow:false});
                     content.innerHTML = header + staticCanvas + `
                         <div class="calc-stage-container">
@@ -3119,7 +3324,8 @@
                 }
                 else if (stageIndex === 2) {
                     // Stage 2: 合力の求め方（必然の法則）— 表示のみ
-                    const explanation = problem.canvasType === '2d'
+                    //   分解（1-5）は buildStage2Svg2d 未対応なので SVG 補助図を省略し、stage2Text のみ表示する。
+                    const explanation = (problem.canvasType === '2d' && !isDecompose)
                         ? this.buildStage2Svg2d(problem)
                         : '';
                     const staticCanvas = this.buildStaticCanvas(problem, {showCandidates:false, showUserArrow:false});
@@ -3164,8 +3370,14 @@
                         // 2D: サブステージ制御
                         //   三角形法は従来どおり 'side1' → 'diag'
                         //   平行四辺形法は 'parallel1' → 'parallel2' → 'diag'（3ステップ式）
+                        //   分解（decomposition）は 'decompose1' → 'decompose2'（2ステップ）
                         if (this.drawingSubStage === null) {
-                            if (problem.method === 'parallelogram') {
+                            if (problem.method === 'decomposition') {
+                                this.drawingSubStage = 'decompose1';
+                                this.completedParallels = [];
+                                this.selectedParallelArrow = null;
+                                this.selectedPassThrough = null;
+                            } else if (problem.method === 'parallelogram') {
                                 this.drawingSubStage = 'parallel1';
                                 this.completedParallels = [];
                                 this.selectedParallelArrow = null;
@@ -3183,52 +3395,94 @@
                     }
                 }
                 else if (stageIndex === 4) {
-                    // Stage 4: 合力の大きさを入力
-                    const unit = problem.magnitudeUnit || 'N';
+                    // Stage 4: 大きさ入力
+                    //   1-3/1-4: 合力 F の大きさ（1 入力） → checkDrawingMagnitude
+                    //   1-5（分解）: 分力 Fx, Fy の大きさ（2 入力） → checkDecomposeMagnitudes
                     const unitId = this.currentUnitId;
                     const probIdx = this.currentProblemIndex;
                     const staticCanvas = this.buildStaticCanvas(problem, {showCandidates:false, showUserArrow:true});
-                    content.innerHTML = header + staticCanvas + `
-                        <div class="calc-stage-container">
-                            <div class="calc-question-text">作図した合力の大きさを求めて、キーボードで入力してください。</div>
-                            <div style="font-size:13px; color:#555; margin-bottom:12px;">凡例（1マス = 10 N）をもとに矢印の長さを読み取り、計算して入力してください。</div>
-                            <div class="calc-input-row">
-                                <span class="calc-input-label">合力 F ＝</span>
-                                <input type="number" id="magnitudeInput" class="calc-answer-input" placeholder="数値" style="width:130px;" step="0.1">
-                                <span style="font-size:14px; color:#555; margin-left:6px;">[${unit}]</span>
+                    if (isDecompose) {
+                        const fxU = problem.fxUnit || 'N';
+                        const fyU = problem.fyUnit || 'N';
+                        content.innerHTML = header + staticCanvas + `
+                            <div class="calc-stage-container">
+                                <div class="calc-question-text">2 つの分力の大きさを入力してください。</div>
+                                <div style="font-size:13px; color:#555; margin-bottom:12px;">凡例（1マス = 10 N）をもとに、それぞれの分力の矢印の長さを読み取ってください。</div>
+                                <div class="calc-input-row">
+                                    <span class="calc-input-label">水平方向 Fx ＝</span>
+                                    <input type="number" id="fxInput" class="calc-answer-input" placeholder="数値" style="width:130px;" step="0.1">
+                                    <span style="font-size:14px; color:#555; margin-left:6px;">[${fxU}]</span>
+                                </div>
+                                <div class="calc-input-row" style="margin-top:8px;">
+                                    <span class="calc-input-label">垂直方向 Fy ＝</span>
+                                    <input type="number" id="fyInput" class="calc-answer-input" placeholder="数値" style="width:130px;" step="0.1">
+                                    <span style="font-size:14px; color:#555; margin-left:6px;">[${fyU}]</span>
+                                </div>
+                                <div id="stageFeedback" style="margin-top:12px; font-size:14px; min-height:20px;"></div>
                             </div>
-                            <div id="stageFeedback" style="margin-top:12px; font-size:14px; min-height:20px;"></div>
-                        </div>
-                    `;
-                    setTimeout(() => { const inp = document.getElementById('magnitudeInput'); if (inp) inp.focus(); }, 80);
-                    document.getElementById('controlButtons').innerHTML = `
-                        <button class="btn hint-btn" onclick="app.showHint('draw_${unitId}_${probIdx}_stage4')">ヒント</button>
-                        <button class="check-btn" onclick="app.checkDrawingMagnitude()">確認</button>
-                    `;
+                        `;
+                        setTimeout(() => { const inp = document.getElementById('fxInput'); if (inp) inp.focus(); }, 80);
+                        document.getElementById('controlButtons').innerHTML = `
+                            <button class="btn hint-btn" onclick="app.showHint('draw_${unitId}_${probIdx}_stage4')">ヒント</button>
+                            <button class="check-btn" onclick="app.checkDecomposeMagnitudes()">確認</button>
+                        `;
+                    } else {
+                        const unit = problem.magnitudeUnit || 'N';
+                        content.innerHTML = header + staticCanvas + `
+                            <div class="calc-stage-container">
+                                <div class="calc-question-text">作図した合力の大きさを求めて、キーボードで入力してください。</div>
+                                <div style="font-size:13px; color:#555; margin-bottom:12px;">凡例（1マス = 10 N）をもとに矢印の長さを読み取り、計算して入力してください。</div>
+                                <div class="calc-input-row">
+                                    <span class="calc-input-label">合力 F ＝</span>
+                                    <input type="number" id="magnitudeInput" class="calc-answer-input" placeholder="数値" style="width:130px;" step="0.1">
+                                    <span style="font-size:14px; color:#555; margin-left:6px;">[${unit}]</span>
+                                </div>
+                                <div id="stageFeedback" style="margin-top:12px; font-size:14px; min-height:20px;"></div>
+                            </div>
+                        `;
+                        setTimeout(() => { const inp = document.getElementById('magnitudeInput'); if (inp) inp.focus(); }, 80);
+                        document.getElementById('controlButtons').innerHTML = `
+                            <button class="btn hint-btn" onclick="app.showHint('draw_${unitId}_${probIdx}_stage4')">ヒント</button>
+                            <button class="check-btn" onclick="app.checkDrawingMagnitude()">確認</button>
+                        `;
+                    }
                 }
                 else if (stageIndex === 5) {
                     // Stage 5: 振り返り
-                    const ans = problem.magnitudeAnswer;
                     let reviewText;
                     let magnitudeDetail = '';
-                    if (problem.canvasType === '1d') {
-                        reviewText = `<strong>同じ向き</strong>の2力: 合力 F = F₁ + F₂<br><strong>逆向き</strong>の2力: 合力 F = |F₁ − F₂|（向きは大きいほう）`;
-                    } else if (problem.method === 'triangle') {
-                        reviewText = `一方の力を、もう一方の力の矢印の先まで平行移動し、始点から終点までの矢印を描くと合力になります（<strong>力の三角形</strong>）。<br><span style="color:#555;">※ F₁ → 移動した F₂ → 合力 F の 3 本の矢印で三角形ができます。これを<strong>力の三角形</strong>といいます。</span><br><br><strong>この合力の意味</strong>：2力が同時に働いた結果は、この合力1本だけが働いたときと同じ効果です。`;
+                    let resultBox;
+                    if (isDecompose) {
+                        // 1-5（分解）: 分力 Fx, Fy を振り返る
+                        const fx = problem.expectedFx;
+                        const fy = problem.expectedFy;
+                        const fxU = problem.fxUnit || 'N';
+                        const fyU = problem.fyUnit || 'N';
+                        resultBox = `水平方向 Fx: <strong>${fx} ${fxU}</strong><br>垂直方向 Fy: <strong>${fy} ${fyU}</strong>`;
+                        reviewText = `力 F を対角線とする平行四辺形を作り、分解方向に沿った2辺を描くと、2つの分力 Fx, Fy が得られます（<strong>平行四辺形の逆操作</strong>）。<br><br><strong>この分力の意味</strong>：力 F が単独で働いた結果は、分力 Fx, Fy の 2 本が同時に働いたときと同じ効果です。`;
+                        magnitudeDetail = `<div style="margin-top:8px; font-size:13px; color:#555; line-height:1.7;">※ 分力の矢印の長さをグリッドで数え、1マス = 10 N で大きさを読み取ります。<br>※ 作図ではマス目を数えて大きさを読み取ります。正確な計算方法は 1-6「計算による力の分解」で学びます。</div>`;
                     } else {
-                        reviewText = `2つの力を2辺とする平行四辺形を作り、2力の作用点を始点として対角線を描くと、2力の合力を表すことができます（<strong>力の平行四辺形</strong>）。<br><span style="color:#555;">※ 対角線 = 平行四辺形の反対側のかどを結ぶ線</span><br><br><strong>この合力の意味</strong>：2力が同時に働いた結果は、この合力1本だけが働いたときと同じ効果です。`;
-                    }
-                    if (problem.canvasType === '2d' && problem.canvas && problem.canvas.origin && problem.canvas.correctEnd) {
-                        const ox = problem.canvas.origin.x, oy = problem.canvas.origin.y;
-                        const ex = problem.canvas.correctEnd.x, ey = problem.canvas.correctEnd.y;
-                        const cellCount = (Math.sqrt((ex - ox) ** 2 + (ey - oy) ** 2) / 35).toFixed(1);
-                        magnitudeDetail = `<div style="margin-top:8px; font-size:13px; color:#555; line-height:1.7;">※ 合力の矢印の長さをグリッドで数えると約 ${cellCount} マス、1マス = 10 N なので <strong>${ans} N</strong> になります。正確な計算方法は 1-7「計算による力の合成」で学びます。</div>`;
+                        const ans = problem.magnitudeAnswer;
+                        resultBox = `合力の大きさ: <strong>${ans} N</strong>`;
+                        if (problem.canvasType === '1d') {
+                            reviewText = `<strong>同じ向き</strong>の2力: 合力 F = F₁ + F₂<br><strong>逆向き</strong>の2力: 合力 F = |F₁ − F₂|（向きは大きいほう）`;
+                        } else if (problem.method === 'triangle') {
+                            reviewText = `一方の力を、もう一方の力の矢印の先まで平行移動し、始点から終点までの矢印を描くと合力になります（<strong>力の三角形</strong>）。<br><span style="color:#555;">※ F₁ → 移動した F₂ → 合力 F の 3 本の矢印で三角形ができます。これを<strong>力の三角形</strong>といいます。</span><br><br><strong>この合力の意味</strong>：2力が同時に働いた結果は、この合力1本だけが働いたときと同じ効果です。`;
+                        } else {
+                            reviewText = `2つの力を2辺とする平行四辺形を作り、2力の作用点を始点として対角線を描くと、2力の合力を表すことができます（<strong>力の平行四辺形</strong>）。<br><span style="color:#555;">※ 対角線 = 平行四辺形の反対側のかどを結ぶ線</span><br><br><strong>この合力の意味</strong>：2力が同時に働いた結果は、この合力1本だけが働いたときと同じ効果です。`;
+                        }
+                        if (problem.canvasType === '2d' && problem.canvas && problem.canvas.origin && problem.canvas.correctEnd) {
+                            const ox = problem.canvas.origin.x, oy = problem.canvas.origin.y;
+                            const ex = problem.canvas.correctEnd.x, ey = problem.canvas.correctEnd.y;
+                            const cellCount = (Math.sqrt((ex - ox) ** 2 + (ey - oy) ** 2) / 35).toFixed(1);
+                            magnitudeDetail = `<div style="margin-top:8px; font-size:13px; color:#555; line-height:1.7;">※ 合力の矢印の長さをグリッドで数えると約 ${cellCount} マス、1マス = 10 N なので <strong>${ans} N</strong> になります。正確な計算方法は 1-7「計算による力の合成」で学びます。</div>`;
+                        }
                     }
                     const staticCanvas = this.buildStaticCanvas(problem, {showCandidates:false, showUserArrow:true});
                     content.innerHTML = header + staticCanvas + `
                         <div class="calc-stage-container">
                             <div style="background:#eaf1fa; border-left:4px solid #1e5fa8; padding:14px 18px; border-radius:3px; font-size:15px; line-height:1.9;">
-                                合力の大きさ: <strong>${ans} N</strong>
+                                ${resultBox}
                                 ${magnitudeDetail}
                             </div>
                             <div style="margin-top:14px; font-size:14px; line-height:1.8; color:#333;">
@@ -3253,7 +3507,18 @@
 
                 // サブステージごとの候補点・フェーズラベル・ヒントキー
                 let cand, phaseLabel, hintStageKey;
-                if (sub === 'parallel1' || sub === 'parallel2') {
+                if (sub === 'decompose1' || sub === 'decompose2' || sub === 'decomposeDone') {
+                    // 分解（1-5）: 2 ステップ式。各ステップは「F の先端から平行線を引く」タップ方式。
+                    //   ステップ①: 水平と垂直のどちらでも構わない 1 本目（selectedParallelArrow で管理）
+                    //   ステップ②: 残ったもう一方
+                    //   通過点は常に F の先端（固定）、方向候補は 2 つ（正解・不正解）。
+                    //   'decomposeDone' は完了状態: 候補点を出さず、完成した平行四辺形＋分力矢印を表示する。
+                    cand = null;
+                    hintStageKey = (sub === 'decompose2' || sub === 'decomposeDone') ? 'stage3b' : 'stage3a';
+                    phaseLabel = (sub === 'decomposeDone')
+                        ? '分力 Fx, Fy が得られました。'
+                        : this._getDecomposePhaseLabel(problem, sub);
+                } else if (sub === 'parallel1' || sub === 'parallel2') {
                     // 平行四辺形法 3ステップ式: 矢印選択 → 通過点 → 方向
                     //   build2dCanvas が selectedParallelArrow / selectedPassThrough を参照して
                     //   描画を自動で切り替えるので、ここでは cand を null のままにする。
@@ -3306,6 +3571,15 @@
                         const cls = i < curIdx ? 'done' : (i === curIdx ? 'current' : '');
                         return `<span class="sub-step ${cls}">${s}</span>`;
                     }).join('<span class="sub-step-sep">→</span>');
+                } else if (method === 'decomposition') {
+                    // 分解: 2ステップ（平行線1 / 平行線2）
+                    const steps = ['① 1本目の平行線', '② 2本目の平行線'];
+                    const curIdx = (sub === 'decompose1') ? 0 : ((sub === 'decompose2') ? 1 : 2);
+                    progressHTML = steps.map((s, i) => {
+                        // curIdx=2（decomposeDone）のとき全ステップを done 表示にする
+                        const cls = i < curIdx ? 'done' : (i === curIdx ? 'current' : '');
+                        return `<span class="sub-step ${cls}">${s}</span>`;
+                    }).join('<span class="sub-step-sep">→</span>');
                 } else {
                     // 平行四辺形法: 3ステップ（平行線1 / 平行線2 / 合力）
                     const steps = ['① 1本目の平行線', '② 2本目の平行線', '③ 合力の矢印'];
@@ -3321,32 +3595,48 @@
                     ends: cand.ends,
                     drawnSides: this.drawnSides,
                     dashed: (sub !== 'diag') && (method === 'parallelogram')
+                } : (method === 'decomposition' ? {
+                    // 分解: build2dCanvas が decomposeMode を見て completedParallels を描画する。
+                    decomposeMode: true,
+                    drawnSides: this.drawnSides,
+                    dashed: true
                 } : {
                     // 平行四辺形法 parallel1/parallel2 は build2dCanvas 側で
                     // selectedParallelArrow / selectedPassThrough / completedParallels を見て描画する。
                     parallelMode: true,
                     drawnSides: this.drawnSides,
                     dashed: true
-                };
+                });
                 const svgHTML = this.build2dCanvas(problem, subConfig);
 
-                const stageLabels = [
-                    '求める量を確認する',
-                    '2力の関係を確認する',
-                    '合力の求め方を確認する',
-                    '合力の矢印を描く',
-                    '合力の大きさを求める',
-                    '答えの意味を確認'
-                ];
+                const isDecomposeMethod = (method === 'decomposition');
+                const stageLabels = isDecomposeMethod
+                    ? [
+                        '求める量を確認する',
+                        '分解方向を確認する',
+                        '分解の求め方を確認する',
+                        '分力を作図する',
+                        '分力の大きさを求める',
+                        '答えの意味を確認'
+                    ]
+                    : [
+                        '求める量を確認する',
+                        '2力の関係を確認する',
+                        '合力の求め方を確認する',
+                        '合力の矢印を描く',
+                        '合力の大きさを求める',
+                        '答えの意味を確認'
+                    ];
                 const header = `
                     <div class="calc-problem-persistent">${problem.sentence}</div>
                     <div class="calc-stage-label" style="margin-bottom:12px;">${stageLabels[3]}</div>
                 `;
 
-                // 平行四辺形法 parallel1/parallel2 では、正解タップで自動遷移するため
-                // 「確認」ボタンは表示しない（消すボタンのみ）。
+                // 平行四辺形法 parallel1/parallel2 および分解 decompose1/decompose2 では、
+                // 正解タップで自動遷移するため「確認」ボタンは表示しない（消すボタンのみ）。
                 const isParallelStep = (sub === 'parallel1' || sub === 'parallel2');
-                const btnRowHTML = isParallelStep
+                const isDecomposeStep = (sub === 'decompose1' || sub === 'decompose2' || sub === 'decomposeDone');
+                const btnRowHTML = (isParallelStep || isDecomposeStep)
                     ? `<div class="drawing-btn-row">
                            <button class="draw-clear-btn" onclick="app.clearDrawing()">消す</button>
                        </div>`
@@ -3418,6 +3708,34 @@
                 const po = problem.canvas.parallelogramOptions;
                 if (!po) return null;
                 return which === 'f1' ? po.f1Parallel : po.f2Parallel;
+            }
+
+            // 1-5（分解）: フェーズラベルを decompose1 / decompose2 の状態から生成
+            // 操作指示（太字）＋目的説明（小さく補助）の2行構成。
+            _getDecomposePhaseLabel(problem, sub) {
+                const subLine = (s) => `<div style="font-size:13px; color:#666; font-weight:normal; margin-top:4px;">${s}</div>`;
+                if (sub === 'decompose1') {
+                    if (!this.selectedParallelArrow) {
+                        return '力 F の先端（オレンジ色の丸）をタップしてください。'
+                            + subLine('ここから分解方向と平行な線を引いて、平行四辺形の1辺を作ります。');
+                    }
+                    // 方向選択（水平または垂直）の案内
+                    return '平行にする分解方向の丸（紫色）をタップしてください。'
+                        + subLine('力 F の先端を通り、選んだ方向に平行な線を引きます。');
+                }
+                // decompose2
+                if (!this.selectedParallelArrow) {
+                    return '力 F の先端（オレンジ色の丸）をタップしてください。'
+                        + subLine('もう一方の分解方向と平行な線を引いて、平行四辺形を完成させます。');
+                }
+                return '残った分解方向の丸（紫色）をタップしてください。'
+                    + subLine('力 F の先端を通り、選んだ方向に平行な線を引きます。');
+            }
+
+            // 1-5（分解）: 既に引いた平行線の方向（'h' | 'v'）を返す。未完了なら null。
+            _getUsedDecomposeAxis() {
+                if (!this.completedParallels || this.completedParallels.length === 0) return null;
+                return this.completedParallels[0].axis || null;
             }
 
             buildStage2Svg2d(problem) {
@@ -3554,6 +3872,7 @@
                   <marker id="dw-arrowhead-red" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#b83a2a"/></marker>
                   <marker id="dw-arrowhead-user" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#1e5fa8"/></marker>
                   <marker id="dw-arrowhead-gray" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#8a8a8a"/></marker>
+                  <marker id="dw-arrowhead-decompose" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#4a7fc8"/></marker>
                 </defs>`;
 
                 // Grid lines
@@ -3568,6 +3887,13 @@
                 if (!sub && c.dashedLines) {
                     c.dashedLines.forEach(d => {
                         svg += `<line x1="${d.x1}" y1="${d.y1}" x2="${d.x2}" y2="${d.y2}" stroke="#8a8a8a" stroke-width="1.5" stroke-dasharray="6,4"/>`;
+                    });
+                }
+
+                // 1-5（分解）: 分解方向の破線（水平 X 軸・垂直 Y 軸）を常時表示
+                if (c.decomposeAxes) {
+                    c.decomposeAxes.forEach(d => {
+                        svg += `<line x1="${d.x1}" y1="${d.y1}" x2="${d.x2}" y2="${d.y2}" stroke="${d.color || '#8a8a8a'}" stroke-width="1.5" stroke-dasharray="6,4"/>`;
                     });
                 }
 
@@ -3679,7 +4005,13 @@
                 if (sub && Array.isArray(sub.drawnSides)) {
                     sub.drawnSides.forEach(side => {
                         if (side.type === 'diag') {
-                            svg += `<line x1="${side.from.x}" y1="${side.from.y}" x2="${side.to.x}" y2="${side.to.y}" stroke="${side.color || '#1e5fa8'}" stroke-width="3.5" marker-end="url(#dw-arrowhead-user)"/>`;
+                            // 分解（decomposition）の分力矢印は分力色マーカーに切り替え
+                            const isDecomp = (side.color === '#4a7fc8') || (problem.method === 'decomposition');
+                            const diagMarker = isDecomp ? 'dw-arrowhead-decompose' : 'dw-arrowhead-user';
+                            svg += `<line x1="${side.from.x}" y1="${side.from.y}" x2="${side.to.x}" y2="${side.to.y}" stroke="${side.color || '#1e5fa8'}" stroke-width="3.5" marker-end="url(#${diagMarker})"/>`;
+                            if (side.label) {
+                                svg += `<text x="${side.labelX}" y="${side.labelY}" font-size="12" fill="${side.color || '#4a7fc8'}" font-family="sans-serif" font-weight="600">${side.label}</text>`;
+                            }
                         } else if (side.dashed) {
                             svg += `<line x1="${side.from.x}" y1="${side.from.y}" x2="${side.to.x}" y2="${side.to.y}" stroke="${side.color || '#8a8a8a'}" stroke-width="2" stroke-dasharray="6,4"/>`;
                         } else {
@@ -3700,8 +4032,53 @@
                 svg += `<text x="${o.x-16}" y="${o.y+16}" font-size="12" fill="#333" font-family="sans-serif">O</text>`;
                 svg += `<text x="${o.x-28}" y="${o.y+30}" font-size="10" fill="#888" font-family="sans-serif">（作用点）</text>`;
 
+                // 1-5（分解）: 確定済み平行線（completedParallels）を灰色破線で描画
+                if (problem.method === 'decomposition' && Array.isArray(this.completedParallels)) {
+                    this.completedParallels.forEach(p => {
+                        if (!p.line) return;
+                        svg += `<line x1="${p.line.x1}" y1="${p.line.y1}" x2="${p.line.x2}" y2="${p.line.y2}" stroke="#8a8a8a" stroke-width="2" stroke-dasharray="6,4"/>`;
+                    });
+                }
+
                 // Start candidates / End candidates
-                if (sub && sub.parallelMode) {
+                if (sub && sub.decomposeMode) {
+                    // 1-5（分解）: 2 ステップ式
+                    //   ステップB（通過点タップ）: F の先端（オレンジ・単一点、パルス）
+                    //   ステップC（方向選択）: F 先端周囲に分解方向（水平・垂直）の候補点をパルス表示
+                    //                         既に 1 本目で使った軸は除外する
+                    //   decomposeDone（完了状態）: 候補点を出さない。drawnSides（分力矢印）で可視化。
+                    const isDone = (this.drawingSubStage === 'decomposeDone');
+                    const passSet = this.selectedParallelArrow !== null;
+                    const usedAxis = this._getUsedDecomposeAxis();
+
+                    // 通過点（F の先端）
+                    const showStart = !isDone && !passSet;
+                    svg += `<g id="drawing-start-candidates"${showStart ? '' : ' style="display:none;"'}>`;
+                    if (showStart && c.fTip) {
+                        const p = c.fTip;
+                        svg += `<circle class="candidate-pulse" data-candidate-type="start" data-cx="${p.x}" data-cy="${p.y}" cx="${p.x}" cy="${p.y}" r="18" fill="#FF9800" stroke="#FF9800" stroke-width="2" style="cursor:pointer;"/>`;
+                    }
+                    svg += `</g>`;
+
+                    // 通過点確定後: 通過点を静的マーカーで描画（完了状態では不要）
+                    if (!isDone && passSet && c.fTip) {
+                        svg += `<circle cx="${c.fTip.x}" cy="${c.fTip.y}" r="5" fill="#FF9800" stroke="#FF9800" stroke-width="2"/>`;
+                    }
+
+                    // 方向候補点（紫・パルス）: 水平（Fx 終点）と垂直（Fy 終点）のうち未使用のみ表示
+                    const showEnd = !isDone && passSet;
+                    svg += `<g id="drawing-end-candidates"${showEnd ? '' : ' style="display:none;"'}>`;
+                    if (showEnd) {
+                        // 'h' (水平) = c.fxTip、'v' (垂直) = c.fyTip をそれぞれ data-axis で区別
+                        if (usedAxis !== 'h' && c.fxTip) {
+                            svg += `<circle class="candidate-pulse" data-candidate-type="end" data-axis="h" data-cx="${c.fxTip.x}" data-cy="${c.fxTip.y}" cx="${c.fxTip.x}" cy="${c.fxTip.y}" r="18" fill="#9C27B0" stroke="#9C27B0" stroke-width="2" style="cursor:pointer;"/>`;
+                        }
+                        if (usedAxis !== 'v' && c.fyTip) {
+                            svg += `<circle class="candidate-pulse" data-candidate-type="end" data-axis="v" data-cx="${c.fyTip.x}" data-cy="${c.fyTip.y}" cx="${c.fyTip.x}" cy="${c.fyTip.y}" r="18" fill="#9C27B0" stroke="#9C27B0" stroke-width="2" style="cursor:pointer;"/>`;
+                        }
+                    }
+                    svg += `</g>`;
+                } else if (sub && sub.parallelMode) {
                     // 平行四辺形法 parallel1/parallel2（3ステップ式）
                     //   ステップA（矢印選択）: 候補点は非表示（ハロで矢印を選ばせる）
                     //   ステップB（通過点タップ）: 選ばれた矢印に応じた1点をパルス表示
@@ -3838,6 +4215,12 @@
                             svg += `<line x1="${d.x1}" y1="${d.y1}" x2="${d.x2}" y2="${d.y2}" stroke="#8a8a8a" stroke-width="1.5" stroke-dasharray="6,4"/>`;
                         });
                     }
+                    // 1-5（分解）: 分解方向の破線（水平 X 軸・垂直 Y 軸）
+                    if (c.decomposeAxes) {
+                        c.decomposeAxes.forEach(d => {
+                            svg += `<line x1="${d.x1}" y1="${d.y1}" x2="${d.x2}" y2="${d.y2}" stroke="${d.color || '#8a8a8a'}" stroke-width="1.5" stroke-dasharray="6,4"/>`;
+                        });
+                    }
                 }
 
                 // 三角形法で矢印を既に平行移動済みの場合、元の矢印をゴースト（破線・半透明）で描画
@@ -3888,8 +4271,9 @@
 
                 // User arrow overlay (Stage 4/5): preserve the arrow drawn in Stage 3
                 if (opts.showUserArrow) {
-                    // 平行四辺形法: completedParallels（灰色破線）を drawnSides より先に描画
-                    if (!is1d && problem.method === 'parallelogram'
+                    // 平行四辺形法・分解: completedParallels（灰色破線）を drawnSides より先に描画
+                    if (!is1d
+                        && (problem.method === 'parallelogram' || problem.method === 'decomposition')
                         && Array.isArray(this.completedParallels) && this.completedParallels.length > 0) {
                         this.completedParallels.forEach(p => {
                             if (!p.line) return;
@@ -3898,15 +4282,21 @@
                     }
                     // 2D サブステージ完了後: drawnSides 全体を描画（辺 → 対角線）
                     if (this.drawnSides && this.drawnSides.length > 0) {
-                        // 灰色マーカー（parallelogram 破線用）、F₁色・F₂色のマーカー（triangle side1 で動かした矢印用）
+                        // 灰色マーカー（parallelogram 破線用）、F₁色・F₂色のマーカー（triangle side1 で動かした矢印用）、分力色マーカー（decomposition 用）
                         svg += `<defs>`
                             + `<marker id="${mid}-gray" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#8a8a8a"/></marker>`
                             + `<marker id="${mid}-redside" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#b83a2a"/></marker>`
                             + `<marker id="${mid}-blueside" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#d23a2a"/></marker>`
+                            + `<marker id="${mid}-decompose" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#4a7fc8"/></marker>`
                             + `</defs>`;
                         this.drawnSides.forEach(side => {
                             if (side.type === 'diag') {
-                                svg += `<line x1="${side.from.x}" y1="${side.from.y}" x2="${side.to.x}" y2="${side.to.y}" stroke="${side.color || '#1e5fa8'}" stroke-width="3.5" marker-end="url(#${mid}-user)"/>`;
+                                const isDecomp = (side.color === '#4a7fc8') || (problem.method === 'decomposition');
+                                const diagMarker = isDecomp ? `${mid}-decompose` : `${mid}-user`;
+                                svg += `<line x1="${side.from.x}" y1="${side.from.y}" x2="${side.to.x}" y2="${side.to.y}" stroke="${side.color || '#1e5fa8'}" stroke-width="3.5" marker-end="url(#${diagMarker})"/>`;
+                                if (side.label) {
+                                    svg += `<text x="${side.labelX}" y="${side.labelY}" font-size="12" fill="${side.color || '#4a7fc8'}" font-family="sans-serif" font-weight="600">${side.label}</text>`;
+                                }
                             } else if (side.dashed) {
                                 svg += `<line x1="${side.from.x}" y1="${side.from.y}" x2="${side.to.x}" y2="${side.to.y}" stroke="${side.color || '#8a8a8a'}" stroke-width="2" stroke-dasharray="6,4"/>`;
                             } else {
@@ -3951,6 +4341,15 @@
                 if (prob && prob.canvasType === '2d' && prob.method === 'parallelogram'
                     && (this.drawingSubStage === 'parallel1' || this.drawingSubStage === 'parallel2')) {
                     this._handleParallelogramClick(svgX, svgY, SNAP_R);
+                    return;
+                }
+
+                // 1-5 分解 decompose1 / decompose2: 2 ステップ式
+                //   ステップB: 通過点タップ（F の先端固定）
+                //   ステップC: 方向選択（水平 or 垂直の紫点）
+                if (prob && prob.canvasType === '2d' && prob.method === 'decomposition'
+                    && (this.drawingSubStage === 'decompose1' || this.drawingSubStage === 'decompose2')) {
+                    this._handleDecomposeClick(svgX, svgY, SNAP_R);
                     return;
                 }
 
@@ -4228,6 +4627,147 @@
                 }
             }
 
+            // 1-5（分解）: decompose1 / decompose2 のクリックハンドラ
+            //   ステップB: 通過点（F の先端、オレンジ円）をタップで確定
+            //   ステップC: 方向候補点（水平 or 垂直、紫円）をタップで判定
+            //   selectedParallelArrow は通過点が確定したかどうかのフラグとして流用する（'set' | null）。
+            _handleDecomposeClick(svgX, svgY, SNAP_R) {
+                if (this._parallelTransitionLock) return;
+                const prob = this.currentDrawingProblem;
+                const c = prob.canvas;
+
+                // ステップB: 通過点（F の先端）タップ
+                if (this.selectedParallelArrow === null) {
+                    const starts = document.querySelectorAll('[data-candidate-type="start"]');
+                    for (const s of starts) {
+                        const cx = parseFloat(s.getAttribute('data-cx'));
+                        const cy = parseFloat(s.getAttribute('data-cy'));
+                        if (Math.hypot(svgX - cx, svgY - cy) < SNAP_R) {
+                            this.selectedParallelArrow = 'set';  // 通過点確定フラグ
+                            this.selectedPassThrough = { x: cx, y: cy };
+                            this.renderDrawingSubStage(prob);
+                            return;
+                        }
+                    }
+                    return;
+                }
+
+                // ステップC: 方向候補点タップ
+                const ends = document.querySelectorAll('[data-candidate-type="end"]');
+                for (const e of ends) {
+                    const cx = parseFloat(e.getAttribute('data-cx'));
+                    const cy = parseFloat(e.getAttribute('data-cy'));
+                    if (Math.hypot(svgX - cx, svgY - cy) < SNAP_R) {
+                        const axis = e.getAttribute('data-axis'); // 'h' | 'v'
+                        this._handleDecomposeDirectionTap(axis, cx, cy);
+                        return;
+                    }
+                }
+            }
+
+            // 1-5（分解）: 方向候補点タップ時の処理
+            //   水平軸（'h'）を選ぶ → 通過点（F 先端）から水平方向に平行線を伸ばす
+            //   垂直軸（'v'）を選ぶ → 通過点から垂直方向に平行線を伸ばす
+            //   既に 1 本目で使った軸は候補に出さないので、タップ = 正しい選択。
+            _handleDecomposeDirectionTap(axis, tapX, tapY) {
+                const prob = this.currentDrawingProblem;
+                const c = prob.canvas;
+                const curSub = this.drawingSubStage;
+                const passPt = this.selectedPassThrough || c.fTip;
+                if (!passPt) return;
+                // 軸方向の単位ベクトル
+                const ux = axis === 'h' ? 1 : 0;
+                const uy = axis === 'h' ? 0 : 1;
+                // キャンバス対角を上限にして通過点から両方向に延長
+                const diagLen = Math.hypot(c.width || 360, c.height || 280);
+                const EXT = diagLen;
+                const line = {
+                    x1: passPt.x - ux * EXT,
+                    y1: passPt.y - uy * EXT,
+                    x2: passPt.x + ux * EXT,
+                    y2: passPt.y + uy * EXT
+                };
+                this.completedParallels.push({
+                    axis: axis,
+                    passThrough: { x: passPt.x, y: passPt.y },
+                    direction: { x: ux, y: uy },
+                    line: line
+                });
+                // 次のサブステージへ
+                let finished = false;
+                if (curSub === 'decompose1') {
+                    this.drawingSubStage = 'decompose2';
+                    this.selectedParallelArrow = null;
+                    this.selectedPassThrough = null;
+                } else {
+                    // decompose2 完了 → 分力の矢印を drawnSides に追加して Stage 3 を完了扱い
+                    this._finalizeDecomposition(prob);
+                    finished = true;
+                }
+                const fb = document.getElementById('draw-stage-feedback');
+                if (fb) { fb.style.color = '#2e7d32'; fb.textContent = '正解です。'; }
+                this._parallelTransitionLock = true;
+                setTimeout(() => {
+                    this._parallelTransitionLock = false;
+                    if (finished) {
+                        // 作図完了: Stage 3 を正解扱いにして「次のステップへ」ボタンを出す
+                        this._showDecompositionComplete(prob);
+                    } else {
+                        this.renderDrawingSubStage(prob);
+                    }
+                }, 400);
+            }
+
+            // 1-5（分解）: 2 本の平行線が引けたら分力 Fx, Fy を drawnSides に追加
+            _finalizeDecomposition(problem) {
+                const c = problem.canvas;
+                const o = c.origin;
+                // Fx（水平分力）: O から Fx 先端へ
+                // ラベルは矢印中点の下側に配置
+                const fxMidX = (o.x + c.fxTip.x) / 2;
+                const fxMidY = (o.y + c.fxTip.y) / 2;
+                this.drawnSides.push({
+                    from: { x: o.x, y: o.y },
+                    to: { x: c.fxTip.x, y: c.fxTip.y },
+                    type: 'diag',
+                    color: '#4a7fc8',
+                    label: 'Fx',
+                    labelX: fxMidX - 8,
+                    labelY: fxMidY + 16
+                });
+                // Fy（垂直分力）: O から Fy 先端へ
+                // ラベルは矢印中点の左側に配置
+                const fyMidX = (o.x + c.fyTip.x) / 2;
+                const fyMidY = (o.y + c.fyTip.y) / 2;
+                this.drawnSides.push({
+                    from: { x: o.x, y: o.y },
+                    to: { x: c.fyTip.x, y: c.fyTip.y },
+                    type: 'diag',
+                    color: '#4a7fc8',
+                    label: 'Fy',
+                    labelX: fyMidX - 20,
+                    labelY: fyMidY + 4
+                });
+            }
+
+            // 1-5（分解）: 作図完了 → Stage 3 合格扱い、「次のステップへ」を表示
+            //   drawingSubStage を 'decomposeDone' に切り替えて、
+            //   renderDrawingSubStage の再呼び出しで候補点が出ないようにする。
+            _showDecompositionComplete(problem) {
+                this.drawingSubStage = 'decomposeDone';
+                // Stage 3 正解として saveProgress（PM 決定: Stage 3 完了で合格）
+                this.saveProgress(problem.id, true, problem);
+                // 最終状態を再描画（完成した平行四辺形＋分力矢印を見せるため）
+                this.renderDrawingSubStage(problem);
+                // 操作行（消す／確認）は完了後は不要なので非表示
+                const btnRow = document.querySelector('.drawing-btn-row');
+                if (btnRow) btnRow.style.display = 'none';
+                const label = document.getElementById('drawing-phase-label');
+                if (label) label.textContent = '分力 Fx, Fy が得られました。「次のステップへ」で大きさを入力してください。';
+                document.getElementById('controlButtons').innerHTML =
+                    `<button class="next-btn" onclick="if(this.disabled)return; this.disabled=true; app.nextDrawingStage();">次のステップへ</button>`;
+            }
+
             // 1-4 三角形法 Stage 3a: 動かす矢印を選択して state 遷移
             // which: 'f1' | 'f2'
             // 選択後、build2dCanvas を再描画して：
@@ -4297,6 +4837,13 @@
                         // parallel2 中は矢印が自動決定なので選択はそのまま、通過点だけクリア
                         this.selectedPassThrough = null;
                     }
+                    // 1-5 分解 decompose1/decompose2: 進行中の通過点選択のみクリア
+                    //   既に引いた completedParallels は保持
+                    if (prob.method === 'decomposition'
+                        && (this.drawingSubStage === 'decompose1' || this.drawingSubStage === 'decompose2')) {
+                        this.selectedParallelArrow = null;
+                        this.selectedPassThrough = null;
+                    }
                     this.drawingState = 'idle';
                     this.drawStart = null;
                     this.drawEnd = null;
@@ -4332,24 +4879,35 @@
                 this.drawingStageIndex++;
                 // 1-4 (2d, 直角2力) では Stage 4（大きさ入力）を飛ばす。
                 // ピタゴラスの定理は未習のため。Stage 3 完了時点で問題正解扱い。
-                if (this.drawingStageIndex === 4 && this.currentDrawingProblem && this.currentDrawingProblem.canvasType === '2d') {
+                // 1-5（分解）は Stage 4 で分力 Fx, Fy の大きさを入力させるのでスキップしない。
+                const prob = this.currentDrawingProblem;
+                const isDecompose = prob && prob.method === 'decomposition';
+                if (this.drawingStageIndex === 4 && prob && prob.canvasType === '2d' && !isDecompose) {
                     this.drawingStageIndex = 5;
                 }
                 this.renderDrawingProblem(this.currentDrawingProblem, document.getElementById('problemContent'));
             }
 
             confirmDrawingStage0() {
-                const isCorrect = this.drawingStageChipSelected === 'resultant';
+                const prob = this.currentDrawingProblem;
+                // 1-5 のようにデータ駆動の stage0Correct を持つ問題はそれを使う。
+                // 従来の 1-1〜1-4 は 'resultant' にフォールバック。
+                const correctValue = prob.stage0Correct || 'resultant';
+                const isCorrect = this.drawingStageChipSelected === correctValue;
                 const fb = document.getElementById('stageFeedback');
                 document.querySelectorAll('#drawChips0 .calc-chip').forEach(c => {
-                    if (c.getAttribute('data-value') === 'resultant') c.classList.add('correct');
+                    if (c.getAttribute('data-value') === correctValue) c.classList.add('correct');
                     else if (c.classList.contains('selected')) c.classList.add('incorrect');
                 });
                 if (isCorrect) {
                     if (fb) { fb.style.color = '#2e7d32'; fb.textContent = '正解です。'; }
                 } else {
-                    if (fb) { fb.style.color = '#c62828'; fb.textContent = '不正解。この問題では合力 F を求めます。'; }
-                    this.saveProgress(this.currentDrawingProblem.id, false, this.currentDrawingProblem);
+                    // エラーメッセージは正解値に応じて切り替える。未知の値は汎用メッセージ。
+                    const msg = correctValue === 'decomposed'
+                        ? '不正解。この問題では 2 つの分力 Fx, Fy を求めます。'
+                        : '不正解。この問題では合力 F を求めます。';
+                    if (fb) { fb.style.color = '#c62828'; fb.textContent = msg; }
+                    this.saveProgress(prob.id, false, prob);
                 }
                 const unitId = this.currentUnitId;
                 const probIdx = this.currentProblemIndex;
@@ -4677,6 +5235,54 @@
                 });
             }
 
+            // 1-5（分解）: 2 値入力（Fx, Fy）の正誤判定。
+            //   1-4 の checkDrawingMagnitude を byte-identical に維持するため、分解専用の新メソッド。
+            //   Stage 4 はボーナス判定（PM 決定: Stage 3 で合格済み、ここは再 save しない）。
+            checkDecomposeMagnitudes() {
+                const fxEl = document.getElementById('fxInput');
+                const fyEl = document.getElementById('fyInput');
+                if (!fxEl || !fyEl) return;
+                if (fxEl.value === '' || fyEl.value === '') {
+                    const fb0 = document.getElementById('stageFeedback');
+                    if (fb0) { fb0.style.color = '#c62828'; fb0.textContent = 'Fx と Fy の両方に数値を入力してください。'; }
+                    return;
+                }
+                const prob = this.currentDrawingProblem;
+                const userFx = parseFloat(fxEl.value);
+                const userFy = parseFloat(fyEl.value);
+                const ansFx = prob.expectedFx;
+                const ansFy = prob.expectedFy;
+                const tol = prob.magnitudeTolerance || 1;
+                const okFx = Math.abs(userFx - ansFx) <= tol;
+                const okFy = Math.abs(userFy - ansFy) <= tol;
+                const fb = document.getElementById('stageFeedback');
+                if (okFx && okFy) {
+                    if (fb) { fb.style.color = '#2e7d32'; fb.textContent = '正解です。'; }
+                    document.getElementById('controlButtons').innerHTML = '';
+                    setTimeout(() => this.nextDrawingStage(), 600);
+                } else {
+                    this.stage4WrongCount++;
+                    if (this.stage4WrongCount < 3) {
+                        // 1〜2 回目: 正解値を開示しない
+                        let msg = '不正解です。';
+                        if (!okFx && okFy) msg += ' Fx の値をもう一度確認してください。';
+                        else if (okFx && !okFy) msg += ' Fy の値をもう一度確認してください。';
+                        else msg += ' Fx と Fy の値をもう一度確認してください。';
+                        if (fb) { fb.style.color = '#c62828'; fb.textContent = msg; }
+                    } else {
+                        // 3 回目以降: 正解値を開示し「次へ」経路を提示
+                        if (fb) { fb.style.color = '#c62828'; fb.textContent = `不正解です。正解は Fx = ${ansFx} N, Fy = ${ansFy} N です。矢印が水平 ${ansFx/10} マス、垂直 ${ansFy/10} マスあるか確認してください。`; }
+                        const unitId = this.currentUnitId;
+                        const probIdx = this.currentProblemIndex;
+                        document.getElementById('controlButtons').innerHTML = `
+                            <button class="btn hint-btn" onclick="app.showHint('draw_${unitId}_${probIdx}_stage4')">ヒント</button>
+                            <button class="check-btn" onclick="app.checkDecomposeMagnitudes()">確認</button>
+                            <button class="next-btn" onclick="if(this.disabled)return; this.disabled=true; app.nextDrawingStage();">正解を確認して次へ</button>
+                        `;
+                    }
+                }
+            }
+
             checkDrawingMagnitude() {
                 const input = document.getElementById('magnitudeInput');
                 if (!input || input.value === '') return;
@@ -4777,6 +5383,9 @@
                     let stageHints;
                     if (unitId === '1-3') {
                         stageHints = HINTS_1_3[stagePart];
+                    } else if (unitId === '1-5') {
+                        // 1-5（分解）: HINTS_1_5 は method 分岐なしのフラット構造
+                        stageHints = HINTS_1_5[stagePart];
                     } else {
                         // 1-4 は method（triangle / parallelogram）で分岐
                         const prob = this.currentDrawingProblem;
@@ -5334,8 +5943,60 @@
                     localStorage.setItem('progress', JSON.stringify(progress));
                 }
 
+                // 匿名ログ送信（教員モードでは sendLog 側で抑止される）
+                // 仕様書§13.1: 氏名・学校名・クラス名は送信しない。出席番号のみ
+                const stageToLevel = ['none', 'B', 'A', 'C'];
+                const hintLevelUsed = stageToLevel[this.currentProblemMaxStage || 0] || 'none';
+                this.sendLog({
+                    problem_id: problemId,
+                    stage: 'complete',
+                    is_correct: isCorrect,
+                    hint_level_used: hintLevelUsed,
+                    hint_count: this.currentProblemHints || 0,
+                    elapsed_seconds: elapsed,
+                    level: (problem && problem.level) || (progress[unit] && progress[unit].level) || '基礎',
+                    answer: ''
+                });
+
                 // C2: evaluate promotion/demotion after every save (not just session end)
                 this.evaluateLevelChange(unit);
+            }
+
+            // 匿名ログ送信（GAS Web App 経由）
+            // 仕様書§13.1 準拠：氏名・学校名・クラス名は絶対に送信しない、出席番号のみ
+            // 教員モード（40番）は送信しない、サイレント失敗
+            sendLog(payload) {
+                // 教員モード（40番）は送信しない
+                if (this.isTeacherMode()) return;
+                // LOG_ENDPOINT 未設定 / 未ログイン時は送らない
+                if (!LOG_ENDPOINT || !this.currentUser) return;
+                // 匿名化：氏名・学校名・クラス名は絶対に含めない。出席番号のみ
+                const body = JSON.stringify({
+                    timestamp: new Date().toISOString(),
+                    student_id: this.currentUser && this.currentUser.number != null ? this.currentUser.number : null,
+                    unit_id: this.currentUnitId || '',
+                    problem_id: payload.problem_id != null ? payload.problem_id : '',
+                    stage: payload.stage || 'complete',
+                    is_correct: payload.is_correct !== undefined ? payload.is_correct : null,
+                    hint_level_used: payload.hint_level_used || 'none',
+                    hint_count: payload.hint_count || 0,
+                    elapsed_seconds: payload.elapsed_seconds || 0,
+                    level: payload.level || '基礎',
+                    answer: payload.answer || '',
+                    note: payload.note || ''
+                });
+                // サイレント送信（失敗しても無視）
+                // mode: 'no-cors' で Content-Type を text/plain にすることで CORS preflight を回避
+                try {
+                    fetch(LOG_ENDPOINT, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: body
+                    }).catch(() => {});
+                } catch (e) {
+                    // fetch 自体の同期例外も無視
+                }
             }
 
             nextProblem() {
