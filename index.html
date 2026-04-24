@@ -2725,7 +2725,26 @@
             }
 
             confirmLogin() {
+                // 匿名ログ送信: ログイン時（復帰ユーザー）
+                // 「ログインしたが取り組まなかった」と「そもそもログインしていない」を区別するため
+                this._sendLoginLog();
                 this.goToMenu();
+            }
+
+            // 匿名ログ送信: stage='login' を GAS に送る
+            //   教員モード（40番）は sendLog 側で抑止されるが明示的に示しておく
+            //   unit_id/problem_id/is_correct などは空・0 で送る（ログイン時点では未選択）
+            _sendLoginLog() {
+                this.sendLog({
+                    problem_id: '',
+                    stage: 'login',
+                    is_correct: '',
+                    hint_level_used: 'none',
+                    hint_count: 0,
+                    elapsed_seconds: 0,
+                    level: '基礎',
+                    answer: ''
+                });
             }
 
             startFreshLogin() {
@@ -2764,6 +2783,8 @@
                 if (!this.isTeacherMode()) {
                     localStorage.setItem('auth', JSON.stringify(this.currentUser));
                 }
+                // 匿名ログ送信: ログイン時（新規入力）
+                this._sendLoginLog();
                 this.goToMenu();
             }
 
