@@ -2067,6 +2067,15 @@
                 total: 0
             },
             {
+                id: '1-9',
+                title: '偶力',
+                subtitle: 'M ＝ F × d（偶力のモーメント）',
+                level: '基礎',
+                completed: false,
+                score: 0,
+                total: 0
+            },
+            {
                 id: '2-1',
                 title: '変位と速度',
                 subtitle: 's = v × t',
@@ -2615,6 +2624,179 @@
                 b: 'F と r の値を掛け算すれば M の値が得られます。電卓を使っても構いません。',
                 a: 'M ＝ F × r。F の値と r の値を掛け算します。単位は N × m ＝ N·m（ニュートンメートル）です。',
                 c: '教科書28ページ 式(2-10) と例題の計算過程を確認してください。'
+            }
+        };
+
+        // Problems for sub-unit 1-9: 偶力
+        // 教科書 p.30-31 式(2-13) M = F × d
+        // 偶力: 大きさが等しく、逆向きで、平行な 2 力
+        // d = 偶力の腕（作用線間の距離）
+        const PROBLEMS_1_9 = [
+            {
+                id: 1,
+                f: 10, d: 0.5, expectedCoupleMoment: 5, tolerance: 0.1, unit: 'N·m',
+                sentence: '大きさ F ＝ 10 N の 2 力が、逆向きで平行に、作用線間の距離 d ＝ 0.5 m をへだてて働いている（偶力）。この偶力のモーメント M の大きさを求めよ。',
+                condition: '基礎、F=10 N, d=0.5 m → M=5 N·m',
+                baselineTime: 90,
+                canvasType: '2d-static',
+                canvas: {
+                    width: 360, height: 240,
+                    // 偶力の図: 上下 2 本の矢印（逆向き・平行）と、間の距離 d
+                    topArrow:    { x1: 80, y1: 80,  x2: 220, y2: 80,  color: '#d23a2a', label: 'F = 10 N' },   // 右向き
+                    bottomArrow: { x1: 220, y1: 160, x2: 80,  y2: 160, color: '#d23a2a', label: 'F = 10 N' },   // 左向き（同じ大きさ、逆向き）
+                    distanceLabel: 'd = 0.5 m'
+                },
+                stage0Choices: [
+                    { value: 'moment',  label: '偶力のモーメント M の大きさ' },
+                    { value: 'sum',     label: '2 力の和（合力）' },
+                    { value: 'diff',    label: '2 力の差' }
+                ],
+                stage0Correct: 'moment',
+                stage1Choices: [
+                    { value: 'couple',        label: '大きさが等しく、逆向きで平行な 2 力（偶力）' },
+                    { value: 'same',          label: '同じ向きの 2 力' },
+                    { value: 'perpendicular', label: '直角に交わる 2 力' }
+                ],
+                stage1Correct: 'couple',
+                stage2Text: '偶力（大きさが等しく逆向きで平行な 2 力）の合力は 0 ですが、物体を<strong>回転させる働き</strong>は残ります。この回転の働きを偶力のモーメント M といい、<br>M ＝ F × d で求められます（d は 2 力の作用線間の距離＝偶力の腕）。',
+                formula: 'M = F \\times d',
+                substitutions: {
+                    slots: ['F', 'd'],
+                    cards: [
+                        { role: 'F', label: 'F', value: 10,  unit: 'N' },
+                        { role: 'd', label: 'd', value: 0.5, unit: 'm' }
+                    ]
+                }
+            },
+            {
+                id: 2,
+                f: 40, d: 0.3, expectedCoupleMoment: 12, tolerance: 0.1, unit: 'N·m',
+                sentence: '大きさ F ＝ 40 N の 2 力が、逆向きで平行に、作用線間の距離 d ＝ 0.3 m をへだてて働いている（偶力）。この偶力のモーメント M の大きさを求めよ。',
+                condition: '基礎、F=40 N, d=0.3 m → M=12 N·m',
+                baselineTime: 90,
+                canvasType: '2d-static',
+                canvas: {
+                    width: 360, height: 240,
+                    topArrow:    { x1: 90, y1: 80,  x2: 210, y2: 80,  color: '#d23a2a', label: 'F = 40 N' },
+                    bottomArrow: { x1: 210, y1: 170, x2: 90,  y2: 170, color: '#d23a2a', label: 'F = 40 N' },
+                    distanceLabel: 'd = 0.3 m'
+                },
+                stage0Choices: [
+                    { value: 'moment', label: '偶力のモーメント M の大きさ' },
+                    { value: 'sum',    label: '2 力の和（合力）' },
+                    { value: 'diff',   label: '2 力の差' }
+                ],
+                stage0Correct: 'moment',
+                stage1Choices: [
+                    { value: 'couple',        label: '大きさが等しく、逆向きで平行な 2 力（偶力）' },
+                    { value: 'same',          label: '同じ向きの 2 力' },
+                    { value: 'perpendicular', label: '直角に交わる 2 力' }
+                ],
+                stage1Correct: 'couple',
+                stage2Text: '偶力（大きさが等しく逆向きで平行な 2 力）の合力は 0 ですが、物体を<strong>回転させる働き</strong>は残ります。この回転の働きを偶力のモーメント M といい、<br>M ＝ F × d で求められます（d は 2 力の作用線間の距離＝偶力の腕）。',
+                formula: 'M = F \\times d',
+                substitutions: {
+                    slots: ['F', 'd'],
+                    cards: [
+                        { role: 'F', label: 'F', value: 40,  unit: 'N' },
+                        { role: 'd', label: 'd', value: 0.3, unit: 'm' }
+                    ]
+                }
+            },
+            {
+                id: 3,
+                f: 25, d: 0.4, expectedCoupleMoment: 10, tolerance: 0.1, unit: 'N·m',
+                sentence: '大きさ F ＝ 25 N の 2 力が、逆向きで平行に、作用線間の距離 d ＝ 0.4 m をへだてて働いている（偶力）。この偶力のモーメント M の大きさを求めよ。',
+                condition: '基礎、F=25 N, d=0.4 m → M=10 N·m',
+                baselineTime: 90,
+                canvasType: '2d-static',
+                canvas: {
+                    width: 360, height: 240,
+                    topArrow:    { x1: 80, y1: 80,  x2: 220, y2: 80,  color: '#d23a2a', label: 'F = 25 N' },
+                    bottomArrow: { x1: 220, y1: 180, x2: 80,  y2: 180, color: '#d23a2a', label: 'F = 25 N' },
+                    distanceLabel: 'd = 0.4 m'
+                },
+                stage0Choices: [
+                    { value: 'moment', label: '偶力のモーメント M の大きさ' },
+                    { value: 'sum',    label: '2 力の和（合力）' },
+                    { value: 'diff',   label: '2 力の差' }
+                ],
+                stage0Correct: 'moment',
+                stage1Choices: [
+                    { value: 'couple',        label: '大きさが等しく、逆向きで平行な 2 力（偶力）' },
+                    { value: 'same',          label: '同じ向きの 2 力' },
+                    { value: 'perpendicular', label: '直角に交わる 2 力' }
+                ],
+                stage1Correct: 'couple',
+                stage2Text: '偶力（大きさが等しく逆向きで平行な 2 力）の合力は 0 ですが、物体を<strong>回転させる働き</strong>は残ります。この回転の働きを偶力のモーメント M といい、<br>M ＝ F × d で求められます（d は 2 力の作用線間の距離＝偶力の腕）。',
+                formula: 'M = F \\times d',
+                substitutions: {
+                    slots: ['F', 'd'],
+                    cards: [
+                        { role: 'F', label: 'F', value: 25,  unit: 'N' },
+                        { role: 'd', label: 'd', value: 0.4, unit: 'm' }
+                    ]
+                }
+            },
+            {
+                id: 4,
+                f: 100, d: 0.15, expectedCoupleMoment: 15, tolerance: 0.1, unit: 'N·m',
+                sentence: '大きさ F ＝ 100 N の 2 力が、逆向きで平行に、作用線間の距離 d ＝ 0.15 m をへだてて働いている（偶力）。この偶力のモーメント M の大きさを求めよ。',
+                condition: '教科書問12相当（単位をmに換算）、F=100 N, d=0.15 m → M=15 N·m',
+                baselineTime: 90,
+                canvasType: '2d-static',
+                canvas: {
+                    width: 360, height: 240,
+                    topArrow:    { x1: 70, y1: 90,  x2: 230, y2: 90,  color: '#d23a2a', label: 'F = 100 N' },
+                    bottomArrow: { x1: 230, y1: 150, x2: 70,  y2: 150, color: '#d23a2a', label: 'F = 100 N' },
+                    distanceLabel: 'd = 0.15 m'
+                },
+                stage0Choices: [
+                    { value: 'moment', label: '偶力のモーメント M の大きさ' },
+                    { value: 'sum',    label: '2 力の和（合力）' },
+                    { value: 'diff',   label: '2 力の差' }
+                ],
+                stage0Correct: 'moment',
+                stage1Choices: [
+                    { value: 'couple',        label: '大きさが等しく、逆向きで平行な 2 力（偶力）' },
+                    { value: 'same',          label: '同じ向きの 2 力' },
+                    { value: 'perpendicular', label: '直角に交わる 2 力' }
+                ],
+                stage1Correct: 'couple',
+                stage2Text: '偶力（大きさが等しく逆向きで平行な 2 力）の合力は 0 ですが、物体を<strong>回転させる働き</strong>は残ります。この回転の働きを偶力のモーメント M といい、<br>M ＝ F × d で求められます（d は 2 力の作用線間の距離＝偶力の腕）。',
+                formula: 'M = F \\times d',
+                substitutions: {
+                    slots: ['F', 'd'],
+                    cards: [
+                        { role: 'F', label: 'F', value: 100,  unit: 'N' },
+                        { role: 'd', label: 'd', value: 0.15, unit: 'm' }
+                    ]
+                }
+            }
+        ];
+
+        // 1-9 のヒント（偶力 — 3 段階 B→A→C）。
+        //   Stage 2（必然の公式）は表示のみなのでヒントなし。
+        const HINTS_1_9 = {
+            stage0: {
+                b: '問題文の末尾に注目してください。何を求める問題でしょうか。偶力の合力は 0 になるため、「和」は答えになりません。',
+                a: '問題文の末尾に「モーメント M の大きさを求めよ」とあります。求めるものは偶力のモーメント M [N·m] です。',
+                c: '教科書30ページ「偶力」を確認してください。'
+            },
+            stage1: {
+                b: '図の 2 力の関係に注目してください。大きさは同じでしょうか、向きは同じでしょうか、2 力の作用線は平行でしょうか。',
+                a: '大きさが等しく、逆向きで、平行な 2 力を偶力といいます。1-3 の「逆向きの 2 力」（同一作用線上）との違いは、偶力では作用線が離れている（平行で重ならない）ことです。',
+                c: '教科書30ページ 図2-22 と偶力の定義を確認してください。'
+            },
+            stage3: {
+                b: '式の F の空欄には力の大きさを、d の空欄には 2 力の作用線間の距離を入れます。問題文に数値がそれぞれ書かれています。',
+                a: '式は M ＝ F × d。F の空欄には問題文の「F ＝ ○○ N」の数値を、d の空欄には「d ＝ ○○ m」の数値を入れます。',
+                c: '教科書30ページ 式(2-13) を確認してください。'
+            },
+            stage4: {
+                b: 'F と d の値を掛け算すれば偶力のモーメント M が得られます。電卓を使って構いません。',
+                a: 'M ＝ F × d。F の値と d の値を掛け算します。単位は N × m ＝ N·m（ニュートンメートル）です。',
+                c: '教科書30ページ 式(2-13) と問12を確認してください。'
             }
         };
 
@@ -3708,6 +3890,7 @@
                 if (unitId === '1-6') return PROBLEMS_1_6.length;
                 if (unitId === '1-7') return PROBLEMS_1_7.length;
                 if (unitId === '1-8') return PROBLEMS_1_8.length;
+                if (unitId === '1-9') return PROBLEMS_1_9.length;
                 if (unitId === '2-1') return PROBLEMS_2_1.length;
                 return 0;
             }
@@ -3972,6 +4155,7 @@
                 else if (this.currentUnitId === '1-6') problems = PROBLEMS_1_6;
                 else if (this.currentUnitId === '1-7') problems = PROBLEMS_1_7;
                 else if (this.currentUnitId === '1-8') problems = PROBLEMS_1_8;
+                else if (this.currentUnitId === '1-9') problems = PROBLEMS_1_9;
                 else if (this.currentUnitId === '2-1') problems = PROBLEMS_2_1;
 
                 if (this.currentProblemIndex >= problems.length) {
@@ -4078,6 +4262,7 @@
                     else if (this.currentUnitId === '1-6') problems = PROBLEMS_1_6;
                     else if (this.currentUnitId === '1-7') problems = PROBLEMS_1_7;
                     else if (this.currentUnitId === '1-8') problems = PROBLEMS_1_8;
+                    else if (this.currentUnitId === '1-9') problems = PROBLEMS_1_9;
                     else if (this.currentUnitId === '2-1') problems = PROBLEMS_2_1;
                     sidebarList.innerHTML = problems.map((p, i) =>
                         `<li class="${i === this.currentProblemIndex ? 'is-active' : ''}">問 ${p.id}</li>`
@@ -4106,7 +4291,7 @@
                 const content = document.getElementById('problemContent');
 
                 // Handle different problem types
-                if (this.currentUnitId === '2-1' || this.currentUnitId === '1-6' || this.currentUnitId === '1-7' || this.currentUnitId === '1-8') {
+                if (this.currentUnitId === '2-1' || this.currentUnitId === '1-6' || this.currentUnitId === '1-7' || this.currentUnitId === '1-8' || this.currentUnitId === '1-9') {
                     this.renderCalculationProblem(problem, content);
                 } else if (this.currentUnitId === '1-3' || this.currentUnitId === '1-4' || this.currentUnitId === '1-5') {
                     this.drawingStageIndex = 0;
@@ -4195,12 +4380,14 @@
             renderCalculationProblem(problem, content) {
                 // ステージ切替時に前ステージのヒント表示・ヒントボタン状態を必ずクリア
                 this._clearHintDisplay();
-                // 1-6（直角 2 力合成）、1-7（直角分解）、1-8（モーメント）は 2-1 と同じ 6 ステージ計算フローを共有するが、
+                // 1-6（直角 2 力合成）、1-7（直角分解）、1-8（モーメント）、1-9（偶力）は
+                // 2-1 と同じ 6 ステージ計算フローを共有するが、
                 // 問題文・公式・代入スロット・問題図が異なるので unit id で分岐する。
                 const is1_6 = this.currentUnitId === '1-6';
                 const is1_7 = this.currentUnitId === '1-7';
                 const is1_8 = this.currentUnitId === '1-8';
-                const isForceCalc = is1_6 || is1_7 || is1_8;
+                const is1_9 = this.currentUnitId === '1-9';
+                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9;
                 // Persistent problem statement shown at the top of every stage
                 const problemText = isForceCalc
                     ? problem.sentence
@@ -4234,6 +4421,15 @@
                         '計算する',
                         '答えの意味を確認'
                     ]
+                    : is1_9
+                    ? [
+                        '求める量を確認する',
+                        '2 力の関係を確認する',
+                        '使う式を確認する',
+                        '数値を代入する',
+                        '計算する',
+                        '答えの意味を確認'
+                    ]
                     : [
                         '求める量を確認する',
                         '運動の種類を確認する',
@@ -4250,9 +4446,11 @@
                 // 1-6: 全ステージに問題図（F₁水平・F₂垂直・直角マーク）を共通表示する。
                 // 1-7: 全ステージに問題図（Fx・Fy未知破線・F合力・直角マーク）を共通表示する。
                 // 1-8: 全ステージに問題図（回転中心O・腕r・力F・回転矢印）を共通表示する。
+                // 1-9: 全ステージに問題図（上下平行・逆向き 2 力・距離 d）を共通表示する。
                 const staticCanvas1_6 = is1_6 ? this.build1_6StaticCanvas(problem)
                                       : is1_7 ? this.build1_7StaticCanvas(problem)
                                       : is1_8 ? this.build1_8StaticCanvas(problem)
+                                      : is1_9 ? this.build1_9StaticCanvas(problem)
                                       : '';
 
                 if (stageIndex === 0) {
@@ -4302,6 +4500,8 @@
                         ? '図の 2 分力 Fx, Fy の関係はどれですか？'
                         : is1_8
                         ? '図の 力 F と 腕 OA の関係はどれですか？'
+                        : is1_9
+                        ? '図の 2 力の関係はどれですか？'
                         : '問題文の「一定の速さで運動した」は、どのような運動ですか？';
                     content.innerHTML = header + staticCanvas1_6 + `
                         <div class="calc-stage-container">
@@ -4381,6 +4581,25 @@
                                 </div>
                             </div>
                         `;
+                    } else if (is1_9) {
+                        const coupleSvg = this.buildStage2SvgCouple(problem);
+                        content.innerHTML = header + `
+                            <div class="calc-stage-container">
+                                <div style="font-size:15px; margin-bottom:14px; line-height:1.7;">
+                                    ${problem.stage2Text}
+                                </div>
+                                ${coupleSvg}
+                                <div class="calc-formula-display">
+                                    $${problem.formula}$
+                                </div>
+                                <div style="background:#eef3fa; border-left:3px solid #4a7cbe; padding:12px 16px; border-radius:3px; margin-top:16px; font-size:14px; line-height:1.7; color:#222;">
+                                    <strong>この式になる理由：</strong><br>
+                                    偶力（大きさが等しく逆向きで平行な 2 力）の合力は 0 だが、回転させる働きは残る<br>
+                                    → 偶力のモーメント <strong>M ＝ F × d</strong>（式 2-13）<br>
+                                    → 単位は N × m ＝ N·m。偶力のモーメントは回転中心の位置に依存しない。
+                                </div>
+                            </div>
+                        `;
                     } else {
                         content.innerHTML = header + `
                             <div class="calc-stage-container">
@@ -4414,8 +4633,8 @@
                         const valuesHTML = valueCards.map(c =>
                             `<div class="calc-value-card draggable-value" data-role="${c.role}" data-value="${c.value}">${c.label} ＝ ${c.value} ${c.unit}</div>`
                         ).join('');
-                        // 式の表示: 1-6 → F = √( [F₁]² + [F₂]² ) / 1-7 → Fy = √( [F]² − [Fx]² ) / 1-8 → M = [F] × [r]
-                        const slotLabel = { F1: 'F₁', F2: 'F₂', F: 'F', Fx: 'Fx', r: 'r' };
+                        // 式の表示: 1-6 → F = √( [F₁]² + [F₂]² ) / 1-7 → Fy = √( [F]² − [Fx]² ) / 1-8 → M = [F] × [r] / 1-9 → M = [F] × [d]
+                        const slotLabel = { F1: 'F₁', F2: 'F₂', F: 'F', Fx: 'Fx', r: 'r', d: 'd' };
                         const slotSpans = slots.map(role =>
                             `<span class="calc-formula-input empty" data-slot="${role}" id="slot-${role}">${slotLabel[role] || role}</span>`
                         );
@@ -4423,6 +4642,8 @@
                             ? `F ＝ √( ${slotSpans[0]}<sup>2</sup> ＋ ${slotSpans[1]}<sup>2</sup> )`
                             : is1_7
                             ? `Fy ＝ √( ${slotSpans[0]}<sup>2</sup> − ${slotSpans[1]}<sup>2</sup> )`
+                            : is1_9
+                            ? `M ＝ ${slotSpans[0]} × ${slotSpans[1]}`
                             : `M ＝ ${slotSpans[0]} × ${slotSpans[1]}`;
                         content.innerHTML = header + staticCanvas1_6 + `
                             <div class="calc-stage-container">
@@ -4526,6 +4747,20 @@
                                 </div>
                             </div>
                         `;
+                    } else if (is1_9) {
+                        content.innerHTML = header + staticCanvas1_6 + `
+                            <div class="calc-stage-container">
+                                <div class="calc-question-text">計算結果を入力してください。</div>
+                                <div class="calc-formula-display">
+                                    $M = ${problem.f} \\times ${problem.d} = {\\color{#c62828}?}$
+                                </div>
+                                <div class="calc-input-row">
+                                    <span class="calc-input-label">答え：M ＝</span>
+                                    <input type="number" id="answerInput" class="calc-answer-input" placeholder="数値" style="width:120px;" step="0.1">
+                                    <span style="font-size:14px; color:#555; margin-left:6px;">[N·m]</span>
+                                </div>
+                            </div>
+                        `;
                     } else {
                         content.innerHTML = header + `
                             <div class="calc-stage-container">
@@ -4604,6 +4839,23 @@
                                 </div>
                                 <div style="margin-top:14px; font-size:13px; color:#555;">
                                     次の問題に進む前に、式と回転の図を頭の中で思い浮かべてみましょう。
+                                </div>
+                            </div>
+                        `;
+                    } else if (is1_9) {
+                        const ans = problem.expectedCoupleMoment;
+                        content.innerHTML = header + staticCanvas1_6 + `
+                            <div class="calc-stage-container">
+                                <div class="calc-question-text">答えの意味を確認しよう。</div>
+                                <div class="calc-formula-display">
+                                    $M = F \\times d = ${problem.f} \\times ${problem.d} = ${ans}\\,\\mathrm{[N{\\cdot}m]}$
+                                </div>
+                                <div style="background:#eaf1fa; border-left:4px solid #1e5fa8; padding:14px 18px; border-radius:3px; margin-top:18px; font-size:15px; line-height:1.7;">
+                                    大きさが等しく逆向きで平行な 2 力（<strong>F ＝ ${problem.f} N</strong>）が、作用線間の距離 <strong>d ＝ ${problem.d} m</strong> をへだてて働くとき、偶力のモーメントは <strong>${ans} N·m</strong> です。<br>
+                                    偶力は合力が 0 でも、物体を回転させる働きが残ります。偶力のモーメントは回転中心の位置に依存しません。
+                                </div>
+                                <div style="margin-top:14px; font-size:13px; color:#555;">
+                                    次の問題に進む前に、式と偶力の図を頭の中で思い浮かべてみましょう。
                                 </div>
                             </div>
                         `;
@@ -4813,6 +5065,84 @@
                   <!-- 回転中心 O -->
                   <circle cx="60" cy="120" r="5" fill="#333"/>
                   <text x="48" y="142" font-size="13" fill="#333" font-weight="600">O</text>
+                </svg>
+                `;
+            }
+
+            // 1-9（偶力）の問題図を生成する。
+            //   上：右向きの矢印 F（赤）、下：左向きの矢印 F（赤）、間に距離 d の両矢印を縦に表示。
+            //   2 力の作用線（水平方向）は破線で延長し、平行であることを視覚化する。
+            //   Stage 0/1/3/4/5 で共通表示する。
+            build1_9StaticCanvas(problem) {
+                const c = problem.canvas;
+                const W = c.width, H = c.height;
+                const top = c.topArrow;
+                const bot = c.bottomArrow;
+                let svg = `<div class="drawing-wrapper" style="pointer-events:none;">
+                <svg class="drawing-svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="cursor:default;">
+                <defs>
+                  <marker id="stc19-red" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#d23a2a"/></marker>
+                  <marker id="stc19-gray-s" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><polygon points="6,0 0,3 6,6" fill="#666"/></marker>
+                  <marker id="stc19-gray-e" markerWidth="6" markerHeight="6" refX="6" refY="3" orient="auto"><polygon points="0,0 6,3 0,6" fill="#666"/></marker>
+                  <marker id="stc19-rot" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#1e5fa8"/></marker>
+                </defs>`;
+                // 上の作用線（破線・水平に全幅延長）
+                svg += `<line x1="20" y1="${top.y1}" x2="${W - 20}" y2="${top.y1}" stroke="#bbb" stroke-width="1" stroke-dasharray="4,4"/>`;
+                // 下の作用線（破線・水平に全幅延長）
+                svg += `<line x1="20" y1="${bot.y1}" x2="${W - 20}" y2="${bot.y1}" stroke="#bbb" stroke-width="1" stroke-dasharray="4,4"/>`;
+                // 上の力 F（右向き）
+                svg += `<line x1="${top.x1}" y1="${top.y1}" x2="${top.x2}" y2="${top.y2}" stroke="${top.color}" stroke-width="2.5" marker-end="url(#stc19-red)"/>`;
+                const topLabelX = (top.x1 + top.x2) / 2;
+                svg += `<text x="${topLabelX}" y="${top.y1 - 8}" text-anchor="middle" font-size="13" fill="${top.color}" font-family="sans-serif" font-weight="600">${top.label}</text>`;
+                // 下の力 F（左向き）
+                svg += `<line x1="${bot.x1}" y1="${bot.y1}" x2="${bot.x2}" y2="${bot.y2}" stroke="${bot.color}" stroke-width="2.5" marker-end="url(#stc19-red)"/>`;
+                const botLabelX = (bot.x1 + bot.x2) / 2;
+                svg += `<text x="${botLabelX}" y="${bot.y1 + 18}" text-anchor="middle" font-size="13" fill="${bot.color}" font-family="sans-serif" font-weight="600">${bot.label}</text>`;
+                // 距離 d の両矢印（左端の縦線）
+                const dX = Math.min(top.x1, top.x2, bot.x1, bot.x2) - 20;
+                const dXClamped = Math.max(30, dX);
+                svg += `<line x1="${dXClamped}" y1="${top.y1}" x2="${dXClamped}" y2="${bot.y1}" stroke="#666" stroke-width="1.5" marker-start="url(#stc19-gray-s)" marker-end="url(#stc19-gray-e)"/>`;
+                // d ラベル
+                const dLabelY = (top.y1 + bot.y1) / 2 + 4;
+                svg += `<text x="${dXClamped - 8}" y="${dLabelY}" text-anchor="end" font-size="13" fill="#333" font-family="sans-serif" font-weight="600">${c.distanceLabel}</text>`;
+                // 中央付近に回転を示す曲線矢印
+                const cx = W / 2;
+                const cy = (top.y1 + bot.y1) / 2;
+                const arcR = Math.min(22, Math.max(14, (bot.y1 - top.y1) / 3));
+                svg += `<path d="M ${cx + arcR} ${cy} A ${arcR} ${arcR} 0 1 1 ${cx - arcR} ${cy}" stroke="#1e5fa8" stroke-width="2" fill="none" marker-end="url(#stc19-rot)"/>`;
+                svg += `<text x="${cx + arcR + 6}" y="${cy + 4}" font-size="11" fill="#1e5fa8" font-family="sans-serif">回転</text>`;
+                svg += `</svg></div>`;
+                return svg;
+            }
+
+            // 1-9 Stage 2 用の schematic 図: 偶力の典型図。
+            //   上下に逆向きで平行な 2 本の F、間に距離 d、中央に回転矢印。
+            //   問題ごとの数値差には依存せず、固定の典型図として教える。
+            buildStage2SvgCouple(problem) {
+                return `
+                <svg width="320" height="180" viewBox="0 0 320 180" style="margin:12px auto; display:block; border:1px solid #ddd; border-radius:4px; background:#fafafa;">
+                  <defs>
+                    <marker id="c19-red" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                      <polygon points="0,0 8,3 0,6" fill="#d23a2a"/>
+                    </marker>
+                    <marker id="c19-blue" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                      <polygon points="0,0 8,3 0,6" fill="#1e5fa8"/>
+                    </marker>
+                  </defs>
+                  <!-- 上の力 F（右向き） -->
+                  <line x1="60" y1="60" x2="240" y2="60" stroke="#d23a2a" stroke-width="3" marker-end="url(#c19-red)"/>
+                  <text x="135" y="50" font-size="13" fill="#d23a2a" font-weight="600">F</text>
+                  <!-- 下の力 F（左向き） -->
+                  <line x1="240" y1="120" x2="60" y2="120" stroke="#d23a2a" stroke-width="3" marker-end="url(#c19-red)"/>
+                  <text x="135" y="140" font-size="13" fill="#d23a2a" font-weight="600">F</text>
+                  <!-- 距離 d の縦補助線と両矢印 -->
+                  <line x1="50" y1="60" x2="50" y2="120" stroke="#8a8a8a" stroke-width="1.5" stroke-dasharray="3,3"/>
+                  <line x1="40" y1="60" x2="60" y2="60" stroke="#8a8a8a" stroke-width="1"/>
+                  <line x1="40" y1="120" x2="60" y2="120" stroke="#8a8a8a" stroke-width="1"/>
+                  <text x="20" y="95" font-size="13" fill="#333" font-weight="600">d</text>
+                  <!-- 回転方向を示す曲線矢印 -->
+                  <path d="M 160,75 A 18,18 0 1,1 160,105" stroke="#1e5fa8" stroke-width="2" fill="none" marker-end="url(#c19-blue)"/>
+                  <text x="170" y="95" font-size="11" fill="#1e5fa8">回転</text>
                 </svg>
                 `;
             }
@@ -7252,10 +7582,11 @@
                         return;
                     }
 
-                    // 1-6 は HINTS_1_6、1-7 は HINTS_1_7、1-8 は HINTS_1_8、2-1 は HINTS_2_1。他ユニットは将来追加時にここを拡張する。
+                    // 1-6 は HINTS_1_6、1-7 は HINTS_1_7、1-8 は HINTS_1_8、1-9 は HINTS_1_9、2-1 は HINTS_2_1。他ユニットは将来追加時にここを拡張する。
                     const hintsTable = (this.currentUnitId === '1-6') ? HINTS_1_6 :
                                        (this.currentUnitId === '1-7') ? HINTS_1_7 :
-                                       (this.currentUnitId === '1-8') ? HINTS_1_8 : HINTS_2_1;
+                                       (this.currentUnitId === '1-8') ? HINTS_1_8 :
+                                       (this.currentUnitId === '1-9') ? HINTS_1_9 : HINTS_2_1;
                     const stageHints = hintsTable[stagePart];
                     const levelKeys = ['b', 'a', 'c'];
                     hintText = stageHints ? stageHints[levelKeys[level]] : '';
@@ -7366,6 +7697,9 @@
                 if (this.currentUnitId === '1-8') {
                     return PROBLEMS_1_8[this.currentProblemIndex];
                 }
+                if (this.currentUnitId === '1-9') {
+                    return PROBLEMS_1_9[this.currentProblemIndex];
+                }
                 if (this.currentUnitId === '2-1') {
                     return PROBLEMS_2_1[this.currentProblemIndex];
                 }
@@ -7402,8 +7736,9 @@
                 const is1_6 = this.currentUnitId === '1-6';
                 const is1_7 = this.currentUnitId === '1-7';
                 const is1_8 = this.currentUnitId === '1-8';
-                const isForceCalc = is1_6 || is1_7 || is1_8;
-                // 1-6/1-7/1-8 は problem.stage0Correct、2-1 は固定値 's'
+                const is1_9 = this.currentUnitId === '1-9';
+                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9;
+                // 1-6/1-7/1-8/1-9 は problem.stage0Correct、2-1 は固定値 's'
                 const correct = isForceCalc ? problem.stage0Correct : 's';
                 const isCorrect = (value === correct);
                 if (isCorrect) {
@@ -7418,6 +7753,8 @@
                             msg = '正解。分力 Fy の大きさを求めます。';
                         } else if (is1_8) {
                             msg = '正解。力のモーメント M の大きさを求めます。';
+                        } else if (is1_9) {
+                            msg = '正解。偶力のモーメント M の大きさを求めます。';
                         }
                         feedback.textContent = msg;
                     }
@@ -7450,6 +7787,14 @@
                                 msg = '不正解。力 F の大きさは問題文に「F ＝ ○○ N」で与えられています。求めるものは別の量です。';
                             } else if (value === 'arm') {
                                 msg = '不正解。腕の長さ r は問題文に「○○ m の距離」で与えられています。求めるものは別の量です。';
+                            } else {
+                                msg = '不正解。問題文の末尾「○○を求めよ」に注目してください。';
+                            }
+                        } else if (is1_9) {
+                            if (value === 'sum') {
+                                msg = '不正解。偶力（大きさが等しく逆向きで平行な 2 力）の合力は 0 になります。求めるのは別の量です。';
+                            } else if (value === 'diff') {
+                                msg = '不正解。2 力の差は問題文では問われていません。求めるものは別の量です。';
                             } else {
                                 msg = '不正解。問題文の末尾「○○を求めよ」に注目してください。';
                             }
@@ -7486,8 +7831,9 @@
                 const is1_6 = this.currentUnitId === '1-6';
                 const is1_7 = this.currentUnitId === '1-7';
                 const is1_8 = this.currentUnitId === '1-8';
-                const isForceCalc = is1_6 || is1_7 || is1_8;
-                // 1-6/1-7/1-8 は problem.stage1Correct、2-1 は固定値 'constant'
+                const is1_9 = this.currentUnitId === '1-9';
+                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9;
+                // 1-6/1-7/1-8/1-9 は problem.stage1Correct、2-1 は固定値 'constant'
                 const correct = isForceCalc ? problem.stage1Correct : 'constant';
                 const isCorrect = (value === correct);
                 if (isCorrect) {
@@ -7502,6 +7848,8 @@
                             msg = '正解。2 分力 Fx, Fy は直角に交わっています（作用点の直角マークを確認）。';
                         } else if (is1_8) {
                             msg = '正解。力 F は腕 OA に対して直角にはたらいています。この場合 M ＝ F × r の式が使えます。';
+                        } else if (is1_9) {
+                            msg = '正解。図の 2 力は大きさが等しく、逆向きで平行な「偶力」です。この場合 M ＝ F × d の式で偶力のモーメントが求められます。';
                         }
                         feedback.textContent = msg;
                     }
@@ -7519,6 +7867,8 @@
                             msg = '不正解。2 分力 Fx, Fy は作用点で直角（90°）に交わっています。直角マークを確認してください。';
                         } else if (is1_8) {
                             msg = '不正解。問題文に「腕 OA に垂直に」と書かれており、図でも力 F は腕 OA と直角にはたらいています。';
+                        } else if (is1_9) {
+                            msg = '不正解。図の 2 力は同じ大きさで反対向き、かつ作用線が平行に離れています。これを「偶力」といいます。';
                         }
                         feedback.textContent = msg;
                     }
@@ -7586,7 +7936,7 @@
                     v: 'v', t: 't',
                     F1: 'F₁', F2: 'F₂',
                     F: 'F', Fx: 'Fx',
-                    r: 'r'
+                    r: 'r', d: 'd'
                 };
                 slotRoles.forEach(r => { slotEls[r] = document.getElementById('slot-' + r); });
                 // Reset visual state
@@ -7613,6 +7963,8 @@
                             feedback.textContent = '不正解。式の F の空欄には問題文の合力 F の値、Fx の空欄には Fx の値を入れてください。';
                         } else if (this.currentUnitId === '1-8') {
                             feedback.textContent = '不正解。単位に注目して入れ直してください。「N（ニュートン）」が力 F、「m（メートル）」が腕の長さ r です。';
+                        } else if (this.currentUnitId === '1-9') {
+                            feedback.textContent = '不正解。単位に注目して入れ直してください。「N（ニュートン）」が力 F、「m（メートル）」が作用線間の距離 d です。';
                         } else {
                             feedback.textContent = '不正解。単位に注目して入れ直してください。「m/s」が速度 v、「s（秒）」が時間 t です。';
                         }
@@ -7638,13 +7990,15 @@
                 const is1_6 = this.currentUnitId === '1-6';
                 const is1_7 = this.currentUnitId === '1-7';
                 const is1_8 = this.currentUnitId === '1-8';
-                const isForceCalc = is1_6 || is1_7 || is1_8;
+                const is1_9 = this.currentUnitId === '1-9';
+                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9;
 
-                // 1-6/1-7/1-8 は小数入力（step=0.1 を許容）し tolerance で判定。
+                // 1-6/1-7/1-8/1-9 は小数入力（step=0.1 を許容）し tolerance で判定。
                 const userAnswer = isForceCalc ? parseFloat(answerInput.value) : parseInt(answerInput.value);
                 const expected   = is1_6 ? problem.expectedResultant
                                  : is1_7 ? problem.expectedFy
                                  : is1_8 ? problem.expectedMoment
+                                 : is1_9 ? problem.expectedCoupleMoment
                                  : problem.expectedDisplacement;
                 const tolerance  = isForceCalc ? (problem.tolerance || 1) : 0;
                 // 浮動小数点誤差対策: tolerance 境界（例 tolerance=0.1 で |userAnswer-expected|=0.10000...142）が
@@ -7679,6 +8033,13 @@
                             <div style="margin-bottom: 10px;">正解です。</div>
                             <div class="answer-explanation">
                                 M ＝ F × r ＝ ${problem.f} × ${problem.r} ＝ ${expected} [N·m]
+                            </div>
+                        `;
+                    } else if (is1_9) {
+                        feedback.innerHTML = `
+                            <div style="margin-bottom: 10px;">正解です。</div>
+                            <div class="answer-explanation">
+                                M ＝ F × d ＝ ${problem.f} × ${problem.d} ＝ ${expected} [N·m]
                             </div>
                         `;
                     } else {
