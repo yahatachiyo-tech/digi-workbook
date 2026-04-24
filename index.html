@@ -2058,6 +2058,15 @@
                 total: 0
             },
             {
+                id: '1-8',
+                title: '力のモーメント',
+                subtitle: 'M ＝ F × r（力が腕に垂直）',
+                level: '基礎',
+                completed: false,
+                score: 0,
+                total: 0
+            },
+            {
                 id: '2-1',
                 title: '変位と速度',
                 subtitle: 's = v × t',
@@ -2430,6 +2439,182 @@
                 b: 'まず F² と Fx² をそれぞれ計算して、F² から Fx² を引いてください。次にその結果に対して √（ルート）を取ると Fy になります。',
                 a: 'Fy ＝ √(F² − Fx²)。手順は 3 つです。①F を 2 乗する。②Fx を 2 乗する。③ ①から② を引いたものの √ を取る。答えは整数になります。',
                 c: '教科書28ページ 式(2-6) の計算過程を確認してください。'
+            }
+        };
+
+        // Problems for sub-unit 1-8: 力のモーメント
+        // 教科書 p.28-29 式(2-10) M = F × r
+        // 設計: 力が腕に垂直な場合のみ（式(2-11) の sin θ は不要）。
+        // 単位は全問 N·m で統一。符号（時計/反時計）は今回扱わず、大きさのみ。
+        const PROBLEMS_1_8 = [
+            {
+                id: 1,
+                f: 10, r: 0.5, expectedMoment: 5, tolerance: 0.1, unit: 'N·m',
+                sentence: '回転の中心 O から 0.5 m の距離にある点Aに、腕 OA に垂直に F ＝ 10 N の力が働いている。点 O のまわりの力のモーメント M の大きさを求めよ。',
+                condition: '基礎、F=10 N, r=0.5 m → M=5 N·m',
+                baselineTime: 90,
+                canvasType: '2d-static',
+                canvas: {
+                    width: 360, height: 240,
+                    pivot: { x: 80, y: 160, label: 'O' },
+                    applicationPoint: { x: 240, y: 160, label: 'A' },
+                    armLabel: 'r = 0.5 m',
+                    forceArrow: { x1: 240, y1: 160, x2: 240, y2: 60, color: '#d23a2a', label: 'F = 10 N' },
+                    rotationIndicator: 'ccw'
+                },
+                stage0Choices: [
+                    { value: 'moment',  label: '力のモーメント M の大きさ' },
+                    { value: 'arm',     label: '腕の長さ r' },
+                    { value: 'force',   label: '力 F の大きさ' }
+                ],
+                stage0Correct: 'moment',
+                stage1Choices: [
+                    { value: 'perpendicular', label: '力 F が腕 OA に対して直角' },
+                    { value: 'parallel',      label: '力 F が腕 OA と同じ向き' }
+                ],
+                stage1Correct: 'perpendicular',
+                stage2Text: '力のモーメント M は、回転の中心から力の作用点までの距離 r と、力 F の大きさの積で求められます。<br>力 F が腕 r に<strong>垂直</strong>なとき、M = F × r で計算できます。',
+                formula: 'M = F \\times r',
+                substitutions: {
+                    slots: ['F', 'r'],
+                    cards: [
+                        { role: 'F', label: 'F', value: 10,  unit: 'N' },
+                        { role: 'r', label: 'r', value: 0.5, unit: 'm' }
+                    ]
+                }
+            },
+            {
+                id: 2,
+                f: 40, r: 0.3, expectedMoment: 12, tolerance: 0.1, unit: 'N·m',
+                sentence: '回転の中心 O から 0.3 m の距離にある点Aに、腕 OA に垂直に F ＝ 40 N の力が働いている。点 O のまわりの力のモーメント M の大きさを求めよ。',
+                condition: '基礎、F=40 N, r=0.3 m → M=12 N·m',
+                baselineTime: 90,
+                canvasType: '2d-static',
+                canvas: {
+                    width: 360, height: 240,
+                    pivot: { x: 80, y: 160, label: 'O' },
+                    applicationPoint: { x: 200, y: 160, label: 'A' },
+                    armLabel: 'r = 0.3 m',
+                    forceArrow: { x1: 200, y1: 160, x2: 200, y2: 40, color: '#d23a2a', label: 'F = 40 N' },
+                    rotationIndicator: 'ccw'
+                },
+                stage0Choices: [
+                    { value: 'moment',  label: '力のモーメント M の大きさ' },
+                    { value: 'arm',     label: '腕の長さ r' },
+                    { value: 'force',   label: '力 F の大きさ' }
+                ],
+                stage0Correct: 'moment',
+                stage1Choices: [
+                    { value: 'perpendicular', label: '力 F が腕 OA に対して直角' },
+                    { value: 'parallel',      label: '力 F が腕 OA と同じ向き' }
+                ],
+                stage1Correct: 'perpendicular',
+                stage2Text: '力のモーメント M は、回転の中心から力の作用点までの距離 r と、力 F の大きさの積で求められます。<br>力 F が腕 r に<strong>垂直</strong>なとき、M = F × r で計算できます。',
+                formula: 'M = F \\times r',
+                substitutions: {
+                    slots: ['F', 'r'],
+                    cards: [
+                        { role: 'F', label: 'F', value: 40,  unit: 'N' },
+                        { role: 'r', label: 'r', value: 0.3, unit: 'm' }
+                    ]
+                }
+            },
+            {
+                id: 3,
+                f: 25, r: 0.8, expectedMoment: 20, tolerance: 0.1, unit: 'N·m',
+                sentence: '回転の中心 O から 0.8 m の距離にある点Aに、腕 OA に垂直に F ＝ 25 N の力が働いている。点 O のまわりの力のモーメント M の大きさを求めよ。',
+                condition: '基礎、F=25 N, r=0.8 m → M=20 N·m',
+                baselineTime: 90,
+                canvasType: '2d-static',
+                canvas: {
+                    width: 360, height: 240,
+                    pivot: { x: 60, y: 160, label: 'O' },
+                    applicationPoint: { x: 280, y: 160, label: 'A' },
+                    armLabel: 'r = 0.8 m',
+                    forceArrow: { x1: 280, y1: 160, x2: 280, y2: 50, color: '#d23a2a', label: 'F = 25 N' },
+                    rotationIndicator: 'ccw'
+                },
+                stage0Choices: [
+                    { value: 'moment',  label: '力のモーメント M の大きさ' },
+                    { value: 'arm',     label: '腕の長さ r' },
+                    { value: 'force',   label: '力 F の大きさ' }
+                ],
+                stage0Correct: 'moment',
+                stage1Choices: [
+                    { value: 'perpendicular', label: '力 F が腕 OA に対して直角' },
+                    { value: 'parallel',      label: '力 F が腕 OA と同じ向き' }
+                ],
+                stage1Correct: 'perpendicular',
+                stage2Text: '力のモーメント M は、回転の中心から力の作用点までの距離 r と、力 F の大きさの積で求められます。<br>力 F が腕 r に<strong>垂直</strong>なとき、M = F × r で計算できます。',
+                formula: 'M = F \\times r',
+                substitutions: {
+                    slots: ['F', 'r'],
+                    cards: [
+                        { role: 'F', label: 'F', value: 25,  unit: 'N' },
+                        { role: 'r', label: 'r', value: 0.8, unit: 'm' }
+                    ]
+                }
+            },
+            {
+                id: 4,
+                f: 50, r: 1.2, expectedMoment: 60, tolerance: 0.1, unit: 'N·m',
+                sentence: '回転の中心 O から 1.2 m の距離にある点Aに、腕 OA に垂直に F ＝ 50 N の力が働いている。点 O のまわりの力のモーメント M の大きさを求めよ。',
+                condition: '基礎、F=50 N, r=1.2 m → M=60 N·m',
+                baselineTime: 90,
+                canvasType: '2d-static',
+                canvas: {
+                    width: 360, height: 240,
+                    pivot: { x: 50, y: 160, label: 'O' },
+                    applicationPoint: { x: 290, y: 160, label: 'A' },
+                    armLabel: 'r = 1.2 m',
+                    forceArrow: { x1: 290, y1: 160, x2: 290, y2: 40, color: '#d23a2a', label: 'F = 50 N' },
+                    rotationIndicator: 'ccw'
+                },
+                stage0Choices: [
+                    { value: 'moment',  label: '力のモーメント M の大きさ' },
+                    { value: 'arm',     label: '腕の長さ r' },
+                    { value: 'force',   label: '力 F の大きさ' }
+                ],
+                stage0Correct: 'moment',
+                stage1Choices: [
+                    { value: 'perpendicular', label: '力 F が腕 OA に対して直角' },
+                    { value: 'parallel',      label: '力 F が腕 OA と同じ向き' }
+                ],
+                stage1Correct: 'perpendicular',
+                stage2Text: '力のモーメント M は、回転の中心から力の作用点までの距離 r と、力 F の大きさの積で求められます。<br>力 F が腕 r に<strong>垂直</strong>なとき、M = F × r で計算できます。',
+                formula: 'M = F \\times r',
+                substitutions: {
+                    slots: ['F', 'r'],
+                    cards: [
+                        { role: 'F', label: 'F', value: 50,  unit: 'N' },
+                        { role: 'r', label: 'r', value: 1.2, unit: 'm' }
+                    ]
+                }
+            }
+        ];
+
+        // 1-8 のヒント（力のモーメント — 3 段階 B→A→C）。
+        //   Stage 2（必然の公式）は表示のみなのでヒントなし。
+        const HINTS_1_8 = {
+            stage0: {
+                b: '問題文の末尾に注目してください。「求めよ」と書かれている量が求めるものです。力 F と距離 r は問題文に与えられています。',
+                a: '問題文の末尾に「モーメント M の大きさを求めよ」とあります。求めるものは力のモーメント M [N·m] です。',
+                c: '教科書28ページ「力のモーメント」の冒頭と図2-17を確認してください。'
+            },
+            stage1: {
+                b: '図を見て、力 F の向きと腕 OA の向きの関係を確認してください。力の矢印と腕の線が作る角度はいくつでしょうか。',
+                a: '力 F が腕 OA に対して直角（垂直）のとき、モーメントは M = F × r の式で計算できます。斜めにはたらく場合は次の学習範囲です（式 2-11）。',
+                c: '教科書28ページ 図2-17 と式(2-10) を確認してください。'
+            },
+            stage3: {
+                b: '式の F の空欄には力の大きさを、r の空欄には腕の長さを入れます。問題文に数値がそれぞれ書かれています。',
+                a: '式は M ＝ F × r。F の空欄には問題文の「F ＝ ○○ N」の数値を、r の空欄には「r ＝ ○○ m」の数値を入れます。',
+                c: '教科書28ページ 式(2-10) を確認してください。'
+            },
+            stage4: {
+                b: 'F と r の値を掛け算すれば M の値が得られます。電卓を使っても構いません。',
+                a: 'M ＝ F × r。F の値と r の値を掛け算します。単位は N × m ＝ N·m（ニュートンメートル）です。',
+                c: '教科書28ページ 式(2-10) と例題の計算過程を確認してください。'
             }
         };
 
@@ -3522,6 +3707,7 @@
                 if (unitId === '1-5') return PROBLEMS_1_5.length;
                 if (unitId === '1-6') return PROBLEMS_1_6.length;
                 if (unitId === '1-7') return PROBLEMS_1_7.length;
+                if (unitId === '1-8') return PROBLEMS_1_8.length;
                 if (unitId === '2-1') return PROBLEMS_2_1.length;
                 return 0;
             }
@@ -3785,6 +3971,7 @@
                 else if (this.currentUnitId === '1-5') problems = PROBLEMS_1_5;
                 else if (this.currentUnitId === '1-6') problems = PROBLEMS_1_6;
                 else if (this.currentUnitId === '1-7') problems = PROBLEMS_1_7;
+                else if (this.currentUnitId === '1-8') problems = PROBLEMS_1_8;
                 else if (this.currentUnitId === '2-1') problems = PROBLEMS_2_1;
 
                 if (this.currentProblemIndex >= problems.length) {
@@ -3890,6 +4077,7 @@
                     else if (this.currentUnitId === '1-5') problems = PROBLEMS_1_5;
                     else if (this.currentUnitId === '1-6') problems = PROBLEMS_1_6;
                     else if (this.currentUnitId === '1-7') problems = PROBLEMS_1_7;
+                    else if (this.currentUnitId === '1-8') problems = PROBLEMS_1_8;
                     else if (this.currentUnitId === '2-1') problems = PROBLEMS_2_1;
                     sidebarList.innerHTML = problems.map((p, i) =>
                         `<li class="${i === this.currentProblemIndex ? 'is-active' : ''}">問 ${p.id}</li>`
@@ -3918,7 +4106,7 @@
                 const content = document.getElementById('problemContent');
 
                 // Handle different problem types
-                if (this.currentUnitId === '2-1' || this.currentUnitId === '1-6' || this.currentUnitId === '1-7') {
+                if (this.currentUnitId === '2-1' || this.currentUnitId === '1-6' || this.currentUnitId === '1-7' || this.currentUnitId === '1-8') {
                     this.renderCalculationProblem(problem, content);
                 } else if (this.currentUnitId === '1-3' || this.currentUnitId === '1-4' || this.currentUnitId === '1-5') {
                     this.drawingStageIndex = 0;
@@ -4007,11 +4195,12 @@
             renderCalculationProblem(problem, content) {
                 // ステージ切替時に前ステージのヒント表示・ヒントボタン状態を必ずクリア
                 this._clearHintDisplay();
-                // 1-6（直角 2 力合成）と 1-7（直角分解）は 2-1 と同じ 6 ステージ計算フローを共有するが、
+                // 1-6（直角 2 力合成）、1-7（直角分解）、1-8（モーメント）は 2-1 と同じ 6 ステージ計算フローを共有するが、
                 // 問題文・公式・代入スロット・問題図が異なるので unit id で分岐する。
                 const is1_6 = this.currentUnitId === '1-6';
                 const is1_7 = this.currentUnitId === '1-7';
-                const isForceCalc = is1_6 || is1_7;
+                const is1_8 = this.currentUnitId === '1-8';
+                const isForceCalc = is1_6 || is1_7 || is1_8;
                 // Persistent problem statement shown at the top of every stage
                 const problemText = isForceCalc
                     ? problem.sentence
@@ -4036,6 +4225,15 @@
                         '計算する',
                         '答えの意味を確認'
                     ]
+                    : is1_8
+                    ? [
+                        '求める量を確認する',
+                        '力と腕の関係を確認する',
+                        '使う式を確認する',
+                        '数値を代入する',
+                        '計算する',
+                        '答えの意味を確認'
+                    ]
                     : [
                         '求める量を確認する',
                         '運動の種類を確認する',
@@ -4051,8 +4249,10 @@
                 `;
                 // 1-6: 全ステージに問題図（F₁水平・F₂垂直・直角マーク）を共通表示する。
                 // 1-7: 全ステージに問題図（Fx・Fy未知破線・F合力・直角マーク）を共通表示する。
+                // 1-8: 全ステージに問題図（回転中心O・腕r・力F・回転矢印）を共通表示する。
                 const staticCanvas1_6 = is1_6 ? this.build1_6StaticCanvas(problem)
                                       : is1_7 ? this.build1_7StaticCanvas(problem)
+                                      : is1_8 ? this.build1_8StaticCanvas(problem)
                                       : '';
 
                 if (stageIndex === 0) {
@@ -4100,6 +4300,8 @@
                         ? '図の 2 力 F₁, F₂ の関係はどれですか？'
                         : is1_7
                         ? '図の 2 分力 Fx, Fy の関係はどれですか？'
+                        : is1_8
+                        ? '図の 力 F と 腕 OA の関係はどれですか？'
                         : '問題文の「一定の速さで運動した」は、どのような運動ですか？';
                     content.innerHTML = header + staticCanvas1_6 + `
                         <div class="calc-stage-container">
@@ -4160,6 +4362,25 @@
                                 </div>
                             </div>
                         `;
+                    } else if (is1_8) {
+                        const momentSvg = this.buildStage2SvgMoment(problem);
+                        content.innerHTML = header + `
+                            <div class="calc-stage-container">
+                                <div style="font-size:15px; margin-bottom:14px; line-height:1.7;">
+                                    ${problem.stage2Text}
+                                </div>
+                                ${momentSvg}
+                                <div class="calc-formula-display">
+                                    $${problem.formula}$
+                                </div>
+                                <div style="background:#eef3fa; border-left:3px solid #4a7cbe; padding:12px 16px; border-radius:3px; margin-top:16px; font-size:14px; line-height:1.7; color:#222;">
+                                    <strong>この式になる理由：</strong><br>
+                                    物体を回転させるはたらきの大きさは、力 F と、回転の中心から作用点までの距離 r の積で決まる<br>
+                                    → 力 F が腕 r に<strong>垂直</strong>のとき、モーメント <strong>M ＝ F × r</strong>（式 2-10）<br>
+                                    → 単位は N × m ＝ N·m
+                                </div>
+                            </div>
+                        `;
                     } else {
                         content.innerHTML = header + `
                             <div class="calc-stage-container">
@@ -4193,14 +4414,16 @@
                         const valuesHTML = valueCards.map(c =>
                             `<div class="calc-value-card draggable-value" data-role="${c.role}" data-value="${c.value}">${c.label} ＝ ${c.value} ${c.unit}</div>`
                         ).join('');
-                        // 式の表示: 1-6 → F = √( [F₁]² + [F₂]² ) / 1-7 → Fy = √( [F]² − [Fx]² )
-                        const slotLabel = { F1: 'F₁', F2: 'F₂', F: 'F', Fx: 'Fx' };
+                        // 式の表示: 1-6 → F = √( [F₁]² + [F₂]² ) / 1-7 → Fy = √( [F]² − [Fx]² ) / 1-8 → M = [F] × [r]
+                        const slotLabel = { F1: 'F₁', F2: 'F₂', F: 'F', Fx: 'Fx', r: 'r' };
                         const slotSpans = slots.map(role =>
                             `<span class="calc-formula-input empty" data-slot="${role}" id="slot-${role}">${slotLabel[role] || role}</span>`
                         );
                         const formulaHTML = is1_6
                             ? `F ＝ √( ${slotSpans[0]}<sup>2</sup> ＋ ${slotSpans[1]}<sup>2</sup> )`
-                            : `Fy ＝ √( ${slotSpans[0]}<sup>2</sup> − ${slotSpans[1]}<sup>2</sup> )`;
+                            : is1_7
+                            ? `Fy ＝ √( ${slotSpans[0]}<sup>2</sup> − ${slotSpans[1]}<sup>2</sup> )`
+                            : `M ＝ ${slotSpans[0]} × ${slotSpans[1]}`;
                         content.innerHTML = header + staticCanvas1_6 + `
                             <div class="calc-stage-container">
                                 <div class="calc-question-text">それぞれの数値を、式の正しい場所に入れよう。</div>
@@ -4289,6 +4512,20 @@
                                 </div>
                             </div>
                         `;
+                    } else if (is1_8) {
+                        content.innerHTML = header + staticCanvas1_6 + `
+                            <div class="calc-stage-container">
+                                <div class="calc-question-text">計算結果を入力してください。</div>
+                                <div class="calc-formula-display">
+                                    $M = ${problem.f} \\times ${problem.r} = {\\color{#c62828}?}$
+                                </div>
+                                <div class="calc-input-row">
+                                    <span class="calc-input-label">答え：M ＝</span>
+                                    <input type="number" id="answerInput" class="calc-answer-input" placeholder="数値" style="width:120px;" step="0.1">
+                                    <span style="font-size:14px; color:#555; margin-left:6px;">[N·m]</span>
+                                </div>
+                            </div>
+                        `;
                     } else {
                         content.innerHTML = header + `
                             <div class="calc-stage-container">
@@ -4350,6 +4587,23 @@
                                 </div>
                                 <div style="margin-top:14px; font-size:13px; color:#555;">
                                     次の問題に進む前に、式と直角三角形の関係を頭の中で思い浮かべてみましょう。
+                                </div>
+                            </div>
+                        `;
+                    } else if (is1_8) {
+                        const ans = problem.expectedMoment;
+                        content.innerHTML = header + staticCanvas1_6 + `
+                            <div class="calc-stage-container">
+                                <div class="calc-question-text">答えの意味を確認しよう。</div>
+                                <div class="calc-formula-display">
+                                    $M = F \\times r = ${problem.f} \\times ${problem.r} = ${ans}\\,\\mathrm{[N{\\cdot}m]}$
+                                </div>
+                                <div style="background:#eaf1fa; border-left:4px solid #1e5fa8; padding:14px 18px; border-radius:3px; margin-top:18px; font-size:15px; line-height:1.7;">
+                                    回転の中心 O から <strong>${problem.r} m</strong> 離れた点Aに、腕に垂直に <strong>${problem.f} N</strong> の力を加えたとき、O のまわりの力のモーメントは <strong>${ans} N·m</strong> です。<br>
+                                    力のモーメントは「回転させるはたらきの強さ」を表し、単位は N·m（ニュートンメートル）です。腕が長いほど、また力が大きいほどモーメントは大きくなります。
+                                </div>
+                                <div style="margin-top:14px; font-size:13px; color:#555;">
+                                    次の問題に進む前に、式と回転の図を頭の中で思い浮かべてみましょう。
                                 </div>
                             </div>
                         `;
@@ -4477,6 +4731,90 @@
                     <span>${c.scaleLabel}</span>
                 </div></div>`;
                 return svg;
+            }
+
+            // 1-8（力のモーメント）の問題図を生成する。
+            //   回転中心 O（黒丸）、水平な腕 OA（破線）、作用点 A、
+            //   A から垂直上向きにはたらく力 F（赤矢印）、
+            //   O を中心とする回転方向を示す弧矢印（反時計回り）を描画する。
+            //   腕の長さ r のラベルも表示。Stage 0/1/3/4/5 で共通表示する。
+            build1_8StaticCanvas(problem) {
+                const c = problem.canvas;
+                const W = c.width, H = c.height;
+                const pv = c.pivot;
+                const ap = c.applicationPoint;
+                const fa = c.forceArrow;
+                let svg = `<div class="drawing-wrapper" style="pointer-events:none;">
+                <svg class="drawing-svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="cursor:default;">
+                <defs>
+                  <marker id="stc18-red" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#d23a2a"/></marker>
+                  <marker id="stc18-rot" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#1e5fa8"/></marker>
+                </defs>`;
+                // 腕 OA（水平破線・灰）
+                svg += `<line x1="${pv.x}" y1="${pv.y}" x2="${ap.x}" y2="${ap.y}" stroke="#8a8a8a" stroke-width="2" stroke-dasharray="6,4"/>`;
+                // 腕の長さ r ラベル（中央の少し上）
+                const midX = (pv.x + ap.x) / 2;
+                svg += `<text x="${midX}" y="${pv.y - 8}" text-anchor="middle" font-size="12" fill="#555" font-family="sans-serif" font-weight="500">${c.armLabel}</text>`;
+                // 力 F（作用点 A から垂直上向き）
+                svg += `<line x1="${fa.x1}" y1="${fa.y1}" x2="${fa.x2}" y2="${fa.y2}" stroke="${fa.color}" stroke-width="2.5" marker-end="url(#stc18-red)"/>`;
+                // F ラベル（矢印の右横）
+                const fLabelX = fa.x2 + 8;
+                const fLabelY = (fa.y1 + fa.y2) / 2;
+                svg += `<text x="${fLabelX}" y="${fLabelY}" font-size="13" fill="${fa.color}" font-family="sans-serif" font-weight="600">${fa.label}</text>`;
+                // 回転矢印（O を中心とする小さな反時計回りの弧）
+                if (c.rotationIndicator === 'ccw') {
+                    const rArc = 26;
+                    const arcStartX = pv.x + rArc;
+                    const arcStartY = pv.y - 4;
+                    const arcEndX   = pv.x - 4;
+                    const arcEndY   = pv.y - rArc;
+                    svg += `<path d="M ${arcStartX} ${arcStartY} A ${rArc} ${rArc} 0 0 0 ${arcEndX} ${arcEndY}" stroke="#1e5fa8" stroke-width="2" fill="none" marker-end="url(#stc18-rot)"/>`;
+                    svg += `<text x="${pv.x + rArc + 4}" y="${pv.y - rArc + 4}" font-size="11" fill="#1e5fa8" font-family="sans-serif">回転</text>`;
+                }
+                // 作用点 A（小さな黒丸 + ラベル）
+                svg += `<circle cx="${ap.x}" cy="${ap.y}" r="3" fill="#333"/>`;
+                svg += `<text x="${ap.x + 6}" y="${ap.y + 16}" font-size="12" fill="#333" font-family="sans-serif" font-weight="600">${ap.label}</text>`;
+                // 回転中心 O（大きめの黒丸 + ラベル）
+                svg += `<circle cx="${pv.x}" cy="${pv.y}" r="5" fill="#333"/>`;
+                svg += `<text x="${pv.x - 14}" y="${pv.y + 18}" font-size="13" fill="#333" font-family="sans-serif" font-weight="600">${pv.label}</text>`;
+                svg += `<text x="${pv.x - 30}" y="${pv.y + 32}" font-size="10" fill="#888" font-family="sans-serif">（回転の中心）</text>`;
+                svg += `</svg></div>`;
+                return svg;
+            }
+
+            // 1-8 Stage 2 用の schematic 図: てこ風のモーメント解説図。
+            //   回転中心 O（左）、腕 OA（水平破線）、作用点 A、A から垂直上向きの力 F、
+            //   O を中心とする反時計回りの回転矢印を描く。
+            //   問題ごとの数値差には依存せず、固定の典型図として教える。
+            buildStage2SvgMoment(problem) {
+                return `
+                <svg width="320" height="180" viewBox="0 0 320 180" style="margin:12px auto; display:block; border:1px solid #ddd; border-radius:4px; background:#fafafa;">
+                  <defs>
+                    <marker id="m18-red" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                      <polygon points="0,0 8,3 0,6" fill="#d23a2a"/>
+                    </marker>
+                    <marker id="m18-blue" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                      <polygon points="0,0 8,3 0,6" fill="#1e5fa8"/>
+                    </marker>
+                  </defs>
+                  <!-- 腕（O→A 水平破線） -->
+                  <line x1="60" y1="120" x2="220" y2="120" stroke="#8a8a8a" stroke-width="2" stroke-dasharray="6,4"/>
+                  <!-- 腕の長さ r ラベル -->
+                  <text x="140" y="112" text-anchor="middle" font-size="12" fill="#555" font-weight="500">r</text>
+                  <!-- 力 F（垂直上向き） -->
+                  <line x1="220" y1="120" x2="220" y2="40" stroke="#d23a2a" stroke-width="2.5" marker-end="url(#m18-red)"/>
+                  <text x="230" y="80" font-size="13" fill="#d23a2a" font-weight="600">F</text>
+                  <!-- 回転矢印（O を中心とする反時計回りの弧） -->
+                  <path d="M 86,120 A 26,26 0 0,0 60,94" stroke="#1e5fa8" stroke-width="2" fill="none" marker-end="url(#m18-blue)"/>
+                  <text x="90" y="92" font-size="11" fill="#1e5fa8">回転</text>
+                  <!-- 作用点 A -->
+                  <circle cx="220" cy="120" r="3" fill="#333"/>
+                  <text x="226" y="140" font-size="13" fill="#333" font-weight="600">A</text>
+                  <!-- 回転中心 O -->
+                  <circle cx="60" cy="120" r="5" fill="#333"/>
+                  <text x="48" y="142" font-size="13" fill="#333" font-weight="600">O</text>
+                </svg>
+                `;
             }
 
             // 1-6 / 1-7 Stage 2 用の schematic 図: 直角三角形の典型図。
@@ -6914,9 +7252,10 @@
                         return;
                     }
 
-                    // 1-6 は HINTS_1_6、1-7 は HINTS_1_7、2-1 は HINTS_2_1。他ユニットは将来追加時にここを拡張する。
+                    // 1-6 は HINTS_1_6、1-7 は HINTS_1_7、1-8 は HINTS_1_8、2-1 は HINTS_2_1。他ユニットは将来追加時にここを拡張する。
                     const hintsTable = (this.currentUnitId === '1-6') ? HINTS_1_6 :
-                                       (this.currentUnitId === '1-7') ? HINTS_1_7 : HINTS_2_1;
+                                       (this.currentUnitId === '1-7') ? HINTS_1_7 :
+                                       (this.currentUnitId === '1-8') ? HINTS_1_8 : HINTS_2_1;
                     const stageHints = hintsTable[stagePart];
                     const levelKeys = ['b', 'a', 'c'];
                     hintText = stageHints ? stageHints[levelKeys[level]] : '';
@@ -7024,6 +7363,9 @@
                 if (this.currentUnitId === '1-7') {
                     return PROBLEMS_1_7[this.currentProblemIndex];
                 }
+                if (this.currentUnitId === '1-8') {
+                    return PROBLEMS_1_8[this.currentProblemIndex];
+                }
                 if (this.currentUnitId === '2-1') {
                     return PROBLEMS_2_1[this.currentProblemIndex];
                 }
@@ -7059,8 +7401,9 @@
                 const chipEl = document.querySelector(`#quantityChips0 .calc-chip[data-value="${value}"]`);
                 const is1_6 = this.currentUnitId === '1-6';
                 const is1_7 = this.currentUnitId === '1-7';
-                const isForceCalc = is1_6 || is1_7;
-                // 1-6/1-7 は problem.stage0Correct、2-1 は固定値 's'
+                const is1_8 = this.currentUnitId === '1-8';
+                const isForceCalc = is1_6 || is1_7 || is1_8;
+                // 1-6/1-7/1-8 は problem.stage0Correct、2-1 は固定値 's'
                 const correct = isForceCalc ? problem.stage0Correct : 's';
                 const isCorrect = (value === correct);
                 if (isCorrect) {
@@ -7073,6 +7416,8 @@
                             msg = '正解。合力 F の大きさを求めます。';
                         } else if (is1_7) {
                             msg = '正解。分力 Fy の大きさを求めます。';
+                        } else if (is1_8) {
+                            msg = '正解。力のモーメント M の大きさを求めます。';
                         }
                         feedback.textContent = msg;
                     }
@@ -7097,6 +7442,14 @@
                                 msg = '不正解。合力 F は問題文に「F ＝ ○○ N」で与えられています。求めるのは分解したあとの Fy です。';
                             } else if (value === 'angle') {
                                 msg = '不正解。この問題では角度ではなく、分力の大きさ [N] を求めます。';
+                            } else {
+                                msg = '不正解。問題文の末尾「○○を求めよ」に注目してください。';
+                            }
+                        } else if (is1_8) {
+                            if (value === 'force') {
+                                msg = '不正解。力 F の大きさは問題文に「F ＝ ○○ N」で与えられています。求めるものは別の量です。';
+                            } else if (value === 'arm') {
+                                msg = '不正解。腕の長さ r は問題文に「○○ m の距離」で与えられています。求めるものは別の量です。';
                             } else {
                                 msg = '不正解。問題文の末尾「○○を求めよ」に注目してください。';
                             }
@@ -7132,8 +7485,9 @@
                 const chipEl = document.querySelector(`#phenomenonChips .calc-chip[data-value="${value}"]`);
                 const is1_6 = this.currentUnitId === '1-6';
                 const is1_7 = this.currentUnitId === '1-7';
-                const isForceCalc = is1_6 || is1_7;
-                // 1-6/1-7 は problem.stage1Correct、2-1 は固定値 'constant'
+                const is1_8 = this.currentUnitId === '1-8';
+                const isForceCalc = is1_6 || is1_7 || is1_8;
+                // 1-6/1-7/1-8 は problem.stage1Correct、2-1 は固定値 'constant'
                 const correct = isForceCalc ? problem.stage1Correct : 'constant';
                 const isCorrect = (value === correct);
                 if (isCorrect) {
@@ -7146,6 +7500,8 @@
                             msg = '正解。図の 2 力は直角に交わっています（作用点の直角マークを確認）。';
                         } else if (is1_7) {
                             msg = '正解。2 分力 Fx, Fy は直角に交わっています（作用点の直角マークを確認）。';
+                        } else if (is1_8) {
+                            msg = '正解。力 F は腕 OA に対して直角にはたらいています。この場合 M ＝ F × r の式が使えます。';
                         }
                         feedback.textContent = msg;
                     }
@@ -7161,6 +7517,8 @@
                             msg = '不正解。図の 2 本の矢印の角度をよく見てください。作用点に小さな正方形（直角マーク）が描かれています。';
                         } else if (is1_7) {
                             msg = '不正解。2 分力 Fx, Fy は作用点で直角（90°）に交わっています。直角マークを確認してください。';
+                        } else if (is1_8) {
+                            msg = '不正解。問題文に「腕 OA に垂直に」と書かれており、図でも力 F は腕 OA と直角にはたらいています。';
                         }
                         feedback.textContent = msg;
                     }
@@ -7227,7 +7585,8 @@
                 const slotLabels = {
                     v: 'v', t: 't',
                     F1: 'F₁', F2: 'F₂',
-                    F: 'F', Fx: 'Fx'
+                    F: 'F', Fx: 'Fx',
+                    r: 'r'
                 };
                 slotRoles.forEach(r => { slotEls[r] = document.getElementById('slot-' + r); });
                 // Reset visual state
@@ -7252,6 +7611,8 @@
                             feedback.textContent = '不正解。式の F₁ の空欄には問題文の F₁ の値、F₂ の空欄には F₂ の値を入れてください。';
                         } else if (this.currentUnitId === '1-7') {
                             feedback.textContent = '不正解。式の F の空欄には問題文の合力 F の値、Fx の空欄には Fx の値を入れてください。';
+                        } else if (this.currentUnitId === '1-8') {
+                            feedback.textContent = '不正解。単位に注目して入れ直してください。「N（ニュートン）」が力 F、「m（メートル）」が腕の長さ r です。';
                         } else {
                             feedback.textContent = '不正解。単位に注目して入れ直してください。「m/s」が速度 v、「s（秒）」が時間 t です。';
                         }
@@ -7276,16 +7637,20 @@
                 const feedback = document.getElementById('feedbackMessage');
                 const is1_6 = this.currentUnitId === '1-6';
                 const is1_7 = this.currentUnitId === '1-7';
-                const isForceCalc = is1_6 || is1_7;
+                const is1_8 = this.currentUnitId === '1-8';
+                const isForceCalc = is1_6 || is1_7 || is1_8;
 
-                // 1-6/1-7 は小数入力（整数答だが step=0.1 を許容）し tolerance で判定。
+                // 1-6/1-7/1-8 は小数入力（step=0.1 を許容）し tolerance で判定。
                 const userAnswer = isForceCalc ? parseFloat(answerInput.value) : parseInt(answerInput.value);
                 const expected   = is1_6 ? problem.expectedResultant
                                  : is1_7 ? problem.expectedFy
+                                 : is1_8 ? problem.expectedMoment
                                  : problem.expectedDisplacement;
                 const tolerance  = isForceCalc ? (problem.tolerance || 1) : 0;
+                // 浮動小数点誤差対策: tolerance 境界（例 tolerance=0.1 で |userAnswer-expected|=0.10000...142）が
+                // 偽陰性となるのを避けるため、比較に 1e-9 の余裕を加える。
                 const isCorrect  = isForceCalc
-                    ? (!isNaN(userAnswer) && Math.abs(userAnswer - expected) <= tolerance)
+                    ? (!isNaN(userAnswer) && Math.abs(userAnswer - expected) <= tolerance + 1e-9)
                     : (userAnswer === expected);
 
                 if (isCorrect) {
@@ -7307,6 +7672,13 @@
                             <div style="margin-bottom: 10px;">正解です。</div>
                             <div class="answer-explanation">
                                 Fy ＝ √(F² − Fx²) ＝ √(${problem.f}² − ${problem.fx}²) ＝ √${diff} ＝ ${expected} [N]
+                            </div>
+                        `;
+                    } else if (is1_8) {
+                        feedback.innerHTML = `
+                            <div style="margin-bottom: 10px;">正解です。</div>
+                            <div class="answer-explanation">
+                                M ＝ F × r ＝ ${problem.f} × ${problem.r} ＝ ${expected} [N·m]
                             </div>
                         `;
                     } else {
