@@ -1482,6 +1482,187 @@
             font-size: 12px;
         }
 
+        /* ===== DASHBOARD SCREEN ===== */
+        .dashboard-screen {
+            width: 100%;
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--color-border);
+        }
+        .dashboard-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--color-text);
+        }
+        .dashboard-subtitle {
+            font-size: 14px;
+            color: var(--color-text-muted);
+            margin-top: 4px;
+        }
+        .dashboard-actions {
+            display: flex;
+            gap: 12px;
+        }
+        .dashboard-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .dashboard-stat-card {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 16px;
+        }
+        .dashboard-stat-label {
+            font-size: 13px;
+            color: var(--color-text-muted);
+            margin-bottom: 4px;
+        }
+        .dashboard-stat-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--color-primary);
+        }
+        .dashboard-section {
+            margin-bottom: 24px;
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 20px;
+        }
+        .dashboard-section-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 16px;
+            color: var(--color-text);
+        }
+        .dashboard-login-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 8px;
+        }
+        .dashboard-login-cell {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            border: 1px solid var(--color-border);
+        }
+        .dashboard-login-cell.active {
+            background: #d1e9d1;
+            border-color: var(--color-success);
+            color: #1e6420;
+        }
+        .dashboard-login-cell.inactive {
+            background: #f0f0f0;
+            color: #9a9a9a;
+        }
+        .dashboard-login-cell.teacher {
+            background: #fde8a3;
+            border-color: #d3a500;
+            color: #7a5a00;
+            font-size: 11px;
+        }
+        .dashboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        .dashboard-table th,
+        .dashboard-table td {
+            padding: 8px 12px;
+            text-align: center;
+            border-bottom: 1px solid var(--color-border);
+        }
+        .dashboard-table th {
+            background: var(--color-surface-muted, #f8f8f8);
+            font-weight: 500;
+            color: var(--color-text-muted);
+        }
+        .dashboard-table td.dashboard-number {
+            font-weight: 500;
+            color: var(--color-text);
+        }
+        .dashboard-table td.dashboard-login-time {
+            color: var(--color-success);
+            font-size: 12px;
+        }
+        .dashboard-table td.dashboard-no-login {
+            color: var(--color-text-muted);
+        }
+        .dashboard-table td.dashboard-unit-complete {
+            background: #eaf4ea;
+            color: var(--color-success);
+            font-weight: bold;
+        }
+        .dashboard-table td.dashboard-unit-progress {
+            background: #fff4cc;
+            color: #7a5a00;
+        }
+        .dashboard-table td.dashboard-unit-none {
+            color: var(--color-text-muted);
+        }
+        .dashboard-table-wrap {
+            overflow-x: auto;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .dashboard-footer {
+            font-size: 12px;
+            color: var(--color-text-muted);
+            padding: 12px;
+            border-top: 1px solid var(--color-border);
+            display: flex;
+            justify-content: flex-end;
+        }
+        .dashboard-error {
+            padding: 16px;
+            background: #fde8e8;
+            color: #9c1a0e;
+            border: 1px solid #e8b5b5;
+            border-radius: 4px;
+            margin-bottom: 16px;
+        }
+        .menu-header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .dashboard-btn {
+            padding: 10px 18px;
+            font-size: 13px;
+            background: var(--color-primary-soft);
+            color: var(--color-primary);
+            border: 1px solid var(--color-primary);
+            min-height: 44px;
+        }
+        .dashboard-btn:hover {
+            background: var(--color-primary);
+            color: #fff;
+        }
+        @media (max-width: 768px) {
+            .dashboard-login-grid {
+                grid-template-columns: repeat(5, 1fr);
+            }
+            .dashboard-header {
+                flex-direction: column;
+                gap: 12px;
+            }
+        }
+
         /* ===== RESPONSIVE ===== */
         @media (max-width: 1280px) {
             .app-main {
@@ -1663,7 +1844,10 @@
                         <div class="menu-title">機械設計 デジタルワーク</div>
                         <div class="user-info" id="userInfo"></div>
                     </div>
-                    <button class="btn logout-btn" onclick="app.logout()">ログアウト</button>
+                    <div class="menu-header-actions">
+                        <button class="btn dashboard-btn" id="dashboardBtn" onclick="app.goToDashboard()" style="display:none;">ダッシュボード</button>
+                        <button class="btn logout-btn" onclick="app.logout()">ログアウト</button>
+                    </div>
                 </div>
                 <div class="menu-meta-row">
                     <span>小単元を選んで学習をはじめましょう。</span>
@@ -1733,6 +1917,42 @@
                 </div>
             </div>
 
+            <!-- DASHBOARD SCREEN (教員モードのみ) -->
+            <div class="screen dashboard-screen" id="dashboardScreen">
+                <div class="dashboard-header">
+                    <div>
+                        <div class="dashboard-title">教員ダッシュボード</div>
+                        <div class="dashboard-subtitle" id="dashboardSubtitle">当日のログイン状況・取り組み状況</div>
+                    </div>
+                    <div class="dashboard-actions">
+                        <button class="btn btn-secondary" onclick="app.fetchDashboardData()">今すぐ更新</button>
+                        <button class="btn btn-secondary" onclick="app.backToMenuFromDashboard()">メニューに戻る</button>
+                    </div>
+                </div>
+
+                <!-- (c) 全体統計 -->
+                <div class="dashboard-stats" id="dashboardStats"></div>
+
+                <!-- (a) ログイン状況グリッド -->
+                <div class="dashboard-section">
+                    <div class="dashboard-section-title">ログイン状況（1-40）</div>
+                    <div class="dashboard-login-grid" id="dashboardLoginGrid"></div>
+                </div>
+
+                <!-- (b) 生徒取り組みテーブル -->
+                <div class="dashboard-section">
+                    <div class="dashboard-section-title">生徒ごとの取り組み状況</div>
+                    <div class="dashboard-table-wrap">
+                        <table class="dashboard-table" id="dashboardTable"></table>
+                    </div>
+                </div>
+
+                <div class="dashboard-footer">
+                    <span id="dashboardLastUpdated"></span>
+                    <span id="dashboardAutoRefresh" style="margin-left:12px; color:#666;">自動更新: 30秒ごと</span>
+                </div>
+            </div>
+
             <!-- LOGOUT CONFIRMATION MODAL -->
             <div id="logoutModal" class="app-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
                 <div class="app-modal-dialog">
@@ -1758,6 +1978,15 @@
         // 仕様書§13.1: 完全バックグラウンド送信、匿名化（氏名・学校名・クラス名は送信しない）
         // 教員モード（40番）は送信しない、サイレント失敗、CORS 回避（mode: 'no-cors'）
         const LOG_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzZ7sQ56VolFl2ayXfNFAE6WJIqtYmgphR2jgnRbnxwPABd7f8vty19kqtV5GK3Z0ydqg/exec';
+
+        // 教員ダッシュボード用: GAS からログを読み出す際の認証キー / 単元情報
+        const DASHBOARD_KEY = 'mdesign2026';
+        // 単元ごとの問題数（ダッシュボード集計用）
+        const DASHBOARD_UNIT_COUNTS = {
+            '1-1': 4, '1-2': 6, '1-3': 4, '1-4': 4, '1-5': 4, '2-1': 5
+        };
+        // 単元表示順
+        const DASHBOARD_UNIT_ORDER = ['1-1', '1-2', '1-3', '1-4', '1-5', '2-1'];
 
         // 【校内版では実名ロスターを定義していたが、GitHub Pages 配信のため空に変更】
         // 将来、名簿照合に戻す場合は 1番〜36番 + 40番の形式で復活可能
@@ -2673,6 +2902,10 @@
                 this.currentCalcStage = 0; // 0=scene, 1=identify, 2=confirm relation, 3=substitute, 4=compute
                 this.calcInputs = {}; // for stage 3 (substitute)
 
+                // 教員ダッシュボード用
+                this.dashboardTimer = null;
+                this.dashboardLastLogs = null;
+
                 this.loadStoredUser();
                 // 復帰ユーザーがいない場合は入力フォームを初期表示する
                 if (!this.currentUser) {
@@ -2823,6 +3056,7 @@
             }
 
             confirmLogoutYes() {
+                this.stopDashboardPolling();
                 this.currentUser = null;
                 localStorage.removeItem('auth');
                 localStorage.removeItem('progress');
@@ -2914,6 +3148,12 @@
                     ? '教員'
                     : `${this.currentUser.number}番 ${this.currentUser.lastName} ${this.currentUser.firstName}`;
 
+                // 教員モードなら「ダッシュボード」ボタンを表示（生徒は非表示）
+                const dashBtn = document.getElementById('dashboardBtn');
+                if (dashBtn) {
+                    dashBtn.style.display = this.isTeacherMode() ? 'inline-block' : 'none';
+                }
+
                 const unitList = document.getElementById('unitList');
                 unitList.innerHTML = '';
 
@@ -2940,6 +3180,214 @@
 
                     unitList.appendChild(card);
                 });
+            }
+
+            // ===== TEACHER DASHBOARD =====
+            // 教員モード（40番）でのみ使用。GAS から当日のログを取得して集計表示する。
+            goToDashboard() {
+                if (!this.isTeacherMode()) return;
+                this.showScreen('dashboardScreen');
+                this.fetchDashboardData();
+                this.startDashboardPolling();
+            }
+
+            backToMenuFromDashboard() {
+                this.stopDashboardPolling();
+                this.goToMenu();
+            }
+
+            startDashboardPolling() {
+                this.stopDashboardPolling();
+                this.dashboardTimer = setInterval(() => {
+                    this.fetchDashboardData();
+                }, 30000);
+            }
+
+            stopDashboardPolling() {
+                if (this.dashboardTimer) {
+                    clearInterval(this.dashboardTimer);
+                    this.dashboardTimer = null;
+                }
+            }
+
+            async fetchDashboardData() {
+                const subtitleEl = document.getElementById('dashboardSubtitle');
+                if (subtitleEl) subtitleEl.textContent = '読み込み中...';
+                try {
+                    const url = LOG_ENDPOINT + '?key=' + encodeURIComponent(DASHBOARD_KEY);
+                    const resp = await fetch(url, { method: 'GET' });
+                    const data = await resp.json();
+                    if (data.error) {
+                        this._showDashboardError('通信エラー: ' + data.error);
+                        return;
+                    }
+                    this.dashboardLastLogs = data.logs || [];
+                    const agg = this._aggregateDashboardData(this.dashboardLastLogs);
+                    this._renderDashboardUI(agg);
+                    if (subtitleEl) subtitleEl.textContent = '当日のログイン状況・取り組み状況';
+                    const updEl = document.getElementById('dashboardLastUpdated');
+                    if (updEl) {
+                        const now = new Date();
+                        const hh = String(now.getHours()).padStart(2, '0');
+                        const mm = String(now.getMinutes()).padStart(2, '0');
+                        const ss = String(now.getSeconds()).padStart(2, '0');
+                        updEl.textContent = `最終更新: ${hh}:${mm}:${ss}`;
+                    }
+                } catch (err) {
+                    this._showDashboardError('通信エラー: ' + err.message);
+                }
+            }
+
+            _showDashboardError(msg) {
+                const stats = document.getElementById('dashboardStats');
+                if (stats) stats.innerHTML = `<div class="dashboard-error">${msg}</div>`;
+            }
+
+            // logs を生徒ごとに集計
+            _aggregateDashboardData(logs) {
+                const loggedInSet = new Set();
+                const loginTimes = new Map();
+                const byStudent = new Map();
+                let totalAttempts = 0;
+                let totalCorrect = 0;
+
+                for (const log of logs) {
+                    const sid = Number(log.student_id);
+                    if (!sid || sid < 1 || sid > 40) continue;
+
+                    // ログイン判定
+                    if (log.stage === 'login') {
+                        loggedInSet.add(sid);
+                        if (!loginTimes.has(sid) && log.timestamp) {
+                            const d = new Date(log.timestamp);
+                            if (!isNaN(d)) {
+                                const hh = String(d.getHours()).padStart(2, '0');
+                                const mm = String(d.getMinutes()).padStart(2, '0');
+                                loginTimes.set(sid, `${hh}:${mm}`);
+                            }
+                        }
+                    }
+
+                    // complete ステージの集計
+                    if (log.stage === 'complete' && log.unit_id) {
+                        loggedInSet.add(sid);  // complete ログしかない生徒も「ログイン済み」扱い
+                        if (!byStudent.has(sid)) byStudent.set(sid, { units: new Map() });
+                        const units = byStudent.get(sid).units;
+                        const uid = log.unit_id;
+                        if (!units.has(uid)) units.set(uid, { correct: 0, total: DASHBOARD_UNIT_COUNTS[uid] || 0, attempts: new Set() });
+                        const u = units.get(uid);
+                        const pid = log.problem_id;
+                        if (pid != null && pid !== '') {
+                            // 同じ問題で複数回試行する場合、「is_correct === true のログが1つでもあれば正解」とする
+                            if (log.is_correct === true || log.is_correct === 'true') {
+                                u.attempts.add(pid);
+                                if (!u._correctSet) u._correctSet = new Set();
+                                u._correctSet.add(pid);
+                            } else {
+                                u.attempts.add(pid);
+                            }
+                        }
+                        totalAttempts++;
+                        if (log.is_correct === true || log.is_correct === 'true') totalCorrect++;
+                    }
+                }
+
+                // 正解数を確定
+                for (const [sid, data] of byStudent) {
+                    for (const [uid, u] of data.units) {
+                        u.correct = u._correctSet ? u._correctSet.size : 0;
+                        delete u._correctSet;
+                    }
+                }
+
+                return {
+                    loggedInSet,
+                    loginTimes,
+                    byStudent,
+                    totals: {
+                        loginCount: loggedInSet.size,
+                        totalAttempts,
+                        totalCorrect,
+                        correctRate: totalAttempts > 0 ? Math.round(100 * totalCorrect / totalAttempts) : 0
+                    }
+                };
+            }
+
+            _renderDashboardUI(agg) {
+                // (c) 統計カード
+                const stats = document.getElementById('dashboardStats');
+                if (stats) {
+                    stats.innerHTML = `
+                        <div class="dashboard-stat-card">
+                            <div class="dashboard-stat-label">本日ログイン</div>
+                            <div class="dashboard-stat-value">${agg.totals.loginCount} / 36</div>
+                        </div>
+                        <div class="dashboard-stat-card">
+                            <div class="dashboard-stat-label">問題試行回数</div>
+                            <div class="dashboard-stat-value">${agg.totals.totalAttempts}</div>
+                        </div>
+                        <div class="dashboard-stat-card">
+                            <div class="dashboard-stat-label">正答回数</div>
+                            <div class="dashboard-stat-value">${agg.totals.totalCorrect}</div>
+                        </div>
+                        <div class="dashboard-stat-card">
+                            <div class="dashboard-stat-label">正答率</div>
+                            <div class="dashboard-stat-value">${agg.totals.correctRate}%</div>
+                        </div>
+                    `;
+                }
+
+                // (a) ログイン状況グリッド（1-40）
+                const grid = document.getElementById('dashboardLoginGrid');
+                if (grid) {
+                    let html = '';
+                    for (let i = 1; i <= 40; i++) {
+                        let cls = 'dashboard-login-cell';
+                        if (i === 40) {
+                            cls += ' teacher';
+                        } else if (agg.loggedInSet.has(i)) {
+                            cls += ' active';
+                        } else {
+                            cls += ' inactive';
+                        }
+                        const label = (i === 40) ? '40<br><span style="font-size:10px;">教員</span>' : i;
+                        html += `<div class="${cls}">${label}</div>`;
+                    }
+                    grid.innerHTML = html;
+                }
+
+                // (b) 生徒取り組みテーブル（1-36 のみ）
+                const table = document.getElementById('dashboardTable');
+                if (table) {
+                    let html = '<thead><tr><th>番号</th><th>ログイン</th>';
+                    for (const uid of DASHBOARD_UNIT_ORDER) {
+                        html += `<th>${uid}</th>`;
+                    }
+                    html += '</tr></thead><tbody>';
+
+                    for (let i = 1; i <= 36; i++) {
+                        const loggedIn = agg.loggedInSet.has(i);
+                        const loginTime = agg.loginTimes.get(i);
+                        const studentData = agg.byStudent.get(i);
+                        html += `<tr><td class="dashboard-number">${i}</td>`;
+                        html += loggedIn
+                            ? `<td class="dashboard-login-time">${loginTime || '✓'}</td>`
+                            : `<td class="dashboard-no-login">–</td>`;
+                        for (const uid of DASHBOARD_UNIT_ORDER) {
+                            const u = studentData && studentData.units.get(uid);
+                            if (!u) {
+                                html += `<td class="dashboard-unit-none">–</td>`;
+                            } else if (u.correct >= u.total && u.total > 0) {
+                                html += `<td class="dashboard-unit-complete">完 ${u.correct}/${u.total}</td>`;
+                            } else {
+                                html += `<td class="dashboard-unit-progress">${u.correct}/${u.total}</td>`;
+                            }
+                        }
+                        html += '</tr>';
+                    }
+                    html += '</tbody>';
+                    table.innerHTML = html;
+                }
             }
 
             // ===== PROBLEM LOADING & RENDERING =====
