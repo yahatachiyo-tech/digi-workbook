@@ -2040,6 +2040,15 @@
                 total: 0
             },
             {
+                id: '1-6',
+                title: '計算による力の合成',
+                subtitle: '直角な 2 力の合成（三平方の定理）',
+                level: '基礎',
+                completed: false,
+                score: 0,
+                total: 0
+            },
+            {
                 id: '2-1',
                 title: '変位と速度',
                 subtitle: 's = v × t',
@@ -2049,6 +2058,190 @@
                 total: 0
             }
         ];
+
+        // Problems for sub-unit 1-6: 計算による力の合成（直角 2 力、三平方の定理）
+        //   2-1 と同じ 6 ステージ計算問題フローを使用する。
+        //   ステージ構成:
+        //     Stage 0 事実抽出 → Stage 1 現象把握 → Stage 2 公式提示 →
+        //     Stage 3 代入（スロット 2 つ）→ Stage 4 計算 → Stage 5 振り返り。
+        //   data schema:
+        //     stage0Choices / stage0Correct        — 事実抽出の選択肢と正解 value
+        //     stage1Choices / stage1Correct        — 現象把握の選択肢と正解 value
+        //     stage2Text / formula                 — 公式提示の本文と KaTeX 数式
+        //     substitutions.slots  (e.g. ['F1','F2']) — Stage 3 の空欄 role 並び
+        //     substitutions.cards  — 代入に使う数値カード（role/label/value/unit）
+        //     canvas               — 問題図（F₁水平・F₂垂直・直角マーク付き）
+        const PROBLEMS_1_6 = [
+            {
+                id: 1,
+                f1: 30, f2: 40, expectedResultant: 50, tolerance: 1,
+                sentence: '図のように、F₁ ＝ 30 N と F₂ ＝ 40 N の 2 力が、たがいに直角にはたらいている。合力 F の大きさを求めよ。',
+                condition: '3-4-5 ピタゴラス数、F₁=30 N, F₂=40 N',
+                baselineTime: 120,
+                canvasType: '2d-static',
+                canvas: {
+                    width: 360, height: 280,
+                    scaleLabel: '1マス = 10 N',
+                    origin: { x: 80, y: 220 },
+                    f1Arrow: { x1: 80, y1: 220, x2: 170, y2: 220, color: '#d23a2a', label: 'F₁ = 30 N', lx: 110, ly: 240 },
+                    f2Arrow: { x1: 80, y1: 220, x2: 80,  y2: 100, color: '#b83a2a', label: 'F₂ = 40 N', lx: 22,  ly: 160 },
+                    rightAngleMark: { x: 80, y: 220, size: 12 }
+                },
+                stage0Choices: [
+                    { value: 'resultant',  label: '合力 F の大きさ' },
+                    { value: 'decomposed', label: '分力 Fx, Fy' },
+                    { value: 'sum',        label: '2 力の和 F₁ ＋ F₂' }
+                ],
+                stage0Correct: 'resultant',
+                stage1Choices: [
+                    { value: 'perpendicular', label: '直角（90°）に交わる 2 力' },
+                    { value: 'same',          label: '同じ向きの 2 力' }
+                ],
+                stage1Correct: 'perpendicular',
+                stage2Text: '直角に交わる 2 力の合成では、合力 F は次の式で求められます。<br>これは <strong>三平方の定理</strong> と同じ形です（底辺 F₁、高さ F₂、斜辺 F の直角三角形）。',
+                formula: 'F = \\sqrt{F_1^{\\,2} + F_2^{\\,2}}',
+                substitutions: {
+                    slots: ['F1', 'F2'],
+                    cards: [
+                        { role: 'F1', label: 'F₁', value: 30, unit: 'N' },
+                        { role: 'F2', label: 'F₂', value: 40, unit: 'N' }
+                    ]
+                }
+            },
+            {
+                id: 2,
+                f1: 60, f2: 80, expectedResultant: 100, tolerance: 1,
+                sentence: '図のように、F₁ ＝ 60 N と F₂ ＝ 80 N の 2 力が、たがいに直角にはたらいている。合力 F の大きさを求めよ。',
+                condition: '3-4-5 ピタゴラス数（教科書例題1 相当）、F₁=60 N, F₂=80 N',
+                baselineTime: 120,
+                canvasType: '2d-static',
+                canvas: {
+                    width: 360, height: 280,
+                    scaleLabel: '1マス = 20 N',
+                    origin: { x: 80, y: 220 },
+                    f1Arrow: { x1: 80, y1: 220, x2: 170, y2: 220, color: '#d23a2a', label: 'F₁ = 60 N', lx: 110, ly: 240 },
+                    f2Arrow: { x1: 80, y1: 220, x2: 80,  y2: 100, color: '#b83a2a', label: 'F₂ = 80 N', lx: 22,  ly: 160 },
+                    rightAngleMark: { x: 80, y: 220, size: 12 }
+                },
+                stage0Choices: [
+                    { value: 'resultant',  label: '合力 F の大きさ' },
+                    { value: 'decomposed', label: '分力 Fx, Fy' },
+                    { value: 'sum',        label: '2 力の和 F₁ ＋ F₂' }
+                ],
+                stage0Correct: 'resultant',
+                stage1Choices: [
+                    { value: 'perpendicular', label: '直角（90°）に交わる 2 力' },
+                    { value: 'same',          label: '同じ向きの 2 力' }
+                ],
+                stage1Correct: 'perpendicular',
+                stage2Text: '直角に交わる 2 力の合成では、合力 F は次の式で求められます。<br>これは <strong>三平方の定理</strong> と同じ形です（底辺 F₁、高さ F₂、斜辺 F の直角三角形）。',
+                formula: 'F = \\sqrt{F_1^{\\,2} + F_2^{\\,2}}',
+                substitutions: {
+                    slots: ['F1', 'F2'],
+                    cards: [
+                        { role: 'F1', label: 'F₁', value: 60, unit: 'N' },
+                        { role: 'F2', label: 'F₂', value: 80, unit: 'N' }
+                    ]
+                }
+            },
+            {
+                id: 3,
+                f1: 50, f2: 120, expectedResultant: 130, tolerance: 1,
+                sentence: '図のように、F₁ ＝ 50 N と F₂ ＝ 120 N の 2 力が、たがいに直角にはたらいている。合力 F の大きさを求めよ。',
+                condition: '5-12-13 ピタゴラス数、F₁=50 N, F₂=120 N',
+                baselineTime: 150,
+                canvasType: '2d-static',
+                canvas: {
+                    width: 360, height: 280,
+                    scaleLabel: '1マス = 20 N',
+                    origin: { x: 80, y: 240 },
+                    f1Arrow: { x1: 80, y1: 240, x2: 130, y2: 240, color: '#d23a2a', label: 'F₁ = 50 N',  lx: 90,  ly: 260 },
+                    f2Arrow: { x1: 80, y1: 240, x2: 80,  y2: 120, color: '#b83a2a', label: 'F₂ = 120 N', lx: 16,  ly: 180 },
+                    rightAngleMark: { x: 80, y: 240, size: 12 }
+                },
+                stage0Choices: [
+                    { value: 'resultant',  label: '合力 F の大きさ' },
+                    { value: 'decomposed', label: '分力 Fx, Fy' },
+                    { value: 'sum',        label: '2 力の和 F₁ ＋ F₂' }
+                ],
+                stage0Correct: 'resultant',
+                stage1Choices: [
+                    { value: 'perpendicular', label: '直角（90°）に交わる 2 力' },
+                    { value: 'same',          label: '同じ向きの 2 力' }
+                ],
+                stage1Correct: 'perpendicular',
+                stage2Text: '直角に交わる 2 力の合成では、合力 F は次の式で求められます。<br>これは <strong>三平方の定理</strong> と同じ形です（底辺 F₁、高さ F₂、斜辺 F の直角三角形）。',
+                formula: 'F = \\sqrt{F_1^{\\,2} + F_2^{\\,2}}',
+                substitutions: {
+                    slots: ['F1', 'F2'],
+                    cards: [
+                        { role: 'F1', label: 'F₁', value: 50,  unit: 'N' },
+                        { role: 'F2', label: 'F₂', value: 120, unit: 'N' }
+                    ]
+                }
+            },
+            {
+                id: 4,
+                f1: 80, f2: 150, expectedResultant: 170, tolerance: 1,
+                sentence: '図のように、F₁ ＝ 80 N と F₂ ＝ 150 N の 2 力が、たがいに直角にはたらいている。合力 F の大きさを求めよ。',
+                condition: '8-15-17 ピタゴラス数、F₁=80 N, F₂=150 N',
+                baselineTime: 150,
+                canvasType: '2d-static',
+                canvas: {
+                    width: 360, height: 280,
+                    scaleLabel: '1マス = 30 N',
+                    origin: { x: 90, y: 240 },
+                    f1Arrow: { x1: 90, y1: 240, x2: 170, y2: 240, color: '#d23a2a', label: 'F₁ = 80 N',  lx: 110, ly: 260 },
+                    f2Arrow: { x1: 90, y1: 240, x2: 90,  y2: 90,  color: '#b83a2a', label: 'F₂ = 150 N', lx: 20,  ly: 165 },
+                    rightAngleMark: { x: 90, y: 240, size: 12 }
+                },
+                stage0Choices: [
+                    { value: 'resultant',  label: '合力 F の大きさ' },
+                    { value: 'decomposed', label: '分力 Fx, Fy' },
+                    { value: 'sum',        label: '2 力の和 F₁ ＋ F₂' }
+                ],
+                stage0Correct: 'resultant',
+                stage1Choices: [
+                    { value: 'perpendicular', label: '直角（90°）に交わる 2 力' },
+                    { value: 'same',          label: '同じ向きの 2 力' }
+                ],
+                stage1Correct: 'perpendicular',
+                stage2Text: '直角に交わる 2 力の合成では、合力 F は次の式で求められます。<br>これは <strong>三平方の定理</strong> と同じ形です（底辺 F₁、高さ F₂、斜辺 F の直角三角形）。',
+                formula: 'F = \\sqrt{F_1^{\\,2} + F_2^{\\,2}}',
+                substitutions: {
+                    slots: ['F1', 'F2'],
+                    cards: [
+                        { role: 'F1', label: 'F₁', value: 80,  unit: 'N' },
+                        { role: 'F2', label: 'F₂', value: 150, unit: 'N' }
+                    ]
+                }
+            }
+        ];
+
+        // 1-6 のヒント（計算による力の合成 — 3 段階 B→A→C）。
+        //   Stage 2（必然の公式）は表示のみなのでヒントなし。
+        const HINTS_1_6 = {
+            stage0: {
+                b: '問題文の最後の文に注目してください。「求めよ」と書かれている量が求めるものです。図の中で矢印が 2 本描かれている力は「与えられている量」です。',
+                a: '問題文の末尾に「合力 F の大きさを求めよ」とあります。求めるものは 合力 F の大きさ [N] です。F₁ と F₂ は問題文に数値で与えられています。',
+                c: '教科書26ページ「直角な2力の合成」の冒頭と図2-11を確認してください。'
+            },
+            stage1: {
+                b: '図の 2 本の矢印が作っている角度に注目してください。90°（直角）に交わっているでしょうか、それとも同じ向きに重なっているでしょうか。作用点のところに描かれている小さな四角形は「直角のしるし」です。',
+                a: '2 力のなす角が 90°（直角）のとき、合力の求め方は「直角な 2 力の合成」の式を使います。1-3 で学んだ「同じ向き」「逆向き」の 1 直線上の合成とは別の式です。',
+                c: '教科書26ページ「直角な2力の合成」と図2-11を確認してください。'
+            },
+            stage3: {
+                b: '式の F₁ の空欄には、問題文の F₁ の値を入れます。F₂ の空欄にも同様に F₂ の値を入れます。',
+                a: '式は F ＝ √(F₁² ＋ F₂²)。F₁ の空欄には問題文の「F₁ ＝ ○○ N」の数値を、F₂ の空欄には「F₂ ＝ ○○ N」の数値を入れます。',
+                c: '教科書26ページ 式(2-1) と例題1を確認してください。'
+            },
+            stage4: {
+                b: 'まず F₁² と F₂² をそれぞれ計算して足してください。次にその合計に対して √（ルート）を取ると F になります。電卓の √ ボタンを使います。',
+                a: 'F ＝ √(F₁² ＋ F₂²)。手順は 3 つです。①F₁ を 2 乗する。②F₂ を 2 乗する。③ ①と② を足したものの √ を取る。答えは整数になります。',
+                c: '教科書26ページ 式(2-1) と例題1の計算過程を確認してください。'
+            }
+        };
 
         // Problems for sub-unit 2-1: displacement and velocity (repetitive calculation)
         // Formula: s = v × t (displacement = velocity × time)
@@ -3137,6 +3330,7 @@
                 if (unitId === '1-3') return PROBLEMS_1_3.length;
                 if (unitId === '1-4') return PROBLEMS_1_4.length;
                 if (unitId === '1-5') return PROBLEMS_1_5.length;
+                if (unitId === '1-6') return PROBLEMS_1_6.length;
                 if (unitId === '2-1') return PROBLEMS_2_1.length;
                 return 0;
             }
@@ -3398,6 +3592,7 @@
                 else if (this.currentUnitId === '1-3') problems = PROBLEMS_1_3;
                 else if (this.currentUnitId === '1-4') problems = PROBLEMS_1_4;
                 else if (this.currentUnitId === '1-5') problems = PROBLEMS_1_5;
+                else if (this.currentUnitId === '1-6') problems = PROBLEMS_1_6;
                 else if (this.currentUnitId === '2-1') problems = PROBLEMS_2_1;
 
                 if (this.currentProblemIndex >= problems.length) {
@@ -3501,6 +3696,7 @@
                     else if (this.currentUnitId === '1-3') problems = PROBLEMS_1_3;
                     else if (this.currentUnitId === '1-4') problems = PROBLEMS_1_4;
                     else if (this.currentUnitId === '1-5') problems = PROBLEMS_1_5;
+                    else if (this.currentUnitId === '1-6') problems = PROBLEMS_1_6;
                     else if (this.currentUnitId === '2-1') problems = PROBLEMS_2_1;
                     sidebarList.innerHTML = problems.map((p, i) =>
                         `<li class="${i === this.currentProblemIndex ? 'is-active' : ''}">問 ${p.id}</li>`
@@ -3529,7 +3725,7 @@
                 const content = document.getElementById('problemContent');
 
                 // Handle different problem types
-                if (this.currentUnitId === '2-1') {
+                if (this.currentUnitId === '2-1' || this.currentUnitId === '1-6') {
                     this.renderCalculationProblem(problem, content);
                 } else if (this.currentUnitId === '1-3' || this.currentUnitId === '1-4' || this.currentUnitId === '1-5') {
                     this.drawingStageIndex = 0;
@@ -3618,35 +3814,54 @@
             renderCalculationProblem(problem, content) {
                 // ステージ切替時に前ステージのヒント表示・ヒントボタン状態を必ずクリア
                 this._clearHintDisplay();
+                // 1-6（直角 2 力合成）は 2-1 と同じ 6 ステージ計算フローを共有するが、
+                // 問題文・公式・代入スロット・問題図が異なるので unit id で分岐する。
+                const is1_6 = this.currentUnitId === '1-6';
                 // Persistent problem statement shown at the top of every stage
-                const problemText = `速度 <strong>${problem.velocity} m/s</strong> で一定の速さで <strong>${problem.time} 秒間</strong> 運動したときの変位 <em>s</em> [m] を求めよ。`;
+                const problemText = is1_6
+                    ? problem.sentence
+                    : `速度 <strong>${problem.velocity} m/s</strong> で一定の速さで <strong>${problem.time} 秒間</strong> 運動したときの変位 <em>s</em> [m] を求めよ。`;
 
                 const stageIndex = this.currentCalcStage;
-                const stageLabels = [
-                    '求める量を確認する',
-                    '運動の種類を確認する',
-                    '使う式を確認する',
-                    '数値を代入する',
-                    '計算する',
-                    '答えの意味を確認'
-                ];
+                const stageLabels = is1_6
+                    ? [
+                        '求める量を確認する',
+                        '2 力の関係を確認する',
+                        '使う式を確認する',
+                        '数値を代入する',
+                        '計算する',
+                        '答えの意味を確認'
+                    ]
+                    : [
+                        '求める量を確認する',
+                        '運動の種類を確認する',
+                        '使う式を確認する',
+                        '数値を代入する',
+                        '計算する',
+                        '答えの意味を確認'
+                    ];
                 // Always shown at the top: persistent problem statement + stage label
                 const header = `
                     <div class="calc-problem-persistent">${problemText}</div>
                     <div class="calc-stage-label" style="margin-bottom:12px;">${stageLabels[stageIndex] || ''}</div>
                 `;
+                // 1-6: 全ステージに問題図（F₁水平・F₂垂直・直角マーク）を共通表示する。
+                const staticCanvas1_6 = is1_6 ? this.build1_6StaticCanvas(problem) : '';
 
                 if (stageIndex === 0) {
                     // 事実抽出：問題文から「求める量」と「与えられている量」を識別する
-                    const options = this.shuffleArray([
-                        { value: 's', label: '変位 s [m]' },
-                        { value: 'v', label: '速度 v [m/s]' },
-                        { value: 't', label: '時間 t [s]' }
-                    ]);
+                    const rawOptions = is1_6
+                        ? [...problem.stage0Choices]
+                        : [
+                            { value: 's', label: '変位 s [m]' },
+                            { value: 'v', label: '速度 v [m/s]' },
+                            { value: 't', label: '時間 t [s]' }
+                        ];
+                    const options = this.shuffleArray(rawOptions);
                     const chipsHTML = options.map(o =>
                         `<div class="calc-chip" data-value="${o.value}">${o.label}</div>`
                     ).join('');
-                    content.innerHTML = header + `
+                    content.innerHTML = header + staticCanvas1_6 + `
                         <div class="calc-stage-container">
                             <div class="calc-question-text">この問題で<strong>求める量</strong>はどれですか？</div>
                             <div class="calc-chips" id="quantityChips0">${chipsHTML}</div>
@@ -3663,17 +3878,23 @@
                     `;
                 }
                 else if (stageIndex === 1) {
-                    // 現象の把握：「一定の速さ」→「等速直線運動」を生徒が選ぶ
-                    const options = this.shuffleArray([
-                        { value: 'constant',    label: '等速直線運動（速さが一定の運動）' },
-                        { value: 'accelerated', label: '等加速度運動（速さが変わる運動）' }
-                    ]);
+                    // 現象の把握：2-1「一定の速さ→等速直線運動」／1-6「2 力の関係（直角 or 同じ向き）」
+                    const rawOptions = is1_6
+                        ? [...problem.stage1Choices]
+                        : [
+                            { value: 'constant',    label: '等速直線運動（速さが一定の運動）' },
+                            { value: 'accelerated', label: '等加速度運動（速さが変わる運動）' }
+                        ];
+                    const options = this.shuffleArray(rawOptions);
                     const chipsHTML = options.map(o =>
                         `<div class="calc-chip" data-value="${o.value}">${o.label}</div>`
                     ).join('');
-                    content.innerHTML = header + `
+                    const questionText = is1_6
+                        ? '図の 2 力 F₁, F₂ の関係はどれですか？'
+                        : '問題文の「一定の速さで運動した」は、どのような運動ですか？';
+                    content.innerHTML = header + staticCanvas1_6 + `
                         <div class="calc-stage-container">
-                            <div class="calc-question-text">問題文の「一定の速さで運動した」は、どのような運動ですか？</div>
+                            <div class="calc-question-text">${questionText}</div>
                             <div class="calc-chips" id="phenomenonChips">${chipsHTML}</div>
                             <div id="stageFeedback" style="margin-top:12px; font-size:14px; min-height:20px;"></div>
                         </div>
@@ -3688,23 +3909,46 @@
                     `;
                 }
                 else if (stageIndex === 2) {
-                    // 必然の公式：選択肢なし。等速直線運動→変位→s=v×t が論理的に決まることを提示する
-                    content.innerHTML = header + `
-                        <div class="calc-stage-container">
-                            <div style="font-size:15px; margin-bottom:16px; line-height:1.7;">
-                                等速直線運動で<strong>変位</strong>を求めるとき、使う式は次のように<strong>決まります</strong>。
+                    // 必然の公式：選択肢なし。
+                    //   2-1: 等速直線運動 → 変位 → s=v×t
+                    //   1-6: 直角 2 力 → 三平方の定理 → F=√(F₁²+F₂²)
+                    if (is1_6) {
+                        const triangleSvg = this.buildStage2SvgRightTriangle(problem);
+                        content.innerHTML = header + `
+                            <div class="calc-stage-container">
+                                <div style="font-size:15px; margin-bottom:14px; line-height:1.7;">
+                                    ${problem.stage2Text}
+                                </div>
+                                ${triangleSvg}
+                                <div class="calc-formula-display">
+                                    $${problem.formula}$
+                                </div>
+                                <div style="background:#eef3fa; border-left:3px solid #4a7cbe; padding:12px 16px; border-radius:3px; margin-top:16px; font-size:14px; line-height:1.7; color:#222;">
+                                    <strong>この式になる理由：</strong><br>
+                                    直角に交わる 2 力は、平行四辺形（長方形）の 2 辺になる<br>
+                                    → 合力 F は長方形の対角線<br>
+                                    → 直角三角形の斜辺なので <strong>三平方の定理</strong> により <strong>F ＝ √(F₁² ＋ F₂²)</strong> と決まる
+                                </div>
                             </div>
-                            <div class="calc-formula-display">
-                                $s = v \\times t$
+                        `;
+                    } else {
+                        content.innerHTML = header + `
+                            <div class="calc-stage-container">
+                                <div style="font-size:15px; margin-bottom:16px; line-height:1.7;">
+                                    等速直線運動で<strong>変位</strong>を求めるとき、使う式は次のように<strong>決まります</strong>。
+                                </div>
+                                <div class="calc-formula-display">
+                                    $s = v \\times t$
+                                </div>
+                                <div style="background:#eef3fa; border-left:3px solid #4a7cbe; padding:12px 16px; border-radius:3px; margin-top:16px; font-size:14px; line-height:1.7; color:#222;">
+                                    <strong>この式になる理由：</strong><br>
+                                    速さが一定（等速直線運動）<br>
+                                    → 「速度 × 時間 ＝ 変位」の関係が成り立つ<br>
+                                    → 求める量が変位 s なので、<strong>s = v × t</strong> と決まる
+                                </div>
                             </div>
-                            <div style="background:#eef3fa; border-left:3px solid #4a7cbe; padding:12px 16px; border-radius:3px; margin-top:16px; font-size:14px; line-height:1.7; color:#222;">
-                                <strong>この式になる理由：</strong><br>
-                                速さが一定（等速直線運動）<br>
-                                → 「速度 × 時間 ＝ 変位」の関係が成り立つ<br>
-                                → 求める量が変位 s なので、<strong>s = v × t</strong> と決まる
-                            </div>
-                        </div>
-                    `;
+                        `;
+                    }
                     document.getElementById('controlButtons').innerHTML = `
                         <button class="next-btn" onclick="if(this.disabled)return; this.disabled=true; app.nextCalcStage();">確認して次へ</button>
                     `;
@@ -3712,36 +3956,71 @@
                 }
                 else if (stageIndex === 3) {
                     // Interactive substitution: student picks value cards and drops them into placeholders.
-                    // Shuffle the value cards so 速度 is not always first.
-                    const valueCards = this.shuffleArray([
-                        { role: 'v', label: '速度 v', value: problem.velocity, unit: 'm/s' },
-                        { role: 't', label: '時間 t', value: problem.time, unit: 's' }
-                    ]);
-                    const valuesHTML = valueCards.map(c =>
-                        `<div class="calc-value-card draggable-value" data-role="${c.role}" data-value="${c.value}">${c.label} ＝ ${c.value} ${c.unit}</div>`
-                    ).join('');
-                    content.innerHTML = header + `
-                        <div class="calc-stage-container">
-                            <div class="calc-question-text">それぞれの数値を、式の正しい場所に入れよう。</div>
-                            <div style="margin-bottom:14px; font-size:13px; color:#555;">
-                                下の<strong>数値カード</strong>をタップしてから、式の中の<strong>空欄（黄色）</strong>をタップすると、そこに数値が入ります。単位に注目して対応を考えましょう。
+                    if (is1_6) {
+                        // 1-6: 汎用スロット（problem.substitutions.slots / .cards）
+                        const slots = problem.substitutions.slots; // 例: ['F1','F2']
+                        const cardsRaw = problem.substitutions.cards;
+                        const valueCards = this.shuffleArray([...cardsRaw]);
+                        const valuesHTML = valueCards.map(c =>
+                            `<div class="calc-value-card draggable-value" data-role="${c.role}" data-value="${c.value}">${c.label} ＝ ${c.value} ${c.unit}</div>`
+                        ).join('');
+                        // 式の表示: F = √( [F₁]² + [F₂]² )
+                        const slotLabel = { F1: 'F₁', F2: 'F₂' };
+                        const slotSpans = slots.map(role =>
+                            `<span class="calc-formula-input empty" data-slot="${role}" id="slot-${role}">${slotLabel[role] || role}</span>`
+                        );
+                        const formulaHTML = `F ＝ √( ${slotSpans[0]}<sup>2</sup> ＋ ${slotSpans[1]}<sup>2</sup> )`;
+                        content.innerHTML = header + staticCanvas1_6 + `
+                            <div class="calc-stage-container">
+                                <div class="calc-question-text">それぞれの数値を、式の正しい場所に入れよう。</div>
+                                <div style="margin-bottom:14px; font-size:13px; color:#555;">
+                                    下の<strong>数値カード</strong>をタップしてから、式の中の<strong>空欄（黄色）</strong>をタップすると、そこに数値が入ります。
+                                </div>
+                                <div class="calc-formula-display" style="font-size:22px;">
+                                    ${formulaHTML}
+                                </div>
+                                <div style="display:flex; gap:12px; margin-top:16px; flex-wrap:wrap;">
+                                    ${valuesHTML}
+                                </div>
+                                <div id="stageFeedback" style="margin-top:12px; font-size:14px; min-height:20px;"></div>
                             </div>
-                            <div class="calc-formula-display" style="font-size:22px;">
-                                s ＝ <span class="calc-formula-input empty" data-slot="v" id="slot-v">v</span> × <span class="calc-formula-input empty" data-slot="t" id="slot-t">t</span>
+                        `;
+                        // 汎用 substitutions: slot role をキーに null 初期化
+                        this.calcInputs.substitutions = {};
+                        slots.forEach(role => { this.calcInputs.substitutions[role] = null; });
+                        this.calcInputs.selectedCard = null;
+                    } else {
+                        // 2-1: 従来の v/t スロット
+                        const valueCards = this.shuffleArray([
+                            { role: 'v', label: '速度 v', value: problem.velocity, unit: 'm/s' },
+                            { role: 't', label: '時間 t', value: problem.time, unit: 's' }
+                        ]);
+                        const valuesHTML = valueCards.map(c =>
+                            `<div class="calc-value-card draggable-value" data-role="${c.role}" data-value="${c.value}">${c.label} ＝ ${c.value} ${c.unit}</div>`
+                        ).join('');
+                        content.innerHTML = header + `
+                            <div class="calc-stage-container">
+                                <div class="calc-question-text">それぞれの数値を、式の正しい場所に入れよう。</div>
+                                <div style="margin-bottom:14px; font-size:13px; color:#555;">
+                                    下の<strong>数値カード</strong>をタップしてから、式の中の<strong>空欄（黄色）</strong>をタップすると、そこに数値が入ります。単位に注目して対応を考えましょう。
+                                </div>
+                                <div class="calc-formula-display" style="font-size:22px;">
+                                    s ＝ <span class="calc-formula-input empty" data-slot="v" id="slot-v">v</span> × <span class="calc-formula-input empty" data-slot="t" id="slot-t">t</span>
+                                </div>
+                                <div style="display:flex; gap:12px; margin-top:16px; flex-wrap:wrap;">
+                                    ${valuesHTML}
+                                </div>
+                                <div id="stageFeedback" style="margin-top:12px; font-size:14px; min-height:20px;"></div>
                             </div>
-                            <div style="display:flex; gap:12px; margin-top:16px; flex-wrap:wrap;">
-                                ${valuesHTML}
-                            </div>
-                            <div id="stageFeedback" style="margin-top:12px; font-size:14px; min-height:20px;"></div>
-                        </div>
-                    `;
-                    this.calcInputs.substitutions = { v: null, t: null };
-                    this.calcInputs.selectedCard = null;
-                    // Card click handlers
+                        `;
+                        this.calcInputs.substitutions = { v: null, t: null };
+                        this.calcInputs.selectedCard = null;
+                    }
+                    // Card click handlers（共通）
                     document.querySelectorAll('.draggable-value').forEach(card => {
                         card.onclick = () => this.selectValueCard(card);
                     });
-                    // Placeholder click handlers
+                    // Placeholder click handlers（共通）
                     document.querySelectorAll('.calc-formula-input[data-slot]').forEach(slot => {
                         slot.onclick = () => this.fillSlotFromSelectedCard(slot);
                     });
@@ -3751,19 +4030,35 @@
                     `;
                 }
                 else if (stageIndex === 4) {
-                    content.innerHTML = header + `
-                        <div class="calc-stage-container">
-                            <div class="calc-question-text">計算結果を入力してください。</div>
-                            <div class="calc-formula-display">
-                                $s = ${problem.velocity} \\times ${problem.time} = {\\color{#c62828}?}$
+                    if (is1_6) {
+                        content.innerHTML = header + staticCanvas1_6 + `
+                            <div class="calc-stage-container">
+                                <div class="calc-question-text">計算結果を入力してください。</div>
+                                <div class="calc-formula-display">
+                                    $F = \\sqrt{${problem.f1}^{\\,2} + ${problem.f2}^{\\,2}} = {\\color{#c62828}?}$
+                                </div>
+                                <div class="calc-input-row">
+                                    <span class="calc-input-label">答え：F ＝</span>
+                                    <input type="number" id="answerInput" class="calc-answer-input" placeholder="数値" style="width:120px;" step="0.1">
+                                    <span style="font-size:14px; color:#555; margin-left:6px;">[N]</span>
+                                </div>
                             </div>
-                            <div class="calc-input-row">
-                                <span class="calc-input-label">答え：s ＝</span>
-                                <input type="number" id="answerInput" class="calc-answer-input" placeholder="数値" style="width:120px;">
-                                <span style="font-size:14px; color:#555; margin-left:6px;">[m]</span>
+                        `;
+                    } else {
+                        content.innerHTML = header + `
+                            <div class="calc-stage-container">
+                                <div class="calc-question-text">計算結果を入力してください。</div>
+                                <div class="calc-formula-display">
+                                    $s = ${problem.velocity} \\times ${problem.time} = {\\color{#c62828}?}$
+                                </div>
+                                <div class="calc-input-row">
+                                    <span class="calc-input-label">答え：s ＝</span>
+                                    <input type="number" id="answerInput" class="calc-answer-input" placeholder="数値" style="width:120px;">
+                                    <span style="font-size:14px; color:#555; margin-left:6px;">[m]</span>
+                                </div>
                             </div>
-                        </div>
-                    `;
+                        `;
+                    }
                     setTimeout(() => {
                         const inp = document.getElementById('answerInput');
                         if (inp) inp.focus();
@@ -3775,26 +4070,122 @@
                 }
                 else if (stageIndex === 5) {
                     // 振り返り stage: confirm the physical meaning of the answer
-                    const ans = problem.expectedDisplacement;
-                    content.innerHTML = header + `
-                        <div class="calc-stage-container">
-                            <div class="calc-question-text">答えの意味を確認しよう。</div>
-                            <div class="calc-formula-display">
-                                $s = ${problem.velocity} \\times ${problem.time} = ${ans}\\,\\mathrm{[m]}$
+                    if (is1_6) {
+                        const ans = problem.expectedResultant;
+                        content.innerHTML = header + staticCanvas1_6 + `
+                            <div class="calc-stage-container">
+                                <div class="calc-question-text">答えの意味を確認しよう。</div>
+                                <div class="calc-formula-display">
+                                    $F = \\sqrt{${problem.f1}^{\\,2} + ${problem.f2}^{\\,2}} = \\sqrt{${problem.f1 * problem.f1} + ${problem.f2 * problem.f2}} = \\sqrt{${problem.f1 * problem.f1 + problem.f2 * problem.f2}} = ${ans}\\,\\mathrm{[N]}$
+                                </div>
+                                <div style="background:#eaf1fa; border-left:4px solid #1e5fa8; padding:14px 18px; border-radius:3px; margin-top:18px; font-size:15px; line-height:1.7;">
+                                    直角にはたらく <strong>F₁ ＝ ${problem.f1} N</strong> と <strong>F₂ ＝ ${problem.f2} N</strong> の合力の大きさは <strong>${ans} N</strong> です。<br>
+                                    これは 1-4 で学んだ <strong>力の平行四辺形</strong>（いまは長方形）の対角線の長さに相当します。三平方の定理で計算できます。
+                                </div>
+                                <div style="margin-top:14px; font-size:13px; color:#555;">
+                                    次の問題に進む前に、式と直角三角形の関係を頭の中で思い浮かべてみましょう。
+                                </div>
                             </div>
-                            <div style="background:#eaf1fa; border-left:4px solid #1e5fa8; padding:14px 18px; border-radius:3px; margin-top:18px; font-size:15px; line-height:1.7;">
-                                この物体は <strong>${problem.time} 秒間</strong> に <strong>${ans} m</strong> 進みました。<br>
-                                速さ <strong>${problem.velocity} m/s</strong>（1秒間に ${problem.velocity} m 進む）の物体が、${problem.time} 秒間進むので、合計で ${problem.velocity} × ${problem.time} ＝ <strong>${ans} m</strong> という結果になります。
+                        `;
+                    } else {
+                        const ans = problem.expectedDisplacement;
+                        content.innerHTML = header + `
+                            <div class="calc-stage-container">
+                                <div class="calc-question-text">答えの意味を確認しよう。</div>
+                                <div class="calc-formula-display">
+                                    $s = ${problem.velocity} \\times ${problem.time} = ${ans}\\,\\mathrm{[m]}$
+                                </div>
+                                <div style="background:#eaf1fa; border-left:4px solid #1e5fa8; padding:14px 18px; border-radius:3px; margin-top:18px; font-size:15px; line-height:1.7;">
+                                    この物体は <strong>${problem.time} 秒間</strong> に <strong>${ans} m</strong> 進みました。<br>
+                                    速さ <strong>${problem.velocity} m/s</strong>（1秒間に ${problem.velocity} m 進む）の物体が、${problem.time} 秒間進むので、合計で ${problem.velocity} × ${problem.time} ＝ <strong>${ans} m</strong> という結果になります。
+                                </div>
+                                <div style="margin-top:14px; font-size:13px; color:#555;">
+                                    次の問題に進む前に、計算結果と場面の対応を頭の中で思い浮かべてみましょう。
+                                </div>
                             </div>
-                            <div style="margin-top:14px; font-size:13px; color:#555;">
-                                次の問題に進む前に、計算結果と場面の対応を頭の中で思い浮かべてみましょう。
-                            </div>
-                        </div>
-                    `;
+                        `;
+                    }
                     document.getElementById('controlButtons').innerHTML = `
                         <button class="next-btn" onclick="if(this.disabled)return; this.disabled=true; app.nextProblem();">次の問題へ</button>
                     `;
                 }
+            }
+
+            // 1-6（計算による力の合成）の問題図を生成する。
+            //   F₁（水平・赤）、F₂（垂直・濃赤）、作用点 O、直角マーク（小さな正方形）、
+            //   右下にスケール凡例（1マス = XX N）。Stage 0/1/3/4/5 で共通表示する。
+            //   2-1 等の canvasType には影響しないように本メソッドは 1-6 専用とする。
+            build1_6StaticCanvas(problem) {
+                const c = problem.canvas;
+                const W = c.width, H = c.height;
+                const CELL = 20; // 補助グリッド（スケール判読用）
+                const f1 = c.f1Arrow, f2 = c.f2Arrow;
+                const o = c.origin;
+                const rm = c.rightAngleMark;
+                let svg = `<div class="drawing-wrapper" style="pointer-events:none;">
+                <svg class="drawing-svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="cursor:default;">
+                <defs>
+                  <marker id="stc16-red1" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#d23a2a"/></marker>
+                  <marker id="stc16-red2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#b83a2a"/></marker>
+                </defs>`;
+                // 補助グリッド（淡色）
+                for (let x = 0; x < W; x += CELL) {
+                    svg += `<line x1="${x}" y1="0" x2="${x}" y2="${H}" stroke="#eee" stroke-width="1"/>`;
+                }
+                for (let y = 0; y < H; y += CELL) {
+                    svg += `<line x1="0" y1="${y}" x2="${W}" y2="${y}" stroke="#eee" stroke-width="1"/>`;
+                }
+                // F₁（水平）
+                svg += `<line x1="${f1.x1}" y1="${f1.y1}" x2="${f1.x2}" y2="${f1.y2}" stroke="${f1.color}" stroke-width="2.5" marker-end="url(#stc16-red1)"/>`;
+                svg += `<text x="${f1.lx}" y="${f1.ly}" font-size="12" fill="${f1.color}" font-family="sans-serif" font-weight="600">${f1.label}</text>`;
+                // F₂（垂直）
+                svg += `<line x1="${f2.x1}" y1="${f2.y1}" x2="${f2.x2}" y2="${f2.y2}" stroke="${f2.color}" stroke-width="2.5" marker-end="url(#stc16-red2)"/>`;
+                svg += `<text x="${f2.lx}" y="${f2.ly}" font-size="12" fill="${f2.color}" font-family="sans-serif" font-weight="600">${f2.label}</text>`;
+                // 直角マーク（作用点の内側に小さな正方形）
+                if (rm) {
+                    const s = rm.size || 10;
+                    // F₁ 方向（右）・F₂ 方向（上）の両方向に s だけ伸ばした正方形の輪郭
+                    const x1 = rm.x, y1 = rm.y;
+                    svg += `<path d="M ${x1 + s},${y1} L ${x1 + s},${y1 - s} L ${x1},${y1 - s}" fill="none" stroke="#333" stroke-width="1.5"/>`;
+                }
+                // 作用点 O
+                svg += `<circle cx="${o.x}" cy="${o.y}" r="4" fill="#333"/>`;
+                svg += `<text x="${o.x - 16}" y="${o.y + 16}" font-size="12" fill="#333" font-family="sans-serif">O</text>`;
+                svg += `<text x="${o.x - 28}" y="${o.y + 30}" font-size="10" fill="#888" font-family="sans-serif">（作用点）</text>`;
+                svg += `</svg>
+                <div class="drawing-scale-row">
+                    <span>${c.scaleLabel}</span>
+                </div></div>`;
+                return svg;
+            }
+
+            // 1-6 Stage 2 用の schematic 図: 底辺 F₁、高さ F₂、斜辺 F（合力）の直角三角形。
+            //   三平方の定理が成り立つ幾何学的理由を視覚化する。
+            //   問題ごとの数値差には依存せず、固定の典型図として教える。
+            buildStage2SvgRightTriangle(problem) {
+                return `
+                <svg width="300" height="200" viewBox="0 0 300 200" style="display:block; margin:12px auto; border:1px solid #ddd; border-radius:4px; background:#fafafa;">
+                  <defs>
+                    <marker id="s2rt-red1" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#d23a2a"/></marker>
+                    <marker id="s2rt-red2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#b83a2a"/></marker>
+                    <marker id="s2rt-blue" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#1e5fa8"/></marker>
+                  </defs>
+                  <!-- 底辺 F₁（赤・水平） -->
+                  <line x1="50" y1="150" x2="200" y2="150" stroke="#d23a2a" stroke-width="2.5" marker-end="url(#s2rt-red1)"/>
+                  <!-- 高さ F₂（濃赤・垂直） -->
+                  <line x1="50" y1="150" x2="50" y2="50" stroke="#b83a2a" stroke-width="2.5" marker-end="url(#s2rt-red2)"/>
+                  <!-- 斜辺 F（青・合力） -->
+                  <line x1="50" y1="150" x2="200" y2="50" stroke="#1e5fa8" stroke-width="3" marker-end="url(#s2rt-blue)"/>
+                  <!-- 直角マーク -->
+                  <path d="M 60,150 L 60,140 L 50,140" fill="none" stroke="#333" stroke-width="1.5"/>
+                  <!-- 作用点 -->
+                  <circle cx="50" cy="150" r="3" fill="#333"/>
+                  <text x="34" y="166" font-size="12" fill="#333" font-family="sans-serif">O</text>
+                  <!-- ラベル -->
+                  <text x="115" y="170" font-size="13" fill="#d23a2a" font-family="sans-serif" font-weight="600">F₁</text>
+                  <text x="22" y="105" font-size="13" fill="#b83a2a" font-family="sans-serif" font-weight="600">F₂</text>
+                  <text x="118" y="92" font-size="13" fill="#1e5fa8" font-family="sans-serif" font-weight="600">F（合力）</text>
+                </svg>`;
             }
 
             // ===== DRAWING PROBLEM RENDERER (1-3, 1-4) =====
@@ -6196,7 +6587,9 @@
                         return;
                     }
 
-                    const stageHints = HINTS_2_1[stagePart];
+                    // 1-6 は HINTS_1_6、2-1 は HINTS_2_1。他ユニットは将来追加時にここを拡張する。
+                    const hintsTable = (this.currentUnitId === '1-6') ? HINTS_1_6 : HINTS_2_1;
+                    const stageHints = hintsTable[stagePart];
                     const levelKeys = ['b', 'a', 'c'];
                     hintText = stageHints ? stageHints[levelKeys[level]] : '';
 
@@ -6297,6 +6690,9 @@
             }
 
             getCalcProblem() {
+                if (this.currentUnitId === '1-6') {
+                    return PROBLEMS_1_6[this.currentProblemIndex];
+                }
                 if (this.currentUnitId === '2-1') {
                     return PROBLEMS_2_1[this.currentProblemIndex];
                 }
@@ -6330,12 +6726,19 @@
                 const problem = this.getCalcProblem();
                 const feedback = document.getElementById('stageFeedback');
                 const chipEl = document.querySelector(`#quantityChips0 .calc-chip[data-value="${value}"]`);
-                if (value === 's') {
+                // 1-6 は problem.stage0Correct、2-1 は固定値 's'
+                const correct = (this.currentUnitId === '1-6') ? problem.stage0Correct : 's';
+                const isCorrect = (value === correct);
+                if (isCorrect) {
                     chipEl.classList.remove('selected');
                     chipEl.classList.add('correct');
                     if (feedback) {
                         feedback.style.color = '#2e7d32';
-                        feedback.textContent = '正解。変位 s を求めます。';
+                        let msg = '正解。変位 s を求めます。';
+                        if (this.currentUnitId === '1-6') {
+                            msg = '正解。合力 F の大きさを求めます。';
+                        }
+                        feedback.textContent = msg;
                     }
                     const btn = document.getElementById('stage0ConfirmBtn');
                     if (btn) { btn.textContent = '次へ'; btn.onclick = () => this.nextCalcStage(); }
@@ -6344,9 +6747,21 @@
                     chipEl.classList.add('incorrect');
                     if (feedback) {
                         feedback.style.color = '#c62828';
-                        feedback.textContent = (value === 'v')
-                            ? '不正解。速度は問題文に「○○ m/s」の形で数値が与えられています。「求めよ」と書かれている量を探してください。'
-                            : '不正解。時間は問題文に「○○ 秒間」の形で数値が与えられています。「求めよ」と書かれている量を探してください。';
+                        let msg;
+                        if (this.currentUnitId === '1-6') {
+                            if (value === 'decomposed') {
+                                msg = '不正解。分力 Fx, Fy を求めるのは「分解」の操作です（1-5）。この問題は 2 力を 1 つにまとめる「合成」です。';
+                            } else if (value === 'sum') {
+                                msg = '不正解。直角に交わる 2 力の合力は、単純に F₁＋F₂ では求まりません（同じ向きならそれで正解）。';
+                            } else {
+                                msg = '不正解。問題文の末尾「○○を求めよ」に注目してください。';
+                            }
+                        } else {
+                            msg = (value === 'v')
+                                ? '不正解。速度は問題文に「○○ m/s」の形で数値が与えられています。「求めよ」と書かれている量を探してください。'
+                                : '不正解。時間は問題文に「○○ 秒間」の形で数値が与えられています。「求めよ」と書かれている量を探してください。';
+                        }
+                        feedback.textContent = msg;
                     }
                     const btn = document.getElementById('stage0ConfirmBtn');
                     if (btn) { btn.disabled = true; btn.style.opacity = '0.4'; }
@@ -6368,14 +6783,22 @@
             confirmPhenomenon() {
                 const value = this.calcInputs.selectedPhenomenon;
                 if (!value) return;
+                const problem = this.getCalcProblem();
                 const feedback = document.getElementById('stageFeedback');
                 const chipEl = document.querySelector(`#phenomenonChips .calc-chip[data-value="${value}"]`);
-                if (value === 'constant') {
+                // 1-6 は problem.stage1Correct、2-1 は固定値 'constant'
+                const correct = (this.currentUnitId === '1-6') ? problem.stage1Correct : 'constant';
+                const isCorrect = (value === correct);
+                if (isCorrect) {
                     chipEl.classList.remove('selected');
                     chipEl.classList.add('correct');
                     if (feedback) {
                         feedback.style.color = '#2e7d32';
-                        feedback.textContent = '正解。問題文の「一定の速さで運動した」＝ 等速直線運動です。';
+                        let msg = '正解。問題文の「一定の速さで運動した」＝ 等速直線運動です。';
+                        if (this.currentUnitId === '1-6') {
+                            msg = '正解。図の 2 力は直角に交わっています（作用点の直角マークを確認）。';
+                        }
+                        feedback.textContent = msg;
                     }
                     const btn = document.getElementById('stage1ConfirmBtn');
                     if (btn) { btn.textContent = '次へ'; btn.onclick = () => this.nextCalcStage(); }
@@ -6384,7 +6807,11 @@
                     chipEl.classList.add('incorrect');
                     if (feedback) {
                         feedback.style.color = '#c62828';
-                        feedback.textContent = '不正解。等加速度運動は速さが変わる運動です。問題文の「一定の速さ」をよく読んでください。';
+                        let msg = '不正解。等加速度運動は速さが変わる運動です。問題文の「一定の速さ」をよく読んでください。';
+                        if (this.currentUnitId === '1-6') {
+                            msg = '不正解。図の 2 本の矢印の角度をよく見てください。作用点に小さな正方形（直角マーク）が描かれています。';
+                        }
+                        feedback.textContent = msg;
                     }
                     const btn = document.getElementById('stage1ConfirmBtn');
                     if (btn) { btn.disabled = true; btn.style.opacity = '0.4'; }
@@ -6427,8 +6854,10 @@
                 if (card.element) card.element.classList.remove('selected');
                 this.calcInputs.selectedCard = null;
 
-                // If both slots filled, enable 確認 button
-                if (this.calcInputs.substitutions.v && this.calcInputs.substitutions.t) {
+                // If all slots filled, enable 確認 button（汎用化：role 数に依存しない）
+                const subs = this.calcInputs.substitutions;
+                const allFilled = subs && Object.keys(subs).length > 0 && Object.values(subs).every(v => v);
+                if (allFilled) {
                     const btn = document.getElementById('stage4ConfirmBtn');
                     if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
                     if (fb) { fb.style.color = '#333'; fb.textContent = '両方の数値を入れました。「確認」で次へ進みます。'; }
@@ -6440,40 +6869,48 @@
             confirmSubstitution() {
                 const sub = this.calcInputs.substitutions;
                 const feedback = document.getElementById('stageFeedback');
-                const vCorrect = (sub.v === 'v');
-                const tCorrect = (sub.t === 't');
-                const slotV = document.getElementById('slot-v');
-                const slotT = document.getElementById('slot-t');
-
+                // 汎用化: slot role 名をキーに、slot === role（自己一致）のとき正解。
+                //   2-1: {v:'v', t:'t'}、1-6: {F1:'F1', F2:'F2'}
+                const slotRoles = Object.keys(sub);
+                const slotEls = {};
+                const slotLabels = {
+                    v: 'v', t: 't',
+                    F1: 'F₁', F2: 'F₂'
+                };
+                slotRoles.forEach(r => { slotEls[r] = document.getElementById('slot-' + r); });
                 // Reset visual state
-                [slotV, slotT].forEach(s => s.classList.remove('correct', 'incorrect'));
+                slotRoles.forEach(r => { if (slotEls[r]) slotEls[r].classList.remove('correct', 'incorrect'); });
 
-                if (vCorrect && tCorrect) {
-                    slotV.classList.add('correct');
-                    slotT.classList.add('correct');
+                const perSlotCorrect = {};
+                slotRoles.forEach(r => { perSlotCorrect[r] = (sub[r] === r); });
+                const allCorrect = slotRoles.every(r => perSlotCorrect[r]);
+
+                if (allCorrect) {
+                    slotRoles.forEach(r => { if (slotEls[r]) slotEls[r].classList.add('correct'); });
                     if (feedback) { feedback.style.color = '#2e7d32'; feedback.textContent = '正解。正しい場所に数値が入りました。'; }
                     const btn = document.getElementById('stage4ConfirmBtn');
                     if (btn) { btn.textContent = '次へ'; btn.onclick = () => this.nextCalcStage(); }
                 } else {
-                    if (!vCorrect) slotV.classList.add('incorrect');
-                    if (!tCorrect) slotT.classList.add('incorrect');
+                    slotRoles.forEach(r => {
+                        if (!perSlotCorrect[r] && slotEls[r]) slotEls[r].classList.add('incorrect');
+                    });
                     if (feedback) {
                         feedback.style.color = '#c62828';
-                        feedback.textContent = '不正解。単位に注目して入れ直してください。「m/s」が速度 v、「s（秒）」が時間 t です。';
+                        if (this.currentUnitId === '1-6') {
+                            feedback.textContent = '不正解。式の F₁ の空欄には問題文の F₁ の値、F₂ の空欄には F₂ の値を入れてください。';
+                        } else {
+                            feedback.textContent = '不正解。単位に注目して入れ直してください。「m/s」が速度 v、「s（秒）」が時間 t です。';
+                        }
                     }
                     // Reset the slots that were wrong so student can retry
-                    if (!vCorrect) {
-                        slotV.textContent = 'v';
-                        slotV.classList.remove('filled', 'incorrect');
-                        slotV.classList.add('empty');
-                        sub.v = null;
-                    }
-                    if (!tCorrect) {
-                        slotT.textContent = 't';
-                        slotT.classList.remove('filled', 'incorrect');
-                        slotT.classList.add('empty');
-                        sub.t = null;
-                    }
+                    slotRoles.forEach(r => {
+                        if (!perSlotCorrect[r] && slotEls[r]) {
+                            slotEls[r].textContent = slotLabels[r] || r;
+                            slotEls[r].classList.remove('filled', 'incorrect');
+                            slotEls[r].classList.add('empty');
+                            sub[r] = null;
+                        }
+                    });
                     const btn = document.getElementById('stage4ConfirmBtn');
                     if (btn) { btn.disabled = true; btn.style.opacity = '0.4'; }
                 }
@@ -6482,19 +6919,36 @@
             checkCalcAnswers() {
                 const problem = this.getCalcProblem();
                 const answerInput = document.getElementById('answerInput');
-                const userAnswer = parseInt(answerInput.value);
-
                 const feedback = document.getElementById('feedbackMessage');
+                const is1_6 = this.currentUnitId === '1-6';
 
-                if (userAnswer === problem.expectedDisplacement) {
+                // 1-6 は小数入力（整数答だが step=0.1 を許容）し tolerance で判定。
+                const userAnswer = is1_6 ? parseFloat(answerInput.value) : parseInt(answerInput.value);
+                const expected   = is1_6 ? problem.expectedResultant : problem.expectedDisplacement;
+                const tolerance  = is1_6 ? (problem.tolerance || 1) : 0;
+                const isCorrect  = is1_6
+                    ? (!isNaN(userAnswer) && Math.abs(userAnswer - expected) <= tolerance)
+                    : (userAnswer === expected);
+
+                if (isCorrect) {
                     feedback.classList.add('correct');
                     feedback.classList.remove('incorrect');
-                    feedback.innerHTML = `
-                        <div style="margin-bottom: 10px;">正解です。</div>
-                        <div class="answer-explanation">
-                            s ＝ v × t ＝ ${problem.velocity} × ${problem.time} ＝ ${problem.expectedDisplacement} [m]
-                        </div>
-                    `;
+                    if (is1_6) {
+                        const sq = problem.f1 * problem.f1 + problem.f2 * problem.f2;
+                        feedback.innerHTML = `
+                            <div style="margin-bottom: 10px;">正解です。</div>
+                            <div class="answer-explanation">
+                                F ＝ √(F₁² ＋ F₂²) ＝ √(${problem.f1}² ＋ ${problem.f2}²) ＝ √${sq} ＝ ${expected} [N]
+                            </div>
+                        `;
+                    } else {
+                        feedback.innerHTML = `
+                            <div style="margin-bottom: 10px;">正解です。</div>
+                            <div class="answer-explanation">
+                                s ＝ v × t ＝ ${problem.velocity} × ${problem.time} ＝ ${problem.expectedDisplacement} [m]
+                            </div>
+                        `;
+                    }
                     feedback.classList.add('active');
 
                     // Save progress
