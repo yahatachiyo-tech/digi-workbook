@@ -4649,9 +4649,17 @@
                                 </div>
                                 <div style="background:#eef3fa; border-left:3px solid #4a7cbe; padding:12px 16px; border-radius:3px; margin-top:16px; font-size:14px; line-height:1.7; color:#222;">
                                     <strong>この式になる理由：</strong><br>
-                                    偶力（大きさが等しく逆向きで平行な 2 力）の合力は 0 だが、回転させる働きは残る<br>
+                                    偶力（大きさが等しく逆向きで平行な 2 力）は合力が 0 だが、回転させる働きは残る<br>
                                     → 偶力のモーメント <strong>M ＝ F × d</strong>（式 2-13）<br>
-                                    → 単位は N × m ＝ N·m。偶力のモーメントは回転中心の位置に依存しない。
+                                    → 単位は N × m ＝ N·m
+                                    <div style="margin-top:10px; padding-top:10px; border-top:1px dashed #b8c8dd;">
+                                        <strong>1-8 との違い：</strong><br>
+                                        1-8 では回転中心 O が問題で指定され、O から作用点までの距離 r が腕だった。<br>
+                                        偶力では回転中心は問題で指定されない。代わりに <strong>2 つの作用線の間の距離 d</strong> 自身が腕として働く。
+                                    </div>
+                                    <div style="margin-top:8px; font-size:13px; color:#555;">
+                                        ※ 計算上、回転中心は平面上のどこに置いてもよい。<strong>2 作用点の間</strong>、<strong>作用点の外側</strong>、<strong>作用点を結ぶ直線から外れた場所</strong>（ハンドルの真上や斜めに離れた点など）、どこを基準にしても結果は必ず F × d になる。これは偶力特有の性質で、合力が 0 だから生じる（偶力モーメントは平面上を自由に平行移動できる）。
+                                    </div>
                                 </div>
                             </div>
                         `;
@@ -5704,18 +5712,17 @@
                 svg += `<line x1="${bot.x1}" y1="${bot.y1}" x2="${bot.x2}" y2="${bot.y2}" stroke="${bot.color}" stroke-width="2.5" marker-end="url(#stc19-red)"/>`;
                 // 右の力ラベル: 矢印の先端の右側
                 svg += `<text x="${bot.x2 + 8}" y="${bot.y2 + 4}" text-anchor="start" font-size="13" fill="${bot.color}" font-family="sans-serif" font-weight="600">${bot.label}</text>`;
-                // 作用点（小さな黒丸）— ハンドル円周上にあることを明示
+                // 腕 d の水平破線（左作用点 A → 右作用点 B、action-point レベル）
+                //   1-8 の腕 OA と同じスタイル（#8a8a8a / dasharray 6,4 / stroke-width 2）で
+                //   「腕」概念を単元横断で統一表現する。
+                const armY = (top.y1 + bot.y1) / 2;
+                svg += `<line x1="${top.x1}" y1="${armY}" x2="${bot.x1}" y2="${armY}" stroke="#8a8a8a" stroke-width="2" stroke-dasharray="6,4"/>`;
+                // 作用点（小さな黒丸）— 腕の上に重ねて、ハンドル円周上にあることを明示
                 svg += `<circle cx="${top.x1}" cy="${top.y1}" r="3" fill="#333"/>`;
                 svg += `<circle cx="${bot.x1}" cy="${bot.y1}" r="3" fill="#333"/>`;
-                // 距離 d の水平両矢印（ハンドル下部、y = H - 40 付近）
-                const dY = H - 40;
-                svg += `<line x1="${top.x1}" y1="${dY}" x2="${bot.x1}" y2="${dY}" stroke="#666" stroke-width="1.5" marker-start="url(#stc19-gray-s)" marker-end="url(#stc19-gray-e)"/>`;
-                // 寸法線の両端ティック（縦の小さな線）
-                svg += `<line x1="${top.x1}" y1="${dY - 5}" x2="${top.x1}" y2="${dY + 5}" stroke="#666" stroke-width="1"/>`;
-                svg += `<line x1="${bot.x1}" y1="${dY - 5}" x2="${bot.x1}" y2="${dY + 5}" stroke="#666" stroke-width="1"/>`;
-                // d ラベル（中央上）
+                // 腕の長さ d ラベル（腕の直下、中央。上側は CW 回転矢印と被るため下に配置）
                 const dLabelX = (top.x1 + bot.x1) / 2;
-                svg += `<text x="${dLabelX}" y="${dY - 6}" text-anchor="middle" font-size="13" fill="#333" font-family="sans-serif" font-weight="600">${c.distanceLabel}</text>`;
+                svg += `<text x="${dLabelX}" y="${armY + 16}" text-anchor="middle" font-size="12" fill="#555" font-family="sans-serif" font-weight="500">${c.distanceLabel}</text>`;
                 // 回転矢印: 左↑・右↓ の偶力 → ハンドル全体は時計回り（CW）に回転。
                 //   ハンドル中心を中心とする半径 26 の上半弧（左→上→右）+ 弧の終点に矢じりを path 一体で描画。
                 //   marker の自動配向は弧の細部で違和感が出るため、矢じりを path で直接描く。
@@ -5736,47 +5743,40 @@
             }
 
             // 1-9 Stage 2 用の schematic 図: 偶力の典型図（新仕様、問題図と整合）。
-            //   左作用点に上向き F、右作用点に下向き F、間の距離 d は横の寸法線。
+            //   左作用点に上向き F、右作用点に下向き F、間の距離 d は腕（水平破線・1-8 と同流儀）。
             //   中央に CW 回転矢印（左↑・右↓ → 時計回りに回転）。
             //   問題ごとの数値差には依存せず、固定の典型図として教える。
             buildStage2SvgCouple(problem) {
-                // 中心 (160, 100)、左作用点 (90, 100)、右作用点 (230, 100)、d=140 (典型図)
+                // 中心 (160, 100)、左作用点 (90, 100)、右作用点 (230, 100)
                 const cx = 160, cy = 100;
                 const Lx = 90, Rx = 230;  // 左右作用点 x
                 const ay = cy;             // 作用点 y
                 const arrowLen = 50;       // 力の矢印の長さ
                 const arcR = 22;           // 回転弧の半径
                 return `
-                <svg width="320" height="200" viewBox="0 0 320 200" style="margin:12px auto; display:block; border:1px solid #ddd; border-radius:4px; background:#fafafa;">
+                <svg width="320" height="180" viewBox="0 0 320 180" style="margin:12px auto; display:block; border:1px solid #ddd; border-radius:4px; background:#fafafa;">
                   <defs>
                     <marker id="c19s-red" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
                       <polygon points="0,0 8,3 0,6" fill="#d23a2a"/>
                     </marker>
-                    <marker id="c19s-gray-s" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
-                      <polygon points="6,0 0,3 6,6" fill="#666"/>
-                    </marker>
-                    <marker id="c19s-gray-e" markerWidth="6" markerHeight="6" refX="6" refY="3" orient="auto">
-                      <polygon points="0,0 6,3 0,6" fill="#666"/>
-                    </marker>
                   </defs>
-                  <!-- 左作用点の鉛直作用線（破線） -->
-                  <line x1="${Lx}" y1="20" x2="${Lx}" y2="180" stroke="#bbb" stroke-width="1" stroke-dasharray="4,4"/>
-                  <!-- 右作用点の鉛直作用線（破線） -->
-                  <line x1="${Rx}" y1="20" x2="${Rx}" y2="180" stroke="#bbb" stroke-width="1" stroke-dasharray="4,4"/>
+                  <!-- 左作用点の鉛直作用線（破線・薄） -->
+                  <line x1="${Lx}" y1="20" x2="${Lx}" y2="160" stroke="#bbb" stroke-width="1" stroke-dasharray="4,4"/>
+                  <!-- 右作用点の鉛直作用線（破線・薄） -->
+                  <line x1="${Rx}" y1="20" x2="${Rx}" y2="160" stroke="#bbb" stroke-width="1" stroke-dasharray="4,4"/>
                   <!-- 左の力 F（上向き） -->
                   <line x1="${Lx}" y1="${ay}" x2="${Lx}" y2="${ay - arrowLen}" stroke="#d23a2a" stroke-width="3" marker-end="url(#c19s-red)"/>
                   <text x="${Lx - 8}" y="${ay - arrowLen - 4}" text-anchor="end" font-size="13" fill="#d23a2a" font-weight="600">F</text>
                   <!-- 右の力 F（下向き） -->
                   <line x1="${Rx}" y1="${ay}" x2="${Rx}" y2="${ay + arrowLen}" stroke="#d23a2a" stroke-width="3" marker-end="url(#c19s-red)"/>
                   <text x="${Rx + 8}" y="${ay + arrowLen + 4}" text-anchor="start" font-size="13" fill="#d23a2a" font-weight="600">F</text>
-                  <!-- 作用点（黒丸） -->
+                  <!-- 腕 d の水平破線（1-8 の腕 OA と同じスタイル：#8a8a8a / dasharray 6,4 / stroke-width 2） -->
+                  <line x1="${Lx}" y1="${ay}" x2="${Rx}" y2="${ay}" stroke="#8a8a8a" stroke-width="2" stroke-dasharray="6,4"/>
+                  <!-- 作用点（黒丸）— 腕の上に重ねる -->
                   <circle cx="${Lx}" cy="${ay}" r="3" fill="#333"/>
                   <circle cx="${Rx}" cy="${ay}" r="3" fill="#333"/>
-                  <!-- 横向きの距離 d 寸法線（下部） -->
-                  <line x1="${Lx}" y1="170" x2="${Rx}" y2="170" stroke="#666" stroke-width="1.5" marker-start="url(#c19s-gray-s)" marker-end="url(#c19s-gray-e)"/>
-                  <line x1="${Lx}" y1="165" x2="${Lx}" y2="175" stroke="#666" stroke-width="1"/>
-                  <line x1="${Rx}" y1="165" x2="${Rx}" y2="175" stroke="#666" stroke-width="1"/>
-                  <text x="${(Lx + Rx) / 2}" y="164" text-anchor="middle" font-size="13" fill="#333" font-weight="600">d</text>
+                  <!-- 腕の長さ d ラベル（腕の直下、中央） -->
+                  <text x="${(Lx + Rx) / 2}" y="${ay + 16}" text-anchor="middle" font-size="12" fill="#555" font-weight="500">d</text>
                   <!-- CW 回転矢印（左→上→右の上半弧）+ 矢じりを path で一体描画 -->
                   <path d="M ${cx - arcR} ${cy} A ${arcR} ${arcR} 0 0 1 ${cx + arcR} ${cy}" stroke="#1e5fa8" stroke-width="2.5" fill="none" stroke-linecap="round"/>
                   <path d="M ${cx + arcR} ${cy + 6} L ${cx + arcR - 5} ${cy - 3} L ${cx + arcR + 5} ${cy - 3} Z" fill="#1e5fa8"/>
