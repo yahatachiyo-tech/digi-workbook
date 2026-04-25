@@ -2457,9 +2457,9 @@
                 c: '教科書28ページ 式(2-6) を確認してください。'
             },
             stage3: {
-                b: '教科書 p.231 の付録三角関数表で α の角度に対応する三角比（cos または sin）の値を引きます。',
-                a: '主な三角比の値: sin 30°＝0.500, cos 30°≈0.866, sin 45°＝cos 45°≈0.707, sin 60°≈0.866, cos 60°＝0.500。教科書 p.231 で確認できます。',
-                c: '教科書231ページ 付録三角関数表 を確認してください。'
+                b: '教科書 p.231 の付録三角関数表で α の角度に対応する三角比（cos または sin）の値を引くか、関数電卓で sin α・cos α を計算します。',
+                a: '主な三角比の値: sin 30°＝0.500, cos 30°≈0.866, sin 45°＝cos 45°≈0.707, sin 60°≈0.866, cos 60°＝0.500。教科書 p.231 または関数電卓で確認できます。',
+                c: '教科書231ページ 付録三角関数表、または関数電卓で確認してください。'
             },
             stage4: {
                 b: '式に F の値と、先ほど引いた三角比の値をそのまま代入します。',
@@ -4613,7 +4613,7 @@
                                     この定義から、両辺に F をかけて：<br>
                                     ・<strong>Fx ＝ F × cos α</strong>（水平成分）<br>
                                     ・<strong>Fy ＝ F × sin α</strong>（垂直成分）<br>
-                                    30°、45°、60° などの三角比の値は<strong>教科書 p.231 の付録三角関数表</strong>から引いてください。
+                                    30°、45°、60° などの三角比の値は<strong>教科書 p.231 の付録三角関数表</strong>を参照するか、<strong>関数電卓</strong>で sin α・cos α を計算してください。
                                 </div>
                             </div>
                         `;
@@ -5057,7 +5057,7 @@
                                 </div>
                             </div>
                             <div style="background:#eef3fa; border-left:3px solid #4a7cbe; padding:12px 16px; border-radius:3px; margin-top:14px; font-size:13px; line-height:1.7; color:#333;">
-                                ${targetLabel} を求める式が <strong>${targetLabel} ＝ F × ${trigSym}</strong> と決まりました。次のステップで、${trigSym} の値を教科書 p.231 の付録三角関数表から引きます。
+                                ${targetLabel} を求める式が <strong>${targetLabel} ＝ F × ${trigSym}</strong> と決まりました。次のステップで、${trigSym} の値を教科書 p.231 の付録三角関数表から引くか、関数電卓で計算します。
                             </div>
                         </div>
                     `;
@@ -5073,7 +5073,7 @@
                         <div class="calc-stage-container">
                             <div class="calc-question-text">α ＝ ${problem.angle}° のとき、<strong>${trigSym}</strong> の値はいくつですか？</div>
                             <div style="background:#eef3fa; border-left:3px solid #4a7cbe; padding:10px 14px; border-radius:3px; margin:10px 0 14px; font-size:13px; line-height:1.7; color:#333;">
-                                教科書 <strong>p.231 付録 三角関数表</strong> を参照してください。小数第 3 位までの値を入力します。
+                                教科書 <strong>p.231 付録 三角関数表</strong> を参照するか、<strong>関数電卓</strong>で sin α・cos α を計算してください。小数第 3 位までの値を入力します。
                             </div>
                             <div class="calc-input-row">
                                 <span class="calc-input-label">${trigSym} ＝</span>
@@ -5248,7 +5248,7 @@
                     this.calcInputs.enteredTrigValue = userVal;
                     if (feedback) {
                         feedback.style.color = '#2e7d32';
-                        feedback.innerHTML = `正解。${trigSym} ＝ <strong>${expected}</strong> です（教科書 p.231 付録）。`;
+                        feedback.innerHTML = `正解。${trigSym} ＝ <strong>${expected}</strong> です（教科書 p.231 付録 または 関数電卓で確認可）。`;
                     }
                     inp.disabled = true;
                     const btn = document.getElementById('stage3ConfirmBtn');
@@ -5256,7 +5256,7 @@
                 } else {
                     if (feedback) {
                         feedback.style.color = '#c62828';
-                        feedback.textContent = `不正解。教科書 p.231 の付録三角関数表で α ＝ ${problem.angle}° の ${trigSym === 'cos α' ? 'cos' : 'sin'} の値を確認してください。`;
+                        feedback.textContent = `不正解。教科書 p.231 の付録三角関数表、または関数電卓で α ＝ ${problem.angle}° の ${trigSym === 'cos α' ? 'cos' : 'sin'} の値を確認してください。`;
                     }
                     inp.value = '';
                     inp.focus();
