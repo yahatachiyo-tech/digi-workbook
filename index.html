@@ -2462,6 +2462,7 @@
             {
                 id: 1,
                 f: 10, r: 0.5, expectedMoment: 5, tolerance: 0.1, unit: 'N·m',
+                tool: 'eyeWrench',
                 sentence: '回転の中心 O から 0.5 m の距離にある点Aに、腕 OA に垂直に F ＝ 10 N の力が働いている。点 O のまわりの力のモーメント M の大きさを求めよ。',
                 condition: '基礎、F=10 N, r=0.5 m → M=5 N·m',
                 baselineTime: 90,
@@ -2498,6 +2499,7 @@
             {
                 id: 2,
                 f: 40, r: 0.3, expectedMoment: 12, tolerance: 0.1, unit: 'N·m',
+                tool: 'tHandle',
                 sentence: '回転の中心 O から 0.3 m の距離にある点Aに、腕 OA に垂直に F ＝ 40 N の力が働いている。点 O のまわりの力のモーメント M の大きさを求めよ。',
                 condition: '基礎、F=40 N, r=0.3 m → M=12 N·m',
                 baselineTime: 90,
@@ -2534,6 +2536,7 @@
             {
                 id: 3,
                 f: 25, r: 0.8, expectedMoment: 20, tolerance: 0.1, unit: 'N·m',
+                tool: 'pipeWrench',
                 sentence: '回転の中心 O から 0.8 m の距離にある点Aに、腕 OA に垂直に F ＝ 25 N の力が働いている。点 O のまわりの力のモーメント M の大きさを求めよ。',
                 condition: '基礎、F=25 N, r=0.8 m → M=20 N·m',
                 baselineTime: 90,
@@ -2570,6 +2573,7 @@
             {
                 id: 4,
                 f: 50, r: 1.2, expectedMoment: 60, tolerance: 0.1, unit: 'N·m',
+                tool: 'steering',
                 sentence: '回転の中心 O から 1.2 m の距離にある点Aに、腕 OA に垂直に F ＝ 50 N の力が働いている。点 O のまわりの力のモーメント M の大きさを求めよ。',
                 condition: '基礎、F=50 N, r=1.2 m → M=60 N·m',
                 baselineTime: 90,
@@ -2638,6 +2642,7 @@
             {
                 id: 1,
                 f: 10, d: 0.5, expectedCoupleMoment: 5, tolerance: 0.1, unit: 'N·m',
+                tool: 'wheel',
                 sentence: '大きさ F ＝ 10 N の 2 力が、逆向きで平行に、作用線間の距離 d ＝ 0.5 m をへだてて働いている（偶力）。この偶力のモーメント M の大きさを求めよ。',
                 condition: '基礎、F=10 N, d=0.5 m → M=5 N·m',
                 baselineTime: 90,
@@ -2674,6 +2679,7 @@
             {
                 id: 2,
                 f: 40, d: 0.3, expectedCoupleMoment: 12, tolerance: 0.1, unit: 'N·m',
+                tool: 'valveWheel',
                 sentence: '大きさ F ＝ 40 N の 2 力が、逆向きで平行に、作用線間の距離 d ＝ 0.3 m をへだてて働いている（偶力）。この偶力のモーメント M の大きさを求めよ。',
                 condition: '基礎、F=40 N, d=0.3 m → M=12 N·m',
                 baselineTime: 90,
@@ -2709,6 +2715,7 @@
             {
                 id: 3,
                 f: 25, d: 0.4, expectedCoupleMoment: 10, tolerance: 0.1, unit: 'N·m',
+                tool: 'tBar',
                 sentence: '大きさ F ＝ 25 N の 2 力が、逆向きで平行に、作用線間の距離 d ＝ 0.4 m をへだてて働いている（偶力）。この偶力のモーメント M の大きさを求めよ。',
                 condition: '基礎、F=25 N, d=0.4 m → M=10 N·m',
                 baselineTime: 90,
@@ -2744,6 +2751,7 @@
             {
                 id: 4,
                 f: 100, d: 0.15, expectedCoupleMoment: 15, tolerance: 0.1, unit: 'N·m',
+                tool: 'crossHandle',
                 sentence: '大きさ F ＝ 100 N の 2 力が、逆向きで平行に、作用線間の距離 d ＝ 0.15 m をへだてて働いている（偶力）。この偶力のモーメント M の大きさを求めよ。',
                 condition: '教科書問12相当（単位をmに換算）、F=100 N, d=0.15 m → M=15 N·m',
                 baselineTime: 90,
@@ -5063,27 +5071,82 @@
                 return svg;
             }
 
-            // 1-8 用ヘルパー: 腕 OA に沿って薄いスパナのシルエットを描く。
-            //   pivot（回転中心 O）= ナットの中心、applicationPoint（作用点 A）= 柄の先端。
+            // 1-8 用ヘルパー: 腕 OA に沿って薄い道具のシルエットを描く。
+            //   pivot（回転中心 O）= 道具の固定側、applicationPoint（作用点 A）= 力が加わる柄の先端。
             //   主役の矢印・破線・ラベルを邪魔しないよう低 opacity で背景に重ねる。
-            _buildWrenchSvg(pivot, applicationPoint) {
+            //   toolType: 'eyeWrench' | 'tHandle' | 'pipeWrench' | 'steering'
+            _buildToolSvg(toolType, pivot, applicationPoint) {
                 const dx = applicationPoint.x - pivot.x;
                 const dy = applicationPoint.y - pivot.y;
                 const len = Math.hypot(dx, dy);
                 if (len < 1) return '';
                 const angleDeg = Math.atan2(dy, dx) * 180 / Math.PI;
-                const handleWidth = 18;
-                const nutRadius = 18;
-                const nx = nutRadius * 0.866;
-                const ny = nutRadius * 0.5;
-                const headStart = nutRadius * 1.3;
-                return `
-                <g transform="translate(${pivot.x} ${pivot.y}) rotate(${angleDeg})" fill="#888" fill-opacity="0.15" stroke="#666" stroke-opacity="0.18" stroke-width="1">
-                  <polygon points="${-nx},${-ny} ${-nx},${ny} 0,${nutRadius} ${nx},${ny} ${nx},${-ny} 0,${-nutRadius}"/>
-                  <path d="M ${-nx},${-nutRadius * 0.6} L ${-nutRadius * 0.5},${-nutRadius * 1.3} L ${nutRadius * 0.5},${-nutRadius * 1.3} L ${nx},${-nutRadius * 0.6} L ${nx},${nutRadius * 0.6} L ${nutRadius * 0.5},${nutRadius * 1.3} L ${-nutRadius * 0.5},${nutRadius * 1.3} L ${-nx},${nutRadius * 0.6} Z"/>
-                  <rect x="${headStart}" y="${-handleWidth / 2}" width="${Math.max(0, len - headStart)}" height="${handleWidth}" rx="3"/>
-                  <ellipse cx="${len - 5}" cy="0" rx="${handleWidth * 0.7}" ry="${handleWidth * 0.6}"/>
-                </g>`;
+                const fill = `fill="#888" fill-opacity="0.15"`;
+                const stroke = `stroke="#666" stroke-opacity="0.18" stroke-width="1"`;
+                let inner = '';
+                switch (toolType) {
+                    case 'eyeWrench': {
+                        // メガネレンチ: 一端に大円（ナット用）、もう一端に小円（取っ手）、間に細柄
+                        const nutR = 20, gripR = 14, handleW = 14;
+                        inner = `
+                          <circle cx="0" cy="0" r="${nutR}" ${fill} ${stroke}/>
+                          <circle cx="0" cy="0" r="${nutR * 0.55}" fill="white" fill-opacity="0.5"/>
+                          <rect x="${nutR * 0.85}" y="${-handleW / 2}" width="${Math.max(0, len - nutR - gripR + 4)}" height="${handleW}" ${fill} ${stroke} rx="3"/>
+                          <circle cx="${len}" cy="0" r="${gripR}" ${fill} ${stroke}/>
+                          <circle cx="${len}" cy="0" r="${gripR * 0.5}" fill="white" fill-opacity="0.5"/>
+                        `;
+                        break;
+                    }
+                    case 'tHandle': {
+                        // T字ハンドル: 中央軸 + 細柄 + 先端に十字バー
+                        const axisR = 8, barW = 12, barLen = 50, handleW = 10;
+                        inner = `
+                          <circle cx="0" cy="0" r="${axisR}" ${fill} ${stroke}/>
+                          <rect x="${axisR}" y="${-handleW / 2}" width="${Math.max(0, len - axisR)}" height="${handleW}" ${fill} ${stroke} rx="2"/>
+                          <rect x="${len - barW / 2}" y="${-barLen / 2}" width="${barW}" height="${barLen}" ${fill} ${stroke} rx="3"/>
+                        `;
+                        break;
+                    }
+                    case 'pipeWrench': {
+                        // パイプレンチ: 一端に二股の顎 + 長い柄 + 反対端のグリップ膨らみ
+                        const jawR = 22, gripW = 18;
+                        inner = `
+                          <path d="M ${jawR * 0.3},${-jawR * 0.85} L ${-jawR * 0.7},${-jawR * 0.85} L ${-jawR},${-jawR * 0.4} L ${-jawR * 0.4},0 L ${-jawR},${jawR * 0.4} L ${-jawR * 0.7},${jawR * 0.85} L ${jawR * 0.3},${jawR * 0.85} L ${jawR * 0.5},${jawR * 0.4} L ${jawR * 0.5},${-jawR * 0.4} Z" ${fill} ${stroke}/>
+                          <rect x="${jawR * 0.5}" y="${-gripW / 2}" width="${Math.max(0, len - jawR * 0.5 - 12)}" height="${gripW}" ${fill} ${stroke} rx="2"/>
+                          <ellipse cx="${len - 4}" cy="0" rx="14" ry="${gripW * 0.6}" ${fill} ${stroke}/>
+                        `;
+                        break;
+                    }
+                    case 'steering': {
+                        // ステアリング風ハンドル: 大円（外輪）+ 中央軸 + 4本スポーク + 先端に取っ手
+                        const wheelR = Math.min(len * 0.45, 32);
+                        inner = `
+                          <rect x="${wheelR * 0.3}" y="-5" width="${Math.max(0, len - wheelR * 0.3 - 10)}" height="10" ${fill} ${stroke}/>
+                          <circle cx="0" cy="0" r="${wheelR}" fill="none" ${stroke} stroke-width="3.5"/>
+                          <circle cx="0" cy="0" r="6" ${fill} ${stroke}/>
+                          <line x1="${-wheelR}" y1="0" x2="-7" y2="0" ${stroke}/>
+                          <line x1="7" y1="0" x2="${wheelR}" y2="0" ${stroke}/>
+                          <line x1="0" y1="${-wheelR}" x2="0" y2="-7" ${stroke}/>
+                          <line x1="0" y1="7" x2="0" y2="${wheelR}" ${stroke}/>
+                          <circle cx="${len}" cy="0" r="10" ${fill} ${stroke}/>
+                        `;
+                        break;
+                    }
+                    default: {
+                        // フォールバック（既存スパナ風）
+                        const handleWidth = 18;
+                        const nutRadius = 18;
+                        const nx = nutRadius * 0.866;
+                        const ny = nutRadius * 0.5;
+                        const headStart = nutRadius * 1.3;
+                        inner = `
+                          <polygon points="${-nx},${-ny} ${-nx},${ny} 0,${nutRadius} ${nx},${ny} ${nx},${-ny} 0,${-nutRadius}" ${fill} ${stroke}/>
+                          <rect x="${headStart}" y="${-handleWidth / 2}" width="${Math.max(0, len - headStart)}" height="${handleWidth}" rx="3" ${fill} ${stroke}/>
+                          <ellipse cx="${len - 5}" cy="0" rx="${handleWidth * 0.7}" ry="${handleWidth * 0.6}" ${fill} ${stroke}/>
+                        `;
+                    }
+                }
+                return `<g transform="translate(${pivot.x} ${pivot.y}) rotate(${angleDeg})" pointer-events="none">${inner}</g>`;
             }
 
             // 1-8（力のモーメント）の問題図を生成する。
@@ -5091,7 +5154,7 @@
             //   A から垂直上向きにはたらく力 F（赤矢印）、
             //   O を中心とする回転方向を示す弧矢印（反時計回り）を描画する。
             //   腕の長さ r のラベルも表示。Stage 0/1/3/4/5 で共通表示する。
-            //   背景には教科書 p.28 図2-17 を意識した薄いスパナのシルエットを重ねる。
+            //   背景には問題ごとに異なる道具（メガネレンチ・T字ハンドル・パイプレンチ・ステアリング）を薄く重ねる。
             build1_8StaticCanvas(problem) {
                 const c = problem.canvas;
                 const W = c.width, H = c.height;
@@ -5104,8 +5167,8 @@
                   <marker id="stc18-red" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#d23a2a"/></marker>
                   <marker id="stc18-rot" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#1e5fa8"/></marker>
                 </defs>`;
-                // スパナのシルエット（薄い背景。腕 OA に沿って描画）
-                svg += this._buildWrenchSvg(pv, ap);
+                // 道具のシルエット（薄い背景。問題ごとに異なる。腕 OA に沿って描画）
+                svg += this._buildToolSvg(problem.tool || 'eyeWrench', pv, ap);
                 // 腕 OA（水平破線・灰）
                 svg += `<line x1="${pv.x}" y1="${pv.y}" x2="${ap.x}" y2="${ap.y}" stroke="#8a8a8a" stroke-width="2" stroke-dasharray="6,4"/>`;
                 // 腕の長さ r ラベル（中央の少し上）
@@ -5173,27 +5236,96 @@
                 `;
             }
 
-            // 1-9 用ヘルパー: 上下 2 力の中点に薄いハンドル（円形ホイール）を描く。
-            //   半径 = 上下作用線の y 距離の半分。スポーク 2 本（水平・垂直）を含む。
+            // 1-9 用ヘルパー: 上下 2 力の中点に薄い道具（偶力で回す道具）を描く。
+            //   半径 = 上下作用線の y 距離の半分。
+            //   toolType: 'wheel' | 'valveWheel' | 'tBar' | 'crossHandle'
             //   主役の矢印・距離 d ラベルを邪魔しないよう低 opacity で背景に重ねる。
-            _buildHandleSvg(topArrow, bottomArrow) {
+            _buildCoupleToolSvg(toolType, topArrow, bottomArrow) {
                 const cx = (topArrow.x1 + topArrow.x2 + bottomArrow.x1 + bottomArrow.x2) / 4;
                 const cy = (topArrow.y1 + bottomArrow.y1) / 2;
-                const radius = Math.abs(topArrow.y1 - bottomArrow.y1) / 2;
-                if (radius < 1) return '';
-                return `
-                <g fill="none" stroke="#888" stroke-opacity="0.18" stroke-width="3">
-                  <circle cx="${cx}" cy="${cy}" r="${radius}"/>
-                  <circle cx="${cx}" cy="${cy}" r="6" fill="#888" fill-opacity="0.15" stroke="none"/>
-                  <line x1="${cx - radius}" y1="${cy}" x2="${cx + radius}" y2="${cy}" stroke-opacity="0.12"/>
-                  <line x1="${cx}" y1="${cy - radius}" x2="${cx}" y2="${cy + radius}" stroke-opacity="0.12"/>
-                </g>`;
+                const r = Math.abs(topArrow.y1 - bottomArrow.y1) / 2;
+                if (r < 1) return '';
+                const fill = `fill="#888" fill-opacity="0.15"`;
+                const stroke = `stroke="#666" stroke-opacity="0.18" stroke-width="1"`;
+                let inner = '';
+                switch (toolType) {
+                    case 'wheel': {
+                        // ハンドル: 外輪 + 中央軸 + スポーク 4 本 + 上下に取っ手の膨らみ
+                        inner = `
+                          <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#666" stroke-opacity="0.18" stroke-width="3.5"/>
+                          <circle cx="${cx}" cy="${cy}" r="6" ${fill} ${stroke}/>
+                          <line x1="${cx - r}" y1="${cy}" x2="${cx - 7}" y2="${cy}" ${stroke}/>
+                          <line x1="${cx + 7}" y1="${cy}" x2="${cx + r}" y2="${cy}" ${stroke}/>
+                          <line x1="${cx}" y1="${cy - r}" x2="${cx}" y2="${cy - 7}" ${stroke}/>
+                          <line x1="${cx}" y1="${cy + 7}" x2="${cx}" y2="${cy + r}" ${stroke}/>
+                          <circle cx="${cx}" cy="${cy - r}" r="8" ${fill} ${stroke}/>
+                          <circle cx="${cx}" cy="${cy + r}" r="8" ${fill} ${stroke}/>
+                        `;
+                        break;
+                    }
+                    case 'valveWheel': {
+                        // バルブハンドル: 二重円 + 6 本スポーク + 上下に取っ手
+                        const innerR = r * 0.6;
+                        const spokes = [0, 60, 120, 180, 240, 300].map(deg => {
+                            const rad = deg * Math.PI / 180;
+                            const x1 = cx + 5 * Math.cos(rad);
+                            const y1 = cy + 5 * Math.sin(rad);
+                            const x2 = cx + r * Math.cos(rad);
+                            const y2 = cy + r * Math.sin(rad);
+                            return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" ${stroke}/>`;
+                        }).join('');
+                        inner = `
+                          <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#666" stroke-opacity="0.18" stroke-width="4"/>
+                          <circle cx="${cx}" cy="${cy}" r="${innerR}" fill="none" stroke="#666" stroke-opacity="0.18" stroke-width="2"/>
+                          <circle cx="${cx}" cy="${cy}" r="5" ${fill} ${stroke}/>
+                          ${spokes}
+                          <circle cx="${cx}" cy="${cy - r}" r="9" ${fill} ${stroke}/>
+                          <circle cx="${cx}" cy="${cy + r}" r="9" ${fill} ${stroke}/>
+                        `;
+                        break;
+                    }
+                    case 'tBar': {
+                        // T字バー: 上下に長い棒 + 中央軸 + 両端のグリップ膨らみ
+                        const barW = 14;
+                        inner = `
+                          <rect x="${cx - barW / 2}" y="${cy - r - 8}" width="${barW}" height="${(r + 8) * 2}" ${fill} ${stroke} rx="3"/>
+                          <circle cx="${cx}" cy="${cy}" r="6" ${fill} ${stroke}/>
+                          <ellipse cx="${cx}" cy="${cy - r - 4}" rx="14" ry="9" ${fill} ${stroke}/>
+                          <ellipse cx="${cx}" cy="${cy + r + 4}" rx="14" ry="9" ${fill} ${stroke}/>
+                        `;
+                        break;
+                    }
+                    case 'crossHandle': {
+                        // クロスハンドル（蛇口風）: 4 方向スポーク + 中央軸 + 各先端の取っ手
+                        const armLen = r;
+                        inner = `
+                          <rect x="${cx - armLen}" y="${cy - 5}" width="${armLen * 2}" height="10" ${fill} ${stroke} rx="2"/>
+                          <rect x="${cx - 5}" y="${cy - armLen}" width="10" height="${armLen * 2}" ${fill} ${stroke} rx="2"/>
+                          <circle cx="${cx}" cy="${cy}" r="6" ${fill} ${stroke}/>
+                          <circle cx="${cx - armLen}" cy="${cy}" r="9" ${fill} ${stroke}/>
+                          <circle cx="${cx + armLen}" cy="${cy}" r="9" ${fill} ${stroke}/>
+                          <circle cx="${cx}" cy="${cy - armLen}" r="9" ${fill} ${stroke}/>
+                          <circle cx="${cx}" cy="${cy + armLen}" r="9" ${fill} ${stroke}/>
+                        `;
+                        break;
+                    }
+                    default: {
+                        // フォールバック（既存ホイール風）
+                        inner = `
+                          <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#666" stroke-opacity="0.18" stroke-width="3"/>
+                          <circle cx="${cx}" cy="${cy}" r="6" ${fill} ${stroke}/>
+                          <line x1="${cx - r}" y1="${cy}" x2="${cx + r}" y2="${cy}" stroke="#666" stroke-opacity="0.12" stroke-width="1"/>
+                          <line x1="${cx}" y1="${cy - r}" x2="${cx}" y2="${cy + r}" stroke="#666" stroke-opacity="0.12" stroke-width="1"/>
+                        `;
+                    }
+                }
+                return `<g pointer-events="none">${inner}</g>`;
             }
 
             // 1-9（偶力）の問題図を生成する。
             //   上：右向きの矢印 F（赤）、下：左向きの矢印 F（赤）、間に距離 d の両矢印を縦に表示。
             //   2 力の作用線（水平方向）は破線で延長し、平行であることを視覚化する。
-            //   背景には教科書 p.30 図2-22 を意識した薄いハンドル（円形ホイール）を重ねる。
+            //   背景には問題ごとに異なる道具（ハンドル・バルブハンドル・T字バー・クロスハンドル）を薄く重ねる。
             //   Stage 0/1/3/4/5 で共通表示する。
             build1_9StaticCanvas(problem) {
                 const c = problem.canvas;
@@ -5208,8 +5340,8 @@
                   <marker id="stc19-gray-e" markerWidth="6" markerHeight="6" refX="6" refY="3" orient="auto"><polygon points="0,0 6,3 0,6" fill="#666"/></marker>
                   <marker id="stc19-rot" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#1e5fa8"/></marker>
                 </defs>`;
-                // ハンドル（薄い背景。偶力をハンドルで回すイメージ）
-                svg += this._buildHandleSvg(top, bot);
+                // 道具のシルエット（薄い背景。偶力で回す道具を問題ごとに描き分ける）
+                svg += this._buildCoupleToolSvg(problem.tool || 'wheel', top, bot);
                 // 上の作用線（破線・水平に全幅延長）
                 svg += `<line x1="20" y1="${top.y1}" x2="${W - 20}" y2="${top.y1}" stroke="#bbb" stroke-width="1" stroke-dasharray="4,4"/>`;
                 // 下の作用線（破線・水平に全幅延長）
