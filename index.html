@@ -2285,7 +2285,7 @@
                 trigValue: 0.866,     // cos 30° ≈ 0.866
                 sinValue: 0.5, cosValue: 0.866,  // 問題文併記用
                 expectedAnswer: 86.6, tolerance: 0.5,
-                sentence: '水平面と角度 α ＝ 30° で、F ＝ 100 N の力が働いている。この力の<strong>水平成分 Fx</strong> を求めよ。<br>ただし、cos 30° ≈ 0.866、sin 30° ＝ 0.5 とする。',
+                sentence: '水平面と角度 α ＝ 30° で、F ＝ 100 N の力が働いている。この力の<strong>水平成分 Fx</strong> を求めよ。',
                 condition: 'F=100 N, α=30°, Fx = F cos α',
                 baselineTime: 120,
                 canvasType: '2d-static',
@@ -2322,7 +2322,7 @@
                 target: 'Fy', trigFunc: 'sin', trigValue: 0.707,
                 sinValue: 0.707, cosValue: 0.707,
                 expectedAnswer: 56.6, tolerance: 0.5,
-                sentence: '水平面と角度 α ＝ 45° で、F ＝ 80 N の力が働いている。この力の<strong>垂直成分 Fy</strong> を求めよ。<br>ただし、sin 45° ≈ 0.707、cos 45° ≈ 0.707 とする。',
+                sentence: '水平面と角度 α ＝ 45° で、F ＝ 80 N の力が働いている。この力の<strong>垂直成分 Fy</strong> を求めよ。',
                 condition: 'F=80 N, α=45°, Fy = F sin α',
                 baselineTime: 120,
                 canvasType: '2d-static',
@@ -2359,7 +2359,7 @@
                 target: 'Fx', trigFunc: 'cos', trigValue: 0.5,
                 sinValue: 0.866, cosValue: 0.5,
                 expectedAnswer: 100, tolerance: 0.5,
-                sentence: '水平面と角度 α ＝ 60° で、F ＝ 200 N の力が働いている。この力の<strong>水平成分 Fx</strong> を求めよ。<br>ただし、cos 60° ＝ 0.5、sin 60° ≈ 0.866 とする。',
+                sentence: '水平面と角度 α ＝ 60° で、F ＝ 200 N の力が働いている。この力の<strong>水平成分 Fx</strong> を求めよ。',
                 condition: 'F=200 N, α=60°, Fx = F cos α',
                 baselineTime: 120,
                 canvasType: '2d-static',
@@ -2396,7 +2396,7 @@
                 target: 'Fy', trigFunc: 'sin', trigValue: 0.5,
                 sinValue: 0.5, cosValue: 0.866,
                 expectedAnswer: 25, tolerance: 0.5,
-                sentence: '水平面と角度 α ＝ 30° で、F ＝ 50 N の力が働いている。この力の<strong>垂直成分 Fy</strong> を求めよ。<br>ただし、sin 30° ＝ 0.5、cos 30° ≈ 0.866 とする。',
+                sentence: '水平面と角度 α ＝ 30° で、F ＝ 50 N の力が働いている。この力の<strong>垂直成分 Fy</strong> を求めよ。',
                 condition: 'F=50 N, α=30°, Fy = F sin α',
                 baselineTime: 120,
                 canvasType: '2d-static',
@@ -2443,14 +2443,14 @@
                 c: '教科書28ページ 図2-15 と式(2-6)を確認してください。'
             },
             stage3: {
-                b: '式の F の空欄には合力の値、cos α または sin α の空欄には三角比の値（問題文に書かれている数値）を入れます。',
-                a: '式は Fx ＝ F × cos α または Fy ＝ F × sin α です。問題文の F の値と、cos α または sin α の値（問題文に併記）を空欄に入れます。',
-                c: '教科書28ページ 式(2-6) を確認してください。'
+                b: '式の F の空欄には合力の値を入れます。cos α / sin α の空欄には、教科書 p.231 の付録三角関数表から α の三角比を引いた値を入れます。',
+                a: '式は Fx ＝ F × cos α または Fy ＝ F × sin α。F は問題文の値、三角比の値は教科書 p.231 付録から引きます（例: cos 30° ≈ 0.866、sin 30° ＝ 0.5、sin 45° ＝ cos 45° ≈ 0.707、sin 60° ≈ 0.866、cos 60° ＝ 0.5）。',
+                c: '教科書28ページ 式(2-6) と231ページ付録三角関数表を確認してください。'
             },
             stage4: {
-                b: 'F と三角比の値を掛け算すれば、分力の大きさが得られます。電卓を使って構いません。',
-                a: 'Fx ＝ F × cos α または Fy ＝ F × sin α。F の値と三角比の値を掛け算するだけです。単位は N です。',
-                c: '教科書28ページ 式(2-6) と例題を確認してください。'
+                b: 'F と三角比（教科書付録から引いた値）を掛け算します。電卓を使って構いません。',
+                a: 'Fx ＝ F × cos α または Fy ＝ F × sin α。F の値と、教科書 p.231 で引いた cos α / sin α の値を掛け算します。',
+                c: '教科書28ページ 式(2-6) と231ページ付録三角関数表、例題を確認してください。'
             }
         };
 
@@ -4563,10 +4563,13 @@
                                     $${problem.formula}$
                                 </div>
                                 <div style="background:#eef3fa; border-left:3px solid #4a7cbe; padding:12px 16px; border-radius:3px; margin-top:16px; font-size:14px; line-height:1.7; color:#222;">
-                                    <strong>この式になる理由：</strong><br>
-                                    直角三角形の斜辺 F、底辺 Fx、高さ Fy が、角 α と次の関係にあります。<br>
-                                    sin α ＝ Fy / F、cos α ＝ Fx / F<br>
-                                    → これを Fx と Fy について解くと、<strong>Fx ＝ F cos α</strong>、<strong>Fy ＝ F sin α</strong> になります。
+                                    <strong>三角比の定義（直角三角形）：</strong><br>
+                                    ・sin α ＝ <strong>高さ ／ 斜辺</strong> ＝ Fy ／ F<br>
+                                    ・cos α ＝ <strong>底辺 ／ 斜辺</strong> ＝ Fx ／ F<br>
+                                    この定義から、両辺に F をかけて：<br>
+                                    ・<strong>Fx ＝ F × cos α</strong>（水平成分）<br>
+                                    ・<strong>Fy ＝ F × sin α</strong>（垂直成分）<br>
+                                    30°、45°、60° などの三角比の値は<strong>教科書 p.231 の付録三角関数表</strong>から引いてください。
                                 </div>
                             </div>
                         `;
@@ -5060,11 +5063,35 @@
                 return svg;
             }
 
+            // 1-8 用ヘルパー: 腕 OA に沿って薄いスパナのシルエットを描く。
+            //   pivot（回転中心 O）= ナットの中心、applicationPoint（作用点 A）= 柄の先端。
+            //   主役の矢印・破線・ラベルを邪魔しないよう低 opacity で背景に重ねる。
+            _buildWrenchSvg(pivot, applicationPoint) {
+                const dx = applicationPoint.x - pivot.x;
+                const dy = applicationPoint.y - pivot.y;
+                const len = Math.hypot(dx, dy);
+                if (len < 1) return '';
+                const angleDeg = Math.atan2(dy, dx) * 180 / Math.PI;
+                const handleWidth = 18;
+                const nutRadius = 18;
+                const nx = nutRadius * 0.866;
+                const ny = nutRadius * 0.5;
+                const headStart = nutRadius * 1.3;
+                return `
+                <g transform="translate(${pivot.x} ${pivot.y}) rotate(${angleDeg})" fill="#888" fill-opacity="0.15" stroke="#666" stroke-opacity="0.18" stroke-width="1">
+                  <polygon points="${-nx},${-ny} ${-nx},${ny} 0,${nutRadius} ${nx},${ny} ${nx},${-ny} 0,${-nutRadius}"/>
+                  <path d="M ${-nx},${-nutRadius * 0.6} L ${-nutRadius * 0.5},${-nutRadius * 1.3} L ${nutRadius * 0.5},${-nutRadius * 1.3} L ${nx},${-nutRadius * 0.6} L ${nx},${nutRadius * 0.6} L ${nutRadius * 0.5},${nutRadius * 1.3} L ${-nutRadius * 0.5},${nutRadius * 1.3} L ${-nx},${nutRadius * 0.6} Z"/>
+                  <rect x="${headStart}" y="${-handleWidth / 2}" width="${Math.max(0, len - headStart)}" height="${handleWidth}" rx="3"/>
+                  <ellipse cx="${len - 5}" cy="0" rx="${handleWidth * 0.7}" ry="${handleWidth * 0.6}"/>
+                </g>`;
+            }
+
             // 1-8（力のモーメント）の問題図を生成する。
             //   回転中心 O（黒丸）、水平な腕 OA（破線）、作用点 A、
             //   A から垂直上向きにはたらく力 F（赤矢印）、
             //   O を中心とする回転方向を示す弧矢印（反時計回り）を描画する。
             //   腕の長さ r のラベルも表示。Stage 0/1/3/4/5 で共通表示する。
+            //   背景には教科書 p.28 図2-17 を意識した薄いスパナのシルエットを重ねる。
             build1_8StaticCanvas(problem) {
                 const c = problem.canvas;
                 const W = c.width, H = c.height;
@@ -5077,6 +5104,8 @@
                   <marker id="stc18-red" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#d23a2a"/></marker>
                   <marker id="stc18-rot" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#1e5fa8"/></marker>
                 </defs>`;
+                // スパナのシルエット（薄い背景。腕 OA に沿って描画）
+                svg += this._buildWrenchSvg(pv, ap);
                 // 腕 OA（水平破線・灰）
                 svg += `<line x1="${pv.x}" y1="${pv.y}" x2="${ap.x}" y2="${ap.y}" stroke="#8a8a8a" stroke-width="2" stroke-dasharray="6,4"/>`;
                 // 腕の長さ r ラベル（中央の少し上）
@@ -5144,9 +5173,27 @@
                 `;
             }
 
+            // 1-9 用ヘルパー: 上下 2 力の中点に薄いハンドル（円形ホイール）を描く。
+            //   半径 = 上下作用線の y 距離の半分。スポーク 2 本（水平・垂直）を含む。
+            //   主役の矢印・距離 d ラベルを邪魔しないよう低 opacity で背景に重ねる。
+            _buildHandleSvg(topArrow, bottomArrow) {
+                const cx = (topArrow.x1 + topArrow.x2 + bottomArrow.x1 + bottomArrow.x2) / 4;
+                const cy = (topArrow.y1 + bottomArrow.y1) / 2;
+                const radius = Math.abs(topArrow.y1 - bottomArrow.y1) / 2;
+                if (radius < 1) return '';
+                return `
+                <g fill="none" stroke="#888" stroke-opacity="0.18" stroke-width="3">
+                  <circle cx="${cx}" cy="${cy}" r="${radius}"/>
+                  <circle cx="${cx}" cy="${cy}" r="6" fill="#888" fill-opacity="0.15" stroke="none"/>
+                  <line x1="${cx - radius}" y1="${cy}" x2="${cx + radius}" y2="${cy}" stroke-opacity="0.12"/>
+                  <line x1="${cx}" y1="${cy - radius}" x2="${cx}" y2="${cy + radius}" stroke-opacity="0.12"/>
+                </g>`;
+            }
+
             // 1-9（偶力）の問題図を生成する。
             //   上：右向きの矢印 F（赤）、下：左向きの矢印 F（赤）、間に距離 d の両矢印を縦に表示。
             //   2 力の作用線（水平方向）は破線で延長し、平行であることを視覚化する。
+            //   背景には教科書 p.30 図2-22 を意識した薄いハンドル（円形ホイール）を重ねる。
             //   Stage 0/1/3/4/5 で共通表示する。
             build1_9StaticCanvas(problem) {
                 const c = problem.canvas;
@@ -5161,6 +5208,8 @@
                   <marker id="stc19-gray-e" markerWidth="6" markerHeight="6" refX="6" refY="3" orient="auto"><polygon points="0,0 6,3 0,6" fill="#666"/></marker>
                   <marker id="stc19-rot" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#1e5fa8"/></marker>
                 </defs>`;
+                // ハンドル（薄い背景。偶力をハンドルで回すイメージ）
+                svg += this._buildHandleSvg(top, bot);
                 // 上の作用線（破線・水平に全幅延長）
                 svg += `<line x1="20" y1="${top.y1}" x2="${W - 20}" y2="${top.y1}" stroke="#bbb" stroke-width="1" stroke-dasharray="4,4"/>`;
                 // 下の作用線（破線・水平に全幅延長）
