@@ -4444,10 +4444,13 @@
                     <div class="calc-stage-label" style="margin-bottom:12px;">${stageLabels[stageIndex] || ''}</div>
                 `;
                 // 1-6: 全ステージに問題図（F₁水平・F₂垂直・直角マーク）を共通表示する。
+                //      Stage 0/1 は F₁ + F₂ のみ。Stage 3 以降は合力 F と平行移動した F₂' を重ね、
+                //      直角三角形が見える形にする（showResultant フラグで切替）。
                 // 1-7: 全ステージに問題図（Fx・Fy未知破線・F合力・直角マーク）を共通表示する。
                 // 1-8: 全ステージに問題図（回転中心O・腕r・力F・回転矢印）を共通表示する。
                 // 1-9: 全ステージに問題図（上下平行・逆向き 2 力・距離 d）を共通表示する。
-                const staticCanvas1_6 = is1_6 ? this.build1_6StaticCanvas(problem)
+                const show1_6Resultant = is1_6 && stageIndex >= 3;
+                const staticCanvas1_6 = is1_6 ? this.build1_6StaticCanvas(problem, { showResultant: show1_6Resultant })
                                       : is1_7 ? this.build1_7StaticCanvas(problem)
                                       : is1_8 ? this.build1_8StaticCanvas(problem)
                                       : is1_9 ? this.build1_9StaticCanvas(problem)
@@ -4525,7 +4528,7 @@
                     //   1-6: 直角 2 力 → 三平方の定理 → F=√(F₁²+F₂²)
                     //   1-7: 合力と直角分力既知 → 三平方の逆 → Fy=√(F²-Fx²)
                     if (is1_6) {
-                        const triangleSvg = this.buildStage2SvgRightTriangle(problem);
+                        const triangleSvg = this.buildStage2SvgRightTriangle1_6Animated(problem);
                         content.innerHTML = header + `
                             <div class="calc-stage-container">
                                 <div style="font-size:15px; margin-bottom:14px; line-height:1.7;">
@@ -4537,12 +4540,14 @@
                                 </div>
                                 <div style="background:#eef3fa; border-left:3px solid #4a7cbe; padding:12px 16px; border-radius:3px; margin-top:16px; font-size:14px; line-height:1.7; color:#222;">
                                     <strong>この式になる理由：</strong><br>
-                                    直角に交わる 2 力は、平行四辺形（長方形）の 2 辺になる<br>
-                                    → 合力 F は長方形の対角線<br>
-                                    → 直角三角形の斜辺なので <strong>三平方の定理</strong> により <strong>F ＝ √(F₁² ＋ F₂²)</strong> と決まる
+                                    F₂ を F₁ の先端まで<strong>平行移動</strong>すると、底辺 F₁、高さ F₂、斜辺 F の<strong>直角三角形</strong>ができる<br>
+                                    → この直角三角形に <strong>三平方の定理</strong> を適用すると <strong>F² ＝ F₁² ＋ F₂²</strong><br>
+                                    → 合力 F の大きさは <strong>F ＝ √(F₁² ＋ F₂²)</strong> と決まる
                                 </div>
                             </div>
                         `;
+                        // Stage 2 進入直後にアニメーションを再生（DOM 確定後に呼ぶため setTimeout）
+                        setTimeout(() => this.playForceCompositionAnimation1_6(), 100);
                     } else if (is1_7) {
                         const triangleSvg = this.buildStage2SvgRightTriangle(problem);
                         content.innerHTML = header + `
@@ -4797,7 +4802,8 @@
                                 </div>
                                 <div style="background:#eaf1fa; border-left:4px solid #1e5fa8; padding:14px 18px; border-radius:3px; margin-top:18px; font-size:15px; line-height:1.7;">
                                     直角にはたらく <strong>F₁ ＝ ${problem.f1} N</strong> と <strong>F₂ ＝ ${problem.f2} N</strong> の合力の大きさは <strong>${ans} N</strong> です。<br>
-                                    これは 1-4 で学んだ <strong>力の平行四辺形</strong>（いまは長方形）の対角線の長さに相当します。三平方の定理で計算できます。
+                                    F₂ を F₁ の先端まで平行移動すると、<strong>底辺 F₁、高さ F₂、斜辺 F の直角三角形</strong>ができます。<br>
+                                    この直角三角形に三平方の定理 <strong>F² ＝ F₁² ＋ F₂²</strong> を適用すると、合力 F の大きさが求まります。
                                 </div>
                                 <div style="margin-top:14px; font-size:13px; color:#555;">
                                     次の問題に進む前に、式と直角三角形の関係を頭の中で思い浮かべてみましょう。
@@ -4887,18 +4893,30 @@
             //   F₁（水平・赤）、F₂（垂直・濃赤）、作用点 O、直角マーク（小さな正方形）、
             //   右下にスケール凡例（1マス = XX N）。Stage 0/1/3/4/5 で共通表示する。
             //   2-1 等の canvasType には影響しないように本メソッドは 1-6 専用とする。
-            build1_6StaticCanvas(problem) {
+            //   options.showResultant: true のとき、F₂ をゴースト（破線・半透明）で残しつつ、
+            //   F₁ の先端から平行移動した F₂'（実線）と、原点から F₂' の先端まで伸びる
+            //   合力 F（青・斜辺）を追加描画する。直角マークは F₁ 先端側へ移動する。
+            build1_6StaticCanvas(problem, options) {
+                const opts = options || {};
+                const showResultant = !!opts.showResultant;
                 const c = problem.canvas;
                 const W = c.width, H = c.height;
                 const CELL = 20; // 補助グリッド（スケール判読用）
                 const f1 = c.f1Arrow, f2 = c.f2Arrow;
                 const o = c.origin;
                 const rm = c.rightAngleMark;
+                // F₂ の長さベクトル（平行移動量）
+                const f2dx = f2.x2 - f2.x1;
+                const f2dy = f2.y2 - f2.y1;
+                // F₂'（F₁ 先端から平行移動した F₂）の終点座標
+                const f2pX2 = f1.x2 + f2dx;
+                const f2pY2 = f1.y2 + f2dy;
                 let svg = `<div class="drawing-wrapper" style="pointer-events:none;">
                 <svg class="drawing-svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="cursor:default;">
                 <defs>
                   <marker id="stc16-red1" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#d23a2a"/></marker>
                   <marker id="stc16-red2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#b83a2a"/></marker>
+                  <marker id="stc16-blue" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#1e5fa8"/></marker>
                 </defs>`;
                 // 補助グリッド（淡色）
                 for (let x = 0; x < W; x += CELL) {
@@ -4910,15 +4928,36 @@
                 // F₁（水平）
                 svg += `<line x1="${f1.x1}" y1="${f1.y1}" x2="${f1.x2}" y2="${f1.y2}" stroke="${f1.color}" stroke-width="2.5" marker-end="url(#stc16-red1)"/>`;
                 svg += `<text x="${f1.lx}" y="${f1.ly}" font-size="12" fill="${f1.color}" font-family="sans-serif" font-weight="600">${f1.label}</text>`;
-                // F₂（垂直）
-                svg += `<line x1="${f2.x1}" y1="${f2.y1}" x2="${f2.x2}" y2="${f2.y2}" stroke="${f2.color}" stroke-width="2.5" marker-end="url(#stc16-red2)"/>`;
-                svg += `<text x="${f2.lx}" y="${f2.ly}" font-size="12" fill="${f2.color}" font-family="sans-serif" font-weight="600">${f2.label}</text>`;
-                // 直角マーク（作用点の内側に小さな正方形）
-                if (rm) {
-                    const s = rm.size || 10;
-                    // F₁ 方向（右）・F₂ 方向（上）の両方向に s だけ伸ばした正方形の輪郭
-                    const x1 = rm.x, y1 = rm.y;
-                    svg += `<path d="M ${x1 + s},${y1} L ${x1 + s},${y1 - s} L ${x1},${y1 - s}" fill="none" stroke="#333" stroke-width="1.5"/>`;
+                if (showResultant) {
+                    // 元の F₂ をゴースト（破線・半透明）として残す。ラベルは付けない。
+                    svg += `<line x1="${f2.x1}" y1="${f2.y1}" x2="${f2.x2}" y2="${f2.y2}" stroke="${f2.color}" stroke-width="2.5" stroke-dasharray="5,3" opacity="0.35"/>`;
+                    // F₂'（F₁ の先端から平行移動した実線）
+                    svg += `<line x1="${f1.x2}" y1="${f1.y2}" x2="${f2pX2}" y2="${f2pY2}" stroke="${f2.color}" stroke-width="2.5" marker-end="url(#stc16-red2)"/>`;
+                    // F₂' のラベル（F₂ ラベルと同じ文字列を、F₁ 先端から右側に表示）
+                    const f2pLx = f1.x2 + 8;
+                    const f2pLy = (f1.y2 + f2pY2) / 2 + 4;
+                    svg += `<text x="${f2pLx}" y="${f2pLy}" font-size="12" fill="${f2.color}" font-family="sans-serif" font-weight="600">${f2.label}</text>`;
+                    // 合力 F（原点から F₂' の終点まで・青斜辺）
+                    svg += `<line x1="${o.x}" y1="${o.y}" x2="${f2pX2}" y2="${f2pY2}" stroke="#1e5fa8" stroke-width="3" marker-end="url(#stc16-blue)"/>`;
+                    // 合力 F のラベル（中央付近）
+                    const fLx = (o.x + f2pX2) / 2 + 6;
+                    const fLy = (o.y + f2pY2) / 2 - 6;
+                    svg += `<text x="${fLx}" y="${fLy}" font-size="13" fill="#1e5fa8" font-family="sans-serif" font-weight="600">F</text>`;
+                    // 直角マーク（F₁ 先端で F₁ と F₂' のなす直角）
+                    const s = (rm && rm.size) ? rm.size : 10;
+                    // F₁ は水平右向き、F₂' は垂直上向きを前提（1-6 の全問題でこの配置）
+                    svg += `<path d="M ${f1.x2 - s},${f1.y2} L ${f1.x2 - s},${f1.y2 - s} L ${f1.x2},${f1.y2 - s}" fill="none" stroke="#333" stroke-width="1.5"/>`;
+                } else {
+                    // F₂（垂直）
+                    svg += `<line x1="${f2.x1}" y1="${f2.y1}" x2="${f2.x2}" y2="${f2.y2}" stroke="${f2.color}" stroke-width="2.5" marker-end="url(#stc16-red2)"/>`;
+                    svg += `<text x="${f2.lx}" y="${f2.ly}" font-size="12" fill="${f2.color}" font-family="sans-serif" font-weight="600">${f2.label}</text>`;
+                    // 直角マーク（作用点の内側に小さな正方形）
+                    if (rm) {
+                        const s = rm.size || 10;
+                        // F₁ 方向（右）・F₂ 方向（上）の両方向に s だけ伸ばした正方形の輪郭
+                        const x1 = rm.x, y1 = rm.y;
+                        svg += `<path d="M ${x1 + s},${y1} L ${x1 + s},${y1 - s} L ${x1},${y1 - s}" fill="none" stroke="#333" stroke-width="1.5"/>`;
+                    }
                 }
                 // 作用点 O
                 svg += `<circle cx="${o.x}" cy="${o.y}" r="4" fill="#333"/>`;
@@ -5147,11 +5186,140 @@
                 `;
             }
 
+            // 1-6 Stage 2 専用: F₂ を F₁ の先端まで平行移動するアニメーション付き SVG。
+            //   問題ごとの canvas（F₁・F₂ 座標）に合わせた直角三角形を構成する。
+            //   t=0:    F₁（水平・赤）と F₂（垂直・濃赤）が原点 O から伸びる。直角マーク表示。
+            //   t≈0:    F₂ をコピー（実線）して F₁ 先端へ平行移動するトランジションを開始。
+            //           同時に元の位置に F₂ ゴースト（破線・半透明）が現れる。
+            //   t=800ms: 平行移動完了。F₁ 先端側に直角マークがフェードイン。
+            //   t=1200ms: 合力 F（青・斜辺）が原点から F₂' 終点までフェードイン。
+            //   再生は playForceCompositionAnimation1_6() で起動する。
+            buildStage2SvgRightTriangle1_6Animated(problem) {
+                const c = problem.canvas;
+                const W = c.width, H = c.height;
+                const f1 = c.f1Arrow, f2 = c.f2Arrow;
+                const o = c.origin;
+                const f2dx = f2.x2 - f2.x1;
+                const f2dy = f2.y2 - f2.y1;
+                const f2pX2 = f1.x2 + f2dx;
+                const f2pY2 = f1.y2 + f2dy;
+                // 平行移動量（F₁ 始点 → F₁ 終点）
+                const movDx = f1.x2 - f1.x1;
+                const movDy = f1.y2 - f1.y1;
+                // 直角マーク（F₁ 先端側）
+                const rmSize = (c.rightAngleMark && c.rightAngleMark.size) || 10;
+                const rmX = f1.x2, rmY = f1.y2;
+                // 合力 F のラベル位置
+                const fLx = (o.x + f2pX2) / 2 + 6;
+                const fLy = (o.y + f2pY2) / 2 - 6;
+                let svg = `<div style="margin:12px auto; display:block; border:1px solid #ddd; border-radius:4px; background:#fafafa; max-width:${W}px;">
+                <svg id="stage2-anim-1_6" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="display:block; margin:0 auto;">
+                  <defs>
+                    <marker id="anim16-red1" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#d23a2a"/></marker>
+                    <marker id="anim16-red2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#b83a2a"/></marker>
+                    <marker id="anim16-blue" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#1e5fa8"/></marker>
+                  </defs>
+                  <!-- 補助グリッド -->`;
+                const CELL = 20;
+                for (let x = 0; x < W; x += CELL) {
+                    svg += `<line x1="${x}" y1="0" x2="${x}" y2="${H}" stroke="#eee" stroke-width="1"/>`;
+                }
+                for (let y = 0; y < H; y += CELL) {
+                    svg += `<line x1="0" y1="${y}" x2="${W}" y2="${y}" stroke="#eee" stroke-width="1"/>`;
+                }
+                svg += `
+                  <!-- 元の位置の F₂ ゴースト（初期 opacity 0 → アニメ後に 0.35） -->
+                  <line id="anim16-f2-ghost" x1="${f2.x1}" y1="${f2.y1}" x2="${f2.x2}" y2="${f2.y2}" stroke="${f2.color}" stroke-width="2.5" stroke-dasharray="5,3" opacity="0"/>
+                  <!-- F₁（水平・赤） -->
+                  <line x1="${f1.x1}" y1="${f1.y1}" x2="${f1.x2}" y2="${f1.y2}" stroke="${f1.color}" stroke-width="2.5" marker-end="url(#anim16-red1)"/>
+                  <text x="${f1.lx}" y="${f1.ly}" font-size="12" fill="${f1.color}" font-family="sans-serif" font-weight="600">${f1.label}</text>
+                  <!-- F₂'（コピー、初期は元の F₂ 位置。transform で平行移動する） -->
+                  <line id="anim16-f2-moving" x1="${f2.x1}" y1="${f2.y1}" x2="${f2.x2}" y2="${f2.y2}" stroke="${f2.color}" stroke-width="2.5" marker-end="url(#anim16-red2)" style="transform: translate(0px, 0px); transform-box: view-box;"/>
+                  <text id="anim16-f2-label" x="${f2.lx}" y="${f2.ly}" font-size="12" fill="${f2.color}" font-family="sans-serif" font-weight="600" style="transform: translate(0px, 0px); transform-box: view-box;">${f2.label}</text>
+                  <!-- 直角マーク（F₁ 先端側、初期 opacity 0） -->
+                  <path id="anim16-right-angle" d="M ${rmX - rmSize},${rmY} L ${rmX - rmSize},${rmY - rmSize} L ${rmX},${rmY - rmSize}" fill="none" stroke="#333" stroke-width="1.5" opacity="0"/>
+                  <!-- 合力 F（斜辺・青、初期 opacity 0） -->
+                  <line id="anim16-resultant" x1="${o.x}" y1="${o.y}" x2="${f2pX2}" y2="${f2pY2}" stroke="#1e5fa8" stroke-width="3" marker-end="url(#anim16-blue)" opacity="0"/>
+                  <text id="anim16-resultant-label" x="${fLx}" y="${fLy}" font-size="13" fill="#1e5fa8" font-family="sans-serif" font-weight="600" opacity="0">F（合力）</text>
+                  <!-- 作用点 O -->
+                  <circle cx="${o.x}" cy="${o.y}" r="4" fill="#333"/>
+                  <text x="${o.x - 16}" y="${o.y + 16}" font-size="12" fill="#333" font-family="sans-serif">O</text>
+                </svg>
+                <div class="drawing-scale-row" style="padding:0 12px 8px;">
+                    <span>${c.scaleLabel}</span>
+                </div>
+                </div>`;
+                // アニメーション平行移動量（dataset 経由で playForceCompositionAnimation1_6 に渡す）
+                return `<div data-anim-mov-dx="${movDx}" data-anim-mov-dy="${movDy}">${svg}</div>`;
+            }
+
+            // 1-6 Stage 2 進入時に再生するアニメーション。
+            //   buildStage2SvgRightTriangle1_6Animated で挿入された要素を CSS transition / opacity で動かす。
+            //   - F₂'（id: anim16-f2-moving）と そのラベル（id: anim16-f2-label）を transform: translate で平行移動
+            //   - 同時に元の位置の F₂ ゴースト（id: anim16-f2-ghost）を opacity 0 → 0.35 へフェードイン
+            //   - 平行移動完了後（800ms 後）に直角マーク（id: anim16-right-angle）をフェードイン
+            //   - さらに 400ms 後（1200ms 後）に 合力 F（id: anim16-resultant）とラベルをフェードイン
+            //   一度再生したら静止状態に保つ（再生ボタンは付けない）。
+            playForceCompositionAnimation1_6() {
+                const wrapper = document.querySelector('[data-anim-mov-dx]');
+                if (!wrapper) return;
+                const movDx = parseFloat(wrapper.getAttribute('data-anim-mov-dx')) || 0;
+                const movDy = parseFloat(wrapper.getAttribute('data-anim-mov-dy')) || 0;
+                const moving = document.getElementById('anim16-f2-moving');
+                const movingLabel = document.getElementById('anim16-f2-label');
+                const ghost = document.getElementById('anim16-f2-ghost');
+                const rightAngle = document.getElementById('anim16-right-angle');
+                const resultant = document.getElementById('anim16-resultant');
+                const resultantLabel = document.getElementById('anim16-resultant-label');
+                if (!moving || !ghost || !resultant) return;
+                // 多重発火防止: 既に再生済みなら何もしない
+                if (wrapper.dataset.animPlayed === '1') return;
+                wrapper.dataset.animPlayed = '1';
+                // 初期状態: F₂' は元の F₂ 位置、ゴーストは透明
+                moving.style.transition = 'transform 0.8s ease-in-out';
+                moving.style.transform = 'translate(0px, 0px)';
+                if (movingLabel) {
+                    movingLabel.style.transition = 'transform 0.8s ease-in-out';
+                    movingLabel.style.transform = 'translate(0px, 0px)';
+                }
+                ghost.style.transition = 'opacity 0.4s ease-in';
+                // 次フレームで transform を更新 → トランジション発火
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        moving.style.transform = `translate(${movDx}px, ${movDy}px)`;
+                        if (movingLabel) {
+                            movingLabel.style.transform = `translate(${movDx}px, ${movDy}px)`;
+                        }
+                        ghost.setAttribute('opacity', '0.35');
+                    });
+                });
+                // 800ms 後: 直角マークをフェードイン
+                setTimeout(() => {
+                    if (rightAngle) {
+                        rightAngle.style.transition = 'opacity 0.3s ease-in';
+                        rightAngle.setAttribute('opacity', '1');
+                    }
+                }, 820);
+                // 1200ms 後: 合力 F とラベルをフェードイン
+                setTimeout(() => {
+                    if (resultant) {
+                        resultant.style.transition = 'opacity 0.4s ease-in';
+                        resultant.setAttribute('opacity', '1');
+                    }
+                    if (resultantLabel) {
+                        resultantLabel.style.transition = 'opacity 0.4s ease-in';
+                        resultantLabel.setAttribute('opacity', '1');
+                    }
+                }, 1200);
+            }
+
             // 1-6 / 1-7 Stage 2 用の schematic 図: 直角三角形の典型図。
             //   1-6（合成）: 底辺 F₁、高さ F₂、斜辺 F（合力）。
             //   1-7（分解）: 底辺 Fx、高さ Fy、斜辺 F（与えられた合力）。
             //   三平方の定理（合成）／その逆（分解）が成り立つ幾何学的理由を視覚化する。
             //   問題ごとの数値差には依存せず、固定の典型図として教える。
+            //   1-6 ではアニメ版（buildStage2SvgRightTriangle1_6Animated）に切り替え済み。
+            //   このメソッドは 1-7 でのみ使用する。
             buildStage2SvgRightTriangle(problem) {
                 // unit によってラベル文字列だけを切り替える（幾何は同一）。
                 let labelBase = 'F₁', labelHeight = 'F₂', labelHyp = 'F（合力）';
