@@ -2270,184 +2270,187 @@
             }
         };
 
-        // Problems for sub-unit 1-7: 計算による力の分解（直角分解）
-        //   教科書 p.28 の式(2-6) F = F cos α, F = F sin α は角度 α が必要だが、
-        //   三角比未習に配慮し「合力 F と直角分力 Fx が与えられ、Fy を求める」三平方の逆の形式で統一。
-        //   ピタゴラス数で整数解: 3-4-5, 5-12-13, 8-15-17。
+        // Problems for sub-unit 1-7: 計算による力の分解（角度＋三角比型）
+        //   教科書 p.28 式(2-6): Fx = F cos α, Fy = F sin α
+        //   設計: 合力 F と角度 α が与えられ、三角比を用いて分力（Fx or Fy）を求める。
+        //   三角比の値は問題文に併記（教科書付録参照不要）。
+        //   問題ごとに求める分力は 1 つ（Fx or Fy）。
         //   1-6 と同じ 6 ステージ計算問題フロー（renderCalculationProblem）を共有する。
         const PROBLEMS_1_7 = [
             {
                 id: 1,
-                f: 50, fx: 30, expectedFy: 40, tolerance: 1,
-                sentence: '合力 F ＝ 50 N を、たがいに直角な 2 方向の分力 Fx と Fy に分解したい。Fx ＝ 30 N のとき、Fy の大きさを求めよ。',
-                condition: '3-4-5 ピタゴラス数、F=50 N, Fx=30 N → Fy=40 N',
+                f: 100, angle: 30,
+                target: 'Fx',         // 求める分力
+                trigFunc: 'cos',      // 使う三角比
+                trigValue: 0.866,     // cos 30° ≈ 0.866
+                sinValue: 0.5, cosValue: 0.866,  // 問題文併記用
+                expectedAnswer: 86.6, tolerance: 0.5,
+                sentence: '水平面と角度 α ＝ 30° で、F ＝ 100 N の力が働いている。この力の<strong>水平成分 Fx</strong> を求めよ。<br>ただし、cos 30° ≈ 0.866、sin 30° ＝ 0.5 とする。',
+                condition: 'F=100 N, α=30°, Fx = F cos α',
                 baselineTime: 120,
                 canvasType: '2d-static',
                 canvas: {
-                    width: 360, height: 280,
-                    scaleLabel: '1マス = 10 N',
-                    origin: { x: 80, y: 220 },
-                    fxArrow: { x1: 80, y1: 220, x2: 170, y2: 220, color: '#b83a2a', label: 'Fx = 30 N', lx: 110, ly: 240 },
-                    fyArrow: { x1: 80, y1: 220, x2: 80,  y2: 100, color: '#b83a2a', label: 'Fy = ?',    lx: 22,  ly: 160, unknown: true },
-                    fArrow:  { x1: 80, y1: 220, x2: 170, y2: 100, color: '#d23a2a', label: 'F = 50 N',  lx: 100, ly: 150 },
-                    rightAngleMark: { x: 80, y: 220, size: 12 }
+                    width: 360, height: 240,
+                    origin: { x: 60, y: 200 },
+                    angleDeg: 30,
+                    magnitudeScale: 2  // 1 N = 2 px で描画
                 },
                 stage0Choices: [
-                    { value: 'fy',        label: '分力 Fy の大きさ' },
-                    { value: 'resultant', label: '合力 F の大きさ' },
-                    { value: 'angle',     label: '合力 F と Fx のなす角度' }
+                    { value: 'fx',     label: '水平成分 Fx の大きさ' },
+                    { value: 'fy',     label: '垂直成分 Fy の大きさ' },
+                    { value: 'angle',  label: '力 F の角度 α' }
                 ],
-                stage0Correct: 'fy',
+                stage0Correct: 'fx',
                 stage1Choices: [
-                    { value: 'perpendicular', label: '直角（90°）に交わる 2 分力' },
-                    { value: 'same',          label: '同じ向きの 2 分力' }
+                    { value: 'angle_given', label: '合力 F と角度 α が分かっている（直角分解）' },
+                    { value: 'two_forces',  label: '2 つの力の合力を求める' }
                 ],
-                stage1Correct: 'perpendicular',
-                stage2Text: '合力 F が、たがいに直角な 2 分力 Fx, Fy に分解されるとき、三平方の定理から次の関係が成り立ちます。<br>F² ＝ Fx² ＋ Fy² なので、Fy を求める式は次の通りです（底辺 Fx、高さ Fy、斜辺 F の直角三角形）。',
-                formula: 'F_y = \\sqrt{F^{\\,2} - F_x^{\\,2}}',
+                stage1Correct: 'angle_given',
+                stage2Text: '力 F を直角な 2 方向（水平と垂直）に分解するとき、三角比を使って次のように求められます。<br>水平成分 <strong>Fx ＝ F × cos α</strong>、垂直成分 <strong>Fy ＝ F × sin α</strong><br>（α は力 F が水平面となす角度）',
+                formula: 'F_x = F \\times \\cos \\alpha',
                 substitutions: {
-                    slots: ['F', 'Fx'],
+                    slots: ['F', 'cosAlpha'],
                     cards: [
-                        { role: 'F',  label: 'F',  value: 50, unit: 'N' },
-                        { role: 'Fx', label: 'Fx', value: 30, unit: 'N' }
+                        { role: 'F',        label: 'F',     value: 100,   unit: 'N' },
+                        { role: 'cosAlpha', label: 'cos α', value: 0.866, unit: '' }
                     ]
                 }
             },
             {
                 id: 2,
-                f: 100, fx: 60, expectedFy: 80, tolerance: 1,
-                sentence: '合力 F ＝ 100 N を、たがいに直角な 2 方向の分力 Fx と Fy に分解したい。Fx ＝ 60 N のとき、Fy の大きさを求めよ。',
-                condition: '3-4-5 ピタゴラス数、F=100 N, Fx=60 N → Fy=80 N',
+                f: 80, angle: 45,
+                target: 'Fy', trigFunc: 'sin', trigValue: 0.707,
+                sinValue: 0.707, cosValue: 0.707,
+                expectedAnswer: 56.6, tolerance: 0.5,
+                sentence: '水平面と角度 α ＝ 45° で、F ＝ 80 N の力が働いている。この力の<strong>垂直成分 Fy</strong> を求めよ。<br>ただし、sin 45° ≈ 0.707、cos 45° ≈ 0.707 とする。',
+                condition: 'F=80 N, α=45°, Fy = F sin α',
                 baselineTime: 120,
                 canvasType: '2d-static',
                 canvas: {
-                    width: 360, height: 280,
-                    scaleLabel: '1マス = 20 N',
-                    origin: { x: 80, y: 220 },
-                    fxArrow: { x1: 80, y1: 220, x2: 170, y2: 220, color: '#b83a2a', label: 'Fx = 60 N', lx: 110, ly: 240 },
-                    fyArrow: { x1: 80, y1: 220, x2: 80,  y2: 100, color: '#b83a2a', label: 'Fy = ?',    lx: 22,  ly: 160, unknown: true },
-                    fArrow:  { x1: 80, y1: 220, x2: 170, y2: 100, color: '#d23a2a', label: 'F = 100 N', lx: 100, ly: 150 },
-                    rightAngleMark: { x: 80, y: 220, size: 12 }
+                    width: 360, height: 240,
+                    origin: { x: 60, y: 200 },
+                    angleDeg: 45,
+                    magnitudeScale: 2
                 },
                 stage0Choices: [
-                    { value: 'fy',        label: '分力 Fy の大きさ' },
-                    { value: 'resultant', label: '合力 F の大きさ' },
-                    { value: 'angle',     label: '合力 F と Fx のなす角度' }
+                    { value: 'fy',     label: '垂直成分 Fy の大きさ' },
+                    { value: 'fx',     label: '水平成分 Fx の大きさ' },
+                    { value: 'angle',  label: '力 F の角度 α' }
                 ],
                 stage0Correct: 'fy',
                 stage1Choices: [
-                    { value: 'perpendicular', label: '直角（90°）に交わる 2 分力' },
-                    { value: 'same',          label: '同じ向きの 2 分力' }
+                    { value: 'angle_given', label: '合力 F と角度 α が分かっている（直角分解）' },
+                    { value: 'two_forces',  label: '2 つの力の合力を求める' }
                 ],
-                stage1Correct: 'perpendicular',
-                stage2Text: '合力 F が、たがいに直角な 2 分力 Fx, Fy に分解されるとき、三平方の定理から次の関係が成り立ちます。<br>F² ＝ Fx² ＋ Fy² なので、Fy を求める式は次の通りです（底辺 Fx、高さ Fy、斜辺 F の直角三角形）。',
-                formula: 'F_y = \\sqrt{F^{\\,2} - F_x^{\\,2}}',
+                stage1Correct: 'angle_given',
+                stage2Text: '力 F を直角な 2 方向（水平と垂直）に分解するとき、三角比を使って次のように求められます。<br>水平成分 <strong>Fx ＝ F × cos α</strong>、垂直成分 <strong>Fy ＝ F × sin α</strong><br>（α は力 F が水平面となす角度）',
+                formula: 'F_y = F \\times \\sin \\alpha',
                 substitutions: {
-                    slots: ['F', 'Fx'],
+                    slots: ['F', 'sinAlpha'],
                     cards: [
-                        { role: 'F',  label: 'F',  value: 100, unit: 'N' },
-                        { role: 'Fx', label: 'Fx', value: 60,  unit: 'N' }
+                        { role: 'F',        label: 'F',     value: 80,    unit: 'N' },
+                        { role: 'sinAlpha', label: 'sin α', value: 0.707, unit: '' }
                     ]
                 }
             },
             {
                 id: 3,
-                f: 130, fx: 50, expectedFy: 120, tolerance: 1,
-                sentence: '合力 F ＝ 130 N を、たがいに直角な 2 方向の分力 Fx と Fy に分解したい。Fx ＝ 50 N のとき、Fy の大きさを求めよ。',
-                condition: '5-12-13 ピタゴラス数、F=130 N, Fx=50 N → Fy=120 N',
-                baselineTime: 150,
+                f: 200, angle: 60,
+                target: 'Fx', trigFunc: 'cos', trigValue: 0.5,
+                sinValue: 0.866, cosValue: 0.5,
+                expectedAnswer: 100, tolerance: 0.5,
+                sentence: '水平面と角度 α ＝ 60° で、F ＝ 200 N の力が働いている。この力の<strong>水平成分 Fx</strong> を求めよ。<br>ただし、cos 60° ＝ 0.5、sin 60° ≈ 0.866 とする。',
+                condition: 'F=200 N, α=60°, Fx = F cos α',
+                baselineTime: 120,
                 canvasType: '2d-static',
                 canvas: {
-                    width: 360, height: 280,
-                    scaleLabel: '1マス = 20 N',
-                    origin: { x: 80, y: 240 },
-                    fxArrow: { x1: 80, y1: 240, x2: 130, y2: 240, color: '#b83a2a', label: 'Fx = 50 N', lx: 90,  ly: 260 },
-                    fyArrow: { x1: 80, y1: 240, x2: 80,  y2: 120, color: '#b83a2a', label: 'Fy = ?',    lx: 22,  ly: 180, unknown: true },
-                    fArrow:  { x1: 80, y1: 240, x2: 130, y2: 120, color: '#d23a2a', label: 'F = 130 N', lx: 92,  ly: 175 },
-                    rightAngleMark: { x: 80, y: 240, size: 12 }
+                    width: 360, height: 240,
+                    origin: { x: 60, y: 200 },
+                    angleDeg: 60,
+                    magnitudeScale: 1
                 },
                 stage0Choices: [
-                    { value: 'fy',        label: '分力 Fy の大きさ' },
-                    { value: 'resultant', label: '合力 F の大きさ' },
-                    { value: 'angle',     label: '合力 F と Fx のなす角度' }
+                    { value: 'fx',     label: '水平成分 Fx の大きさ' },
+                    { value: 'fy',     label: '垂直成分 Fy の大きさ' },
+                    { value: 'angle',  label: '力 F の角度 α' }
                 ],
-                stage0Correct: 'fy',
+                stage0Correct: 'fx',
                 stage1Choices: [
-                    { value: 'perpendicular', label: '直角（90°）に交わる 2 分力' },
-                    { value: 'same',          label: '同じ向きの 2 分力' }
+                    { value: 'angle_given', label: '合力 F と角度 α が分かっている（直角分解）' },
+                    { value: 'two_forces',  label: '2 つの力の合力を求める' }
                 ],
-                stage1Correct: 'perpendicular',
-                stage2Text: '合力 F が、たがいに直角な 2 分力 Fx, Fy に分解されるとき、三平方の定理から次の関係が成り立ちます。<br>F² ＝ Fx² ＋ Fy² なので、Fy を求める式は次の通りです（底辺 Fx、高さ Fy、斜辺 F の直角三角形）。',
-                formula: 'F_y = \\sqrt{F^{\\,2} - F_x^{\\,2}}',
+                stage1Correct: 'angle_given',
+                stage2Text: '力 F を直角な 2 方向（水平と垂直）に分解するとき、三角比を使って次のように求められます。<br>水平成分 <strong>Fx ＝ F × cos α</strong>、垂直成分 <strong>Fy ＝ F × sin α</strong><br>（α は力 F が水平面となす角度）',
+                formula: 'F_x = F \\times \\cos \\alpha',
                 substitutions: {
-                    slots: ['F', 'Fx'],
+                    slots: ['F', 'cosAlpha'],
                     cards: [
-                        { role: 'F',  label: 'F',  value: 130, unit: 'N' },
-                        { role: 'Fx', label: 'Fx', value: 50,  unit: 'N' }
+                        { role: 'F',        label: 'F',     value: 200, unit: 'N' },
+                        { role: 'cosAlpha', label: 'cos α', value: 0.5, unit: '' }
                     ]
                 }
             },
             {
                 id: 4,
-                f: 170, fx: 80, expectedFy: 150, tolerance: 1,
-                sentence: '合力 F ＝ 170 N を、たがいに直角な 2 方向の分力 Fx と Fy に分解したい。Fx ＝ 80 N のとき、Fy の大きさを求めよ。',
-                condition: '8-15-17 ピタゴラス数、F=170 N, Fx=80 N → Fy=150 N',
-                baselineTime: 150,
+                f: 50, angle: 30,
+                target: 'Fy', trigFunc: 'sin', trigValue: 0.5,
+                sinValue: 0.5, cosValue: 0.866,
+                expectedAnswer: 25, tolerance: 0.5,
+                sentence: '水平面と角度 α ＝ 30° で、F ＝ 50 N の力が働いている。この力の<strong>垂直成分 Fy</strong> を求めよ。<br>ただし、sin 30° ＝ 0.5、cos 30° ≈ 0.866 とする。',
+                condition: 'F=50 N, α=30°, Fy = F sin α',
+                baselineTime: 120,
                 canvasType: '2d-static',
                 canvas: {
-                    width: 360, height: 280,
-                    scaleLabel: '1マス = 30 N',
-                    origin: { x: 90, y: 240 },
-                    fxArrow: { x1: 90, y1: 240, x2: 170, y2: 240, color: '#b83a2a', label: 'Fx = 80 N', lx: 110, ly: 260 },
-                    fyArrow: { x1: 90, y1: 240, x2: 90,  y2: 90,  color: '#b83a2a', label: 'Fy = ?',    lx: 20,  ly: 165, unknown: true },
-                    fArrow:  { x1: 90, y1: 240, x2: 170, y2: 90,  color: '#d23a2a', label: 'F = 170 N', lx: 108, ly: 160 },
-                    rightAngleMark: { x: 90, y: 240, size: 12 }
+                    width: 360, height: 240,
+                    origin: { x: 60, y: 200 },
+                    angleDeg: 30,
+                    magnitudeScale: 3
                 },
                 stage0Choices: [
-                    { value: 'fy',        label: '分力 Fy の大きさ' },
-                    { value: 'resultant', label: '合力 F の大きさ' },
-                    { value: 'angle',     label: '合力 F と Fx のなす角度' }
+                    { value: 'fy',     label: '垂直成分 Fy の大きさ' },
+                    { value: 'fx',     label: '水平成分 Fx の大きさ' },
+                    { value: 'angle',  label: '力 F の角度 α' }
                 ],
                 stage0Correct: 'fy',
                 stage1Choices: [
-                    { value: 'perpendicular', label: '直角（90°）に交わる 2 分力' },
-                    { value: 'same',          label: '同じ向きの 2 分力' }
+                    { value: 'angle_given', label: '合力 F と角度 α が分かっている（直角分解）' },
+                    { value: 'two_forces',  label: '2 つの力の合力を求める' }
                 ],
-                stage1Correct: 'perpendicular',
-                stage2Text: '合力 F が、たがいに直角な 2 分力 Fx, Fy に分解されるとき、三平方の定理から次の関係が成り立ちます。<br>F² ＝ Fx² ＋ Fy² なので、Fy を求める式は次の通りです（底辺 Fx、高さ Fy、斜辺 F の直角三角形）。',
-                formula: 'F_y = \\sqrt{F^{\\,2} - F_x^{\\,2}}',
+                stage1Correct: 'angle_given',
+                stage2Text: '力 F を直角な 2 方向（水平と垂直）に分解するとき、三角比を使って次のように求められます。<br>水平成分 <strong>Fx ＝ F × cos α</strong>、垂直成分 <strong>Fy ＝ F × sin α</strong><br>（α は力 F が水平面となす角度）',
+                formula: 'F_y = F \\times \\sin \\alpha',
                 substitutions: {
-                    slots: ['F', 'Fx'],
+                    slots: ['F', 'sinAlpha'],
                     cards: [
-                        { role: 'F',  label: 'F',  value: 170, unit: 'N' },
-                        { role: 'Fx', label: 'Fx', value: 80,  unit: 'N' }
+                        { role: 'F',        label: 'F',     value: 50,  unit: 'N' },
+                        { role: 'sinAlpha', label: 'sin α', value: 0.5, unit: '' }
                     ]
                 }
             }
         ];
 
-        // 1-7 のヒント（計算による力の分解 — 3 段階 B→A→C）。
+        // 1-7 のヒント（計算による力の分解 — 角度＋三角比型、3 段階 B→A→C）。
         //   Stage 2（必然の公式）は表示のみなのでヒントなし。
         const HINTS_1_7 = {
             stage0: {
-                b: '問題文の最後の文に注目してください。「求めよ」と書かれている量が求めるものです。合力 F と Fx は問題文に数値で与えられています。',
-                a: '問題文の末尾に「Fy の大きさを求めよ」とあります。求めるものは 分力 Fy の大きさ [N] です。',
-                c: '教科書28ページ「計算による力の分解」の冒頭と図2-15を確認してください。'
+                b: '問題文の最後に「○○ を求めよ」とあります。何を求める問題でしょうか。問題文では F と α の値が与えられています。',
+                a: '問題文の末尾に「水平成分 Fx を求めよ」または「垂直成分 Fy を求めよ」とあります。問題ごとに求める分力が異なります。',
+                c: '教科書28ページ「直角な 2 力への分解」と式(2-6)を確認してください。'
             },
             stage1: {
-                b: '図の 2 分力 Fx と Fy の角度に注目してください。90°（直角）でしょうか、それとも同じ向きに重なっているでしょうか。作用点のところに直角マーク（小さな四角形）があります。',
-                a: '2 分力 Fx, Fy がたがいに直角のとき、合力 F は斜辺、Fx と Fy は 2 辺として直角三角形を作ります。このとき三平方の定理 F² = Fx² + Fy² が成り立ちます。',
-                c: '教科書28ページ「直角な 2 力への分解」と図2-15を確認してください。'
+                b: '問題文と図を見て、何が分かっていて何を求めるかを整理してください。合力 F の大きさと、その角度 α が与えられていますか。',
+                a: '合力 F と角度 α が分かっているとき、三角比（sin α, cos α）を使って直角な 2 方向の分力 Fx, Fy が求められます。',
+                c: '教科書28ページ 図2-15 と式(2-6)を確認してください。'
             },
             stage3: {
-                b: '式の F の空欄には問題文の合力 F の値を、Fx の空欄には問題文の Fx の値を入れます。',
-                a: '式は Fy ＝ √(F² − Fx²)。F の空欄には問題文の「F ＝ ○○ N」の数値を、Fx の空欄には「Fx ＝ ○○ N」の数値を入れます。',
-                c: '教科書28ページ 式(2-6) と図2-15を確認してください。'
+                b: '式の F の空欄には合力の値、cos α または sin α の空欄には三角比の値（問題文に書かれている数値）を入れます。',
+                a: '式は Fx ＝ F × cos α または Fy ＝ F × sin α です。問題文の F の値と、cos α または sin α の値（問題文に併記）を空欄に入れます。',
+                c: '教科書28ページ 式(2-6) を確認してください。'
             },
             stage4: {
-                b: 'まず F² と Fx² をそれぞれ計算して、F² から Fx² を引いてください。次にその結果に対して √（ルート）を取ると Fy になります。',
-                a: 'Fy ＝ √(F² − Fx²)。手順は 3 つです。①F を 2 乗する。②Fx を 2 乗する。③ ①から② を引いたものの √ を取る。答えは整数になります。',
-                c: '教科書28ページ 式(2-6) の計算過程を確認してください。'
+                b: 'F と三角比の値を掛け算すれば、分力の大きさが得られます。電卓を使って構いません。',
+                a: 'Fx ＝ F × cos α または Fy ＝ F × sin α。F の値と三角比の値を掛け算するだけです。単位は N です。',
+                c: '教科書28ページ 式(2-6) と例題を確認してください。'
             }
         };
 
@@ -4500,7 +4503,7 @@
                     const questionText = is1_6
                         ? '図の 2 力 F₁, F₂ の関係はどれですか？'
                         : is1_7
-                        ? '図の 2 分力 Fx, Fy の関係はどれですか？'
+                        ? 'この問題はどのような状況でしょうか？'
                         : is1_8
                         ? '図の 力 F と 腕 OA の関係はどれですか？'
                         : is1_9
@@ -4561,9 +4564,9 @@
                                 </div>
                                 <div style="background:#eef3fa; border-left:3px solid #4a7cbe; padding:12px 16px; border-radius:3px; margin-top:16px; font-size:14px; line-height:1.7; color:#222;">
                                     <strong>この式になる理由：</strong><br>
-                                    合力 F と直角分力 Fx, Fy は、直角三角形の 斜辺・底辺・高さ の関係になる<br>
-                                    → 三平方の定理 <strong>F² ＝ Fx² ＋ Fy²</strong> が成り立つ<br>
-                                    → Fy について解くと <strong>Fy ＝ √(F² − Fx²)</strong> と決まる
+                                    直角三角形の斜辺 F、底辺 Fx、高さ Fy が、角 α と次の関係にあります。<br>
+                                    sin α ＝ Fy / F、cos α ＝ Fx / F<br>
+                                    → これを Fx と Fy について解くと、<strong>Fx ＝ F cos α</strong>、<strong>Fy ＝ F sin α</strong> になります。
                                 </div>
                             </div>
                         `;
@@ -4638,15 +4641,15 @@
                         const valuesHTML = valueCards.map(c =>
                             `<div class="calc-value-card draggable-value" data-role="${c.role}" data-value="${c.value}">${c.label} ＝ ${c.value} ${c.unit}</div>`
                         ).join('');
-                        // 式の表示: 1-6 → F = √( [F₁]² + [F₂]² ) / 1-7 → Fy = √( [F]² − [Fx]² ) / 1-8 → M = [F] × [r] / 1-9 → M = [F] × [d]
-                        const slotLabel = { F1: 'F₁', F2: 'F₂', F: 'F', Fx: 'Fx', r: 'r', d: 'd' };
+                        // 式の表示: 1-6 → F = √( [F₁]² + [F₂]² ) / 1-7 → Fx = [F] × [cos α] or Fy = [F] × [sin α] / 1-8 → M = [F] × [r] / 1-9 → M = [F] × [d]
+                        const slotLabel = { F1: 'F₁', F2: 'F₂', F: 'F', Fx: 'Fx', r: 'r', d: 'd', cosAlpha: 'cos α', sinAlpha: 'sin α' };
                         const slotSpans = slots.map(role =>
                             `<span class="calc-formula-input empty" data-slot="${role}" id="slot-${role}">${slotLabel[role] || role}</span>`
                         );
                         const formulaHTML = is1_6
                             ? `F ＝ √( ${slotSpans[0]}<sup>2</sup> ＋ ${slotSpans[1]}<sup>2</sup> )`
                             : is1_7
-                            ? `Fy ＝ √( ${slotSpans[0]}<sup>2</sup> − ${slotSpans[1]}<sup>2</sup> )`
+                            ? `${problem.target} ＝ ${slotSpans[0]} × ${slotSpans[1]}`
                             : is1_9
                             ? `M ＝ ${slotSpans[0]} × ${slotSpans[1]}`
                             : `M ＝ ${slotSpans[0]} × ${slotSpans[1]}`;
@@ -4725,14 +4728,18 @@
                             </div>
                         `;
                     } else if (is1_7) {
+                        const isTargetFx_s4 = problem.target === 'Fx';
+                        const trigLatex_s4 = isTargetFx_s4 ? '\\cos' : '\\sin';
+                        const trigVal_s4 = isTargetFx_s4 ? problem.cosValue : problem.sinValue;
+                        const targetLatex_s4 = isTargetFx_s4 ? 'F_x' : 'F_y';
                         content.innerHTML = header + staticCanvas1_6 + `
                             <div class="calc-stage-container">
                                 <div class="calc-question-text">計算結果を入力してください。</div>
                                 <div class="calc-formula-display">
-                                    $F_y = \\sqrt{${problem.f}^{\\,2} - ${problem.fx}^{\\,2}} = {\\color{#c62828}?}$
+                                    $${targetLatex_s4} = ${problem.f} \\times ${trigVal_s4} = {\\color{#c62828}?}$
                                 </div>
                                 <div class="calc-input-row">
-                                    <span class="calc-input-label">答え：Fy ＝</span>
+                                    <span class="calc-input-label">答え：${problem.target} ＝</span>
                                     <input type="number" id="answerInput" class="calc-answer-input" placeholder="数値" style="width:120px;" step="0.1">
                                     <span style="font-size:14px; color:#555; margin-left:6px;">[N]</span>
                                 </div>
@@ -4811,20 +4818,21 @@
                             </div>
                         `;
                     } else if (is1_7) {
-                        const ans = problem.expectedFy;
-                        const fSq = problem.f * problem.f;
-                        const fxSq = problem.fx * problem.fx;
-                        const diff = fSq - fxSq;
+                        const ans = problem.expectedAnswer;
+                        const isTargetFx_s5 = problem.target === 'Fx';
+                        const trigLatex_s5 = isTargetFx_s5 ? '\\cos' : '\\sin';
+                        const trigVal_s5 = isTargetFx_s5 ? problem.cosValue : problem.sinValue;
+                        const trigText_s5 = isTargetFx_s5 ? 'cos' : 'sin';
+                        const targetLatex_s5 = isTargetFx_s5 ? 'F_x' : 'F_y';
                         content.innerHTML = header + staticCanvas1_6 + `
                             <div class="calc-stage-container">
                                 <div class="calc-question-text">答えの意味を確認しよう。</div>
                                 <div class="calc-formula-display">
-                                    $F_y = \\sqrt{${problem.f}^{\\,2} - ${problem.fx}^{\\,2}} = \\sqrt{${fSq} - ${fxSq}} = \\sqrt{${diff}} = ${ans}\\,\\mathrm{[N]}$
+                                    $${targetLatex_s5} = F \\times ${trigLatex_s5} \\alpha = ${problem.f} \\times ${trigVal_s5} = ${ans}\\,\\mathrm{[N]}$
                                 </div>
                                 <div style="background:#eaf1fa; border-left:4px solid #1e5fa8; padding:14px 18px; border-radius:3px; margin-top:18px; font-size:15px; line-height:1.7;">
-                                    F ＝ <strong>${problem.f} N</strong>、Fx ＝ <strong>${problem.fx} N</strong> のとき、直角分力 <strong>Fy ＝ ${ans} N</strong>。<br>
-                                    F² ＝ Fx² ＋ Fy² の関係から、Fy² ＝ F² − Fx² ＝ ${problem.f}² − ${problem.fx}² ＝ ${diff}、Fy ＝ √${diff} ＝ ${ans} N。<br>
-                                    底辺 Fx、高さ Fy、斜辺 F の直角三角形で、三平方の定理の逆の関係が成り立ちます。
+                                    F ＝ <strong>${problem.f} N</strong>、α ＝ <strong>${problem.angle}°</strong> のとき、${problem.target} ＝ F × ${trigText_s5} α ＝ ${problem.f} × ${trigVal_s5} ＝ <strong>${ans} N</strong>。<br>
+                                    分解する力 F（青）と角度 α が分かっているとき、三角比で水平・垂直成分が求まります。
                                 </div>
                                 <div style="margin-top:14px; font-size:13px; color:#555;">
                                     次の問題に進む前に、式と直角三角形の関係を頭の中で思い浮かべてみましょう。
@@ -4970,56 +4978,84 @@
                 return svg;
             }
 
-            // 1-7（計算による力の分解）の問題図を生成する。
-            //   F（斜辺・赤・与えられた合力）、Fx（水平・濃赤・既知）、
-            //   Fy（垂直・濃赤・未知→破線 + "?" ラベル）、作用点 O、直角マーク。
-            //   build1_6StaticCanvas と同構造だが、分解問題なので Fy は未知扱いで破線表示する。
+            // 1-7（計算による力の分解 — 角度＋三角比型）の問題図を生成する。
+            //   F（斜辺・青・分解する力、角度 α 上向き）、
+            //   Fx（水平・赤）、Fy（垂直・赤）、求める分力は破線（"?" 付き）。
+            //   原点 O から角 α の弧マーク、直角マーク、補助グリッドを表示。
             //   Stage 0/1/3/4/5 で共通表示する。
             build1_7StaticCanvas(problem) {
                 const c = problem.canvas;
                 const W = c.width, H = c.height;
-                const CELL = 20;
-                const fx = c.fxArrow, fy = c.fyArrow, f = c.fArrow;
                 const o = c.origin;
-                const rm = c.rightAngleMark;
+                const angleRad = c.angleDeg * Math.PI / 180;
+                const scale = c.magnitudeScale || 2;
+                const fLen = problem.f * scale;
+                // F の終点
+                const fEndX = o.x + fLen * Math.cos(angleRad);
+                const fEndY = o.y - fLen * Math.sin(angleRad);
+                // Fx, Fy の終点（直角分解後）
+                const fxEndX = fEndX, fxEndY = o.y;       // 水平成分の終点（足）
+                const fyEndX = o.x, fyEndY = fEndY;       // 垂直成分の終点
+
                 let svg = `<div class="drawing-wrapper" style="pointer-events:none;">
                 <svg class="drawing-svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="cursor:default;">
                 <defs>
-                  <marker id="stc17-redKnown" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#b83a2a"/></marker>
-                  <marker id="stc17-redUnknown" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#b83a2a"/></marker>
-                  <marker id="stc17-redResult" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#d23a2a"/></marker>
+                  <marker id="stc17b-blue" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#1e5fa8"/></marker>
+                  <marker id="stc17b-red" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#d23a2a"/></marker>
                 </defs>`;
                 // 補助グリッド（淡色）
-                for (let x = 0; x < W; x += CELL) {
+                for (let x = 0; x < W; x += 20) {
                     svg += `<line x1="${x}" y1="0" x2="${x}" y2="${H}" stroke="#eee" stroke-width="1"/>`;
                 }
-                for (let y = 0; y < H; y += CELL) {
+                for (let y = 0; y < H; y += 20) {
                     svg += `<line x1="0" y1="${y}" x2="${W}" y2="${y}" stroke="#eee" stroke-width="1"/>`;
                 }
-                // F（斜辺・合力・与えられた既知量）
-                svg += `<line x1="${f.x1}" y1="${f.y1}" x2="${f.x2}" y2="${f.y2}" stroke="${f.color}" stroke-width="2.5" marker-end="url(#stc17-redResult)"/>`;
-                svg += `<text x="${f.lx}" y="${f.ly}" font-size="12" fill="${f.color}" font-family="sans-serif" font-weight="600">${f.label}</text>`;
-                // Fx（水平・既知）
-                svg += `<line x1="${fx.x1}" y1="${fx.y1}" x2="${fx.x2}" y2="${fx.y2}" stroke="${fx.color}" stroke-width="2.5" marker-end="url(#stc17-redKnown)"/>`;
-                svg += `<text x="${fx.lx}" y="${fx.ly}" font-size="12" fill="${fx.color}" font-family="sans-serif" font-weight="600">${fx.label}</text>`;
-                // Fy（垂直・未知: 破線で描画し "?" 付きラベル）
-                const isUnknown = !!fy.unknown;
-                const dashAttr = isUnknown ? ' stroke-dasharray="6,4"' : '';
-                svg += `<line x1="${fy.x1}" y1="${fy.y1}" x2="${fy.x2}" y2="${fy.y2}" stroke="${fy.color}" stroke-width="2.5"${dashAttr} marker-end="url(#stc17-redUnknown)"/>`;
-                svg += `<text x="${fy.lx}" y="${fy.ly}" font-size="12" fill="${fy.color}" font-family="sans-serif" font-weight="600">${fy.label}</text>`;
-                // 直角マーク（作用点の内側に小さな正方形）
-                if (rm) {
-                    const s = rm.size || 10;
-                    const x1 = rm.x, y1 = rm.y;
-                    svg += `<path d="M ${x1 + s},${y1} L ${x1 + s},${y1 - s} L ${x1},${y1 - s}" fill="none" stroke="#333" stroke-width="1.5"/>`;
-                }
+
+                // 水平基準線（点線、薄い）— 角 α の基準を示す
+                svg += `<line x1="${o.x}" y1="${o.y}" x2="${o.x + 220}" y2="${o.y}" stroke="#aaa" stroke-width="1" stroke-dasharray="2,3"/>`;
+
+                // 角 α の弧マーク
+                const arcRadius = 30;
+                const arcEndX = o.x + arcRadius * Math.cos(angleRad);
+                const arcEndY = o.y - arcRadius * Math.sin(angleRad);
+                svg += `<path d="M ${o.x + arcRadius} ${o.y} A ${arcRadius} ${arcRadius} 0 0 0 ${arcEndX} ${arcEndY}" fill="none" stroke="#333" stroke-width="1.5"/>`;
+                svg += `<text x="${o.x + arcRadius + 6}" y="${o.y - 8}" font-size="13" fill="#333" font-weight="600">α = ${c.angleDeg}°</text>`;
+
+                // F の終点から Fx, Fy への補助線（直角三角形を完成させる）
+                svg += `<line x1="${fEndX}" y1="${fEndY}" x2="${fxEndX}" y2="${fxEndY}" stroke="#aaa" stroke-width="1" stroke-dasharray="3,3"/>`;
+                svg += `<line x1="${fEndX}" y1="${fEndY}" x2="${fyEndX}" y2="${fyEndY}" stroke="#aaa" stroke-width="1" stroke-dasharray="3,3"/>`;
+
+                // F（青・斜辺・分解する力）
+                svg += `<line x1="${o.x}" y1="${o.y}" x2="${fEndX}" y2="${fEndY}" stroke="#1e5fa8" stroke-width="3" marker-end="url(#stc17b-blue)"/>`;
+                // F ラベル（中点付近、斜辺の上側に）
+                const fLabelX = (o.x + fEndX) / 2 + 8;
+                const fLabelY = (o.y + fEndY) / 2 - 8;
+                svg += `<text x="${fLabelX}" y="${fLabelY}" font-size="13" fill="#1e5fa8" font-weight="600">F = ${problem.f} N</text>`;
+
+                // Fx, Fy（赤）— 求める分力は破線、もう一方は実線
+                const isTargetFx = problem.target === 'Fx';
+                // Fx
+                const fxStyle = isTargetFx ? 'stroke-dasharray="6,4"' : '';
+                svg += `<line x1="${o.x}" y1="${o.y}" x2="${fxEndX}" y2="${fxEndY}" stroke="#d23a2a" stroke-width="2.5" ${fxStyle} marker-end="url(#stc17b-red)"/>`;
+                const fxLabel = isTargetFx ? 'Fx = ?' : 'Fx';
+                svg += `<text x="${(o.x + fxEndX) / 2 - 10}" y="${o.y + 18}" font-size="12" fill="#d23a2a" font-weight="600">${fxLabel}</text>`;
+                // Fy
+                const fyStyle = !isTargetFx ? 'stroke-dasharray="6,4"' : '';
+                svg += `<line x1="${o.x}" y1="${o.y}" x2="${fyEndX}" y2="${fyEndY}" stroke="#d23a2a" stroke-width="2.5" ${fyStyle} marker-end="url(#stc17b-red)"/>`;
+                const fyLabel = !isTargetFx ? 'Fy = ?' : 'Fy';
+                svg += `<text x="${o.x - 32}" y="${(o.y + fyEndY) / 2}" font-size="12" fill="#d23a2a" font-weight="600">${fyLabel}</text>`;
+
+                // 直角マーク（Fx 終端側、Fx と Fy のなす直角を示す）
+                const rmSize = 10;
+                svg += `<path d="M ${fxEndX - rmSize} ${o.y} L ${fxEndX - rmSize} ${o.y - rmSize} L ${fxEndX} ${o.y - rmSize}" fill="none" stroke="#333" stroke-width="1.5"/>`;
+
                 // 作用点 O
                 svg += `<circle cx="${o.x}" cy="${o.y}" r="4" fill="#333"/>`;
-                svg += `<text x="${o.x - 16}" y="${o.y + 16}" font-size="12" fill="#333" font-family="sans-serif">O</text>`;
-                svg += `<text x="${o.x - 28}" y="${o.y + 30}" font-size="10" fill="#888" font-family="sans-serif">（作用点）</text>`;
+                svg += `<text x="${o.x - 16}" y="${o.y + 18}" font-size="12" fill="#333">O</text>`;
+
                 svg += `</svg>
                 <div class="drawing-scale-row">
-                    <span>${c.scaleLabel}</span>
+                    <span style="font-size:12px; color:#666;">青：分解する力 F　／　赤：分力 Fx, Fy（破線は求める分力）</span>
                 </div></div>`;
                 return svg;
             }
@@ -5313,41 +5349,37 @@
                 }, 1200);
             }
 
-            // 1-6 / 1-7 Stage 2 用の schematic 図: 直角三角形の典型図。
-            //   1-6（合成）: 底辺 F₁、高さ F₂、斜辺 F（合力）。
-            //   1-7（分解）: 底辺 Fx、高さ Fy、斜辺 F（与えられた合力）。
-            //   三平方の定理（合成）／その逆（分解）が成り立つ幾何学的理由を視覚化する。
+            // 1-7 Stage 2 用の schematic 図: 直角三角形 + 角 α の典型図。
+            //   底辺 Fx、高さ Fy、斜辺 F（分解する力）、角 α、直角マーク。
+            //   Fx ＝ F × cos α、Fy ＝ F × sin α の幾何学的関係を視覚化する。
             //   問題ごとの数値差には依存せず、固定の典型図として教える。
             //   1-6 ではアニメ版（buildStage2SvgRightTriangle1_6Animated）に切り替え済み。
             //   このメソッドは 1-7 でのみ使用する。
             buildStage2SvgRightTriangle(problem) {
-                // unit によってラベル文字列だけを切り替える（幾何は同一）。
-                let labelBase = 'F₁', labelHeight = 'F₂', labelHyp = 'F（合力）';
-                if (this.currentUnitId === '1-7') {
-                    labelBase = 'Fx'; labelHeight = 'Fy'; labelHyp = 'F（合力）';
-                }
                 return `
-                <svg width="300" height="200" viewBox="0 0 300 200" style="display:block; margin:12px auto; border:1px solid #ddd; border-radius:4px; background:#fafafa;">
+                <svg width="320" height="220" viewBox="0 0 320 220" style="display:block; margin:12px auto; border:1px solid #ddd; border-radius:4px; background:#fafafa;">
                   <defs>
-                    <marker id="s2rt-red1" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#d23a2a"/></marker>
-                    <marker id="s2rt-red2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#b83a2a"/></marker>
+                    <marker id="s2rt-red" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#d23a2a"/></marker>
                     <marker id="s2rt-blue" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#1e5fa8"/></marker>
                   </defs>
-                  <!-- 底辺 F₁/Fx（赤・水平） -->
-                  <line x1="50" y1="150" x2="200" y2="150" stroke="#d23a2a" stroke-width="2.5" marker-end="url(#s2rt-red1)"/>
-                  <!-- 高さ F₂/Fy（濃赤・垂直） -->
-                  <line x1="50" y1="150" x2="50" y2="50" stroke="#b83a2a" stroke-width="2.5" marker-end="url(#s2rt-red2)"/>
-                  <!-- 斜辺 F（青・合力） -->
-                  <line x1="50" y1="150" x2="200" y2="50" stroke="#1e5fa8" stroke-width="3" marker-end="url(#s2rt-blue)"/>
+                  <!-- 底辺 Fx（赤・分力・水平） -->
+                  <line x1="50" y1="170" x2="230" y2="170" stroke="#d23a2a" stroke-width="2.5" marker-end="url(#s2rt-red)"/>
+                  <!-- 高さ Fy（赤・分力・垂直） -->
+                  <line x1="230" y1="170" x2="230" y2="50" stroke="#d23a2a" stroke-width="2.5" marker-end="url(#s2rt-red)"/>
+                  <!-- 斜辺 F（青・分解する力） -->
+                  <line x1="50" y1="170" x2="230" y2="50" stroke="#1e5fa8" stroke-width="3" marker-end="url(#s2rt-blue)"/>
+                  <!-- 角 α の弧 -->
+                  <path d="M 90 170 A 40 40 0 0 0 80 145" fill="none" stroke="#333" stroke-width="1.5"/>
+                  <text x="92" y="160" font-size="13" fill="#333" font-weight="600">α</text>
                   <!-- 直角マーク -->
-                  <path d="M 60,150 L 60,140 L 50,140" fill="none" stroke="#333" stroke-width="1.5"/>
+                  <path d="M 220 170 L 220 160 L 230 160" fill="none" stroke="#333" stroke-width="1.5"/>
                   <!-- 作用点 -->
-                  <circle cx="50" cy="150" r="3" fill="#333"/>
-                  <text x="34" y="166" font-size="12" fill="#333" font-family="sans-serif">O</text>
+                  <circle cx="50" cy="170" r="3" fill="#333"/>
+                  <text x="34" y="186" font-size="12" fill="#333">O</text>
                   <!-- ラベル -->
-                  <text x="115" y="170" font-size="13" fill="#d23a2a" font-family="sans-serif" font-weight="600">${labelBase}</text>
-                  <text x="22" y="105" font-size="13" fill="#b83a2a" font-family="sans-serif" font-weight="600">${labelHeight}</text>
-                  <text x="118" y="92" font-size="13" fill="#1e5fa8" font-family="sans-serif" font-weight="600">${labelHyp}</text>
+                  <text x="135" y="190" font-size="13" fill="#d23a2a" font-weight="600">Fx ＝ F × cos α</text>
+                  <text x="240" y="115" font-size="13" fill="#d23a2a" font-weight="600">Fy ＝ F × sin α</text>
+                  <text x="120" y="100" font-size="13" fill="#1e5fa8" font-weight="600">F（分解する力）</text>
                 </svg>`;
             }
 
@@ -7918,7 +7950,9 @@
                         if (is1_6) {
                             msg = '正解。合力 F の大きさを求めます。';
                         } else if (is1_7) {
-                            msg = '正解。分力 Fy の大きさを求めます。';
+                            msg = (problem.target === 'Fx')
+                                ? '正解。水平成分 Fx の大きさを求めます。'
+                                : '正解。垂直成分 Fy の大きさを求めます。';
                         } else if (is1_8) {
                             msg = '正解。力のモーメント M の大きさを求めます。';
                         } else if (is1_9) {
@@ -7943,10 +7977,13 @@
                                 msg = '不正解。問題文の末尾「○○を求めよ」に注目してください。';
                             }
                         } else if (is1_7) {
-                            if (value === 'resultant') {
-                                msg = '不正解。合力 F は問題文に「F ＝ ○○ N」で与えられています。求めるのは分解したあとの Fy です。';
-                            } else if (value === 'angle') {
-                                msg = '不正解。この問題では角度ではなく、分力の大きさ [N] を求めます。';
+                            const targetIsFx = problem.target === 'Fx';
+                            if (value === 'angle') {
+                                msg = '不正解。角度 α は問題文に「α ＝ ○○°」で与えられています。求めるものは分力 [N] です。';
+                            } else if (targetIsFx && value === 'fy') {
+                                msg = '不正解。問題文の末尾は「水平成分 Fx を求めよ」です。Fy ではありません。';
+                            } else if (!targetIsFx && value === 'fx') {
+                                msg = '不正解。問題文の末尾は「垂直成分 Fy を求めよ」です。Fx ではありません。';
                             } else {
                                 msg = '不正解。問題文の末尾「○○を求めよ」に注目してください。';
                             }
@@ -8013,7 +8050,7 @@
                         if (is1_6) {
                             msg = '正解。図の 2 力は直角に交わっています（作用点の直角マークを確認）。';
                         } else if (is1_7) {
-                            msg = '正解。2 分力 Fx, Fy は直角に交わっています（作用点の直角マークを確認）。';
+                            msg = '正解。合力 F と角度 α が分かっているので、三角比で直角な 2 方向の分力が求まります。';
                         } else if (is1_8) {
                             msg = '正解。力 F は腕 OA に対して直角にはたらいています。この場合 M ＝ F × r の式が使えます。';
                         } else if (is1_9) {
@@ -8032,7 +8069,7 @@
                         if (is1_6) {
                             msg = '不正解。図の 2 本の矢印の角度をよく見てください。作用点に小さな正方形（直角マーク）が描かれています。';
                         } else if (is1_7) {
-                            msg = '不正解。2 分力 Fx, Fy は作用点で直角（90°）に交わっています。直角マークを確認してください。';
+                            msg = '不正解。問題文には合力 F と角度 α が与えられています。合力を求めるのではなく、三角比で分力を求める問題です。';
                         } else if (is1_8) {
                             msg = '不正解。問題文に「腕 OA に垂直に」と書かれており、図でも力 F は腕 OA と直角にはたらいています。';
                         } else if (is1_9) {
@@ -8104,7 +8141,8 @@
                     v: 'v', t: 't',
                     F1: 'F₁', F2: 'F₂',
                     F: 'F', Fx: 'Fx',
-                    r: 'r', d: 'd'
+                    r: 'r', d: 'd',
+                    cosAlpha: 'cos α', sinAlpha: 'sin α'
                 };
                 slotRoles.forEach(r => { slotEls[r] = document.getElementById('slot-' + r); });
                 // Reset visual state
@@ -8128,7 +8166,7 @@
                         if (this.currentUnitId === '1-6') {
                             feedback.textContent = '不正解。式の F₁ の空欄には問題文の F₁ の値、F₂ の空欄には F₂ の値を入れてください。';
                         } else if (this.currentUnitId === '1-7') {
-                            feedback.textContent = '不正解。式の F の空欄には問題文の合力 F の値、Fx の空欄には Fx の値を入れてください。';
+                            feedback.textContent = '不正解。式の F の空欄には問題文の合力 F の値、cos α または sin α の空欄には三角比の値（問題文に併記）を入れてください。';
                         } else if (this.currentUnitId === '1-8') {
                             feedback.textContent = '不正解。単位に注目して入れ直してください。「N（ニュートン）」が力 F、「m（メートル）」が腕の長さ r です。';
                         } else if (this.currentUnitId === '1-9') {
@@ -8164,7 +8202,7 @@
                 // 1-6/1-7/1-8/1-9 は小数入力（step=0.1 を許容）し tolerance で判定。
                 const userAnswer = isForceCalc ? parseFloat(answerInput.value) : parseInt(answerInput.value);
                 const expected   = is1_6 ? problem.expectedResultant
-                                 : is1_7 ? problem.expectedFy
+                                 : is1_7 ? problem.expectedAnswer
                                  : is1_8 ? problem.expectedMoment
                                  : is1_9 ? problem.expectedCoupleMoment
                                  : problem.expectedDisplacement;
@@ -8187,13 +8225,13 @@
                             </div>
                         `;
                     } else if (is1_7) {
-                        const fSq = problem.f * problem.f;
-                        const fxSq = problem.fx * problem.fx;
-                        const diff = fSq - fxSq;
+                        const isTargetFx_chk = problem.target === 'Fx';
+                        const trigText_chk = isTargetFx_chk ? 'cos' : 'sin';
+                        const trigVal_chk = isTargetFx_chk ? problem.cosValue : problem.sinValue;
                         feedback.innerHTML = `
                             <div style="margin-bottom: 10px;">正解です。</div>
                             <div class="answer-explanation">
-                                Fy ＝ √(F² − Fx²) ＝ √(${problem.f}² − ${problem.fx}²) ＝ √${diff} ＝ ${expected} [N]
+                                ${problem.target} ＝ F × ${trigText_chk} α ＝ ${problem.f} × ${trigVal_chk} ＝ ${expected} [N]
                             </div>
                         `;
                     } else if (is1_8) {
