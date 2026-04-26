@@ -4997,13 +4997,14 @@
                 else if (stageIndex === 1) {
                     // Stage 1（NEW）: 三角比の選択
                     //   target=Fx → 正解 cos / target=Fy → 正解 sin
+                    //   各チップの desc は KaTeX 分数表記（仕様書 4.1 数式表示準拠）。
                     const rawOptions = [
-                        { value: 'cos', label: 'cos α',
-                          desc: 'cos α ＝ <strong>底辺</strong> ／ 斜辺' },
-                        { value: 'sin', label: 'sin α',
-                          desc: 'sin α ＝ <strong>高さ</strong> ／ 斜辺' },
-                        { value: 'tan', label: 'tan α',
-                          desc: 'tan α ＝ <strong>高さ</strong> ／ 底辺' }
+                        { value: 'cos', label: '$\\cos\\alpha$',
+                          desc: '$\\cos\\alpha = \\dfrac{\\text{底辺}}{\\text{斜辺}}$' },
+                        { value: 'sin', label: '$\\sin\\alpha$',
+                          desc: '$\\sin\\alpha = \\dfrac{\\text{高さ}}{\\text{斜辺}}$' },
+                        { value: 'tan', label: '$\\tan\\alpha$',
+                          desc: '$\\tan\\alpha = \\dfrac{\\text{高さ}}{\\text{底辺}}$' }
                     ];
                     const options = this.shuffleArray(rawOptions);
                     const chipsHTML = options.map(o =>
@@ -5026,6 +5027,7 @@
                     document.querySelectorAll('#trigFuncChips .calc-chip').forEach(chip => {
                         chip.onclick = () => this.selectTrigFuncChip(chip.getAttribute('data-value'), chip);
                     });
+                    this.renderMathInProblemArea();
                     document.getElementById('controlButtons').innerHTML = `
                         <button class="btn hint-btn" onclick="app.showHint('calc_${this.currentProblemIndex}_stage1')">ヒント</button>
                         <button class="check-btn" id="stage1ConfirmBtn" onclick="app.confirmTrigFuncChoice()" disabled style="opacity:0.4;">確認</button>
@@ -5034,31 +5036,34 @@
                 else if (stageIndex === 2) {
                     // Stage 2（NEW）: 式変形（静的表示）
                     //   選んだ三角比から、求めたい量について解く流れを上から下へ並べる。
+                    //   分数は KaTeX で「横線の上下」表記（仕様書 4.1 数式表示準拠）。
+                    //   $...$ がインライン KaTeX。innerHTML 設定後に renderMathInProblemArea() を呼ぶ。
                     const trigSym = correctTrig === 'cos' ? 'cos α' : 'sin α';
+                    const trigLatex = correctTrig === 'cos' ? '\\cos\\alpha' : '\\sin\\alpha';
                     content.innerHTML = header + `
                         <div class="calc-stage-container">
                             <div class="calc-question-text">選んだ三角比から、求めたい量の式を導きましょう。</div>
-                            <div style="background:#fafbfc; border:1px solid #e0e0e0; border-radius:4px; padding:18px 20px; margin:14px 0; font-size:17px; line-height:2.0;">
-                                <div style="margin-bottom:10px;">
-                                    <span style="display:inline-block; min-width:90px; color:#666; font-size:13px;">ステップ 1</span>
-                                    <span style="font-weight:600;">${trigSym} ＝ ${targetLabel} ／ F</span>
-                                    <span style="font-size:12px; color:#888; margin-left:8px;">（三角比の定義）</span>
+                            <div style="background:#fafbfc; border:1px solid #e0e0e0; border-radius:4px; padding:18px 20px; margin:14px 0; font-size:17px; line-height:2.4;">
+                                <div style="display:flex; align-items:center; margin-bottom:14px;">
+                                    <span style="min-width:90px; color:#666; font-size:13px;">ステップ 1</span>
+                                    <span style="font-weight:600;">$${trigLatex} = \\dfrac{${targetLatex}}{F}$</span>
+                                    <span style="font-size:12px; color:#888; margin-left:12px;">（三角比の定義）</span>
                                 </div>
-                                <div style="margin-bottom:10px;">
-                                    <span style="display:inline-block; min-width:90px; color:#666; font-size:13px;">ステップ 2</span>
+                                <div style="display:flex; align-items:center; margin-bottom:14px;">
+                                    <span style="min-width:90px; color:#666; font-size:13px;">ステップ 2</span>
                                     <span>両辺に <strong>F</strong> を掛ける</span>
                                 </div>
-                                <div style="margin-bottom:10px;">
-                                    <span style="display:inline-block; min-width:90px; color:#666; font-size:13px;">ステップ 3</span>
-                                    <span style="font-weight:600;">F × ${trigSym} ＝ ${targetLabel}</span>
+                                <div style="display:flex; align-items:center; margin-bottom:14px;">
+                                    <span style="min-width:90px; color:#666; font-size:13px;">ステップ 3</span>
+                                    <span style="font-weight:600;">$F \\times ${trigLatex} = ${targetLatex}$</span>
                                 </div>
-                                <div>
-                                    <span style="display:inline-block; min-width:90px; color:#666; font-size:13px;">ステップ 4</span>
-                                    <span style="font-weight:600; color:#1e5fa8;">したがって ${targetLabel} ＝ F × ${trigSym}</span>
+                                <div style="display:flex; align-items:center;">
+                                    <span style="min-width:90px; color:#666; font-size:13px;">ステップ 4</span>
+                                    <span style="font-weight:600; color:#1e5fa8;">したがって&nbsp;$${targetLatex} = F \\times ${trigLatex}$</span>
                                 </div>
                             </div>
                             <div style="background:#eef3fa; border-left:3px solid #4a7cbe; padding:12px 16px; border-radius:3px; margin-top:14px; font-size:13px; line-height:1.7; color:#333;">
-                                ${targetLabel} を求める式が <strong>${targetLabel} ＝ F × ${trigSym}</strong> と決まりました。次のステップで、${trigSym} の値を教科書 p.231 の付録三角関数表から引くか、関数電卓で計算します。
+                                ${targetLabel} を求める式が <strong>$${targetLatex} = F \\times ${trigLatex}$</strong> と決まりました。次のステップで、F と α の値を式に代入します。
                             </div>
                         </div>
                     `;
@@ -5066,6 +5071,7 @@
                         <button class="btn hint-btn" onclick="app.showHint('calc_${this.currentProblemIndex}_stage2')">ヒント</button>
                         <button class="next-btn" onclick="if(this.disabled)return; this.disabled=true; app.nextCalcStage();">確認して次へ</button>
                     `;
+                    this.renderMathInProblemArea();
                 }
                 else if (stageIndex === 3) {
                     // Stage 3（NEW）: 力 F と角度 α を式に代入する。
