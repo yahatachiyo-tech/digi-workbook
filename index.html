@@ -3092,7 +3092,10 @@
                             '(4) 力のように、大きさと向きをもつ量を（⑤）という。'
                         ],
                         blanks: [
-                            { id: '①', answer: '運動' },
+                            // 教科書（実教出版「機械設計1」p.22）の正答は「運動状態」。
+                            //   R07 過去問の模範解答が「運動」となっていたが、これは誤り。
+                            //   先生の確認（2026-04-26）により、教科書を正として「運動状態」に統一。
+                            { id: '①', answer: '運動状態' },
                             { id: '②', answer: '大きさ' },
                             { id: '③', answer: '向き' },
                             { id: '④', answer: '作用線' },
@@ -6217,18 +6220,26 @@
                         let extraSlotRoles = [];   // 1-6 で追加する slot role（slotToCardRole 検証用）
                         let slotToCardRoleMap = null;  // 1-6 用カスタム検証マップ
                         if (is1_6) {
-                            // 2 式表示。tan α は縦分数（HTML の inline-block で表現）。
+                            // 2 式表示。tan α は縦分数（flex-column + 太い分数線で明示）。
+                            //   slot 間の重なりを避けるため、padding と margin を十分に確保し、
+                            //   分数線は 3px 黒線で全幅に渡す。slot の min-width に合わせて並べる。
                             const f1tanSlot = makeSlotSpan('F1tan');
                             const f2tanSlot = makeSlotSpan('F2tan');
                             formulaHTML = `
-                                <div style="display:flex; flex-direction:column; gap:24px; align-items:center;">
-                                    <div>F ＝ √( ${slotSpans[0]}<sup>2</sup> ＋ ${slotSpans[1]}<sup>2</sup> )</div>
-                                    <div style="display:flex; align-items:center; gap:10px;">
+                                <div style="display:flex; flex-direction:column; gap:32px; align-items:center; padding:12px 0;">
+                                    <div style="display:flex; align-items:center; gap:6px; flex-wrap:nowrap;">
+                                        <span>F ＝ √(</span>
+                                        ${slotSpans[0]}<sup style="font-size:0.6em; vertical-align:super;">2</sup>
+                                        <span>＋</span>
+                                        ${slotSpans[1]}<sup style="font-size:0.6em; vertical-align:super;">2</sup>
+                                        <span>)</span>
+                                    </div>
+                                    <div style="display:flex; align-items:center; gap:14px;">
                                         <span>tan α ＝</span>
-                                        <span style="display:inline-block; vertical-align:middle; text-align:center; line-height:1.2;">
-                                            <span style="display:block; padding-bottom:6px;">${f2tanSlot}</span>
-                                            <span style="display:block; border-top:2px solid #333; padding-top:6px;">${f1tanSlot}</span>
-                                        </span>
+                                        <div style="display:inline-flex; flex-direction:column; align-items:stretch; min-width:90px;">
+                                            <div style="text-align:center; padding:4px 0;">${f2tanSlot}</div>
+                                            <div style="border-top:3px solid #333; text-align:center; padding:4px 0; margin-top:6px;">${f1tanSlot}</div>
+                                        </div>
                                     </div>
                                 </div>`;
                             extraSlotRoles = ['F1tan', 'F2tan'];
