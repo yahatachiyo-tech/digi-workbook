@@ -2431,15 +2431,14 @@
         ];
 
         // 1-7 のヒント（計算による力の分解 — 角度＋三角比型、案B 7 ステージ、3 段階 B→A→C）。
-        //   Stage 2（式変形の表示）と Stage 4（代入の自動表示）はヒント不要だが、
-        //   ヒントボタンは表示しないのでヒントが取得されないだけ。
-        //   各ステージの役割:
+        //   Stage 2（式変形の表示）はヒント不要だが、ヒントボタンは表示しないので問題なし。
+        //   各ステージの役割（先生指摘により再構成 2026-04-26）:
         //     stage0: 求める量の確認
-        //     stage1: 三角比の選択（NEW）
+        //     stage1: 三角比の選択
         //     stage2: 式変形の表示（ヒント無し）
-        //     stage3: 三角比の値を教科書付録から引く（NEW）
-        //     stage4: 代入の自動表示（ヒント無し）
-        //     stage5: 計算（電卓使用可）
+        //     stage3: 力 F と角度 α を式に代入する（NEW、INPUT）
+        //     stage4: 三角比の値を求める（教科書付録 or 関数電卓、INPUT）
+        //     stage5: 計算（電卓使用可、INPUT）
         const HINTS_1_7 = {
             stage0: {
                 b: '問題文の最後に「○○ を求めよ」とあります。何を求める問題でしょうか。',
@@ -2457,17 +2456,17 @@
                 c: '教科書28ページ 式(2-6) を確認してください。'
             },
             stage3: {
+                b: '問題文に書かれた「F = ○○ N」と「α = ○○°」の値を、上の式の F と α の場所にそれぞれ書き入れます。',
+                a: '例：問題文が「F = 100 N、α = 30°」なら、式 Fx = F × cos α に代入して Fx = 100 × cos 30°。 cos 30° の値を求めるのは次のステップ。',
+                c: '教科書28ページ 例題で、力の大きさと角度を式に代入する流れを確認してください。'
+            },
+            stage4: {
                 b: '教科書 p.231 の付録三角関数表で α の角度に対応する三角比（cos または sin）の値を引くか、関数電卓で sin α・cos α を計算します。',
                 a: '主な三角比の値: sin 30°＝0.500, cos 30°≈0.866, sin 45°＝cos 45°≈0.707, sin 60°≈0.866, cos 60°＝0.500。教科書 p.231 または関数電卓で確認できます。',
                 c: '教科書231ページ 付録三角関数表、または関数電卓で確認してください。'
             },
-            stage4: {
-                b: '式に F の値と、先ほど引いた三角比の値をそのまま代入します。',
-                a: '「F ＝ ○○ N」「cos α ＝ 0.866」のように代入し、掛け算する形にします。',
-                c: '教科書28ページ 式(2-6) を確認してください。'
-            },
             stage5: {
-                b: 'F と三角比の値を掛け算します。電卓を使って構いません。',
+                b: 'F の値と三角比の値（先ほど求めた小数）を掛け算します。電卓を使って構いません。',
                 a: 'Fx ＝ F × cos α または Fy ＝ F × sin α。F の値と三角比の値を電卓で掛け算するだけです。単位は N。',
                 c: '教科書28ページ 例題と231ページ付録三角関数表を確認してください。'
             }
@@ -4442,13 +4441,13 @@
                     ]
                     : is1_7
                     ? [
-                        // 1-7 案B：直角三角形を取り出す → 分かっている部分を書き込む →
-                        // 使える三角比を選択 → 式変形 → 値を引く → 代入 → 計算
+                        // 1-7 案B（先生指摘により 2026-04-26 再構成）：
+                        // 求める量 → 三角比選択 → 式 → F・α 代入 → 三角比値 → 計算 → 振り返り
                         '求める量を確認する',
                         '三角比を選ぶ',
                         '式を導く',
-                        '三角比の値を引く',
-                        '代入する',
+                        'F と α を代入する',
+                        '三角比の値を求める',
                         '計算する',
                         '答えの意味を確認'
                     ]
@@ -4953,13 +4952,15 @@
             }
 
             // 1-7（計算による力の分解 — 案B 7 ステージ）の各ステージ描画。
-            //   先生の理想プロセスを 7 ステージに分解：
+            //   先生指摘により 2026-04-26 にフロー再構成（代入を三角比値の前へ）：
             //     0: 求める量を確認する
-            //     1: 三角比を選ぶ（NEW）
-            //     2: 式を導く（NEW、表示のみ）
-            //     3: 三角比の値を引く（NEW、教科書付録から数値入力）
-            //     4: 代入する（自動表示）
-            //     5: 計算する（電卓使用可、数値入力）
+            //     1: 三角比を選ぶ
+            //     2: 式を導く（表示のみ）
+            //     3: 力 F と角度 α を式に代入する（NEW INPUT）
+            //        → Fx = F × cos α に F=100, α=30° を入れて Fx = 100 × cos 30°
+            //     4: 三角比の値を求める（INPUT、教科書 p.231 付録 or 関数電卓）
+            //        → cos 30° = 0.866 を入力 → Fx = 100 × 0.866
+            //     5: 計算する（電卓使用可、INPUT）
             //     6: 答えの意味を確認（振り返り）
             render1_7CalcStage(problem, content, stageIndex, header, staticCanvas) {
                 const targetIsFx = problem.target === 'Fx';
@@ -5067,16 +5068,63 @@
                     `;
                 }
                 else if (stageIndex === 3) {
-                    // Stage 3（NEW）: 三角比の値を引いて入力
+                    // Stage 3（NEW）: 力 F と角度 α を式に代入する。
+                    //   問題文の F の値と α の値を読み取り、上の式の F・α の位置にそれぞれ
+                    //   入力させる。正解で「${target} = ${F} × ${trig} ${angle}°」が確定する。
+                    //   次の Stage 4 で三角比の値（cos 30° 等）を求める展開につなげる。
                     const trigSym = correctTrig === 'cos' ? 'cos α' : 'sin α';
+                    const trigPrefix = correctTrig === 'cos' ? 'cos' : 'sin';
                     content.innerHTML = header + staticCanvas + `
                         <div class="calc-stage-container">
-                            <div class="calc-question-text">α ＝ ${problem.angle}° のとき、<strong>${trigSym}</strong> の値はいくつですか？</div>
+                            <div class="calc-question-text">問題文から <strong>F の値</strong> と <strong>α の値</strong> を読み取り、上の式に代入してください。</div>
+                            <div class="calc-formula-display" style="font-size:20px; line-height:2.0; margin:14px 0;">
+                                ${targetLabel} ＝ F × ${trigSym}
+                            </div>
+                            <div style="margin:18px 0 8px; font-size:18px; line-height:2.2; display:flex; align-items:center; flex-wrap:wrap; gap:8px;">
+                                <span>${targetLabel} ＝</span>
+                                <input type="number" id="fSubstInput" class="calc-answer-input" placeholder="F の値" style="width:110px;" step="0.1">
+                                <span>×&nbsp;${trigPrefix}</span>
+                                <input type="number" id="angleSubstInput" class="calc-answer-input" placeholder="α の値" style="width:90px;" step="1">
+                                <span>°</span>
+                            </div>
                             <div style="background:#eef3fa; border-left:3px solid #4a7cbe; padding:10px 14px; border-radius:3px; margin:10px 0 14px; font-size:13px; line-height:1.7; color:#333;">
-                                教科書 <strong>p.231 付録 三角関数表</strong> を参照するか、<strong>関数電卓</strong>で sin α・cos α を計算してください。小数第 3 位までの値を入力します。
+                                問題文に書かれている <strong>F = ○○ N</strong> と <strong>α = ○○°</strong> の数値を、それぞれの欄に入力します。三角比の値を求めるのは次のステップです。
+                            </div>
+                            <div id="stageFeedback" style="margin-top:12px; font-size:14px; min-height:20px;"></div>
+                        </div>
+                    `;
+                    setTimeout(() => {
+                        const inp = document.getElementById('fSubstInput');
+                        if (inp) inp.focus();
+                    }, 80);
+                    document.getElementById('controlButtons').innerHTML = `
+                        <button class="btn hint-btn" onclick="app.showHint('calc_${this.currentProblemIndex}_stage3')">ヒント</button>
+                        <button class="check-btn" id="stage3ConfirmBtn" onclick="app.submitFAlphaSubst()">確認</button>
+                    `;
+                }
+                else if (stageIndex === 4) {
+                    // Stage 4（旧 Stage 3）: 三角比の値を求めて入力。
+                    //   Stage 3 で確定した「${target} = ${F} × ${trig} ${angle}°」の文脈で、
+                    //   ${trig} ${angle}° の値を p.231 付録 or 関数電卓で求める。
+                    const trigSym = correctTrig === 'cos' ? 'cos α' : 'sin α';
+                    const trigPrefix = correctTrig === 'cos' ? 'cos' : 'sin';
+                    const enteredF = (this.calcInputs.enteredF !== undefined && this.calcInputs.enteredF !== null)
+                        ? this.calcInputs.enteredF
+                        : problem.f;
+                    const enteredAlpha = (this.calcInputs.enteredAlpha !== undefined && this.calcInputs.enteredAlpha !== null)
+                        ? this.calcInputs.enteredAlpha
+                        : problem.angle;
+                    content.innerHTML = header + staticCanvas + `
+                        <div class="calc-stage-container">
+                            <div class="calc-question-text">代入した式の <strong>${trigPrefix} ${enteredAlpha}°</strong> の値を求めてください。</div>
+                            <div class="calc-formula-display" style="font-size:20px; line-height:2.0; margin:14px 0;">
+                                ${targetLabel} ＝ ${enteredF} × <span style="color:#1e5fa8;">${trigPrefix} ${enteredAlpha}°</span>
+                            </div>
+                            <div style="background:#eef3fa; border-left:3px solid #4a7cbe; padding:10px 14px; border-radius:3px; margin:10px 0 14px; font-size:13px; line-height:1.7; color:#333;">
+                                教科書 <strong>p.231 付録 三角関数表</strong> を参照するか、<strong>関数電卓</strong>で ${trigPrefix} ${enteredAlpha}° を計算してください。小数第 3 位までの値を入力します。
                             </div>
                             <div class="calc-input-row">
-                                <span class="calc-input-label">${trigSym} ＝</span>
+                                <span class="calc-input-label">${trigPrefix} ${enteredAlpha}° ＝</span>
                                 <input type="number" id="trigValueInput" class="calc-answer-input" placeholder="0.000" style="width:120px;" step="0.001">
                             </div>
                             <div id="stageFeedback" style="margin-top:12px; font-size:14px; min-height:20px;"></div>
@@ -5087,45 +5135,26 @@
                         if (inp) inp.focus();
                     }, 80);
                     document.getElementById('controlButtons').innerHTML = `
-                        <button class="btn hint-btn" onclick="app.showHint('calc_${this.currentProblemIndex}_stage3')">ヒント</button>
-                        <button class="check-btn" id="stage3ConfirmBtn" onclick="app.submitTrigValue()">確認</button>
-                    `;
-                }
-                else if (stageIndex === 4) {
-                    // Stage 4: 代入（自動表示）。生徒が入力した三角比の値を反映する。
-                    const trigSym = correctTrig === 'cos' ? 'cos α' : 'sin α';
-                    const enteredTrig = (this.calcInputs.enteredTrigValue !== undefined && this.calcInputs.enteredTrigValue !== null)
-                        ? this.calcInputs.enteredTrigValue
-                        : correctTrigVal;
-                    content.innerHTML = header + staticCanvas + `
-                        <div class="calc-stage-container">
-                            <div class="calc-question-text">式に <strong>F の値</strong>と、先ほど求めた <strong>${trigSym}</strong> の値を代入します。</div>
-                            <div class="calc-formula-display" style="font-size:22px; line-height:2.0;">
-                                ${targetLabel} ＝ F × ${trigSym}<br>
-                                <span style="color:#1e5fa8;">　　＝ ${problem.f} × ${enteredTrig}</span><br>
-                                <span style="color:#c62828;">　　＝ ?</span>
-                            </div>
-                            <div style="background:#eef3fa; border-left:3px solid #4a7cbe; padding:12px 16px; border-radius:3px; margin-top:14px; font-size:13px; line-height:1.7; color:#333;">
-                                F ＝ <strong>${problem.f} N</strong>、${trigSym} ＝ <strong>${enteredTrig}</strong> を代入しました。次のステップで電卓を使って計算します。
-                            </div>
-                        </div>
-                    `;
-                    document.getElementById('controlButtons').innerHTML = `
                         <button class="btn hint-btn" onclick="app.showHint('calc_${this.currentProblemIndex}_stage4')">ヒント</button>
-                        <button class="next-btn" onclick="if(this.disabled)return; this.disabled=true; app.nextCalcStage();">確認して次へ</button>
+                        <button class="check-btn" id="stage4ConfirmBtn" onclick="app.submitTrigValue()">確認</button>
                     `;
                 }
                 else if (stageIndex === 5) {
                     // Stage 5: 計算（電卓使用可）。answerInput / checkCalcAnswers を流用する。
+                    //   Stage 3 で保存した enteredF と Stage 4 で保存した enteredTrigValue を使い、
+                    //   ${target} = ${enteredF} × ${enteredTrig} = ? の形で表示する。
                     const trigSym = correctTrig === 'cos' ? 'cos α' : 'sin α';
+                    const enteredF = (this.calcInputs.enteredF !== undefined && this.calcInputs.enteredF !== null)
+                        ? this.calcInputs.enteredF
+                        : problem.f;
                     const enteredTrig = (this.calcInputs.enteredTrigValue !== undefined && this.calcInputs.enteredTrigValue !== null)
                         ? this.calcInputs.enteredTrigValue
                         : correctTrigVal;
                     content.innerHTML = header + staticCanvas + `
                         <div class="calc-stage-container">
-                            <div class="calc-question-text">計算結果を入力してください（電卓を使って構いません）。</div>
+                            <div class="calc-question-text">F の値と三角比の値を掛け算して、${targetLabel} の値を求めてください（電卓を使って構いません）。</div>
                             <div class="calc-formula-display">
-                                $${targetLatex} = ${problem.f} \\times ${enteredTrig} = {\\color{#c62828}?}$
+                                $${targetLatex} = ${enteredF} \\times ${enteredTrig} = {\\color{#c62828}?}$
                             </div>
                             <div class="calc-input-row">
                                 <span class="calc-input-label">答え：${targetLabel} ＝</span>
@@ -5251,7 +5280,7 @@
                         feedback.innerHTML = `正解。${trigSym} ＝ <strong>${expected}</strong> です（教科書 p.231 付録 または 関数電卓で確認可）。`;
                     }
                     inp.disabled = true;
-                    const btn = document.getElementById('stage3ConfirmBtn');
+                    const btn = document.getElementById('stage4ConfirmBtn');
                     if (btn) { btn.textContent = '次へ'; btn.onclick = () => this.nextCalcStage(); }
                 } else {
                     if (feedback) {
@@ -5260,6 +5289,55 @@
                     }
                     inp.value = '';
                     inp.focus();
+                }
+            }
+
+            // 1-7 Stage 3（NEW）: 力 F と角度 α の代入を判定。
+            //   問題文の F・α と入力値が一致したら、enteredF / enteredAlpha を保存し、
+            //   後続ステージで「Fx = ${F} × cos ${α}°」の形を引き継いで表示する。
+            //   tolerance: F は ±0.5（学習者の小数表記ぶれを許容）、α は ±0.5°（整数想定）。
+            submitFAlphaSubst() {
+                const problem = this.getCalcProblem();
+                const fInp = document.getElementById('fSubstInput');
+                const aInp = document.getElementById('angleSubstInput');
+                const feedback = document.getElementById('stageFeedback');
+                if (!fInp || !aInp) return;
+                const fVal = parseFloat(fInp.value);
+                const aVal = parseFloat(aInp.value);
+                if (isNaN(fVal) || isNaN(aVal)) {
+                    if (feedback) {
+                        feedback.style.color = '#c62828';
+                        feedback.textContent = 'F と α の値を両方入力してください。';
+                    }
+                    return;
+                }
+                const fOk = Math.abs(fVal - problem.f) <= 0.5 + 1e-9;
+                const aOk = Math.abs(aVal - problem.angle) <= 0.5 + 1e-9;
+                const trigSym = problem.correctTrigFunc === 'cos' ? 'cos α' : 'sin α';
+                const trigPrefix = problem.correctTrigFunc === 'cos' ? 'cos' : 'sin';
+                if (fOk && aOk) {
+                    this.calcInputs.enteredF = fVal;
+                    this.calcInputs.enteredAlpha = aVal;
+                    if (feedback) {
+                        feedback.style.color = '#2e7d32';
+                        const targetLabel = problem.target === 'Fx' ? 'Fx' : 'Fy';
+                        feedback.innerHTML = `正解。<strong>${targetLabel} ＝ ${fVal} × ${trigPrefix} ${aVal}°</strong> となりました。次のステップで ${trigPrefix} ${aVal}° の値を求めます。`;
+                    }
+                    fInp.disabled = true;
+                    aInp.disabled = true;
+                    const btn = document.getElementById('stage3ConfirmBtn');
+                    if (btn) { btn.textContent = '次へ'; btn.onclick = () => this.nextCalcStage(); }
+                } else {
+                    if (feedback) {
+                        feedback.style.color = '#c62828';
+                        let msg = '不正解。';
+                        if (!fOk) msg += `F の値を問題文「F = ○○ N」から読み取ってください。`;
+                        if (!fOk && !aOk) msg += ' ';
+                        if (!aOk) msg += `α の値を問題文「α = ○○°」から読み取ってください。`;
+                        feedback.textContent = msg;
+                    }
+                    if (!fOk) { fInp.value = ''; fInp.focus(); }
+                    else if (!aOk) { aInp.value = ''; aInp.focus(); }
                 }
             }
 
