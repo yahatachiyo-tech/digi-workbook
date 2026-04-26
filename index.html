@@ -1489,6 +1489,149 @@
             margin: 0 auto;
             padding: 24px;
         }
+        /* ===== 考査対策モード（exam-prep-screen）===== */
+        .exam-prep-screen {
+            width: 100%;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+        .ep-section-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin-top: 8px;
+        }
+        .ep-section-card {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 18px 20px;
+            cursor: pointer;
+            transition: box-shadow 0.15s, border-color 0.15s;
+        }
+        .ep-section-card:hover {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+            border-color: var(--color-primary);
+        }
+        .ep-section-card.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .ep-section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+        .ep-section-meta {
+            font-size: 13px;
+            color: var(--color-text-muted);
+            margin-bottom: 10px;
+        }
+        .ep-section-progress {
+            font-size: 13px;
+            color: var(--color-primary);
+            font-weight: 600;
+        }
+        .ep-question-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 12px;
+            margin-top: 12px;
+        }
+        .ep-question-card {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 6px;
+            padding: 14px 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .ep-question-card:hover {
+            border-color: var(--color-primary);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+        .ep-question-card .ep-q-num {
+            font-size: 14px;
+            color: var(--color-text-muted);
+            margin-bottom: 4px;
+        }
+        .ep-question-card .ep-q-pattern {
+            font-size: 11px;
+            color: var(--color-text-muted);
+            margin-bottom: 6px;
+        }
+        .ep-question-card .ep-q-status {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .ep-question-card.status-correct .ep-q-status { color: #2e7d32; }
+        .ep-question-card.status-correct { background: #e8f5e9; }
+        .ep-question-card.status-wrong .ep-q-status { color: #c62828; }
+        .ep-question-card.status-wrong { background: #fff5f5; }
+        .ep-question-card.status-pending .ep-q-status { color: #888; }
+        .ep-solve-container {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 24px;
+            margin-top: 12px;
+        }
+        .ep-problem-stem {
+            font-size: 15px;
+            line-height: 1.7;
+            color: var(--color-text);
+            background: #eef3fa;
+            border-left: 3px solid #4a7cbe;
+            padding: 12px 16px;
+            border-radius: 3px;
+            margin-bottom: 16px;
+        }
+        .ep-problem-figure {
+            margin: 14px 0;
+            text-align: center;
+        }
+        .ep-subq-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            font-size: 15px;
+        }
+        .ep-subq-label {
+            min-width: 50px;
+            font-weight: 600;
+        }
+        .ep-subq-input {
+            font-size: 16px;
+            padding: 6px 10px;
+            border: 1.5px solid var(--color-border);
+            border-radius: 4px;
+            min-width: 100px;
+            font-family: inherit;
+        }
+        .ep-subq-input.correct {
+            border-color: #2e7d32;
+            background: #e8f5e9;
+        }
+        .ep-subq-input.incorrect {
+            border-color: #c62828;
+            background: #fff5f5;
+        }
+        .ep-feedback {
+            margin-top: 16px;
+            padding: 12px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            line-height: 1.7;
+            display: none;
+        }
+        .ep-feedback.active { display: block; }
+        .ep-feedback.correct { background: #e8f5e9; color: #1b5e20; border-left: 3px solid #2e7d32; }
+        .ep-feedback.incorrect { background: #fff5f5; color: #b00; border-left: 3px solid #c62828; }
+        .ep-actions { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
         .dashboard-header {
             display: flex;
             justify-content: space-between;
@@ -1845,6 +1988,7 @@
                         <div class="user-info" id="userInfo"></div>
                     </div>
                     <div class="menu-header-actions">
+                        <button class="btn dashboard-btn" id="examPrepBtn" onclick="app.goToExamPrep()">対策モード</button>
                         <button class="btn dashboard-btn" id="dashboardBtn" onclick="app.goToDashboard()" style="display:none;">ダッシュボード</button>
                         <button class="btn dashboard-btn" id="prepPrintBtn" onclick="app.openPrepPrint('midterm-1')" style="display:none;">対策プリント</button>
                         <button class="btn dashboard-btn" id="examPrintBtn" onclick="app.openExamPrint('midterm-1')" style="display:none;">考査問題</button>
@@ -1916,6 +2060,24 @@
                     <div class="summary-buttons">
                         <button class="btn btn-primary" onclick="app.backToMenu()">メニューに戻る</button>
                     </div>
+                </div>
+            </div>
+
+            <!-- EXAM PREP SCREEN (考査対策モード、全ユーザー) -->
+            <!-- 3 ビュー: section（範囲一覧）/ list（問題一覧）/ solve（個別問題）。 -->
+            <!-- examPrepView の値で表示切替（CSS で .ep-view-* を制御）。 -->
+            <div class="screen exam-prep-screen" id="examPrepScreen">
+                <div class="dashboard-header">
+                    <div>
+                        <div class="dashboard-title" id="examPrepTitle">考査対策モード</div>
+                        <div class="dashboard-subtitle" id="examPrepSubtitle">考査範囲の問題を解いて練習しよう</div>
+                    </div>
+                    <div class="dashboard-actions">
+                        <button class="btn btn-secondary" id="examPrepBackBtn" onclick="app.examPrepBack()">戻る</button>
+                    </div>
+                </div>
+                <div class="exam-prep-content" id="examPrepContent">
+                    <!-- 動的に section/list/solve のいずれかを描画 -->
                 </div>
             </div>
 
@@ -4118,8 +4280,45 @@
             }
 
             goToMenu() {
+                // 対策モードからの誘導で学習セクションに来ていた場合、対策モードへ復帰する
+                if (this.examPrepReturnFlag) {
+                    const ret = this.examPrepReturnFlag;
+                    this.examPrepReturnFlag = null;
+                    this.examPrepCurrentExam = ret.examKey;
+                    this.examPrepCurrentIdx = ret.problemIdx;
+                    // 数値違いの類題に切替（再挑戦時）
+                    if (ret.problemId) {
+                        this._regenerateExamProblemVariant(ret.examKey, ret.problemIdx);
+                    }
+                    this.examPrepView = 'solve';
+                    this.showScreen('examPrepScreen');
+                    this._renderExamPrepView();
+                    return;
+                }
                 this.showScreen('menuScreen');
                 this.renderMenu();
+            }
+
+            // 対策問題を数値違いの類題に置き換える（再挑戦時用）
+            //   元の paramRanges から元の値と異なる値をランダム選択し、expected も再計算する。
+            //   _generateExamFromPrep / _recomputeExpected を流用する形。
+            _regenerateExamProblemVariant(examKey, idx) {
+                if (typeof EXAM_PREP_MASTER === 'undefined') return;
+                const data = EXAM_PREP_MASTER[examKey];
+                if (!data) return;
+                const p = data.problems[idx];
+                if (!p || !p.paramRanges || !p.params) return;
+                const newParams = {};
+                Object.keys(p.paramRanges).forEach(key => {
+                    const range = p.paramRanges[key];
+                    if (range.values) {
+                        const candidates = range.values.filter(v => v !== p.params[key]);
+                        const pool = candidates.length > 0 ? candidates : range.values;
+                        newParams[key] = pool[Math.floor(Math.random() * pool.length)];
+                    }
+                });
+                p.params = { ...p.params, ...newParams };
+                this._recomputeExpected(p);
             }
 
             backToMenu() {
@@ -4876,6 +5075,441 @@
                     <circle cx="${ox}" cy="${oy}" r="2" fill="#000"/>
                 </svg>`;
             }
+
+            // ==================================================================
+            // 考査対策モード（仕様書 §11.2 自習モード）
+            // ==================================================================
+            //   状態:
+            //     this.examPrepView          — 'section' | 'list' | 'solve'
+            //     this.examPrepCurrentExam   — 'midterm-1' 等
+            //     this.examPrepCurrentIdx    — solve 中の problem index (0..n-1)
+            //     this.examPrepProgress      — { 'mp1-q1': { status, attempts, lastVariant } }
+            //     this.examPrepReturnFlag    — 学習セクションから戻る予約
+            //
+            //   フロー:
+            //     goToExamPrep() → section ビュー
+            //     selectExamSection(key) → list ビュー
+            //     selectExamProblem(idx) → solve ビュー
+            //     submitExamPrepAnswer() → 正誤判定 → 正解なら次へ、不正解なら誘導 or 再挑戦
+
+            goToExamPrep() {
+                this.examPrepView = 'section';
+                this.examPrepCurrentExam = null;
+                this.examPrepCurrentIdx = null;
+                if (!this.examPrepProgress) {
+                    // localStorage から復元（教員モードは進捗保存しない）
+                    const saved = (!this.isTeacherMode()) ? localStorage.getItem('examPrepProgress') : null;
+                    this.examPrepProgress = saved ? JSON.parse(saved) : {};
+                }
+                this.showScreen('examPrepScreen');
+                this._renderExamPrepView();
+            }
+
+            examPrepBack() {
+                if (this.examPrepView === 'solve') {
+                    this.examPrepView = 'list';
+                    this.examPrepCurrentIdx = null;
+                    this._renderExamPrepView();
+                } else if (this.examPrepView === 'list') {
+                    this.examPrepView = 'section';
+                    this.examPrepCurrentExam = null;
+                    this._renderExamPrepView();
+                } else {
+                    // section ビュー → メニューへ
+                    this.goToMenu();
+                }
+            }
+
+            selectExamSection(examKey) {
+                if (typeof EXAM_PREP_MASTER === 'undefined' || !EXAM_PREP_MASTER[examKey]) return;
+                this.examPrepCurrentExam = examKey;
+                this.examPrepView = 'list';
+                this._renderExamPrepView();
+            }
+
+            selectExamProblem(idx) {
+                if (!this.examPrepCurrentExam) return;
+                this.examPrepCurrentIdx = idx;
+                this.examPrepView = 'solve';
+                this._renderExamPrepView();
+            }
+
+            _saveExamPrepProgress() {
+                if (this.isTeacherMode()) return;  // 教員モードは保存しない
+                try {
+                    localStorage.setItem('examPrepProgress', JSON.stringify(this.examPrepProgress || {}));
+                } catch (e) { /* QuotaExceededError 等は無視 */ }
+            }
+
+            _renderExamPrepView() {
+                const content = document.getElementById('examPrepContent');
+                const titleEl = document.getElementById('examPrepTitle');
+                const subtitleEl = document.getElementById('examPrepSubtitle');
+                if (!content) return;
+                if (this.examPrepView === 'section') {
+                    if (titleEl) titleEl.textContent = '考査対策モード';
+                    if (subtitleEl) subtitleEl.textContent = '考査範囲を選んで練習しよう';
+                    content.innerHTML = this._renderExamSectionList();
+                } else if (this.examPrepView === 'list') {
+                    const data = EXAM_PREP_MASTER[this.examPrepCurrentExam];
+                    if (titleEl) titleEl.textContent = data.meta.title;
+                    if (subtitleEl) subtitleEl.textContent = `${data.meta.scope}（${data.problems.length} 問）`;
+                    content.innerHTML = this._renderExamQuestionList(data);
+                } else if (this.examPrepView === 'solve') {
+                    const data = EXAM_PREP_MASTER[this.examPrepCurrentExam];
+                    const problem = data.problems[this.examPrepCurrentIdx];
+                    if (titleEl) titleEl.textContent = `${data.meta.title} 問${problem.num}`;
+                    if (subtitleEl) subtitleEl.textContent = problem.title || (problem.titleTemplate || '');
+                    content.innerHTML = this._renderExamSolveView(data, problem);
+                    // 描画後、必要に応じて KaTeX を再走査
+                    this.renderMathInElementById && this.renderMathInElementById('examPrepContent');
+                    if (window.renderMathInElement) {
+                        try { window.renderMathInElement(content, { delimiters: [{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}] }); } catch (e) {}
+                    }
+                    setTimeout(() => {
+                        const firstInput = content.querySelector('.ep-subq-input');
+                        if (firstInput) firstInput.focus();
+                    }, 80);
+                }
+            }
+
+            _renderExamSectionList() {
+                let html = '<div class="ep-section-grid">';
+                Object.keys(EXAM_PREP_MASTER).forEach(key => {
+                    const data = EXAM_PREP_MASTER[key];
+                    const total = data.problems.length;
+                    let correct = 0;
+                    data.problems.forEach(p => {
+                        if (this.examPrepProgress[p.id] && this.examPrepProgress[p.id].status === 'correct') correct++;
+                    });
+                    html += `
+                        <div class="ep-section-card" onclick="app.selectExamSection('${key}')">
+                            <div class="ep-section-title">${data.meta.title}</div>
+                            <div class="ep-section-meta">${data.meta.scope}　／　全 ${total} 問</div>
+                            <div class="ep-section-progress">進捗: ${correct} / ${total} 問正解</div>
+                        </div>`;
+                });
+                // 期末対策など、未公開のプレースホルダ
+                if (!EXAM_PREP_MASTER['final-1']) {
+                    html += `
+                        <div class="ep-section-card disabled">
+                            <div class="ep-section-title">1 学期期末対策</div>
+                            <div class="ep-section-meta">2 節 運動 / 3 節 力と運動の法則</div>
+                            <div class="ep-section-progress">未公開</div>
+                        </div>`;
+                }
+                html += '</div>';
+                return html;
+            }
+
+            _renderExamQuestionList(data) {
+                let html = '<div class="ep-question-grid">';
+                data.problems.forEach((p, idx) => {
+                    const prog = this.examPrepProgress[p.id] || { status: 'pending' };
+                    const statusIcon = prog.status === 'correct' ? '◎'
+                                     : prog.status === 'wrong'   ? '×'
+                                     : prog.status === 'attempted' ? '△'
+                                     : '－';
+                    const cls = `status-${prog.status === 'correct' ? 'correct' : prog.status === 'wrong' ? 'wrong' : 'pending'}`;
+                    const patternLabel = this._patternToLabel(p.pattern);
+                    html += `
+                        <div class="ep-question-card ${cls}" onclick="app.selectExamProblem(${idx})">
+                            <div class="ep-q-num">問 ${p.num}</div>
+                            <div class="ep-q-pattern">${patternLabel}</div>
+                            <div class="ep-q-status">${statusIcon}</div>
+                        </div>`;
+                });
+                html += '</div>';
+                return html;
+            }
+
+            _patternToLabel(pattern) {
+                const map = {
+                    'fill-in-blank':       '穴埋め',
+                    'drawing-1d':          '作図',
+                    'drawing-2d':          '作図',
+                    'drawing-decompose':   '作図',
+                    'calc-resultant':      '計算',
+                    'drawing-and-calc':    '作図+計算',
+                    'calc-moment':         'モーメント',
+                    'composite':           '複合',
+                    'calc-couple':         '偶力',
+                    'incline-decompose':   '斜面分解',
+                    'calc-couple-applied': '偶力(応用)',
+                    'signed-moment':       '符号付き'
+                };
+                return map[pattern] || pattern;
+            }
+
+            _renderExamSolveView(data, problem) {
+                // 問題本文（テンプレート展開）
+                let title = problem.title || '';
+                if (problem.params && problem.titleTemplate) {
+                    title = problem.titleTemplate.replace(/\{(\w+)\}/g, (_, k) => problem.params[k] !== undefined ? problem.params[k] : `{${k}}`);
+                }
+                // パターン別 body
+                let body = '';
+                switch (problem.pattern) {
+                    case 'fill-in-blank':       body = this._epRenderFillInBlank(problem); break;
+                    case 'calc-resultant':      body = this._epRenderCalcResultant(problem); break;
+                    case 'calc-moment':         body = this._epRenderCalcMoment(problem); break;
+                    case 'calc-couple':         body = this._epRenderCalcCouple(problem); break;
+                    case 'calc-couple-applied': body = this._epRenderCalcCoupleApplied(problem); break;
+                    case 'incline-decompose':   body = this._epRenderInclineDecompose(problem); break;
+                    case 'composite':           body = this._epRenderComposite(problem); break;
+                    case 'drawing-and-calc':    body = this._epRenderDrawingAndCalc(problem); break;
+                    case 'drawing-1d':
+                    case 'drawing-2d':
+                    case 'drawing-decompose':
+                        body = this._epRenderDrawingPlaceholder(problem); break;
+                    case 'signed-moment':       body = this._epRenderSignedMoment(problem); break;
+                    default: body = '<div style="color:#888;">この問題型は近日対応予定です。</div>';
+                }
+                const figureHTML = this._epRenderFigure(problem);
+                return `
+                    <div class="ep-solve-container">
+                        <div class="ep-problem-stem">問 ${problem.num}　${title}</div>
+                        ${figureHTML}
+                        ${body}
+                        <div id="epFeedback" class="ep-feedback"></div>
+                        <div class="ep-actions" id="epActions"></div>
+                    </div>`;
+            }
+
+            _epRenderFigure(problem) {
+                if (!problem.figureSvg) return '';
+                const svg = (function (p, app) {
+                    switch (p.figureSvg) {
+                        case 'rightTriangleFilled':   return app._svgRightTriangleFilled(p);
+                        case 'rightTriangleEmpty':    return app._svgRightTriangleEmpty(p, false);
+                        case 'wrenchOnBolt':          return app._svgWrenchOnBolt(p);
+                        case 'inclinedAxisR':         return app._svgInclinedAxisR(p);
+                        case 'handleWheelCouple':     return app._svgHandleWheelCouple(p);
+                        case 'inclineForceTriangle':  return app._svgInclineForceTriangle(p);
+                        case 'lShapeFrame':           return app._svgLShapeFrame(p);
+                        default: return '';
+                    }
+                })(problem, this);
+                if (!svg) return '';
+                return `<div class="ep-problem-figure">${svg}</div>`;
+            }
+
+            // ----- パターン別レンダラ（小問建ての入力 UI） -----
+            _epRenderFillInBlank(p) {
+                const stems = (p.stems || []).map(s => `<div style="margin-bottom:8px;">${s}</div>`).join('');
+                const inputs = (p.blanks || []).map((b, i) => `
+                    <div class="ep-subq-row">
+                        <span class="ep-subq-label">${b.id}</span>
+                        <input type="text" class="ep-subq-input" data-blank-id="${b.id}" data-correct="${b.answer}" placeholder="語句">
+                    </div>`).join('');
+                return `${stems}<div style="margin-top:14px;">${inputs}</div>
+                    <button class="btn btn-primary" onclick="app.submitExamPrepAnswer()">確認</button>`;
+            }
+
+            _epRenderCalcResultant(p) {
+                return `
+                    <div class="ep-subq-row">
+                        <span class="ep-subq-label">F ＝</span>
+                        <input type="number" class="ep-subq-input" data-key="F" placeholder="数値" step="0.1">
+                        <span>[N]</span>
+                    </div>
+                    <div class="ep-subq-row">
+                        <span class="ep-subq-label">tan α ＝</span>
+                        <input type="number" class="ep-subq-input" data-key="tanA" placeholder="小数第 1 位" step="0.1">
+                    </div>
+                    <button class="btn btn-primary" onclick="app.submitExamPrepAnswer()">確認</button>`;
+            }
+
+            _epRenderDrawingAndCalc(p) {
+                return `
+                    <div style="font-size:13px; color:#666; margin-bottom:10px;">作図は紙のプリントで行います。ここでは計算結果を入力してください。</div>
+                    ${this._epRenderCalcResultant(p)}`;
+            }
+
+            _epRenderCalcMoment(p) {
+                return `
+                    <div class="ep-subq-row">
+                        <span class="ep-subq-label">M ＝</span>
+                        <input type="number" class="ep-subq-input" data-key="M" placeholder="数値" step="1">
+                        <span>[${p.unit || 'N·mm'}]</span>
+                    </div>
+                    <button class="btn btn-primary" onclick="app.submitExamPrepAnswer()">確認</button>`;
+            }
+
+            _epRenderCalcCouple(p) {
+                return this._epRenderCalcMoment(p);
+            }
+
+            _epRenderCalcCoupleApplied(p) {
+                return `
+                    <div style="font-size:13px; color:#555; margin-bottom:10px;">ヒント: 偶力モーメントは M = F × d。両手で握る間隔 d はハンドルの直径です。</div>
+                    ${this._epRenderCalcMoment(p)}`;
+            }
+
+            _epRenderInclineDecompose(p) {
+                return `
+                    <div class="ep-subq-row">
+                        <span class="ep-subq-label">F₁ ＝</span>
+                        <input type="number" class="ep-subq-input" data-key="F1" placeholder="数値" step="0.1">
+                        <span>[N]（斜面に平行）</span>
+                    </div>
+                    <div class="ep-subq-row">
+                        <span class="ep-subq-label">F₂ ＝</span>
+                        <input type="number" class="ep-subq-input" data-key="F2" placeholder="数値" step="0.1">
+                        <span>[N]（斜面に垂直）</span>
+                    </div>
+                    <button class="btn btn-primary" onclick="app.submitExamPrepAnswer()">確認</button>`;
+            }
+
+            _epRenderComposite(p) {
+                const subs = (p.subQuestions || []).map((sq, i) => `
+                    <div style="margin-top:14px;">
+                        <div style="font-weight:600; margin-bottom:6px;">${sq.sub}　${sq.title}</div>
+                        <div class="ep-subq-row" style="margin-left:12px;">
+                            <span class="ep-subq-label">答え：</span>
+                            <input type="number" class="ep-subq-input" data-key="sub${i}" placeholder="数値" step="0.1">
+                            <span>[${sq.unit}]</span>
+                        </div>
+                    </div>`).join('');
+                return `${subs}<button class="btn btn-primary" style="margin-top:16px;" onclick="app.submitExamPrepAnswer()">確認</button>`;
+            }
+
+            _epRenderSignedMoment(p) {
+                return `
+                    <div style="font-size:13px; color:#555; margin-bottom:10px;">時計回りを正（+）として、点 O まわりの合計モーメント M を求めてください。</div>
+                    <div class="ep-subq-row">
+                        <span class="ep-subq-label">M ＝</span>
+                        <input type="number" class="ep-subq-input" data-key="Mtotal" placeholder="数値（符号付き）" step="1">
+                        <span>[${p.unit || 'N·mm'}]</span>
+                    </div>
+                    <button class="btn btn-primary" onclick="app.submitExamPrepAnswer()">確認</button>`;
+            }
+
+            _epRenderDrawingPlaceholder(p) {
+                const unitTag = (p.unitTags && p.unitTags[0]) || '1-3';
+                return `
+                    <div style="background:#fff5e6; border:1px solid #f0c674; border-radius:6px; padding:14px 18px; font-size:14px; line-height:1.7;">
+                        <strong>この問題は作図型です。</strong><br>
+                        画面上での作図は対応しておりません。紙の対策プリントで取り組むか、関連する学習セクションで作図の練習をしてください。
+                    </div>
+                    <div class="ep-actions">
+                        <button class="btn btn-primary" onclick="app.examPrepGoToUnit('${unitTag}', null)">${unitTag} の学習セクションへ</button>
+                        <button class="btn btn-secondary" onclick="app.examPrepBack()">問題一覧に戻る</button>
+                    </div>`;
+            }
+
+            // ----- 解答送信 + 正誤判定 -----
+            submitExamPrepAnswer() {
+                const data = EXAM_PREP_MASTER[this.examPrepCurrentExam];
+                const problem = data.problems[this.examPrepCurrentIdx];
+                const inputs = document.querySelectorAll('#examPrepContent .ep-subq-input');
+                const result = this._epCheckAnswer(problem, inputs);
+                const fb = document.getElementById('epFeedback');
+                const actions = document.getElementById('epActions');
+                // ステータス更新
+                const prog = this.examPrepProgress[problem.id] || { status: 'pending', attempts: 0 };
+                prog.attempts = (prog.attempts || 0) + 1;
+                if (result.allCorrect) {
+                    prog.status = 'correct';
+                    fb.className = 'ep-feedback active correct';
+                    fb.innerHTML = `<strong>正解です。</strong> ${result.summary || ''}`;
+                    inputs.forEach(inp => inp.classList.add('correct'));
+                    actions.innerHTML = `
+                        <button class="btn btn-primary" onclick="app.examPrepNextProblem()">次の問題へ</button>
+                        <button class="btn btn-secondary" onclick="app.examPrepBack()">問題一覧に戻る</button>`;
+                } else {
+                    prog.status = 'wrong';
+                    fb.className = 'ep-feedback active incorrect';
+                    fb.innerHTML = `<strong>不正解です。</strong>　${result.message || 'もう一度確認しましょう。'}`;
+                    inputs.forEach(inp => {
+                        const key = inp.getAttribute('data-key') || inp.getAttribute('data-blank-id');
+                        if (result.wrongKeys && result.wrongKeys.includes(key)) inp.classList.add('incorrect');
+                        else if (result.correctKeys && result.correctKeys.includes(key)) inp.classList.add('correct');
+                    });
+                    const unitTag = (problem.unitTags && problem.unitTags[0]) || null;
+                    actions.innerHTML = `
+                        ${unitTag ? `<button class="btn btn-primary" onclick="app.examPrepGoToUnit('${unitTag}', '${problem.id}')">${unitTag} の学習セクションで確認する</button>` : ''}
+                        <button class="btn btn-secondary" onclick="app.examPrepRetry()">もう一度</button>
+                        <button class="btn btn-secondary" onclick="app.examPrepBack()">問題一覧に戻る</button>`;
+                }
+                this.examPrepProgress[problem.id] = prog;
+                this._saveExamPrepProgress();
+            }
+
+            _epCheckAnswer(problem, inputs) {
+                const tol = (a, b, t) => Math.abs(a - b) <= (t || 0.5) + 1e-9;
+                const wrongKeys = [];
+                const correctKeys = [];
+                let summary = '';
+                if (problem.pattern === 'fill-in-blank') {
+                    let allOk = true;
+                    inputs.forEach(inp => {
+                        const expected = (inp.getAttribute('data-correct') || '').trim();
+                        const actual = (inp.value || '').trim();
+                        const key = inp.getAttribute('data-blank-id');
+                        if (actual === expected) correctKeys.push(key);
+                        else { wrongKeys.push(key); allOk = false; }
+                    });
+                    return { allCorrect: allOk, wrongKeys, correctKeys,
+                             message: allOk ? '' : '正答と一致しない欄があります（赤）。' };
+                }
+                // 数値系: data-key と problem.expected を照合
+                const exp = problem.expected || {};
+                let allOk = true;
+                const subQ = problem.subQuestions || [];
+                inputs.forEach(inp => {
+                    const key = inp.getAttribute('data-key');
+                    const userVal = parseFloat(inp.value);
+                    if (isNaN(userVal)) { wrongKeys.push(key); allOk = false; return; }
+                    let expectedVal;
+                    let tolerance = 0.5;
+                    if (key && key.startsWith('sub')) {
+                        const idx = parseInt(key.replace('sub', ''), 10);
+                        if (subQ[idx] !== undefined) {
+                            expectedVal = subQ[idx].expected;
+                            tolerance = subQ[idx].tolerance || 0.5;
+                        }
+                    } else {
+                        expectedVal = exp[key];
+                        if (key === 'tanA' || key === 'tanAlpha') tolerance = 0.05;
+                    }
+                    if (expectedVal === undefined) { wrongKeys.push(key); allOk = false; return; }
+                    if (tol(userVal, expectedVal, tolerance)) correctKeys.push(key);
+                    else { wrongKeys.push(key); allOk = false; }
+                });
+                return { allCorrect: allOk, wrongKeys, correctKeys,
+                         message: allOk ? '' : '答えが期待値と異なります（赤）。' };
+            }
+
+            examPrepNextProblem() {
+                const data = EXAM_PREP_MASTER[this.examPrepCurrentExam];
+                const next = (this.examPrepCurrentIdx || 0) + 1;
+                if (next < data.problems.length) {
+                    this.examPrepCurrentIdx = next;
+                    this._renderExamPrepView();
+                } else {
+                    // 最終問題完了 → 一覧へ
+                    this.examPrepView = 'list';
+                    this.examPrepCurrentIdx = null;
+                    this._renderExamPrepView();
+                }
+            }
+
+            examPrepRetry() {
+                // 入力欄をクリアして再描画
+                this._renderExamPrepView();
+            }
+
+            examPrepGoToUnit(unitId, returnProblemId) {
+                // 学習セクションへ遷移。完了 or 戻り時に対策モードへ復帰する目印を保存
+                this.examPrepReturnFlag = {
+                    examKey: this.examPrepCurrentExam,
+                    problemIdx: this.examPrepCurrentIdx,
+                    problemId: returnProblemId
+                };
+                this.startUnit(unitId);
+            }
+            // ==================================================================
 
             async fetchDashboardData() {
                 const subtitleEl = document.getElementById('dashboardSubtitle');
