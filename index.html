@@ -1632,6 +1632,74 @@
         .ep-feedback.correct { background: #e8f5e9; color: #1b5e20; border-left: 3px solid #2e7d32; }
         .ep-feedback.incorrect { background: #fff5f5; color: #b00; border-left: 3px solid #c62828; }
         .ep-actions { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+        /* ===== 対策モード作図 (問2/3/4 用) ===== */
+        .ep-drawing-figs {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            margin: 12px 0;
+        }
+        .ep-drawing-fig {
+            border: 1px solid var(--color-border);
+            border-radius: 6px;
+            padding: 12px 14px;
+            background: #fafafa;
+        }
+        .ep-drawing-caption {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .ep-drawing-toolbar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .ep-drawing-mode {
+            padding: 5px 12px;
+            border: 1.5px solid var(--color-border);
+            background: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            font-family: inherit;
+        }
+        .ep-drawing-mode.active {
+            background: #1e5fa8;
+            color: #fff;
+            border-color: #1e5fa8;
+        }
+        .ep-drawing-mode.aux-active {
+            background: #888;
+            color: #fff;
+            border-color: #888;
+        }
+        .ep-drawing-clear {
+            padding: 5px 12px;
+            border: 1.5px solid #c62828;
+            background: #fff;
+            color: #c62828;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            font-family: inherit;
+            margin-left: auto;
+        }
+        .ep-drawing-svg {
+            display: block;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: crosshair;
+            user-select: none;
+        }
+        .ep-drawing-help {
+            font-size: 11px;
+            color: #666;
+            margin-top: 4px;
+        }
         .dashboard-header {
             display: flex;
             justify-content: space-between;
@@ -5264,7 +5332,7 @@
                     case 'drawing-1d':
                     case 'drawing-2d':
                     case 'drawing-decompose':
-                        body = this._epRenderDrawingPlaceholder(problem); break;
+                        body = this._epRenderDrawingInteractive(problem); break;
                     case 'signed-moment':       body = this._epRenderSignedMoment(problem); break;
                     default: body = '<div style="color:#888;">この問題型は近日対応予定です。</div>';
                 }
@@ -5401,6 +5469,216 @@
                     </div>`;
             }
 
+            // ==================================================================
+            // 対策モード作図 UI（drawing-1d / drawing-2d / drawing-decompose）
+            //   グリッド上で 始点 → 終点 を 2 タップして線を引く方式。
+            //   モード切替: ベクトル（実線・矢印）/ 補助線（破線）
+            //   状態は this.examPrepDrawing に保持。問題遷移時に再初期化。
+            // ==================================================================
+            _epRenderDrawingInteractive(problem) {
+                this.examPrepDrawing = {
+                    problemId: problem.id,
+                    figures: problem.figures.map(() => ({ mode: 'vector', startPoint: null, shapes: [] }))
+                };
+                let html = '<div class="ep-drawing-figs">';
+                problem.figures.forEach((f, i) => {
+                    const svgHTML = this._epBuildDrawingSvg(problem, f, i);
+                    html += `
+                        <div class="ep-drawing-fig" data-fig-idx="${i}">
+                            <div class="ep-drawing-caption">${f.sub}</div>
+                            <div class="ep-drawing-toolbar">
+                                <button class="ep-drawing-mode active" id="ep-mode-vec-${i}" onclick="app._epDrawSetMode(${i}, 'vector')">▶ ベクトル（実線）</button>
+                                <button class="ep-drawing-mode" id="ep-mode-aux-${i}" onclick="app._epDrawSetMode(${i}, 'aux')">- - 補助線（破線）</button>
+                                <button class="ep-drawing-clear" onclick="app._epDrawClear(${i})">消す</button>
+                            </div>
+                            ${svgHTML}
+                            <div class="ep-drawing-help">図の上をタップして、<strong>始点 → 終点</strong> の順に 2 点を選ぶと線が引けます。グリッドの交点に自動でスナップします。</div>
+                        </div>`;
+                });
+                html += '</div>';
+                html += `<button class="btn btn-primary" onclick="app.submitExamPrepAnswer()">確認</button>`;
+                // SVG への click ハンドラ取り付け（DOM 確定後）
+                setTimeout(() => {
+                    problem.figures.forEach((f, i) => {
+                        const svg = document.getElementById('ep-svg-' + i);
+                        if (svg) svg.onclick = (e) => this._epDrawClick(i, e);
+                    });
+                }, 50);
+                return html;
+            }
+
+            _epBuildDrawingSvg(problem, fig, idx) {
+                if (problem.pattern === 'drawing-1d') return this._epBuildDrawingSvg1D(fig, idx);
+                if (problem.pattern === 'drawing-2d') return this._epBuildDrawingSvg2D(fig, idx);
+                if (problem.pattern === 'drawing-decompose') return this._epBuildDrawingSvgDecompose(fig, idx);
+                return '<div>未対応のパターン</div>';
+            }
+
+            // ----- drawing-1d 用 SVG -----
+            _epBuildDrawingSvg1D(fig, idx) {
+                const W = 400, H = 100, cell = 20;
+                const ox = 80, oy = 50;
+                const f1px = (fig.f1 / fig.scaleN) * cell;
+                const f2px = (fig.f2 / fig.scaleN) * cell;
+                // 配置: F1 は origin から右、F2 は F1 終点から（same: 右、opposite: 左）
+                const f1End = ox + f1px;
+                const f2End = (fig.case === 'same') ? f1End + f2px : f1End - f2px;
+                let grid = '';
+                for (let x = 0; x <= W; x += cell) grid += `<line x1="${x}" y1="0" x2="${x}" y2="${H}" stroke="#eee" stroke-width="0.5"/>`;
+                for (let y = 0; y <= H; y += cell) grid += `<line x1="0" y1="${y}" x2="${W}" y2="${y}" stroke="#eee" stroke-width="0.5"/>`;
+                return `
+                    <svg id="ep-svg-${idx}" class="ep-drawing-svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" data-cell="${cell}" data-ox="${ox}" data-oy="${oy}" data-scaleN="${fig.scaleN}">
+                        <defs>
+                            <marker id="ep-mr-${idx}" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#d23a2a"/></marker>
+                            <marker id="ep-mb-${idx}" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#1e5fa8"/></marker>
+                        </defs>
+                        ${grid}
+                        <text x="6" y="${H - 4}" font-size="10" fill="#888">1 マス = ${fig.scaleN} N</text>
+                        <line x1="${ox}" y1="${oy}" x2="${f1End}" y2="${oy}" stroke="#d23a2a" stroke-width="2.5" marker-end="url(#ep-mr-${idx})"/>
+                        <text x="${(ox + f1End) / 2 - 14}" y="${oy - 8}" font-size="11" fill="#d23a2a" font-weight="600">F₁</text>
+                        <line x1="${f1End}" y1="${oy}" x2="${f2End}" y2="${oy}" stroke="#d23a2a" stroke-width="2.5" marker-end="url(#ep-mr-${idx})"/>
+                        <text x="${(f1End + f2End) / 2 - 8}" y="${oy + 18}" font-size="11" fill="#d23a2a" font-weight="600">F₂</text>
+                        <circle cx="${ox}" cy="${oy}" r="3" fill="#000"/>
+                        <text x="${ox - 4}" y="${oy + 18}" font-size="10" fill="#000">O</text>
+                        <g id="ep-shapes-${idx}"></g>
+                        <g id="ep-cursor-${idx}"></g>
+                    </svg>`;
+            }
+
+            // ----- drawing-2d 用 SVG -----
+            _epBuildDrawingSvg2D(fig, idx) {
+                const W = 320, H = 240, cell = 20;
+                const ox = 160, oy = 140;
+                const lenScale = 1.5;  // 1 N = 1.5 px
+                const a1 = (fig.f1Angle || 0) * Math.PI / 180;
+                const a2 = (fig.f2Angle || 90) * Math.PI / 180;
+                const f1End = { x: ox + fig.f1 * lenScale * Math.cos(a1), y: oy - fig.f1 * lenScale * Math.sin(a1) };
+                const f2End = { x: ox + fig.f2 * lenScale * Math.cos(a2), y: oy - fig.f2 * lenScale * Math.sin(a2) };
+                let grid = '';
+                for (let x = 0; x <= W; x += cell) grid += `<line x1="${x}" y1="0" x2="${x}" y2="${H}" stroke="#eee" stroke-width="0.5"/>`;
+                for (let y = 0; y <= H; y += cell) grid += `<line x1="0" y1="${y}" x2="${W}" y2="${y}" stroke="#eee" stroke-width="0.5"/>`;
+                return `
+                    <svg id="ep-svg-${idx}" class="ep-drawing-svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" data-cell="${cell}" data-ox="${ox}" data-oy="${oy}" data-lenscale="${lenScale}">
+                        <defs>
+                            <marker id="ep-mr-${idx}" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#d23a2a"/></marker>
+                            <marker id="ep-mb-${idx}" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#1e5fa8"/></marker>
+                        </defs>
+                        ${grid}
+                        <text x="6" y="${H - 4}" font-size="10" fill="#888">1 N = ${lenScale} px（目安）</text>
+                        <line x1="${ox}" y1="${oy}" x2="${f1End.x}" y2="${f1End.y}" stroke="#d23a2a" stroke-width="2.5" marker-end="url(#ep-mr-${idx})"/>
+                        <text x="${(ox + f1End.x) / 2 + 4}" y="${(oy + f1End.y) / 2 - 4}" font-size="11" fill="#d23a2a" font-weight="600">F₁</text>
+                        <line x1="${ox}" y1="${oy}" x2="${f2End.x}" y2="${f2End.y}" stroke="#d23a2a" stroke-width="2.5" marker-end="url(#ep-mr-${idx})"/>
+                        <text x="${(ox + f2End.x) / 2 + 4}" y="${(oy + f2End.y) / 2 - 4}" font-size="11" fill="#d23a2a" font-weight="600">F₂</text>
+                        <circle cx="${ox}" cy="${oy}" r="3" fill="#000"/>
+                        <text x="${ox - 12}" y="${oy + 16}" font-size="10" fill="#000">O</text>
+                        <g id="ep-shapes-${idx}"></g>
+                        <g id="ep-cursor-${idx}"></g>
+                    </svg>`;
+            }
+
+            // ----- drawing-decompose 用 SVG -----
+            _epBuildDrawingSvgDecompose(fig, idx) {
+                const W = 320, H = 240, cell = 20;
+                const ox = 160, oy = 120;
+                const lenScale = 1.5;
+                const fa = (fig.fAngle || 30) * Math.PI / 180;
+                const fEnd = { x: ox + fig.fMag * lenScale * Math.cos(fa), y: oy - fig.fMag * lenScale * Math.sin(fa) };
+                // 分解方向の補助線（点線で 80px 程度延長）
+                const d1 = (fig.dir1Angle || 0) * Math.PI / 180;
+                const d2 = (fig.dir2Angle || 90) * Math.PI / 180;
+                const dirLen = 90;
+                const dir1End = { x: ox + dirLen * Math.cos(d1), y: oy - dirLen * Math.sin(d1) };
+                const dir2End = { x: ox + dirLen * Math.cos(d2), y: oy - dirLen * Math.sin(d2) };
+                let grid = '';
+                for (let x = 0; x <= W; x += cell) grid += `<line x1="${x}" y1="0" x2="${x}" y2="${H}" stroke="#eee" stroke-width="0.5"/>`;
+                for (let y = 0; y <= H; y += cell) grid += `<line x1="0" y1="${y}" x2="${W}" y2="${y}" stroke="#eee" stroke-width="0.5"/>`;
+                return `
+                    <svg id="ep-svg-${idx}" class="ep-drawing-svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" data-cell="${cell}" data-ox="${ox}" data-oy="${oy}" data-lenscale="${lenScale}">
+                        <defs>
+                            <marker id="ep-mr-${idx}" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#d23a2a"/></marker>
+                            <marker id="ep-mb-${idx}" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#1e5fa8"/></marker>
+                        </defs>
+                        ${grid}
+                        <text x="6" y="${H - 4}" font-size="10" fill="#888">1 N = ${lenScale} px（目安）</text>
+                        <line x1="${ox}" y1="${oy}" x2="${dir1End.x}" y2="${dir1End.y}" stroke="#888" stroke-width="1" stroke-dasharray="4,3"/>
+                        <line x1="${ox}" y1="${oy}" x2="${dir2End.x}" y2="${dir2End.y}" stroke="#888" stroke-width="1" stroke-dasharray="4,3"/>
+                        <line x1="${ox}" y1="${oy}" x2="${fEnd.x}" y2="${fEnd.y}" stroke="#d23a2a" stroke-width="2.5" marker-end="url(#ep-mr-${idx})"/>
+                        <text x="${(ox + fEnd.x) / 2 + 4}" y="${(oy + fEnd.y) / 2 - 4}" font-size="11" fill="#d23a2a" font-weight="600">F</text>
+                        <circle cx="${ox}" cy="${oy}" r="3" fill="#000"/>
+                        <text x="${ox - 12}" y="${oy + 16}" font-size="10" fill="#000">O</text>
+                        <g id="ep-shapes-${idx}"></g>
+                        <g id="ep-cursor-${idx}"></g>
+                    </svg>`;
+            }
+
+            // ----- インタラクション: モード切替 -----
+            _epDrawSetMode(idx, mode) {
+                if (!this.examPrepDrawing || !this.examPrepDrawing.figures[idx]) return;
+                this.examPrepDrawing.figures[idx].mode = mode;
+                this.examPrepDrawing.figures[idx].startPoint = null;  // モード切替時に始点リセット
+                const vecBtn = document.getElementById('ep-mode-vec-' + idx);
+                const auxBtn = document.getElementById('ep-mode-aux-' + idx);
+                if (vecBtn) vecBtn.classList.toggle('active', mode === 'vector');
+                if (auxBtn) auxBtn.classList.toggle('aux-active', mode === 'aux');
+                this._epDrawRedraw(idx);
+            }
+
+            _epDrawClear(idx) {
+                if (!this.examPrepDrawing || !this.examPrepDrawing.figures[idx]) return;
+                this.examPrepDrawing.figures[idx].shapes = [];
+                this.examPrepDrawing.figures[idx].startPoint = null;
+                this._epDrawRedraw(idx);
+            }
+
+            // ----- インタラクション: クリック処理 -----
+            _epDrawClick(idx, event) {
+                const svg = document.getElementById('ep-svg-' + idx);
+                if (!svg) return;
+                const rect = svg.getBoundingClientRect();
+                const cell = parseFloat(svg.getAttribute('data-cell')) || 20;
+                const x = ((event.clientX - rect.left) / rect.width) * svg.viewBox.baseVal.width;
+                const y = ((event.clientY - rect.top) / rect.height) * svg.viewBox.baseVal.height;
+                const gx = Math.round(x / cell) * cell;
+                const gy = Math.round(y / cell) * cell;
+                const fig = this.examPrepDrawing.figures[idx];
+                if (fig.startPoint === null) {
+                    fig.startPoint = { x: gx, y: gy };
+                } else {
+                    if (fig.startPoint.x === gx && fig.startPoint.y === gy) {
+                        fig.startPoint = null;
+                    } else {
+                        fig.shapes.push({
+                            type: fig.mode,
+                            x1: fig.startPoint.x, y1: fig.startPoint.y,
+                            x2: gx, y2: gy
+                        });
+                        fig.startPoint = null;
+                    }
+                }
+                this._epDrawRedraw(idx);
+            }
+
+            _epDrawRedraw(idx) {
+                const shapesG = document.getElementById('ep-shapes-' + idx);
+                const cursorG = document.getElementById('ep-cursor-' + idx);
+                if (!shapesG || !cursorG) return;
+                const fig = this.examPrepDrawing.figures[idx];
+                let shapesHTML = '';
+                fig.shapes.forEach((s, i) => {
+                    if (s.type === 'vector') {
+                        shapesHTML += `<line x1="${s.x1}" y1="${s.y1}" x2="${s.x2}" y2="${s.y2}" stroke="#1e5fa8" stroke-width="2.5" marker-end="url(#ep-mb-${idx})"/>`;
+                    } else {
+                        shapesHTML += `<line x1="${s.x1}" y1="${s.y1}" x2="${s.x2}" y2="${s.y2}" stroke="#888" stroke-width="1.5" stroke-dasharray="5,3"/>`;
+                    }
+                });
+                shapesG.innerHTML = shapesHTML;
+                let cursorHTML = '';
+                if (fig.startPoint) {
+                    cursorHTML = `<circle cx="${fig.startPoint.x}" cy="${fig.startPoint.y}" r="6" fill="none" stroke="#1e5fa8" stroke-width="2"/><circle cx="${fig.startPoint.x}" cy="${fig.startPoint.y}" r="3" fill="#1e5fa8"/>`;
+                }
+                cursorG.innerHTML = cursorHTML;
+            }
+
             // ----- 解答送信 + 正誤判定 -----
             submitExamPrepAnswer() {
                 const data = EXAM_PREP_MASTER[this.examPrepCurrentExam];
@@ -5444,6 +5722,10 @@
                 const wrongKeys = [];
                 const correctKeys = [];
                 let summary = '';
+                // 作図系: this.examPrepDrawing から各サブ図のシェイプを参照
+                if (problem.pattern === 'drawing-1d' || problem.pattern === 'drawing-2d' || problem.pattern === 'drawing-decompose') {
+                    return this._epCheckDrawingAnswer(problem);
+                }
                 if (problem.pattern === 'fill-in-blank') {
                     let allOk = true;
                     inputs.forEach(inp => {
@@ -5482,6 +5764,103 @@
                 });
                 return { allCorrect: allOk, wrongKeys, correctKeys,
                          message: allOk ? '' : '答えが期待値と異なります（赤）。' };
+            }
+
+            // 作図系の正誤判定。各サブ図ごとに「正しいベクトル」が描かれているかチェック。
+            //   drawing-1d:        合力ベクトル（向き + 大きさ）が origin から描かれているか
+            //   drawing-2d:        合力ベクトル（F1 + F2 の合成）が origin から描かれているか
+            //   drawing-decompose: 2 つの分力（dir1Angle / dir2Angle 上）が origin から描かれているか
+            _epCheckDrawingAnswer(problem) {
+                if (!this.examPrepDrawing || !this.examPrepDrawing.figures) {
+                    return { allCorrect: false, wrongKeys: [], correctKeys: [], message: '作図情報が取得できません。' };
+                }
+                const wrongFigs = [];
+                const correctFigs = [];
+                let summaryMsgs = [];
+                problem.figures.forEach((fig, idx) => {
+                    const state = this.examPrepDrawing.figures[idx];
+                    const result = this._epCheckSingleFigure(problem, fig, state);
+                    if (result.ok) {
+                        correctFigs.push(fig.sub);
+                    } else {
+                        wrongFigs.push(fig.sub);
+                        summaryMsgs.push(`${fig.sub}: ${result.reason}`);
+                    }
+                });
+                const allOk = wrongFigs.length === 0;
+                return {
+                    allCorrect: allOk,
+                    wrongKeys: wrongFigs,
+                    correctKeys: correctFigs,
+                    message: allOk ? '' : '一部のサブ図で正しい合力（または分力）ベクトルが描けていません。<br>' + summaryMsgs.join('<br>')
+                };
+            }
+
+            _epCheckSingleFigure(problem, fig, state) {
+                const tolPx = 12;  // 端点許容（±12 px = ±0.6 cell）
+                const vectors = state.shapes.filter(s => s.type === 'vector');
+                if (problem.pattern === 'drawing-1d') {
+                    // origin = (80, 50)（_epBuildDrawingSvg1D と同じ値）
+                    const ox = 80, oy = 50, cell = 20;
+                    const expectedDx = (fig.expected.dir === 'right' ? 1 : -1) * (fig.expected.mag / fig.scaleN) * cell;
+                    const targetX = ox + expectedDx;
+                    const targetY = oy;
+                    const found = vectors.some(v => {
+                        const startOk = Math.hypot(v.x1 - ox, v.y1 - oy) < tolPx;
+                        const endOk = Math.hypot(v.x2 - targetX, v.y2 - targetY) < tolPx;
+                        return startOk && endOk;
+                    });
+                    if (found) return { ok: true };
+                    return { ok: false, reason: `合力 F の方向と大きさを再確認（向き=${fig.expected.dir === 'right' ? '右' : '左'}、大きさ=${fig.expected.mag} N）` };
+                }
+                if (problem.pattern === 'drawing-2d') {
+                    // origin = (160, 140)（_epBuildDrawingSvg2D と同じ値）
+                    const ox = 160, oy = 140, lenScale = 1.5;
+                    const a1 = (fig.f1Angle || 0) * Math.PI / 180;
+                    const a2 = (fig.f2Angle || 90) * Math.PI / 180;
+                    // 合力 F の終点 = F1 + F2 のベクトル和
+                    const f1x = fig.f1 * lenScale * Math.cos(a1), f1y = -fig.f1 * lenScale * Math.sin(a1);
+                    const f2x = fig.f2 * lenScale * Math.cos(a2), f2y = -fig.f2 * lenScale * Math.sin(a2);
+                    const targetX = ox + f1x + f2x;
+                    const targetY = oy + f1y + f2y;
+                    const found = vectors.some(v => {
+                        const startOk = Math.hypot(v.x1 - ox, v.y1 - oy) < tolPx + 4;
+                        const endOk = Math.hypot(v.x2 - targetX, v.y2 - targetY) < tolPx + 4;
+                        return startOk && endOk;
+                    });
+                    if (found) return { ok: true };
+                    return { ok: false, reason: '合力 F は F₁ と F₂ のベクトル和（平行四辺形の対角線）の終点まで引きます' };
+                }
+                if (problem.pattern === 'drawing-decompose') {
+                    // origin = (160, 120)、F = fMag・fAngle、分力は dir1Angle / dir2Angle 方向
+                    const ox = 160, oy = 120, lenScale = 1.5;
+                    const fa = (fig.fAngle || 30) * Math.PI / 180;
+                    const fEnd = { x: ox + fig.fMag * lenScale * Math.cos(fa), y: oy - fig.fMag * lenScale * Math.sin(fa) };
+                    const d1 = (fig.dir1Angle || 0) * Math.PI / 180;
+                    const d2 = (fig.dir2Angle || 90) * Math.PI / 180;
+                    // F の dir1 / dir2 への射影成分（直交分解の前提）
+                    // F1 (dir1 方向) と F2 (dir2 方向) を計算
+                    // 平行四辺形分解: F = F1*dir1 + F2*dir2
+                    // F1 = (F·dir1×F·dir2_perp...) 簡易には: dir1 が水平、dir2 が垂直の問題が多いので
+                    // 行列方程式 [d1x d2x; d1y d2y] [F1; F2] = [Fx; Fy] を解く
+                    const Fx = fEnd.x - ox, Fy = fEnd.y - oy;
+                    const det = Math.cos(d1) * (-Math.sin(d2)) - (-Math.sin(d1)) * Math.cos(d2);
+                    let f1Mag = 0, f2Mag = 0;
+                    if (Math.abs(det) > 1e-6) {
+                        f1Mag = ((-Math.sin(d2)) * Fx - Math.cos(d2) * Fy) / det;
+                        f2Mag = (-((-Math.sin(d1)) * Fx) + Math.cos(d1) * Fy) / det;
+                    }
+                    const f1End = { x: ox + f1Mag * Math.cos(d1), y: oy - f1Mag * Math.sin(d1) };
+                    const f2End = { x: ox + f2Mag * Math.cos(d2), y: oy - f2Mag * Math.sin(d2) };
+                    const tol2 = tolPx + 6;
+                    const has1 = vectors.some(v => Math.hypot(v.x1 - ox, v.y1 - oy) < tol2 && Math.hypot(v.x2 - f1End.x, v.y2 - f1End.y) < tol2);
+                    const has2 = vectors.some(v => Math.hypot(v.x1 - ox, v.y1 - oy) < tol2 && Math.hypot(v.x2 - f2End.x, v.y2 - f2End.y) < tol2);
+                    if (has1 && has2) return { ok: true };
+                    if (!has1 && !has2) return { ok: false, reason: '2 つの分力 F₁・F₂ をそれぞれの分解方向（補助線方向）に描いてください' };
+                    if (!has1) return { ok: false, reason: 'F₁ 方向の分力が不足です' };
+                    return { ok: false, reason: 'F₂ 方向の分力が不足です' };
+                }
+                return { ok: false, reason: '未対応のパターン' };
             }
 
             examPrepNextProblem() {
