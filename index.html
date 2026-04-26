@@ -2028,7 +2028,7 @@
                             <div class="name-input-row">
                                 <div class="name-input-group" style="max-width: 120px;">
                                     <label for="attendanceNumber">出席番号</label>
-                                    <input type="number" id="attendanceNumber" min="1" max="40" placeholder="例：5">
+                                    <input type="number" id="attendanceNumber" min="1" max="40" placeholder="例：5" oninput="app._onAttendanceChange()">
                                 </div>
                                 <div class="name-input-group">
                                     <label for="lastName">姓</label>
@@ -2037,6 +2037,13 @@
                                 <div class="name-input-group">
                                     <label for="firstName">名</label>
                                     <input type="text" id="firstName" placeholder="例：太郎">
+                                </div>
+                            </div>
+                            <!-- 教員パスワード（出席番号 40 のときのみ表示）-->
+                            <div class="name-input-row" id="teacherPassRow" style="display:none; margin-top:8px;">
+                                <div class="name-input-group" style="max-width: 320px; flex:1;">
+                                    <label for="teacherPassword">教員パスワード（出席番号 40 のみ）</label>
+                                    <input type="password" id="teacherPassword" placeholder="教員のみ入力" autocomplete="off">
                                 </div>
                             </div>
                             <div class="login-error-text" id="loginError"></div>
@@ -2213,6 +2220,22 @@
 
         // 教員ダッシュボード用: GAS からログを読み出す際の認証キー / 単元情報
         const DASHBOARD_KEY = 'mdesign2026';
+
+        // 教員モード認証用: パスワードの SHA-256 ハッシュ。
+        //   平文ではなくハッシュで保管し、HTML から平文の漏洩を防ぐ。
+        //   現在のパスワード: '1g-kikai-2026'
+        //   変更したい場合は新しいパスワードのハッシュに差し替え（DEPLOY_手順.md 参照）。
+        //   ハッシュ生成例: echo -n '新パスワード' | shasum -a 256
+        const TEACHER_PASS_HASH = '86bdc2d91119ebe3b69301bd1dcf097a357a0a3c0514647d69f849195f091ac8';
+
+        // 対策モードの公開設定（教員が中間考査前に true に変更してデプロイ）
+        //   true: 生徒もメニューから対策モードにアクセス可
+        //   false: 生徒には対策モードボタン非表示／セクション一覧から非公開
+        //   教員モードでは値に関わらず常時アクセス可能
+        const EXAM_PREP_PUBLIC_FOR_STUDENTS = {
+            'midterm-1': false,  // 中間考査前に true に変更
+            'final-1':   false
+        };
         // 単元ごとの問題数（ダッシュボード集計用）
         const DASHBOARD_UNIT_COUNTS = {
             '1-1': 4, '1-2': 6, '1-3': 4, '1-4': 4, '1-5': 4, '2-1': 5
@@ -4261,10 +4284,26 @@
                 document.getElementById('firstName').value = '';
             }
 
-            login() {
+            // 出席番号入力欄の変更で教員パスワード欄を表示/非表示
+            _onAttendanceChange() {
+                const numInput = document.getElementById('attendanceNumber').value.trim();
+                const passRow = document.getElementById('teacherPassRow');
+                if (!passRow) return;
+                const num = parseInt(numInput, 10);
+                passRow.style.display = (num === 40) ? 'flex' : 'none';
+            }
+
+            // 文字列の SHA-256 を 16進文字列で返す（教員パスワード照合用）
+            async _sha256Hex(str) {
+                const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+                return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+            }
+
+            async login() {
                 const numInput = document.getElementById('attendanceNumber').value.trim();
                 const lastName = document.getElementById('lastName').value.trim();
                 const firstName = document.getElementById('firstName').value.trim();
+                const passInput = (document.getElementById('teacherPassword') || {}).value || '';
                 const errorEl = document.getElementById('loginError');
                 errorEl.textContent = '';
 
@@ -4278,12 +4317,33 @@
                     return;
                 }
 
+                // 教員モード（40番）はパスワード必須。誤入力時は教員機能を有効化しない。
+                let teacherAuthed = false;
+                if (num === 40) {
+                    if (!passInput) {
+                        errorEl.textContent = '出席番号 40 は教員専用です。教員パスワードを入力してください。';
+                        return;
+                    }
+                    try {
+                        const hash = await this._sha256Hex(passInput);
+                        if (hash !== TEACHER_PASS_HASH) {
+                            errorEl.textContent = '教員パスワードが違います。';
+                            return;
+                        }
+                        teacherAuthed = true;
+                    } catch (e) {
+                        errorEl.textContent = '認証エラー: ' + e.message;
+                        return;
+                    }
+                }
+
                 this.currentUser = {
                     number: num,
                     lastName: lastName,
-                    firstName: firstName
+                    firstName: firstName,
+                    teacherAuthed: teacherAuthed  // 教員認証済みフラグ
                 };
-                // 教員モード（40番）はセッション中のみ保持し、localStorage には残さない
+                // 教員モード（40番 + 認証済み）はセッション中のみ保持し、localStorage には残さない
                 if (!this.isTeacherMode()) {
                     localStorage.setItem('auth', JSON.stringify(this.currentUser));
                 }
@@ -4396,9 +4456,11 @@
                 this.goToMenu();
             }
 
-            // 40番は教員スロット。localStorage に書き込まず、メニューに本名を表示しない。
+            // 40番は教員スロット。教員機能（ダッシュボード・対策プリント・考査問題・対策モード）の
+            // 有効化には、ログイン時に正しい教員パスワードを入力していることが必須。
+            // パスワード不一致 / 未入力の場合は teacherAuthed=false で、教員機能は表示されない。
             isTeacherMode() {
-                return this.currentUser && this.currentUser.number === 40;
+                return !!(this.currentUser && this.currentUser.number === 40 && this.currentUser.teacherAuthed);
             }
 
             startUnit(unitId) {
@@ -4464,10 +4526,19 @@
                 const dashBtn = document.getElementById('dashboardBtn');
                 const prepBtn = document.getElementById('prepPrintBtn');
                 const examBtn = document.getElementById('examPrintBtn');
+                const examPrepBtn = document.getElementById('examPrepBtn');
                 const teacher = this.isTeacherMode();
                 if (dashBtn) dashBtn.style.display = teacher ? 'inline-block' : 'none';
                 if (prepBtn) prepBtn.style.display = teacher ? 'inline-block' : 'none';
                 if (examBtn) examBtn.style.display = teacher ? 'inline-block' : 'none';
+                // 対策モードボタン: 教員は常時表示。生徒は公開中のセクションが 1 つ以上あるときのみ表示。
+                if (examPrepBtn) {
+                    let visibleForUser = teacher;
+                    if (!teacher && typeof EXAM_PREP_PUBLIC_FOR_STUDENTS !== 'undefined') {
+                        visibleForUser = Object.values(EXAM_PREP_PUBLIC_FOR_STUDENTS).some(v => v === true);
+                    }
+                    examPrepBtn.style.display = visibleForUser ? 'inline-block' : 'none';
+                }
 
                 const unitList = document.getElementById('unitList');
                 unitList.innerHTML = '';
@@ -4996,50 +5067,68 @@
             }
 
             _svgRightTriangleFilled(p) {
-                // 直角三角形：F1（底辺、右向き）+ F2（高さ、上向き）+ F（斜辺、青）+ α（角度）
+                // 問5 用：F₁ と F₂ を「両方とも原点 O から」描画（問題文時の正しい状態）。
+                //   F₁: 原点 O から右、F₂: 原点 O から上（共通の原点）。
+                //   F: 原点から斜辺の対角線方向（先生指摘により、平行移動済みの図を回避）。
+                //   α: 原点で F₁ と F のなす角。
                 const W = 220, H = 180;
                 const ox = 50, oy = H - 40;
                 const f1px = 100, f2px = (p.params.F2 / p.params.F1) * f1px;
-                const x2 = ox + f1px, y2 = oy - f2px;
+                const fEndX = ox + f1px, fEndY = oy - f2px;
+                // α の弧
+                const arcR = 22;
+                const alpha = Math.atan2(f2px, f1px);
+                const arcEndX = ox + arcR * Math.cos(alpha);
+                const arcEndY = oy - arcR * Math.sin(alpha);
                 return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" class="figure-svg">
                     <defs>
-                        <marker id="m4r" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#1e5fa8"/></marker>
-                        <marker id="m4d" markerWidth="6" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0,0 6,2.5 0,5" fill="#888"/></marker>
+                        <marker id="m4r" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#d23a2a"/></marker>
+                        <marker id="m4b" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#1e5fa8"/></marker>
                     </defs>
-                    <line x1="${ox}" y1="${oy}" x2="${ox + f1px}" y2="${oy}" stroke="#888" stroke-width="1.5" stroke-dasharray="2,2" marker-end="url(#m4d)"/>
-                    <line x1="${ox + f1px}" y1="${oy}" x2="${ox + f1px}" y2="${y2}" stroke="#888" stroke-width="1.5" stroke-dasharray="2,2" marker-end="url(#m4d)"/>
-                    <line x1="${ox}" y1="${oy}" x2="${x2}" y2="${y2}" stroke="#1e5fa8" stroke-width="2" marker-end="url(#m4r)"/>
-                    <text x="${ox + f1px + 6}" y="${oy + 12}" font-size="10pt">F₁ = ${p.params.F1} N</text>
-                    <text x="${ox + f1px + 6}" y="${(oy + y2) / 2}" font-size="10pt">F₂ = ${p.params.F2} N</text>
-                    <text x="${ox + f1px / 2 - 6}" y="${(oy + y2) / 2 - 6}" font-size="10pt" fill="#1e5fa8">F</text>
-                    <text x="${ox + 14}" y="${oy - 6}" font-size="9pt">α</text>
-                    <circle cx="${ox}" cy="${oy}" r="2" fill="#000"/>
+                    <!-- F₁ from O going right (red solid) -->
+                    <line x1="${ox}" y1="${oy}" x2="${ox + f1px}" y2="${oy}" stroke="#d23a2a" stroke-width="2.5" marker-end="url(#m4r)"/>
+                    <text x="${ox + f1px / 2 - 18}" y="${oy + 14}" font-size="10pt">F₁ = ${p.params.F1} N</text>
+                    <!-- F₂ from O going up (red solid) -->
+                    <line x1="${ox}" y1="${oy}" x2="${ox}" y2="${oy - f2px}" stroke="#d23a2a" stroke-width="2.5" marker-end="url(#m4r)"/>
+                    <text x="${ox - 38}" y="${oy - f2px / 2}" font-size="10pt">F₂ = ${p.params.F2} N</text>
+                    <!-- F (resultant, blue diagonal from O) -->
+                    <line x1="${ox}" y1="${oy}" x2="${fEndX}" y2="${fEndY}" stroke="#1e5fa8" stroke-width="2" marker-end="url(#m4b)"/>
+                    <text x="${(ox + fEndX) / 2 + 4}" y="${(oy + fEndY) / 2 - 4}" font-size="11pt" fill="#1e5fa8" font-weight="bold">F</text>
+                    <!-- α arc at O -->
+                    <path d="M ${ox + arcR} ${oy} A ${arcR} ${arcR} 0 0 0 ${arcEndX} ${arcEndY}" fill="none" stroke="#333" stroke-width="1"/>
+                    <text x="${ox + arcR + 2}" y="${oy - 6}" font-size="9pt">α</text>
+                    <!-- Origin O -->
+                    <circle cx="${ox}" cy="${oy}" r="2.5" fill="#000"/>
                     <text x="${ox - 12}" y="${oy + 14}" font-size="9pt">O</text>
                 </svg>`;
             }
 
             _svgRightTriangleEmpty(p, showAnswers) {
-                // 問6 用：F1 と F2 の矢印のみ表示。F は showAnswers の時のみ
+                // 問6 用：F₁ と F₂ を「両方とも原点 O から」描画（先生指摘により問題文の正確な状態に修正）。
+                //   F は学生が作図する想定で、初期表示しない（showAnswers のときのみ青破線で答え提示）。
                 const W = 220, H = 180;
                 const ox = 50, oy = H - 40;
                 const f1px = 100, f2px = (p.params.F2 / p.params.F1) * f1px;
-                const x2 = ox + f1px, y2 = oy - f2px;
+                const fEndX = ox + f1px, fEndY = oy - f2px;
                 let resultant = '';
                 if (showAnswers) {
-                    resultant = `<line x1="${ox}" y1="${oy}" x2="${x2}" y2="${y2}" stroke="#1e5fa8" stroke-width="2" marker-end="url(#m6b)" stroke-dasharray="3,2"/>
-                                 <text x="${ox + f1px / 2 - 6}" y="${(oy + y2) / 2 - 6}" font-size="10pt" fill="#1e5fa8">F</text>`;
+                    resultant = `<line x1="${ox}" y1="${oy}" x2="${fEndX}" y2="${fEndY}" stroke="#1e5fa8" stroke-width="2" marker-end="url(#m6b)" stroke-dasharray="3,2"/>
+                                 <text x="${(ox + fEndX) / 2 + 4}" y="${(oy + fEndY) / 2 - 4}" font-size="11pt" fill="#1e5fa8" font-weight="bold">F</text>`;
                 }
                 return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" class="figure-svg">
                     <defs>
                         <marker id="m6r" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#d23a2a"/></marker>
                         <marker id="m6b" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#1e5fa8"/></marker>
                     </defs>
-                    <line x1="${ox}" y1="${oy}" x2="${ox + f1px}" y2="${oy}" stroke="#d23a2a" stroke-width="2" marker-end="url(#m6r)"/>
-                    <line x1="${ox + f1px}" y1="${oy}" x2="${ox + f1px}" y2="${y2}" stroke="#d23a2a" stroke-width="2" marker-end="url(#m6r)"/>
+                    <!-- F₁ from O going right -->
+                    <line x1="${ox}" y1="${oy}" x2="${ox + f1px}" y2="${oy}" stroke="#d23a2a" stroke-width="2.5" marker-end="url(#m6r)"/>
+                    <text x="${ox + f1px / 2 - 18}" y="${oy + 14}" font-size="10pt">F₁ = ${p.params.F1} N</text>
+                    <!-- F₂ from O going up -->
+                    <line x1="${ox}" y1="${oy}" x2="${ox}" y2="${oy - f2px}" stroke="#d23a2a" stroke-width="2.5" marker-end="url(#m6r)"/>
+                    <text x="${ox - 38}" y="${oy - f2px / 2}" font-size="10pt">F₂ = ${p.params.F2} N</text>
                     ${resultant}
-                    <text x="${ox + f1px / 2 - 12}" y="${oy + 14}" font-size="10pt">F₁ = ${p.params.F1} N</text>
-                    <text x="${ox + f1px + 6}" y="${(oy + y2) / 2}" font-size="10pt">F₂ = ${p.params.F2} N</text>
-                    <circle cx="${ox}" cy="${oy}" r="2" fill="#000"/>
+                    <circle cx="${ox}" cy="${oy}" r="2.5" fill="#000"/>
+                    <text x="${ox - 12}" y="${oy + 14}" font-size="9pt">O</text>
                 </svg>`;
             }
 
@@ -5164,6 +5253,15 @@
             //     submitExamPrepAnswer() → 正誤判定 → 正解なら次へ、不正解なら誘導 or 再挑戦
 
             goToExamPrep() {
+                // アクセス制御: 教員以外は、公開中のセクションが 1 つも無ければアクセス不可。
+                if (!this.isTeacherMode()) {
+                    const anyPublic = (typeof EXAM_PREP_PUBLIC_FOR_STUDENTS !== 'undefined')
+                        && Object.values(EXAM_PREP_PUBLIC_FOR_STUDENTS).some(v => v === true);
+                    if (!anyPublic) {
+                        alert('現在、考査対策モードは公開されていません。先生からの案内をお待ちください。');
+                        return;
+                    }
+                }
                 this.examPrepView = 'section';
                 this.examPrepCurrentExam = null;
                 this.examPrepCurrentIdx = null;
@@ -5193,6 +5291,11 @@
 
             selectExamSection(examKey) {
                 if (typeof EXAM_PREP_MASTER === 'undefined' || !EXAM_PREP_MASTER[examKey]) return;
+                // アクセス制御: 生徒は非公開セクションに入れない（万一クリックパスが残っていても弾く）。
+                if (!this.isTeacherMode() && !EXAM_PREP_PUBLIC_FOR_STUDENTS[examKey]) {
+                    alert('このセクションは現在非公開です。');
+                    return;
+                }
                 this.examPrepCurrentExam = examKey;
                 this.examPrepView = 'list';
                 this._renderExamPrepView();
@@ -5245,6 +5348,7 @@
             }
 
             _renderExamSectionList() {
+                const teacher = this.isTeacherMode();
                 let html = '<div class="ep-section-grid">';
                 Object.keys(EXAM_PREP_MASTER).forEach(key => {
                     const data = EXAM_PREP_MASTER[key];
@@ -5253,9 +5357,16 @@
                     data.problems.forEach(p => {
                         if (this.examPrepProgress[p.id] && this.examPrepProgress[p.id].status === 'correct') correct++;
                     });
+                    const isPublic = !!(EXAM_PREP_PUBLIC_FOR_STUDENTS[key]);
+                    // 生徒は非公開セクションを表示しない（誤アクセスを防ぐため一覧から完全除外）。
+                    // 教員には [非公開] バッジ付きで表示。
+                    if (!teacher && !isPublic) return;
+                    const badge = (!isPublic && teacher)
+                        ? '<span style="margin-left:8px; padding:2px 8px; background:#888; color:#fff; font-size:11px; border-radius:3px;">非公開</span>'
+                        : '';
                     html += `
                         <div class="ep-section-card" onclick="app.selectExamSection('${key}')">
-                            <div class="ep-section-title">${data.meta.title}</div>
+                            <div class="ep-section-title">${data.meta.title}${badge}</div>
                             <div class="ep-section-meta">${data.meta.scope}　／　全 ${total} 問</div>
                             <div class="ep-section-progress">進捗: ${correct} / ${total} 問正解</div>
                         </div>`;
@@ -5270,6 +5381,11 @@
                         </div>`;
                 }
                 html += '</div>';
+                if (!teacher) {
+                    html += `<div style="margin-top:16px; font-size:12px; color:#888;">
+                        ※ 公開中のセクションのみ表示しています。先生から案内のあったタイミングで利用できます。
+                    </div>`;
+                }
                 return html;
             }
 
