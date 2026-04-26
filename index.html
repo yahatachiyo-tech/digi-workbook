@@ -2102,7 +2102,8 @@
             {
                 id: 1,
                 f1: 30, f2: 40, expectedResultant: 50, tolerance: 1,
-                sentence: '図のように、F₁ ＝ 30 N と F₂ ＝ 40 N の 2 力が、たがいに直角にはたらいている。合力 F の大きさを求めよ。',
+                expectedTanAlpha: 1.3, tanTolerance: 0.05,
+                sentence: '図のように、F₁ ＝ 30 N と F₂ ＝ 40 N の 2 力が、たがいに直角にはたらいている。合力 F の大きさと、F₁ との成す角 tan α を計算で求めよ。',
                 condition: '3-4-5 ピタゴラス数、F₁=30 N, F₂=40 N',
                 baselineTime: 120,
                 canvasType: '2d-static',
@@ -2115,7 +2116,7 @@
                     rightAngleMark: { x: 80, y: 220, size: 12 }
                 },
                 stage0Choices: [
-                    { value: 'resultant',  label: '合力 F の大きさ' },
+                    { value: 'resultant',  label: '合力 F の大きさと、F₁ との成す角 tan α' },
                     { value: 'decomposed', label: '分力 Fx, Fy' },
                     { value: 'sum',        label: '2 力の和 F₁ ＋ F₂' }
                 ],
@@ -2125,8 +2126,8 @@
                     { value: 'same',          label: '同じ向きの 2 力' }
                 ],
                 stage1Correct: 'perpendicular',
-                stage2Text: '直角に交わる 2 力の合成では、合力 F は次の式で求められます。<br>これは <strong>三平方の定理</strong> と同じ形です（底辺 F₁、高さ F₂、斜辺 F の直角三角形）。',
-                formula: 'F = \\sqrt{F_1^{\\,2} + F_2^{\\,2}}',
+                stage2Text: '直角に交わる 2 力の合成では、合力 F の大きさと、F₁ との成す角 tan α は次の式で求められます。<br>合力の大きさは <strong>三平方の定理</strong> と同じ形（底辺 F₁、高さ F₂、斜辺 F の直角三角形）。<br>tan α は底辺 F₁ と高さ F₂ の比で求められます。',
+                formula: 'F = \\sqrt{F_1^{\\,2} + F_2^{\\,2}}, \\quad \\tan\\alpha = \\dfrac{F_2}{F_1}',
                 substitutions: {
                     slots: ['F1', 'F2'],
                     cards: [
@@ -2138,7 +2139,8 @@
             {
                 id: 2,
                 f1: 60, f2: 80, expectedResultant: 100, tolerance: 1,
-                sentence: '図のように、F₁ ＝ 60 N と F₂ ＝ 80 N の 2 力が、たがいに直角にはたらいている。合力 F の大きさを求めよ。',
+                expectedTanAlpha: 1.3, tanTolerance: 0.05,
+                sentence: '図のように、F₁ ＝ 60 N と F₂ ＝ 80 N の 2 力が、たがいに直角にはたらいている。合力 F の大きさと、F₁ との成す角 tan α を計算で求めよ。',
                 condition: '3-4-5 ピタゴラス数（教科書例題1 相当）、F₁=60 N, F₂=80 N',
                 baselineTime: 120,
                 canvasType: '2d-static',
@@ -2151,7 +2153,7 @@
                     rightAngleMark: { x: 80, y: 220, size: 12 }
                 },
                 stage0Choices: [
-                    { value: 'resultant',  label: '合力 F の大きさ' },
+                    { value: 'resultant',  label: '合力 F の大きさと、F₁ との成す角 tan α' },
                     { value: 'decomposed', label: '分力 Fx, Fy' },
                     { value: 'sum',        label: '2 力の和 F₁ ＋ F₂' }
                 ],
@@ -2161,8 +2163,8 @@
                     { value: 'same',          label: '同じ向きの 2 力' }
                 ],
                 stage1Correct: 'perpendicular',
-                stage2Text: '直角に交わる 2 力の合成では、合力 F は次の式で求められます。<br>これは <strong>三平方の定理</strong> と同じ形です（底辺 F₁、高さ F₂、斜辺 F の直角三角形）。',
-                formula: 'F = \\sqrt{F_1^{\\,2} + F_2^{\\,2}}',
+                stage2Text: '直角に交わる 2 力の合成では、合力 F の大きさと、F₁ との成す角 tan α は次の式で求められます。<br>合力の大きさは <strong>三平方の定理</strong> と同じ形（底辺 F₁、高さ F₂、斜辺 F の直角三角形）。<br>tan α は底辺 F₁ と高さ F₂ の比で求められます。',
+                formula: 'F = \\sqrt{F_1^{\\,2} + F_2^{\\,2}}, \\quad \\tan\\alpha = \\dfrac{F_2}{F_1}',
                 substitutions: {
                     slots: ['F1', 'F2'],
                     cards: [
@@ -2174,7 +2176,8 @@
             {
                 id: 3,
                 f1: 50, f2: 120, expectedResultant: 130, tolerance: 1,
-                sentence: '図のように、F₁ ＝ 50 N と F₂ ＝ 120 N の 2 力が、たがいに直角にはたらいている。合力 F の大きさを求めよ。',
+                expectedTanAlpha: 2.4, tanTolerance: 0.05,
+                sentence: '図のように、F₁ ＝ 50 N と F₂ ＝ 120 N の 2 力が、たがいに直角にはたらいている。合力 F の大きさと、F₁ との成す角 tan α を計算で求めよ。',
                 condition: '5-12-13 ピタゴラス数、F₁=50 N, F₂=120 N',
                 baselineTime: 150,
                 canvasType: '2d-static',
@@ -2187,18 +2190,18 @@
                     rightAngleMark: { x: 80, y: 240, size: 12 }
                 },
                 stage0Choices: [
-                    { value: 'resultant',  label: '合力 F の大きさ' },
+                    { value: 'resultant',  label: '合力 F の大きさと、F₁ との成す角 tan α' },
                     { value: 'decomposed', label: '分力 Fx, Fy' },
                     { value: 'sum',        label: '2 力の和 F₁ ＋ F₂' }
                 ],
                 stage0Correct: 'resultant',
                 stage1Choices: [
-                    { value: 'perpendicular', label: '直角（90°）に交わる 2 力' },
+                    { value: 'perpendicular', label: '直角(90°)に交わる 2 力' },
                     { value: 'same',          label: '同じ向きの 2 力' }
                 ],
                 stage1Correct: 'perpendicular',
-                stage2Text: '直角に交わる 2 力の合成では、合力 F は次の式で求められます。<br>これは <strong>三平方の定理</strong> と同じ形です（底辺 F₁、高さ F₂、斜辺 F の直角三角形）。',
-                formula: 'F = \\sqrt{F_1^{\\,2} + F_2^{\\,2}}',
+                stage2Text: '直角に交わる 2 力の合成では、合力 F の大きさと、F₁ との成す角 tan α は次の式で求められます。<br>合力の大きさは <strong>三平方の定理</strong> と同じ形（底辺 F₁、高さ F₂、斜辺 F の直角三角形）。<br>tan α は底辺 F₁ と高さ F₂ の比で求められます。',
+                formula: 'F = \\sqrt{F_1^{\\,2} + F_2^{\\,2}}, \\quad \\tan\\alpha = \\dfrac{F_2}{F_1}',
                 substitutions: {
                     slots: ['F1', 'F2'],
                     cards: [
@@ -2210,7 +2213,8 @@
             {
                 id: 4,
                 f1: 80, f2: 150, expectedResultant: 170, tolerance: 1,
-                sentence: '図のように、F₁ ＝ 80 N と F₂ ＝ 150 N の 2 力が、たがいに直角にはたらいている。合力 F の大きさを求めよ。',
+                expectedTanAlpha: 1.9, tanTolerance: 0.05,
+                sentence: '図のように、F₁ ＝ 80 N と F₂ ＝ 150 N の 2 力が、たがいに直角にはたらいている。合力 F の大きさと、F₁ との成す角 tan α を計算で求めよ。',
                 condition: '8-15-17 ピタゴラス数、F₁=80 N, F₂=150 N',
                 baselineTime: 150,
                 canvasType: '2d-static',
@@ -2223,7 +2227,7 @@
                     rightAngleMark: { x: 90, y: 240, size: 12 }
                 },
                 stage0Choices: [
-                    { value: 'resultant',  label: '合力 F の大きさ' },
+                    { value: 'resultant',  label: '合力 F の大きさと、F₁ との成す角 tan α' },
                     { value: 'decomposed', label: '分力 Fx, Fy' },
                     { value: 'sum',        label: '2 力の和 F₁ ＋ F₂' }
                 ],
@@ -2233,8 +2237,8 @@
                     { value: 'same',          label: '同じ向きの 2 力' }
                 ],
                 stage1Correct: 'perpendicular',
-                stage2Text: '直角に交わる 2 力の合成では、合力 F は次の式で求められます。<br>これは <strong>三平方の定理</strong> と同じ形です（底辺 F₁、高さ F₂、斜辺 F の直角三角形）。',
-                formula: 'F = \\sqrt{F_1^{\\,2} + F_2^{\\,2}}',
+                stage2Text: '直角に交わる 2 力の合成では、合力 F の大きさと、F₁ との成す角 tan α は次の式で求められます。<br>合力の大きさは <strong>三平方の定理</strong> と同じ形（底辺 F₁、高さ F₂、斜辺 F の直角三角形）。<br>tan α は底辺 F₁ と高さ F₂ の比で求められます。',
+                formula: 'F = \\sqrt{F_1^{\\,2} + F_2^{\\,2}}, \\quad \\tan\\alpha = \\dfrac{F_2}{F_1}',
                 substitutions: {
                     slots: ['F1', 'F2'],
                     cards: [
@@ -2264,9 +2268,9 @@
                 c: '教科書26ページ 式(2-1) と例題1を確認してください。'
             },
             stage4: {
-                b: 'まず F₁² と F₂² をそれぞれ計算して足してください。次にその合計に対して √（ルート）を取ると F になります。電卓の √ ボタンを使います。',
-                a: 'F ＝ √(F₁² ＋ F₂²)。手順は 3 つです。①F₁ を 2 乗する。②F₂ を 2 乗する。③ ①と② を足したものの √ を取る。答えは整数になります。',
-                c: '教科書26ページ 式(2-1) と例題1の計算過程を確認してください。'
+                b: '【F の求め方】 F₁² と F₂² をそれぞれ計算して足し、合計に √（ルート）を取ると F になります。電卓の √ ボタンを使います。<br>【tan α の求め方】 F₂ を F₁ で割ると tan α になります。小数第 2 位を四捨五入して小数第 1 位までで答えます。',
+                a: 'F ＝ √(F₁² ＋ F₂²)。手順は ①F₁ を 2 乗、②F₂ を 2 乗、③ ①と② を足したものの √。<br>tan α ＝ F₂ ／ F₁。例：F₁=60, F₂=80 のとき、F = √(3600+6400) = √10000 = 100、tan α = 80/60 = 1.333... → 1.3。',
+                c: '教科書26ページ 式(2-1)・式(2-2) と例題1の計算過程を確認してください。'
             }
         };
 
@@ -4770,16 +4774,24 @@
                 }
                 else if (stageIndex === 4) {
                     if (is1_6) {
+                        // 1-6 は F の値と tan α の値を 2 つの入力欄で受け取る
+                        // （考査問5「F の大きさと tan α を計算で求めなさい」と同形式）。
+                        // 2 つの KaTeX 式は flex-direction:column で縦並びに（calc-formula-display の display:flex を上書き）。
                         content.innerHTML = header + staticCanvas1_6 + `
                             <div class="calc-stage-container">
-                                <div class="calc-question-text">計算結果を入力してください。</div>
-                                <div class="calc-formula-display">
-                                    $F = \\sqrt{${problem.f1}^{\\,2} + ${problem.f2}^{\\,2}} = {\\color{#c62828}?}$
+                                <div class="calc-question-text">合力 F の大きさと tan α を計算してください（電卓を使って構いません）。</div>
+                                <div class="calc-formula-display" style="flex-direction:column; line-height:2.0;">
+                                    <div style="margin-bottom:8px;">$F = \\sqrt{${problem.f1}^{\\,2} + ${problem.f2}^{\\,2}} = {\\color{#c62828}?}\\ \\mathrm{[N]}$</div>
+                                    <div>$\\tan\\alpha = \\dfrac{${problem.f2}}{${problem.f1}} = {\\color{#c62828}?}$</div>
                                 </div>
-                                <div class="calc-input-row">
+                                <div class="calc-input-row" style="margin-bottom:10px;">
                                     <span class="calc-input-label">答え：F ＝</span>
                                     <input type="number" id="answerInput" class="calc-answer-input" placeholder="数値" style="width:120px;" step="0.1">
                                     <span style="font-size:14px; color:#555; margin-left:6px;">[N]</span>
+                                </div>
+                                <div class="calc-input-row">
+                                    <span class="calc-input-label">　　　tan α ＝</span>
+                                    <input type="number" id="answerInputTanA" class="calc-answer-input" placeholder="数値" style="width:120px;" step="0.1">
                                 </div>
                             </div>
                         `;
@@ -4857,16 +4869,18 @@
                     // 振り返り stage: confirm the physical meaning of the answer
                     if (is1_6) {
                         const ans = problem.expectedResultant;
+                        const tanA = problem.expectedTanAlpha;
                         content.innerHTML = header + staticCanvas1_6 + `
                             <div class="calc-stage-container">
                                 <div class="calc-question-text">答えの意味を確認しよう。</div>
-                                <div class="calc-formula-display">
-                                    $F = \\sqrt{${problem.f1}^{\\,2} + ${problem.f2}^{\\,2}} = \\sqrt{${problem.f1 * problem.f1} + ${problem.f2 * problem.f2}} = \\sqrt{${problem.f1 * problem.f1 + problem.f2 * problem.f2}} = ${ans}\\,\\mathrm{[N]}$
+                                <div class="calc-formula-display" style="flex-direction:column; line-height:2.0;">
+                                    <div style="margin-bottom:8px;">$F = \\sqrt{${problem.f1}^{\\,2} + ${problem.f2}^{\\,2}} = \\sqrt{${problem.f1 * problem.f1} + ${problem.f2 * problem.f2}} = \\sqrt{${problem.f1 * problem.f1 + problem.f2 * problem.f2}} = ${ans}\\,\\mathrm{[N]}$</div>
+                                    <div>$\\tan\\alpha = \\dfrac{F_2}{F_1} = \\dfrac{${problem.f2}}{${problem.f1}} = ${tanA}$</div>
                                 </div>
                                 <div style="background:#eaf1fa; border-left:4px solid #1e5fa8; padding:14px 18px; border-radius:3px; margin-top:18px; font-size:15px; line-height:1.7;">
-                                    直角にはたらく <strong>F₁ ＝ ${problem.f1} N</strong> と <strong>F₂ ＝ ${problem.f2} N</strong> の合力の大きさは <strong>${ans} N</strong> です。<br>
+                                    直角にはたらく <strong>F₁ ＝ ${problem.f1} N</strong> と <strong>F₂ ＝ ${problem.f2} N</strong> の合力の大きさは <strong>${ans} N</strong>、F₁ との成す角は <strong>tan α ＝ ${tanA}</strong> です。<br>
                                     F₂ を F₁ の先端まで平行移動すると、<strong>底辺 F₁、高さ F₂、斜辺 F の直角三角形</strong>ができます。<br>
-                                    この直角三角形に三平方の定理 <strong>F² ＝ F₁² ＋ F₂²</strong> を適用すると、合力 F の大きさが求まります。
+                                    この直角三角形に三平方の定理 <strong>F² ＝ F₁² ＋ F₂²</strong> を適用すると合力 F の大きさが、底辺 F₁ と高さ F₂ の比から <strong>tan α ＝ F₂ ／ F₁</strong> が求まります。
                                 </div>
                                 <div style="margin-top:14px; font-size:13px; color:#555;">
                                     次の問題に進む前に、式と直角三角形の関係を頭の中で思い浮かべてみましょう。
@@ -8855,9 +8869,20 @@
                 const tolerance  = isForceCalc ? (problem.tolerance || 1) : 0;
                 // 浮動小数点誤差対策: tolerance 境界（例 tolerance=0.1 で |userAnswer-expected|=0.10000...142）が
                 // 偽陰性となるのを避けるため、比較に 1e-9 の余裕を加える。
-                const isCorrect  = isForceCalc
+                let isCorrect = isForceCalc
                     ? (!isNaN(userAnswer) && Math.abs(userAnswer - expected) <= tolerance + 1e-9)
                     : (userAnswer === expected);
+
+                // 1-6 は F に加えて tan α も検証する（考査問5「F と tan α を計算で求めなさい」形式）。
+                let userTanA = NaN, expectedTanA = NaN, tanTol = 0, isTanCorrect = false;
+                if (is1_6) {
+                    const tanInput = document.getElementById('answerInputTanA');
+                    userTanA = tanInput ? parseFloat(tanInput.value) : NaN;
+                    expectedTanA = problem.expectedTanAlpha;
+                    tanTol = problem.tanTolerance || 0.05;
+                    isTanCorrect = !isNaN(userTanA) && Math.abs(userTanA - expectedTanA) <= tanTol + 1e-9;
+                    isCorrect = isCorrect && isTanCorrect;
+                }
 
                 if (isCorrect) {
                     feedback.classList.add('correct');
@@ -8867,7 +8892,8 @@
                         feedback.innerHTML = `
                             <div style="margin-bottom: 10px;">正解です。</div>
                             <div class="answer-explanation">
-                                F ＝ √(F₁² ＋ F₂²) ＝ √(${problem.f1}² ＋ ${problem.f2}²) ＝ √${sq} ＝ ${expected} [N]
+                                F ＝ √(F₁² ＋ F₂²) ＝ √(${problem.f1}² ＋ ${problem.f2}²) ＝ √${sq} ＝ ${expected} [N]<br>
+                                tan α ＝ F₂ ／ F₁ ＝ ${problem.f2} ／ ${problem.f1} ＝ ${expectedTanA}
                             </div>
                         `;
                     } else if (is1_7) {
@@ -8919,14 +8945,38 @@
                 } else {
                     feedback.classList.add('incorrect');
                     feedback.classList.remove('correct');
-                    feedback.innerHTML = `
-                        <div style="margin-bottom: 10px;">不正解です。もう一度入力してみてください。</div>
-                    `;
+                    if (is1_6) {
+                        // 1-6 では F・tan α のどちらが違うか具体的にフィードバック
+                        const fOk = !isNaN(userAnswer) && Math.abs(userAnswer - expected) <= tolerance + 1e-9;
+                        let msg = '不正解です。';
+                        if (!fOk && !isTanCorrect) {
+                            msg += 'F と tan α の両方を計算し直してください。';
+                        } else if (!fOk) {
+                            msg += 'F の値を計算し直してください（tan α は正解）。';
+                        } else if (!isTanCorrect) {
+                            msg += 'tan α の値を計算し直してください（F は正解）。tan α ＝ F₂ ／ F₁ です。';
+                        }
+                        feedback.innerHTML = `<div style="margin-bottom: 10px;">${msg}</div>`;
+                    } else {
+                        feedback.innerHTML = `
+                            <div style="margin-bottom: 10px;">不正解です。もう一度入力してみてください。</div>
+                        `;
+                    }
                     feedback.classList.add('active');
                     // Don't save as failure yet — let student retry
                     // Re-enable input
-                    answerInput.value = '';
-                    answerInput.focus();
+                    if (is1_6) {
+                        // 間違っている方だけクリア。正解の方は残しておく
+                        const fOk2 = !isNaN(userAnswer) && Math.abs(userAnswer - expected) <= tolerance + 1e-9;
+                        const tanInputEl = document.getElementById('answerInputTanA');
+                        if (!fOk2) { answerInput.value = ''; }
+                        if (!isTanCorrect && tanInputEl) { tanInputEl.value = ''; }
+                        if (!fOk2) answerInput.focus();
+                        else if (tanInputEl) tanInputEl.focus();
+                    } else {
+                        answerInput.value = '';
+                        answerInput.focus();
+                    }
                 }
 
                 this.allAnswered = true;
