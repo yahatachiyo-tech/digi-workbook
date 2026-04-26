@@ -5161,24 +5161,88 @@
             }
 
             _svgInclinedAxisR(p) {
-                // 問8 用：軸 a（縦）+ 斜め r + 力 F（A 点で θ）
-                const W = 240, H = 200;
-                const ox = 60, oy = 30;
-                const a_px = 140;
-                const o2x = ox, o2y = oy + a_px;
-                const t = p.params.theta * Math.PI / 180;
-                const r_px = a_px * Math.sin(t);
-                const ax = ox + r_px * Math.cos(t), ay = o2y - r_px * Math.sin(t);
+                // 問8 用：先生指摘により全面書き直し（過去問の正しい構成に整合）。
+                //   構成: A(上) - 垂直バー a - O(下)。A 点に F、F₁(水平、AO に垂直)、F₂(垂直、AO 方向)。
+                //   θ = F と AO 軸（垂直）のなす角。F は A から右下方向。
+                //   r = O から F の作用線への垂線（直角マーク付き）。
+                //   r = a sin θ、F₁ = F sin θ、F₂ = F cos θ の幾何関係を視覚化。
+                const W = 320, H = 260;
+                const ax = 110, ay = 50;          // A 点（上）
+                const a_px = 150;                  // バー長（px、a を表現）
+                const ox = ax, oy = ay + a_px;    // O 点（下、A の真下）
+                const t = (p.params.theta || 60) * Math.PI / 180;
+                const sin_t = Math.sin(t), cos_t = Math.cos(t);
+                // F の表示長（バーの 0.7 倍程度）
+                const F_len = a_px * 0.75;
+                // F の方向: 垂直下 (0,+1) から CW に θ 回転 → (sin θ, cos θ)
+                const fx = ax + F_len * sin_t;
+                const fy = ay + F_len * cos_t;
+                // F₁ の長さ（同じスケール、水平方向）
+                const f1_len = F_len * sin_t;
+                // F₂ の長さ（同じスケール、垂直方向）
+                const f2_len = F_len * cos_t;
+                // F の作用線への O からの垂線の足
+                //   AO ベクトル = (0, a_px) を F̂=(sin θ, cos θ) 方向へ射影 → 射影スカラー = a_px * cos θ
+                //   足 = A + 射影スカラー * F̂ = (ax + a_px*cosθ*sinθ, ay + a_px*cos²θ)
+                const proj = a_px * cos_t;
+                const foot_x = ax + proj * sin_t;
+                const foot_y = ay + proj * cos_t;
+                // 足が F 矢印先端より遠い場合は破線で延長
+                const footBeyondF = proj > F_len;
+                // θ 弧（A 点で AO 下方向 → F 方向）
+                const arcR = 22;
+                const arcStartX = ax;
+                const arcStartY = ay + arcR;
+                const arcEndX = ax + arcR * sin_t;
+                const arcEndY = ay + arcR * cos_t;
+                // 直角マーク（足の所、F̂ 方向と r 方向のなす直角）
+                const ramSize = 8;
+                // 足から後方（-F̂）へ ramSize、足から O 方向へ ramSize の小さな L 字
+                const e1x = foot_x - ramSize * sin_t;
+                const e1y = foot_y - ramSize * cos_t;
+                const e2x = foot_x - ramSize * cos_t;
+                const e2y = foot_y + ramSize * sin_t;
+                const cornerX = e1x - ramSize * cos_t;
+                const cornerY = e1y + ramSize * sin_t;
                 return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" class="figure-svg">
-                    <line x1="${ox}" y1="${oy}" x2="${o2x}" y2="${o2y}" stroke="#000" stroke-width="1.5"/>
-                    <text x="${ox - 10}" y="${oy - 4}" font-size="10pt">A</text>
-                    <text x="${o2x - 10}" y="${o2y + 14}" font-size="10pt">O</text>
-                    <text x="${ox - 24}" y="${(oy + o2y) / 2}" font-size="10pt">a = ${p.params.a} mm</text>
-                    <line x1="${ox}" y1="${oy}" x2="${ax + 60}" y2="${ay - 20}" stroke="#d23a2a" stroke-width="2"/>
-                    <text x="${ax + 50}" y="${ay - 26}" font-size="10pt">F = ${p.params.F} N</text>
-                    <text x="${ox + 12}" y="${oy + 22}" font-size="9pt">θ = ${p.params.theta}°</text>
-                    <line x1="${o2x}" y1="${o2y}" x2="${ax}" y2="${ay}" stroke="#888" stroke-width="1" stroke-dasharray="2,2"/>
-                    <text x="${(o2x + ax) / 2 + 6}" y="${(o2y + ay) / 2 + 4}" font-size="10pt">r</text>
+                    <defs>
+                        <marker id="m8F" markerWidth="9" markerHeight="6" refX="8" refY="3" orient="auto">
+                            <polygon points="0,0 9,3 0,6" fill="#d23a2a"/>
+                        </marker>
+                        <marker id="m8C" markerWidth="6" markerHeight="5" refX="5" refY="2.5" orient="auto">
+                            <polygon points="0,0 6,2.5 0,5" fill="#b83a2a"/>
+                        </marker>
+                    </defs>
+                    <!-- AO バー（縦、実線） -->
+                    <line x1="${ax}" y1="${ay}" x2="${ox}" y2="${oy}" stroke="#000" stroke-width="1.5"/>
+                    <!-- A, O 点 + ラベル -->
+                    <circle cx="${ax}" cy="${ay}" r="2.5" fill="#000"/>
+                    <text x="${ax - 14}" y="${ay - 4}" font-size="10pt">A</text>
+                    <circle cx="${ox}" cy="${oy}" r="2.5" fill="#000"/>
+                    <text x="${ox - 14}" y="${oy + 14}" font-size="10pt">O</text>
+                    <!-- a ラベル（バー左側） -->
+                    <text x="${ax - 60}" y="${(ay + oy) / 2 + 4}" font-size="10pt">a = ${p.params.a} mm</text>
+                    <!-- F₁ 成分（A から水平右、破線、淡赤） -->
+                    <line x1="${ax}" y1="${ay}" x2="${ax + f1_len}" y2="${ay}" stroke="#b83a2a" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#m8C)"/>
+                    <text x="${ax + f1_len / 2 - 10}" y="${ay - 6}" font-size="9pt" fill="#b83a2a">F₁</text>
+                    <!-- F₂ 成分（A から下、破線、淡赤、AO バーと重ねず少しずらす） -->
+                    <line x1="${ax + 6}" y1="${ay}" x2="${ax + 6}" y2="${ay + f2_len}" stroke="#b83a2a" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#m8C)"/>
+                    <text x="${ax + 10}" y="${ay + f2_len - 6}" font-size="9pt" fill="#b83a2a">F₂</text>
+                    <!-- F 本体（A から右下、実線、赤） -->
+                    <line x1="${ax}" y1="${ay}" x2="${fx}" y2="${fy}" stroke="#d23a2a" stroke-width="2.5" marker-end="url(#m8F)"/>
+                    <text x="${fx + 6}" y="${fy + 4}" font-size="10pt" fill="#d23a2a">F = ${p.params.F} N</text>
+                    <!-- F の作用線が足を超える場合は破線で延長 -->
+                    ${footBeyondF ? `<line x1="${fx}" y1="${fy}" x2="${foot_x}" y2="${foot_y}" stroke="#d23a2a" stroke-width="1" stroke-dasharray="3,2" opacity="0.5"/>` : ''}
+                    <!-- θ 弧（A 点） -->
+                    <path d="M ${arcStartX} ${arcStartY} A ${arcR} ${arcR} 0 0 0 ${arcEndX} ${arcEndY}" fill="none" stroke="#333" stroke-width="1"/>
+                    <text x="${ax + 10}" y="${ay + arcR + 6}" font-size="9pt">θ = ${p.params.theta}°</text>
+                    <!-- r（O から足、破線、グレー） -->
+                    <line x1="${ox}" y1="${oy}" x2="${foot_x}" y2="${foot_y}" stroke="#666" stroke-width="1.5" stroke-dasharray="3,2"/>
+                    <text x="${(ox + foot_x) / 2 - 14}" y="${(oy + foot_y) / 2 + 4}" font-size="10pt" fill="#444">r</text>
+                    <!-- 直角マーク（足の所） -->
+                    <path d="M ${e1x} ${e1y} L ${cornerX} ${cornerY} L ${e2x} ${e2y}" fill="none" stroke="#333" stroke-width="1"/>
+                    <!-- 足の小さな黒丸 -->
+                    <circle cx="${foot_x}" cy="${foot_y}" r="1.5" fill="#444"/>
                 </svg>`;
             }
 
@@ -5341,7 +5405,13 @@
                     const data = EXAM_PREP_MASTER[this.examPrepCurrentExam];
                     const problem = data.problems[this.examPrepCurrentIdx];
                     if (titleEl) titleEl.textContent = `${data.meta.title} 問${problem.num}`;
-                    if (subtitleEl) subtitleEl.textContent = problem.title || (problem.titleTemplate || '');
+                    // titleTemplate のプレースホルダ {a}, {F}, {theta} を problem.params で展開
+                    let subtitleText = problem.title || problem.titleTemplate || '';
+                    if (problem.params && problem.titleTemplate && !problem.title) {
+                        subtitleText = problem.titleTemplate.replace(/\{(\w+)\}/g, (_, k) =>
+                            problem.params[k] !== undefined ? problem.params[k] : `{${k}}`);
+                    }
+                    if (subtitleEl) subtitleEl.textContent = subtitleText;
                     content.innerHTML = this._renderExamSolveView(data, problem);
                     // 描画後、必要に応じて KaTeX を再走査
                     this.renderMathInElementById && this.renderMathInElementById('examPrepContent');
