@@ -1846,6 +1846,8 @@
                     </div>
                     <div class="menu-header-actions">
                         <button class="btn dashboard-btn" id="dashboardBtn" onclick="app.goToDashboard()" style="display:none;">ダッシュボード</button>
+                        <button class="btn dashboard-btn" id="prepPrintBtn" onclick="app.openPrepPrint('midterm-1')" style="display:none;">対策プリント</button>
+                        <button class="btn dashboard-btn" id="examPrintBtn" onclick="app.openExamPrint('midterm-1')" style="display:none;">考査問題</button>
                         <button class="btn logout-btn" onclick="app.logout()">ログアウト</button>
                     </div>
                 </div>
@@ -2877,6 +2879,250 @@
                 b: '数値が式に入ったら、あとは計算するだけです。式の形に注目しましょう。',
                 a: 's ＝ 速度の数値 × 時間の数値。この掛け算の答えが変位の値です。',
                 c: '教科書の例題で計算手順を確認してください。'
+            }
+        };
+
+        // ==================================================================
+        // 考査対策・考査問題マスターデータ（仕様書 §10〜§12）
+        // ==================================================================
+        // 1 つの問題マスターから 3 つの出力を生成：
+        //   A. 対策プリント（紙、B4）       — A_renderPrepPrint()
+        //   B. デジタル対策モード（自習）   — B_renderDigitalPrep()
+        //   C. 考査問題プリント（紙、B4）   — C_renderExamPrint()  ※A の数値違い + 実施日
+        //
+        // 各 problem の構造：
+        //   id, num                      — 問題 ID と大問番号
+        //   category                     — 'knowledge' | 'thinking'（知・技 or 思・判・表）
+        //   pattern                      — 仕様 §10 の 6 パターン
+        //   unitTags                     — 不正解時の誘導先単元（B で使用、複数可）
+        //   title                        — 大問の指示文
+        //   stems / subQuestions / blanks — 小問構造（pattern 別）
+        //   figureSvg                    — 図の生成方法（renderer 内のメソッド名）
+        //   params                       — 数値パラメータ
+        //   paramRanges                  — C で数値違い生成する範囲
+        //   expected                     — 期待解（B での自動採点と模範解答用）
+        //   workflow                     — 模範解答の途中式
+        //   points                       — 配点（大問計）
+        const EXAM_PREP_MASTER = {
+            'midterm-1': {
+                meta: {
+                    title: '1 学期中間考査',
+                    titleShort: '1学期中間考査',
+                    scope: '1 節 機械に働く力',
+                    year: '令和 8 年度',
+                    paperHeader: {
+                        prepTitle: '機械設計　令和 8 年度　1 学期中間考査対策プリント',
+                        examTitlePrefix: '機械設計　令和 8 年度　1 学期中間考査',
+                        classLabel: '1G'
+                    },
+                    instructions: '※導出過程も含めて計算結果が小数点以下第 2 位以上になる場合、小数点以下第 2 位を四捨五入して小数点以下第 1 位までで答えること。'
+                },
+                problems: [
+                    // 問1: 穴埋め用語（5空欄）/ 知・技
+                    {
+                        id: 'mp1-q1', num: 1, category: 'knowledge', pattern: 'fill-in-blank',
+                        unitTags: ['1-1', '1-2'], points: 5,
+                        title: '次の（　）に適切な語句を入れなさい。',
+                        stems: [
+                            '(1) 力とは、物体の（①）を変化させたり、物体の形をかえたりする原因となるものである。',
+                            '(2) 力を表すには、力の（②）、力の働く作用点と力の働く（③）を示す必要がある。',
+                            '(3) 力の方向を示す線を力の（④）という。',
+                            '(4) 力のように、大きさと向きをもつ量を（⑤）という。'
+                        ],
+                        blanks: [
+                            { id: '①', answer: '運動' },
+                            { id: '②', answer: '大きさ' },
+                            { id: '③', answer: '向き' },
+                            { id: '④', answer: '作用線' },
+                            { id: '⑤', answer: 'ベクトル' }
+                        ]
+                    },
+                    // 問2: 作図 1D 合成（同じ向き / 逆向き）/ 知・技
+                    {
+                        id: 'mp1-q2', num: 2, category: 'knowledge', pattern: 'drawing-1d',
+                        unitTags: ['1-3'], points: 4,
+                        title: '次の２つの力の合力 F を図示しなさい。',
+                        figureSvg: 'collinearPair',
+                        figures: [
+                            { sub: '(1)', case: 'same',     f1: 30, f2: 40, scaleN: 10, expected: { dir: 'right', mag: 70 } },
+                            { sub: '(2)', case: 'opposite', f1: 30, f2: 40, scaleN: 10, expected: { dir: 'left',  mag: 10 } }
+                        ]
+                    },
+                    // 問3: 作図 2D 合成（6 サブ）/ 知・技
+                    {
+                        id: 'mp1-q3', num: 3, category: 'knowledge', pattern: 'drawing-2d',
+                        unitTags: ['1-4'], points: 12,
+                        title: '次の２つの力の合力 F を図示しなさい。',
+                        figureSvg: 'twoForcesPair',
+                        figures: [
+                            { sub: '(1)', f1Angle:   0, f2Angle:  90, f1: 40, f2: 30 },
+                            { sub: '(2)', f1Angle:   0, f2Angle:  60, f1: 40, f2: 30 },
+                            { sub: '(3)', f1Angle:  90, f2Angle:   0, f1: 30, f2: 40 },
+                            { sub: '(4)', f1Angle: 180, f2Angle:  60, f1: 30, f2: 40 },
+                            { sub: '(5)', f1Angle:  60, f2Angle: 300, f1: 40, f2: 30 },
+                            { sub: '(6)', f1Angle:  30, f2Angle: 330, f1: 40, f2: 30 }
+                        ]
+                    },
+                    // 問4: 作図 分解（4 サブ）/ 知・技
+                    {
+                        id: 'mp1-q4', num: 4, category: 'knowledge', pattern: 'drawing-decompose',
+                        unitTags: ['1-5'], points: 8,
+                        title: '次の力を２つの分力 F₁ および F₂ に分解しなさい。',
+                        figureSvg: 'decomposePair',
+                        figures: [
+                            { sub: '(1)', fAngle:  60, fMag: 50, dir1Angle: 0,   dir2Angle: 90 },
+                            { sub: '(2)', fAngle:  30, fMag: 50, dir1Angle: 0,   dir2Angle: 90 },
+                            { sub: '(3)', fAngle: 300, fMag: 50, dir1Angle: 270, dir2Angle: 30 },
+                            { sub: '(4)', fAngle: 240, fMag: 50, dir1Angle: 180, dir2Angle: 270 }
+                        ]
+                    },
+                    // 問5: 計算 F + tan α（基本）/ 知・技
+                    {
+                        id: 'mp1-q5', num: 5, category: 'knowledge', pattern: 'calc-resultant',
+                        unitTags: ['1-6'], points: 7,
+                        title: '次の２力の合力 F の大きさと力 F₁ との成す角 tan α を計算で求めなさい。',
+                        figureSvg: 'rightTriangleFilled',
+                        params: { F1: 60, F2: 80 },
+                        paramRanges: {
+                            F1: { values: [30, 60, 90, 50] },
+                            F2: { values: [40, 80, 120, 120] }
+                        },
+                        expected: { F: 100, tanA: 1.3 },
+                        workflow: [
+                            'F = √(F₁² + F₂²) = √(60² + 80²) = √10000 = 100 [N]',
+                            'tan α = F₂/F₁ = 80/60 = 1.3'
+                        ],
+                        answerLabels: ['合力 F', '角度 tan α']
+                    },
+                    // 問6: 作図+計算（応用）/ 思・判・表
+                    {
+                        id: 'mp1-q6', num: 6, category: 'thinking', pattern: 'drawing-and-calc',
+                        unitTags: ['1-3', '1-6'], points: 8,
+                        title: '次の２力の合力 F を図示しなさい。また、合力 F の大きさと力 F₁ との成す角 tan α を計算で求めなさい。',
+                        figureSvg: 'rightTriangleEmpty',
+                        params: { F1: 80, F2: 50 },
+                        paramRanges: {
+                            F1: { values: [80, 60, 40] },
+                            F2: { values: [50, 80, 30] }
+                        },
+                        expected: { F: 94.3, tanA: 0.6 },
+                        workflow: [
+                            'F = √(F₁² + F₂²) = √(80² + 50²) = √8900 ≈ 94.3 [N]',
+                            'tan α = F₂/F₁ = 50/80 = 0.6'
+                        ],
+                        answerLabels: ['合力 F', '角度 tan α']
+                    },
+                    // 問7: モーメント（基本）/ 知・技
+                    {
+                        id: 'mp1-q7', num: 7, category: 'knowledge', pattern: 'calc-moment',
+                        unitTags: ['1-8'], points: 5,
+                        titleTemplate: '下図で、r = {r} mm、F = {F} N のとき、点 O のまわりの力 F のモーメントを求めよ。',
+                        figureSvg: 'wrenchOnBolt',
+                        params: { r: 350, F: 150 },
+                        paramRanges: {
+                            r: { values: [300, 350, 400, 250] },
+                            F: { values: [100, 150, 200] }
+                        },
+                        expected: { M: 52500 },
+                        unit: 'N·mm',
+                        workflow: ['M = F·r = 150 × 350 = 52500 [N·mm]'],
+                        answerLabels: ['M']
+                    },
+                    // 問8: 複合 (3 小問) / 思・判・表
+                    {
+                        id: 'mp1-q8', num: 8, category: 'thinking', pattern: 'composite',
+                        unitTags: ['1-7', '1-8'], points: 12,
+                        titleTemplate: '下図で、a = {a} mm、F = {F} N、θ = {theta}° のとき、次の問いに答えよ。',
+                        figureSvg: 'inclinedAxisR',
+                        params: { a: 250, F: 150, theta: 60 },
+                        paramRanges: {
+                            a: { values: [200, 250, 300] },
+                            F: { values: [100, 150, 200] },
+                            theta: { values: [30, 45, 60] }
+                        },
+                        subQuestions: [
+                            { sub: '(1)', title: '力 F の分力 F₁ の大きさを求めよ。',
+                              expected: 129.9, formula: 'F₁ = F sin θ',
+                              workflow: ['sin θ = 高さ／斜辺 = F₁/F より', 'F₁ = F × sin θ = 150 × sin 60° = 129.9 [N]'],
+                              unit: 'N', points: 4 },
+                            { sub: '(2)', title: '図中の r の長さを求めよ。',
+                              expected: 216.5, formula: 'r = a sin θ',
+                              workflow: ['sin θ = 高さ／斜辺 = r/a より', 'r = a × sin θ = 250 × sin 60° = 216.5 [mm]'],
+                              unit: 'mm', points: 4 },
+                            { sub: '(3)', title: '点 O のまわりの力 F のモーメントを求めよ。',
+                              expected: 32475, formula: 'M = F·r',
+                              workflow: ['M = F·r = 150 × 216.5 = 32475 [N·mm]'],
+                              unit: 'N·mm', points: 4 }
+                        ]
+                    },
+                    // 問9: 偶力（基本）/ 知・技
+                    {
+                        id: 'mp1-q9', num: 9, category: 'knowledge', pattern: 'calc-couple',
+                        unitTags: ['1-9'], points: 4,
+                        titleTemplate: '下図で、F = {F} N、d = {d} mm のとき、偶力のモーメントを求めよ。',
+                        figureSvg: 'handleWheelCouple',
+                        params: { F: 100, d: 150 },
+                        paramRanges: {
+                            F: { values: [50, 100, 150] },
+                            d: { values: [100, 150, 200] }
+                        },
+                        expected: { M: 15000 },
+                        unit: 'N·mm',
+                        workflow: ['M = F·d = 100 × 150 = 15000 [N·mm]'],
+                        answerLabels: ['M']
+                    },
+                    // 問10: 斜面分解 / 思・判・表
+                    {
+                        id: 'mp1-q10', num: 10, category: 'thinking', pattern: 'incline-decompose',
+                        unitTags: ['1-7'], points: 6,
+                        titleTemplate: '下図のように、{F} N の力が斜面に働いている。この力を斜面に平行および垂直な２力に分解したときのそれぞれの大きさを求めよ。',
+                        figureSvg: 'inclineForceTriangle',
+                        params: { F: 200, theta: 30 },
+                        paramRanges: {
+                            F: { values: [100, 200, 300] },
+                            theta: { values: [30, 45, 60] }
+                        },
+                        expected: { F1: 100, F2: 173.2 },
+                        unit: 'N',
+                        workflow: [
+                            'sin θ = 高さ／斜辺 = F₁/F より F₁ = F × sin θ = 200 × sin 30° = 100 [N]',
+                            'cos θ = 底辺／斜辺 = F₂/F より F₂ = F × cos θ = 200 × cos 30° = 173.2 [N]'
+                        ],
+                        answerLabels: ['平行な分力 F₁', '垂直な分力 F₂']
+                    },
+                    // 問11: ハンドル偶力（応用）/ 思・判・表
+                    {
+                        id: 'mp1-q11', num: 11, category: 'thinking', pattern: 'calc-couple-applied',
+                        unitTags: ['1-9'], points: 5,
+                        titleTemplate: '直径 {D} mm のハンドル車を、両手で、おのおの {F} N の力で回したとき、偶力のモーメントを求めよ。',
+                        params: { D: 350, F: 50 },
+                        paramRanges: {
+                            D: { values: [300, 350, 400] },
+                            F: { values: [40, 50, 60] }
+                        },
+                        expected: { M: 17500 },
+                        unit: 'N·mm',
+                        workflow: ['M = F·d = 50 × 350 = 17500 [N·mm]（d はハンドルの直径）'],
+                        answerLabels: ['M']
+                    },
+                    // 問12: 複合モーメント（符号付き）/ 思・判・表
+                    {
+                        id: 'mp1-q12', num: 12, category: 'thinking', pattern: 'signed-moment',
+                        unitTags: ['1-8'], points: 8,
+                        title: '下図のように、点 A、B にそれぞれ力が働くとき、点 O まわりの力のモーメント M を求めよ。',
+                        figureSvg: 'lShapeFrame',
+                        params: { Fa: 60, ra: 150, Fb: 60, rb: 200 },
+                        expected: { Ma: 9000, Mb: 12000, Mtotal: 3000 },
+                        unit: 'N·mm',
+                        workflow: [
+                            '点 A に働く力のモーメント MA = F·r = 60 × 150 = 9000 [N·mm]（半時計回り）',
+                            '点 B に働く力のモーメント MB = F·r = 60 × 200 = 12000 [N·mm]（時計回り）',
+                            '時計回りを正（+）として、点 O まわりの力のモーメントは',
+                            'M = (−MA) + MB = −9000 + 12000 = 3000 [N·mm]（時計回り）'
+                        ],
+                        answerLabels: ['M']
+                    }
+                ]
             }
         };
 
@@ -3944,11 +4190,14 @@
                     ? '教員'
                     : `${this.currentUser.number}番 ${this.currentUser.lastName} ${this.currentUser.firstName}`;
 
-                // 教員モードなら「ダッシュボード」ボタンを表示（生徒は非表示）
+                // 教員モードなら「ダッシュボード」「対策プリント」「考査問題」を表示（生徒は非表示）
                 const dashBtn = document.getElementById('dashboardBtn');
-                if (dashBtn) {
-                    dashBtn.style.display = this.isTeacherMode() ? 'inline-block' : 'none';
-                }
+                const prepBtn = document.getElementById('prepPrintBtn');
+                const examBtn = document.getElementById('examPrintBtn');
+                const teacher = this.isTeacherMode();
+                if (dashBtn) dashBtn.style.display = teacher ? 'inline-block' : 'none';
+                if (prepBtn) prepBtn.style.display = teacher ? 'inline-block' : 'none';
+                if (examBtn) examBtn.style.display = teacher ? 'inline-block' : 'none';
 
                 const unitList = document.getElementById('unitList');
                 unitList.innerHTML = '';
@@ -4004,6 +4253,628 @@
                     clearInterval(this.dashboardTimer);
                     this.dashboardTimer = null;
                 }
+            }
+
+            // ==================================================================
+            // 対策プリント・考査問題プリント生成（仕様書 §11, §12）
+            // ==================================================================
+            //   openPrepPrint(examKey):  対策プリント（A）を新しいウィンドウで開く
+            //   openExamPrint(examKey):  考査問題プリント（C）を新しいウィンドウで開く
+            //   両者とも EXAM_PREP_MASTER から問題データを取得し、新しいウィンドウに
+            //   B4 印刷用 HTML を書き出す。生徒・先生ともにブラウザの印刷機能で
+            //   PDF 保存または直接印刷する想定。
+            //   B4 サイズは @page で指定。KaTeX は CDN から再ロード。
+            //   教員モード限定で動作（isTeacherMode() でガード）。
+
+            openPrepPrint(examKey) {
+                if (!this.isTeacherMode()) return;
+                const data = (typeof EXAM_PREP_MASTER !== 'undefined') ? EXAM_PREP_MASTER[examKey] : null;
+                if (!data) { alert('対策プリントのデータが見つかりません: ' + examKey); return; }
+                // 模範解答版か通常版か選択
+                const showAnswers = confirm('模範解答版を開きますか？\n[OK] = 模範解答版／[キャンセル] = 配布用（空欄）');
+                const html = this._buildPrintHTML(data, { mode: 'prep', showAnswers });
+                this._openPrintWindow(html, '対策プリント');
+            }
+
+            openExamPrint(examKey) {
+                if (!this.isTeacherMode()) return;
+                const data = (typeof EXAM_PREP_MASTER !== 'undefined') ? EXAM_PREP_MASTER[examKey] : null;
+                if (!data) { alert('考査問題のデータが見つかりません: ' + examKey); return; }
+                const date = prompt('実施日を入力してください（例: R08.5.12）', 'R08.5.12');
+                if (date === null) return;
+                const showAnswers = confirm('模範解答版を開きますか？\n[OK] = 模範解答版／[キャンセル] = 配布用（空欄）');
+                // 考査問題は対策の数値違いで生成
+                const examData = this._generateExamFromPrep(data);
+                const html = this._buildPrintHTML(examData, { mode: 'exam', showAnswers, date });
+                this._openPrintWindow(html, '考査問題');
+            }
+
+            _openPrintWindow(html, title) {
+                const w = window.open('', '_blank', 'width=1200,height=900');
+                if (!w) { alert('ポップアップがブロックされました。ブラウザの設定で許可してください。'); return; }
+                w.document.open();
+                w.document.write(html);
+                w.document.close();
+                w.document.title = title;
+            }
+
+            // C 用：A の paramRanges から数値違いの値をランダム選択して問題を再構成。
+            //   expected も再計算する。formula や workflow も新しい値で書き換え。
+            _generateExamFromPrep(prepData) {
+                const result = JSON.parse(JSON.stringify(prepData));  // deep clone
+                result.problems.forEach(p => {
+                    if (!p.paramRanges || !p.params) return;
+                    const newParams = {};
+                    Object.keys(p.paramRanges).forEach(key => {
+                        const range = p.paramRanges[key];
+                        if (range.values) {
+                            // 元の値と異なる値を優先選択
+                            const candidates = range.values.filter(v => v !== p.params[key]);
+                            const pool = candidates.length > 0 ? candidates : range.values;
+                            newParams[key] = pool[Math.floor(Math.random() * pool.length)];
+                        }
+                    });
+                    p.params = { ...p.params, ...newParams };
+                    // expected の再計算（pattern 別）
+                    this._recomputeExpected(p);
+                });
+                return result;
+            }
+
+            _recomputeExpected(p) {
+                const round1 = (x) => Math.round(x * 10) / 10;
+                if (p.pattern === 'calc-resultant' || p.pattern === 'drawing-and-calc') {
+                    const F1 = p.params.F1, F2 = p.params.F2;
+                    p.expected = { F: round1(Math.sqrt(F1 * F1 + F2 * F2)), tanA: round1(F2 / F1) };
+                    p.workflow = [
+                        `F = √(F₁² + F₂²) = √(${F1}² + ${F2}²) = √${F1 * F1 + F2 * F2} ≈ ${p.expected.F} [N]`,
+                        `tan α = F₂/F₁ = ${F2}/${F1} = ${p.expected.tanA}`
+                    ];
+                } else if (p.pattern === 'calc-moment') {
+                    const r = p.params.r, F = p.params.F;
+                    p.expected = { M: F * r };
+                    p.workflow = [`M = F·r = ${F} × ${r} = ${F * r} [N·mm]`];
+                } else if (p.pattern === 'calc-couple') {
+                    const F = p.params.F, d = p.params.d;
+                    p.expected = { M: F * d };
+                    p.workflow = [`M = F·d = ${F} × ${d} = ${F * d} [N·mm]`];
+                } else if (p.pattern === 'calc-couple-applied') {
+                    const D = p.params.D, F = p.params.F;
+                    p.expected = { M: F * D };
+                    p.workflow = [`M = F·d = ${F} × ${D} = ${F * D} [N·mm]（d はハンドルの直径）`];
+                } else if (p.pattern === 'incline-decompose') {
+                    const F = p.params.F, theta = p.params.theta;
+                    const sinT = Math.sin(theta * Math.PI / 180);
+                    const cosT = Math.cos(theta * Math.PI / 180);
+                    p.expected = { F1: round1(F * sinT), F2: round1(F * cosT) };
+                    p.workflow = [
+                        `sin θ = 高さ／斜辺 = F₁/F より F₁ = F × sin θ = ${F} × sin ${theta}° ≈ ${p.expected.F1} [N]`,
+                        `cos θ = 底辺／斜辺 = F₂/F より F₂ = F × cos θ = ${F} × cos ${theta}° ≈ ${p.expected.F2} [N]`
+                    ];
+                } else if (p.pattern === 'composite' && p.subQuestions) {
+                    // 問8 専用: a, F, theta から (1) F sin θ, (2) a sin θ, (3) F · r
+                    const a = p.params.a, F = p.params.F, theta = p.params.theta;
+                    const sinT = Math.sin(theta * Math.PI / 180);
+                    const F1 = round1(F * sinT);
+                    const r  = round1(a * sinT);
+                    const M  = Math.round(F * r);
+                    p.subQuestions[0].expected = F1;
+                    p.subQuestions[0].workflow = ['sin θ = 高さ／斜辺 = F₁/F より', `F₁ = F × sin θ = ${F} × sin ${theta}° ≈ ${F1} [N]`];
+                    p.subQuestions[1].expected = r;
+                    p.subQuestions[1].workflow = ['sin θ = 高さ／斜辺 = r/a より', `r = a × sin θ = ${a} × sin ${theta}° ≈ ${r} [mm]`];
+                    p.subQuestions[2].expected = M;
+                    p.subQuestions[2].workflow = [`M = F·r = ${F} × ${r} = ${M} [N·mm]`];
+                }
+            }
+
+            // ==================================================================
+            // プリント HTML 構築
+            // ==================================================================
+            _buildPrintHTML(data, opts) {
+                const meta = data.meta;
+                const isExam = opts.mode === 'exam';
+                const headerTitle = isExam
+                    ? `${meta.paperHeader.examTitlePrefix}（${opts.date}）`
+                    : meta.paperHeader.prepTitle;
+                const showAnswers = !!opts.showAnswers;
+                const answerBadge = showAnswers ? '<span style="margin-left:10px; padding:2px 8px; background:#d23a2a; color:#fff; font-size:11px; border-radius:3px;">模範解答版</span>' : '';
+                // 全問題 HTML を生成
+                const problemsHTML = data.problems.map(p => this._buildProblemHTML(p, { isExam, showAnswers })).join('\n');
+
+                return `<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>${isExam ? '考査問題' : '対策プリント'}</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.js"><\/script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"><\/script>
+<style>
+  @page { size: B4 portrait; margin: 12mm 14mm; }
+  @media print {
+      .no-print { display: none !important; }
+      .answer-shown { color: ${showAnswers ? '#c00' : 'transparent'} !important; }
+  }
+  body { font-family: 'Hiragino Mincho ProN', 'Yu Mincho', 'MS Mincho', serif; font-size: 11pt; line-height: 1.6; color: #000; margin: 0; padding: 16px; }
+  .print-toolbar { background:#f0f0f0; border:1px solid #ccc; padding:8px 12px; margin-bottom:14px; display:flex; gap:10px; align-items:center; }
+  .print-toolbar button { padding:6px 14px; cursor:pointer; }
+  .exam-page { max-width: 700px; margin: 0 auto; }
+  .header-row { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1.5px solid #000; padding-bottom: 4px; margin-bottom: 6px; }
+  .header-title { font-weight: bold; font-size: 13pt; border: 1px solid #000; padding: 2px 8px; display: inline-block; }
+  .header-name-area { font-size: 11pt; }
+  .score-table { border-collapse: collapse; font-size: 9pt; }
+  .score-table th, .score-table td { border: 1px solid #000; padding: 2px 8px; min-width: 32px; text-align: center; }
+  .instructions { font-size: 9pt; color: #333; margin-bottom: 10px; }
+  .problem { margin-bottom: 14px; page-break-inside: avoid; }
+  .problem-num { font-weight: bold; }
+  .problem-title { font-weight: normal; margin-bottom: 6px; }
+  .problem-category { font-size: 9pt; color: #444; margin-left: 6px; }
+  .problem-figures { display: flex; flex-wrap: wrap; gap: 12px; margin: 6px 0; align-items: flex-start; }
+  .problem-figures > div { font-size: 10pt; }
+  .answer-area { display: flex; gap: 14px; align-items: center; margin-top: 8px; flex-wrap: wrap; }
+  .answer-line { border-bottom: 1px solid #000; min-width: 80px; padding: 2px 6px; display: inline-block; }
+  .answer-box { border: 1px solid #000; padding: 3px 10px; min-width: 80px; text-align: center; display: inline-block; }
+  .blanks-table { border-collapse: collapse; margin-top: 6px; }
+  .blanks-table td { border: 1px solid #000; padding: 4px 12px; min-width: 60px; text-align: center; font-size: 10pt; }
+  .answer-shown { color: ${showAnswers ? '#c00' : 'transparent'}; font-weight: ${showAnswers ? 'bold' : 'normal'}; }
+  .workflow { font-size: 9pt; color: #c00; line-height: 1.5; margin-top: 4px; padding-left: 14px; display: ${showAnswers ? 'block' : 'none'}; }
+  .workflow div { margin-bottom: 2px; }
+  .figure-svg { display: block; }
+  .figure-caption { font-size: 9pt; text-align: center; }
+  h1 { font-size: 14pt; margin: 0; }
+  hr { border: none; border-top: 1px solid #999; margin: 12px 0; }
+</style>
+</head>
+<body>
+  <div class="print-toolbar no-print">
+    <button onclick="window.print()">印刷 / PDF 保存</button>
+    <button onclick="window.close()">閉じる</button>
+    <span style="margin-left:auto; color:#666;">ブラウザの「印刷 → PDF として保存」で配布用ファイルが作れます。</span>
+  </div>
+  <div class="exam-page">
+    <div class="header-row">
+      <div>
+        <span class="header-title">機械設計</span>
+        <span style="margin-left:6px;">${headerTitle.replace('機械設計　', '')}</span>${answerBadge}
+        <span style="margin-left:14px;">${meta.paperHeader.classLabel}（　　）番　氏名（　　　　　　　　）</span>
+      </div>
+      ${isExam ? this._buildScoreTable() : ''}
+    </div>
+    <div class="instructions">${meta.instructions}</div>
+    ${problemsHTML}
+  </div>
+</body>
+</html>`;
+            }
+
+            _buildScoreTable() {
+                return `
+                <table class="score-table">
+                    <tr><th>総合</th><th>知・技</th><th>思・判・表</th></tr>
+                    <tr><td>　</td><td>　</td><td>　</td></tr>
+                </table>`;
+            }
+
+            _buildProblemHTML(p, opts) {
+                const showAnswers = opts.showAnswers;
+                const cat = p.category === 'knowledge' ? '（知識・技術）' : '（思考・判断・表現）';
+                // タイトル（テンプレート展開）
+                let title = p.title || p.titleTemplate || '';
+                if (p.params && p.titleTemplate) {
+                    title = p.titleTemplate.replace(/\{(\w+)\}/g, (_, k) => p.params[k] !== undefined ? p.params[k] : `{${k}}`);
+                }
+                // パターン別ボディ
+                let body = '';
+                switch (p.pattern) {
+                    case 'fill-in-blank':       body = this._renderFillInBlank(p, showAnswers); break;
+                    case 'drawing-1d':          body = this._renderDrawing1D(p, showAnswers); break;
+                    case 'drawing-2d':          body = this._renderDrawing2D(p, showAnswers); break;
+                    case 'drawing-decompose':   body = this._renderDrawingDecompose(p, showAnswers); break;
+                    case 'calc-resultant':      body = this._renderCalcResultant(p, showAnswers); break;
+                    case 'drawing-and-calc':    body = this._renderDrawingAndCalc(p, showAnswers); break;
+                    case 'calc-moment':         body = this._renderCalcMoment(p, showAnswers); break;
+                    case 'composite':           body = this._renderComposite(p, showAnswers); break;
+                    case 'calc-couple':         body = this._renderCalcCouple(p, showAnswers); break;
+                    case 'incline-decompose':   body = this._renderInclineDecompose(p, showAnswers); break;
+                    case 'calc-couple-applied': body = this._renderCalcCoupleApplied(p, showAnswers); break;
+                    case 'signed-moment':       body = this._renderSignedMoment(p, showAnswers); break;
+                    default: body = '<div style="color:#888;">（未対応 pattern: ' + p.pattern + '）</div>';
+                }
+                return `
+                <div class="problem">
+                    <div class="problem-title">
+                        <span class="problem-num">問 ${p.num}</span>　${title}<span class="problem-category">${cat}</span>
+                    </div>
+                    ${body}
+                </div>`;
+            }
+
+            // ----- 各 pattern のレンダラ -----
+            _renderFillInBlank(p, showAnswers) {
+                const stems = (p.stems || []).map(s => `<div>${s}</div>`).join('');
+                const cells = (p.blanks || []).map(b =>
+                    `<td>${b.id}</td><td><span class="answer-shown">${b.answer}</span></td>`
+                ).join('');
+                return `
+                ${stems}
+                <table class="blanks-table">
+                    <tr>${cells}</tr>
+                </table>`;
+            }
+
+            _renderDrawing1D(p, showAnswers) {
+                const figs = (p.figures || []).map(f => {
+                    const svg = this._svgCollinear(f, showAnswers);
+                    return `<div><div class="figure-caption">${f.sub}</div>${svg}</div>`;
+                }).join('');
+                return `<div class="problem-figures">${figs}</div>`;
+            }
+
+            _renderDrawing2D(p, showAnswers) {
+                const figs = (p.figures || []).map(f => {
+                    const svg = this._svgTwoForces2D(f, showAnswers);
+                    return `<div><div class="figure-caption">${f.sub}</div>${svg}</div>`;
+                }).join('');
+                return `<div class="problem-figures">${figs}</div>`;
+            }
+
+            _renderDrawingDecompose(p, showAnswers) {
+                const figs = (p.figures || []).map(f => {
+                    const svg = this._svgDecompose(f, showAnswers);
+                    return `<div><div class="figure-caption">${f.sub}</div>${svg}</div>`;
+                }).join('');
+                return `<div class="problem-figures">${figs}</div>`;
+            }
+
+            _renderCalcResultant(p, showAnswers) {
+                const fig = this._svgRightTriangleFilled(p);
+                const wf = (p.workflow || []).map(s => `<div>${s}</div>`).join('');
+                return `
+                ${fig}
+                <div class="answer-area">
+                    <span>合力 F ＝</span><span class="answer-box answer-shown">${p.expected.F}</span><span>[N]</span>
+                    <span>　角度 tan α ＝</span><span class="answer-box answer-shown">${p.expected.tanA}</span>
+                </div>
+                <div class="workflow">${wf}</div>`;
+            }
+
+            _renderDrawingAndCalc(p, showAnswers) {
+                const fig = this._svgRightTriangleEmpty(p, showAnswers);
+                const wf = (p.workflow || []).map(s => `<div>${s}</div>`).join('');
+                return `
+                ${fig}
+                <div class="answer-area">
+                    <span>合力 F ＝</span><span class="answer-box answer-shown">${p.expected.F}</span><span>[N]</span>
+                    <span>　角度 tan α ＝</span><span class="answer-box answer-shown">${p.expected.tanA}</span>
+                </div>
+                <div class="workflow">${wf}</div>`;
+            }
+
+            _renderCalcMoment(p, showAnswers) {
+                const fig = this._svgWrenchOnBolt(p);
+                const wf = (p.workflow || []).map(s => `<div>${s}</div>`).join('');
+                return `
+                ${fig}
+                <div class="answer-area">
+                    <span>M ＝</span><span class="answer-box answer-shown">${p.expected.M}</span><span>[${p.unit}]</span>
+                </div>
+                <div class="workflow">${wf}</div>`;
+            }
+
+            _renderComposite(p, showAnswers) {
+                const fig = this._svgInclinedAxisR(p);
+                const subs = (p.subQuestions || []).map(sq => {
+                    const wf = (sq.workflow || []).map(s => `<div>${s}</div>`).join('');
+                    return `
+                    <div style="margin-top:6px;">
+                        <span>${sq.sub}</span>　${sq.title}
+                        <div class="answer-area">
+                            <span>答え：</span><span class="answer-box answer-shown">${sq.expected}</span><span>[${sq.unit}]</span>
+                        </div>
+                        <div class="workflow">${wf}</div>
+                    </div>`;
+                }).join('');
+                return `${fig}${subs}`;
+            }
+
+            _renderCalcCouple(p, showAnswers) {
+                const fig = this._svgHandleWheelCouple(p);
+                const wf = (p.workflow || []).map(s => `<div>${s}</div>`).join('');
+                return `
+                ${fig}
+                <div class="answer-area">
+                    <span>M ＝</span><span class="answer-box answer-shown">${p.expected.M}</span><span>[${p.unit}]</span>
+                </div>
+                <div class="workflow">${wf}</div>`;
+            }
+
+            _renderInclineDecompose(p, showAnswers) {
+                const fig = this._svgInclineForceTriangle(p);
+                const wf = (p.workflow || []).map(s => `<div>${s}</div>`).join('');
+                return `
+                ${fig}
+                <div class="answer-area">
+                    <span>平行な分力 F₁ ＝</span><span class="answer-box answer-shown">${p.expected.F1}</span><span>[${p.unit}]</span>
+                    <span>　垂直な分力 F₂ ＝</span><span class="answer-box answer-shown">${p.expected.F2}</span><span>[${p.unit}]</span>
+                </div>
+                <div class="workflow">${wf}</div>`;
+            }
+
+            _renderCalcCoupleApplied(p, showAnswers) {
+                const wf = (p.workflow || []).map(s => `<div>${s}</div>`).join('');
+                return `
+                <div class="answer-area">
+                    <span>M ＝</span><span class="answer-box answer-shown">${p.expected.M}</span><span>[${p.unit}]</span>
+                </div>
+                <div class="workflow">${wf}</div>`;
+            }
+
+            _renderSignedMoment(p, showAnswers) {
+                const fig = this._svgLShapeFrame(p);
+                const wf = (p.workflow || []).map(s => `<div>${s}</div>`).join('');
+                return `
+                ${fig}
+                <div class="answer-area">
+                    <span>M ＝</span><span class="answer-box answer-shown">${p.expected.Mtotal}</span><span>[${p.unit}]（時計回り）</span>
+                </div>
+                <div class="workflow">${wf}</div>`;
+            }
+
+            // ==================================================================
+            // 図 SVG 生成（プリント用、シンプル版。改良は Phase 2 後半で）
+            // ==================================================================
+            _svgCollinear(f, showAnswers) {
+                // 1D グリッド（10マス）+ 既存の F1, F2 矢印 + 答え F の矢印（showAnswers のみ）
+                const W = 240, H = 80, cell = 16;
+                const cx = W / 2, cy = H / 2;
+                const F1 = f.f1 / f.scaleN, F2 = f.f2 / f.scaleN;
+                let arrows = '';
+                // F1 矢印（赤）：右向き
+                const f1End = cx + F1 * cell;
+                arrows += `<line x1="${cx}" y1="${cy}" x2="${f1End}" y2="${cy}" stroke="#d23a2a" stroke-width="2" marker-end="url(#mEndR)"/>`;
+                // F2 矢印（赤）：same のとき右、opposite のとき左
+                if (f.case === 'same') {
+                    const f2Start = f1End;
+                    arrows += `<line x1="${f2Start}" y1="${cy}" x2="${f2Start + F2 * cell}" y2="${cy}" stroke="#d23a2a" stroke-width="2" marker-end="url(#mEndR)"/>`;
+                } else {
+                    arrows += `<line x1="${cx + F1 * cell}" y1="${cy}" x2="${cx + (F1 - F2) * cell}" y2="${cy}" stroke="#d23a2a" stroke-width="2" marker-end="url(#mEndR)"/>`;
+                }
+                // 答え：合力 F（青）
+                let answer = '';
+                if (showAnswers) {
+                    const cy2 = cy + 18;
+                    const dir = (f.expected && f.expected.dir === 'left') ? -1 : 1;
+                    const mag = (f.expected && f.expected.mag) ? f.expected.mag / f.scaleN : 0;
+                    const x2 = cx + dir * mag * cell;
+                    answer = `<line x1="${cx}" y1="${cy2}" x2="${x2}" y2="${cy2}" stroke="#1e5fa8" stroke-width="2" marker-end="url(#mEndB)"/>`;
+                }
+                // グリッド
+                let grid = '';
+                for (let i = 0; i < W / cell; i++) {
+                    grid += `<line x1="${i * cell}" y1="0" x2="${i * cell}" y2="${H}" stroke="#ddd" stroke-width="0.5"/>`;
+                }
+                for (let j = 0; j < H / cell; j++) {
+                    grid += `<line x1="0" y1="${j * cell}" x2="${W}" y2="${j * cell}" stroke="#ddd" stroke-width="0.5"/>`;
+                }
+                return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" class="figure-svg" style="border:1px solid #888;">
+                    <defs>
+                        <marker id="mEndR" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#d23a2a"/></marker>
+                        <marker id="mEndB" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#1e5fa8"/></marker>
+                    </defs>
+                    ${grid}
+                    <circle cx="${cx}" cy="${cy}" r="2" fill="#000"/>
+                    ${arrows}
+                    ${answer}
+                </svg>`;
+            }
+
+            _svgTwoForces2D(f, showAnswers) {
+                // 2D グリッド + F1, F2 矢印（角度・長さ指定）
+                const W = 200, H = 160, cell = 16;
+                const cx = W / 2, cy = H / 2;
+                const lenScale = 0.04;  // N → px 比
+                const f1Len = f.f1 * lenScale * cell;
+                const f2Len = f.f2 * lenScale * cell;
+                const a1 = f.f1Angle * Math.PI / 180;
+                const a2 = f.f2Angle * Math.PI / 180;
+                const x1 = cx + f1Len * Math.cos(a1), y1 = cy - f1Len * Math.sin(a1);
+                const x2 = cx + f2Len * Math.cos(a2), y2 = cy - f2Len * Math.sin(a2);
+                let grid = '';
+                for (let i = 0; i < W / cell; i++) grid += `<line x1="${i * cell}" y1="0" x2="${i * cell}" y2="${H}" stroke="#ddd" stroke-width="0.5"/>`;
+                for (let j = 0; j < H / cell; j++) grid += `<line x1="0" y1="${j * cell}" x2="${W}" y2="${j * cell}" stroke="#ddd" stroke-width="0.5"/>`;
+                let answer = '';
+                if (showAnswers) {
+                    const rx = (x1 + x2) / 2 * 2 - cx;
+                    const ry = (y1 + y2) / 2 * 2 - cy;
+                    answer = `<line x1="${cx}" y1="${cy}" x2="${rx}" y2="${ry}" stroke="#1e5fa8" stroke-width="2" stroke-dasharray="3,2" marker-end="url(#mEndB2)"/>`;
+                }
+                return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" class="figure-svg" style="border:1px solid #888;">
+                    <defs>
+                        <marker id="mEndR2" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#d23a2a"/></marker>
+                        <marker id="mEndB2" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#1e5fa8"/></marker>
+                    </defs>
+                    ${grid}
+                    <circle cx="${cx}" cy="${cy}" r="2" fill="#000"/>
+                    <line x1="${cx}" y1="${cy}" x2="${x1}" y2="${y1}" stroke="#d23a2a" stroke-width="2" marker-end="url(#mEndR2)"/>
+                    <line x1="${cx}" y1="${cy}" x2="${x2}" y2="${y2}" stroke="#d23a2a" stroke-width="2" marker-end="url(#mEndR2)"/>
+                    ${answer}
+                </svg>`;
+            }
+
+            _svgDecompose(f, showAnswers) {
+                // 元の力 F + 分解方向の破線（answer なら F1, F2 を実線で）
+                const W = 200, H = 160, cell = 16;
+                const cx = W / 2, cy = H / 2;
+                const lenScale = 0.06;
+                const fLen = f.fMag * lenScale * cell;
+                const fa = f.fAngle * Math.PI / 180;
+                const fx = cx + fLen * Math.cos(fa), fy = cy - fLen * Math.sin(fa);
+                let dirs = '';
+                [f.dir1Angle, f.dir2Angle].forEach(deg => {
+                    const a = deg * Math.PI / 180;
+                    const dx = cx + 60 * Math.cos(a), dy = cy - 60 * Math.sin(a);
+                    dirs += `<line x1="${cx}" y1="${cy}" x2="${dx}" y2="${dy}" stroke="#888" stroke-width="1" stroke-dasharray="3,2"/>`;
+                });
+                return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" class="figure-svg" style="border:1px solid #888;">
+                    <defs>
+                        <marker id="mEndR3" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#d23a2a"/></marker>
+                    </defs>
+                    <circle cx="${cx}" cy="${cy}" r="2" fill="#000"/>
+                    ${dirs}
+                    <line x1="${cx}" y1="${cy}" x2="${fx}" y2="${fy}" stroke="#d23a2a" stroke-width="2" marker-end="url(#mEndR3)"/>
+                </svg>`;
+            }
+
+            _svgRightTriangleFilled(p) {
+                // 直角三角形：F1（底辺、右向き）+ F2（高さ、上向き）+ F（斜辺、青）+ α（角度）
+                const W = 220, H = 180;
+                const ox = 50, oy = H - 40;
+                const f1px = 100, f2px = (p.params.F2 / p.params.F1) * f1px;
+                const x2 = ox + f1px, y2 = oy - f2px;
+                return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" class="figure-svg">
+                    <defs>
+                        <marker id="m4r" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#1e5fa8"/></marker>
+                        <marker id="m4d" markerWidth="6" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0,0 6,2.5 0,5" fill="#888"/></marker>
+                    </defs>
+                    <line x1="${ox}" y1="${oy}" x2="${ox + f1px}" y2="${oy}" stroke="#888" stroke-width="1.5" stroke-dasharray="2,2" marker-end="url(#m4d)"/>
+                    <line x1="${ox + f1px}" y1="${oy}" x2="${ox + f1px}" y2="${y2}" stroke="#888" stroke-width="1.5" stroke-dasharray="2,2" marker-end="url(#m4d)"/>
+                    <line x1="${ox}" y1="${oy}" x2="${x2}" y2="${y2}" stroke="#1e5fa8" stroke-width="2" marker-end="url(#m4r)"/>
+                    <text x="${ox + f1px + 6}" y="${oy + 12}" font-size="10pt">F₁ = ${p.params.F1} N</text>
+                    <text x="${ox + f1px + 6}" y="${(oy + y2) / 2}" font-size="10pt">F₂ = ${p.params.F2} N</text>
+                    <text x="${ox + f1px / 2 - 6}" y="${(oy + y2) / 2 - 6}" font-size="10pt" fill="#1e5fa8">F</text>
+                    <text x="${ox + 14}" y="${oy - 6}" font-size="9pt">α</text>
+                    <circle cx="${ox}" cy="${oy}" r="2" fill="#000"/>
+                    <text x="${ox - 12}" y="${oy + 14}" font-size="9pt">O</text>
+                </svg>`;
+            }
+
+            _svgRightTriangleEmpty(p, showAnswers) {
+                // 問6 用：F1 と F2 の矢印のみ表示。F は showAnswers の時のみ
+                const W = 220, H = 180;
+                const ox = 50, oy = H - 40;
+                const f1px = 100, f2px = (p.params.F2 / p.params.F1) * f1px;
+                const x2 = ox + f1px, y2 = oy - f2px;
+                let resultant = '';
+                if (showAnswers) {
+                    resultant = `<line x1="${ox}" y1="${oy}" x2="${x2}" y2="${y2}" stroke="#1e5fa8" stroke-width="2" marker-end="url(#m6b)" stroke-dasharray="3,2"/>
+                                 <text x="${ox + f1px / 2 - 6}" y="${(oy + y2) / 2 - 6}" font-size="10pt" fill="#1e5fa8">F</text>`;
+                }
+                return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" class="figure-svg">
+                    <defs>
+                        <marker id="m6r" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#d23a2a"/></marker>
+                        <marker id="m6b" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#1e5fa8"/></marker>
+                    </defs>
+                    <line x1="${ox}" y1="${oy}" x2="${ox + f1px}" y2="${oy}" stroke="#d23a2a" stroke-width="2" marker-end="url(#m6r)"/>
+                    <line x1="${ox + f1px}" y1="${oy}" x2="${ox + f1px}" y2="${y2}" stroke="#d23a2a" stroke-width="2" marker-end="url(#m6r)"/>
+                    ${resultant}
+                    <text x="${ox + f1px / 2 - 12}" y="${oy + 14}" font-size="10pt">F₁ = ${p.params.F1} N</text>
+                    <text x="${ox + f1px + 6}" y="${(oy + y2) / 2}" font-size="10pt">F₂ = ${p.params.F2} N</text>
+                    <circle cx="${ox}" cy="${oy}" r="2" fill="#000"/>
+                </svg>`;
+            }
+
+            _svgWrenchOnBolt(p) {
+                // シンプル化：回転中心 O、腕 r（横）、力 F（上向き）
+                const W = 240, H = 140;
+                const ox = 50, oy = H / 2;
+                const ax = ox + 130, ay = oy;
+                return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" class="figure-svg">
+                    <defs>
+                        <marker id="m7r" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#d23a2a"/></marker>
+                    </defs>
+                    <circle cx="${ox}" cy="${oy}" r="6" fill="none" stroke="#000" stroke-width="1.5"/>
+                    <line x1="${ox}" y1="${oy}" x2="${ax}" y2="${ay}" stroke="#888" stroke-width="1.5" stroke-dasharray="3,2"/>
+                    <line x1="${ax}" y1="${ay}" x2="${ax}" y2="${ay - 60}" stroke="#d23a2a" stroke-width="2" marker-end="url(#m7r)"/>
+                    <text x="${ox - 12}" y="${oy - 10}" font-size="10pt">O</text>
+                    <text x="${(ox + ax) / 2 - 6}" y="${oy + 14}" font-size="10pt">r = ${p.params.r} mm</text>
+                    <text x="${ax + 6}" y="${ay - 30}" font-size="10pt">F = ${p.params.F} N</text>
+                    <circle cx="${ax}" cy="${ay}" r="2" fill="#000"/>
+                    <text x="${ax + 4}" y="${ay + 14}" font-size="9pt">A</text>
+                </svg>`;
+            }
+
+            _svgInclinedAxisR(p) {
+                // 問8 用：軸 a（縦）+ 斜め r + 力 F（A 点で θ）
+                const W = 240, H = 200;
+                const ox = 60, oy = 30;
+                const a_px = 140;
+                const o2x = ox, o2y = oy + a_px;
+                const t = p.params.theta * Math.PI / 180;
+                const r_px = a_px * Math.sin(t);
+                const ax = ox + r_px * Math.cos(t), ay = o2y - r_px * Math.sin(t);
+                return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" class="figure-svg">
+                    <line x1="${ox}" y1="${oy}" x2="${o2x}" y2="${o2y}" stroke="#000" stroke-width="1.5"/>
+                    <text x="${ox - 10}" y="${oy - 4}" font-size="10pt">A</text>
+                    <text x="${o2x - 10}" y="${o2y + 14}" font-size="10pt">O</text>
+                    <text x="${ox - 24}" y="${(oy + o2y) / 2}" font-size="10pt">a = ${p.params.a} mm</text>
+                    <line x1="${ox}" y1="${oy}" x2="${ax + 60}" y2="${ay - 20}" stroke="#d23a2a" stroke-width="2"/>
+                    <text x="${ax + 50}" y="${ay - 26}" font-size="10pt">F = ${p.params.F} N</text>
+                    <text x="${ox + 12}" y="${oy + 22}" font-size="9pt">θ = ${p.params.theta}°</text>
+                    <line x1="${o2x}" y1="${o2y}" x2="${ax}" y2="${ay}" stroke="#888" stroke-width="1" stroke-dasharray="2,2"/>
+                    <text x="${(o2x + ax) / 2 + 6}" y="${(o2y + ay) / 2 + 4}" font-size="10pt">r</text>
+                </svg>`;
+            }
+
+            _svgHandleWheelCouple(p) {
+                // 偶力：円 + F 上下矢印
+                const W = 200, H = 160;
+                const cx = W / 2, cy = H / 2, R = 50;
+                return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" class="figure-svg">
+                    <defs>
+                        <marker id="m9r" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#d23a2a"/></marker>
+                    </defs>
+                    <circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="#888" stroke-width="2"/>
+                    <circle cx="${cx}" cy="${cy}" r="4" fill="#888"/>
+                    <line x1="${cx - R}" y1="${cy}" x2="${cx - R}" y2="${cy - 40}" stroke="#d23a2a" stroke-width="2" marker-end="url(#m9r)"/>
+                    <text x="${cx - R - 10}" y="${cy - 44}" font-size="10pt">F</text>
+                    <line x1="${cx + R}" y1="${cy}" x2="${cx + R}" y2="${cy + 40}" stroke="#d23a2a" stroke-width="2" marker-end="url(#m9r)"/>
+                    <text x="${cx + R + 4}" y="${cy + 50}" font-size="10pt">F</text>
+                    <line x1="${cx - R}" y1="${cy + 8}" x2="${cx + R}" y2="${cy + 8}" stroke="#888" stroke-width="1" stroke-dasharray="3,2"/>
+                    <text x="${cx + 10}" y="${cy + 22}" font-size="10pt">d = ${p.params.d} mm</text>
+                    <text x="${cx + R + 12}" y="${cy - 30}" font-size="9pt">F = ${p.params.F} N</text>
+                </svg>`;
+            }
+
+            _svgInclineForceTriangle(p) {
+                // 斜面 + 力 F（三角形図と斜面図の対応）
+                const W = 240, H = 160;
+                const t = p.params.theta;
+                const ox = 30, oy = H - 30, slope = 100;
+                const tr = t * Math.PI / 180;
+                const tx = ox + slope * Math.cos(tr), ty = oy - slope * Math.sin(tr);
+                return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" class="figure-svg">
+                    <defs>
+                        <marker id="m10r" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#d23a2a"/></marker>
+                    </defs>
+                    <line x1="${ox}" y1="${oy}" x2="${tx + 50}" y2="${oy}" stroke="#888" stroke-width="1.5"/>
+                    <line x1="${ox}" y1="${oy}" x2="${tx}" y2="${ty}" stroke="#000" stroke-width="2"/>
+                    <text x="${ox + 22}" y="${oy - 6}" font-size="9pt">${t}°</text>
+                    <line x1="${(tx + ox) / 2 + 6}" y1="${(ty + oy) / 2 - 6}" x2="${(tx + ox) / 2 + 6 - 30 * Math.sin(tr)}" y2="${(ty + oy) / 2 - 6 - 30 * Math.cos(tr)}" stroke="#d23a2a" stroke-width="2" marker-end="url(#m10r)"/>
+                    <text x="${(tx + ox) / 2 - 30}" y="${(ty + oy) / 2 - 16}" font-size="10pt">${p.params.F} N</text>
+                </svg>`;
+            }
+
+            _svgLShapeFrame(p) {
+                // L 形フレーム：A（左）と B（右下）に力、O（折れ点）
+                const W = 240, H = 180;
+                const ox = 90, oy = 80;
+                const ax = ox, ay = oy - 60, bx = ox + 80, by = oy;
+                return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" class="figure-svg">
+                    <defs>
+                        <marker id="m12r" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#d23a2a"/></marker>
+                    </defs>
+                    <path d="M ${ax} ${ay - 14} L ${ax} ${oy} L ${bx + 14} ${by}" stroke="#444" stroke-width="6" fill="none" stroke-linecap="round" opacity="0.4"/>
+                    <line x1="${ax}" y1="${ay}" x2="${ax - 50}" y2="${ay}" stroke="#d23a2a" stroke-width="2" marker-end="url(#m12r)"/>
+                    <text x="${ax - 64}" y="${ay - 4}" font-size="9pt">${p.params.Fa} N</text>
+                    <line x1="${bx}" y1="${by}" x2="${bx}" y2="${by + 50}" stroke="#d23a2a" stroke-width="2" marker-end="url(#m12r)"/>
+                    <text x="${bx + 6}" y="${by + 50}" font-size="9pt">${p.params.Fb} N</text>
+                    <text x="${ax - 12}" y="${ay - 4}" font-size="10pt">A</text>
+                    <text x="${bx + 4}" y="${by + 4}" font-size="10pt">B</text>
+                    <text x="${ox - 12}" y="${oy + 12}" font-size="10pt">O</text>
+                    <text x="${ax + 4}" y="${(ay + oy) / 2}" font-size="9pt">${p.params.ra}</text>
+                    <text x="${(ox + bx) / 2}" y="${oy + 14}" font-size="9pt">${p.params.rb}</text>
+                    <circle cx="${ox}" cy="${oy}" r="2" fill="#000"/>
+                </svg>`;
             }
 
             async fetchDashboardData() {
@@ -4701,25 +5572,47 @@
                         const valuesHTML = valueCards.map(c =>
                             `<div class="calc-value-card draggable-value" data-role="${c.role}" data-value="${c.value}">${c.label} ＝ ${c.value} ${c.unit}</div>`
                         ).join('');
-                        // 式の表示: 1-6 → F = √( [F₁]² + [F₂]² ) / 1-7 → Fx = [F] × [cos α] or Fy = [F] × [sin α] / 1-8 → M = [F] × [r] / 1-9 → M = [F] × [d]
-                        const slotLabel = { F1: 'F₁', F2: 'F₂', F: 'F', Fx: 'Fx', r: 'r', d: 'd', cosAlpha: 'cos α', sinAlpha: 'sin α' };
-                        const slotSpans = slots.map(role =>
-                            `<span class="calc-formula-input empty" data-slot="${role}" id="slot-${role}">${slotLabel[role] || role}</span>`
-                        );
-                        const formulaHTML = is1_6
-                            ? `F ＝ √( ${slotSpans[0]}<sup>2</sup> ＋ ${slotSpans[1]}<sup>2</sup> )`
-                            : is1_7
-                            ? `${problem.target} ＝ ${slotSpans[0]} × ${slotSpans[1]}`
-                            : is1_9
-                            ? `M ＝ ${slotSpans[0]} × ${slotSpans[1]}`
-                            : `M ＝ ${slotSpans[0]} × ${slotSpans[1]}`;
+                        // 式の表示: 1-6 → F = √( [F₁]² + [F₂]² ) と tan α = [F₂num]/[F₁den] の 2 式
+                        //         1-7 → Fx = [F] × [cos α] or Fy = [F] × [sin α]
+                        //         1-8 → M = [F] × [r] / 1-9 → M = [F] × [d]
+                        const slotLabel = { F1: 'F₁', F2: 'F₂', F: 'F', Fx: 'Fx', r: 'r', d: 'd', cosAlpha: 'cos α', sinAlpha: 'sin α', F1tan: 'F₁', F2tan: 'F₂' };
+                        const makeSlotSpan = (role, text) =>
+                            `<span class="calc-formula-input empty" data-slot="${role}" id="slot-${role}">${text || slotLabel[role] || role}</span>`;
+                        const slotSpans = slots.map(role => makeSlotSpan(role));
+                        let formulaHTML;
+                        let extraSlotRoles = [];   // 1-6 で追加する slot role（slotToCardRole 検証用）
+                        let slotToCardRoleMap = null;  // 1-6 用カスタム検証マップ
+                        if (is1_6) {
+                            // 2 式表示。tan α は縦分数（HTML の inline-block で表現）。
+                            const f1tanSlot = makeSlotSpan('F1tan');
+                            const f2tanSlot = makeSlotSpan('F2tan');
+                            formulaHTML = `
+                                <div style="display:flex; flex-direction:column; gap:24px; align-items:center;">
+                                    <div>F ＝ √( ${slotSpans[0]}<sup>2</sup> ＋ ${slotSpans[1]}<sup>2</sup> )</div>
+                                    <div style="display:flex; align-items:center; gap:10px;">
+                                        <span>tan α ＝</span>
+                                        <span style="display:inline-block; vertical-align:middle; text-align:center; line-height:1.2;">
+                                            <span style="display:block; padding-bottom:6px;">${f2tanSlot}</span>
+                                            <span style="display:block; border-top:2px solid #333; padding-top:6px;">${f1tanSlot}</span>
+                                        </span>
+                                    </div>
+                                </div>`;
+                            extraSlotRoles = ['F1tan', 'F2tan'];
+                            slotToCardRoleMap = { F1: 'F1', F2: 'F2', F1tan: 'F1', F2tan: 'F2' };
+                        } else if (is1_7) {
+                            formulaHTML = `${problem.target} ＝ ${slotSpans[0]} × ${slotSpans[1]}`;
+                        } else if (is1_9) {
+                            formulaHTML = `M ＝ ${slotSpans[0]} × ${slotSpans[1]}`;
+                        } else {
+                            formulaHTML = `M ＝ ${slotSpans[0]} × ${slotSpans[1]}`;
+                        }
                         content.innerHTML = header + staticCanvas1_6 + `
                             <div class="calc-stage-container">
                                 <div class="calc-question-text">それぞれの数値を、式の正しい場所に入れよう。</div>
                                 <div style="margin-bottom:14px; font-size:13px; color:#555;">
-                                    下の<strong>数値カード</strong>をタップしてから、式の中の<strong>空欄（黄色）</strong>をタップすると、そこに数値が入ります。
+                                    下の<strong>数値カード</strong>をタップしてから、式の中の<strong>空欄（黄色）</strong>をタップすると、そこに数値が入ります。${is1_6 ? '<br>1-6 は<strong>2 つの式</strong>に代入します（同じカードを 2 回タップして使えます）。' : ''}
                                 </div>
-                                <div class="calc-formula-display" style="font-size:22px;">
+                                <div class="calc-formula-display" style="font-size:22px; ${is1_6 ? 'flex-direction:column;' : ''}">
                                     ${formulaHTML}
                                 </div>
                                 <div style="display:flex; gap:12px; margin-top:16px; flex-wrap:wrap;">
@@ -4731,7 +5624,10 @@
                         // 汎用 substitutions: slot role をキーに null 初期化
                         this.calcInputs.substitutions = {};
                         slots.forEach(role => { this.calcInputs.substitutions[role] = null; });
+                        extraSlotRoles.forEach(role => { this.calcInputs.substitutions[role] = null; });
                         this.calcInputs.selectedCard = null;
+                        // 1-6 用：slot → card role 対応マップを保存（confirmSubstitution で使用）
+                        this.calcInputs.slotToCardRoleMap = slotToCardRoleMap;
                     } else {
                         // 2-1: 従来の v/t スロット
                         const valueCards = this.shuffleArray([
@@ -4777,12 +5673,17 @@
                         // 1-6 は F の値と tan α の値を 2 つの入力欄で受け取る
                         // （考査問5「F の大きさと tan α を計算で求めなさい」と同形式）。
                         // 2 つの KaTeX 式は flex-direction:column で縦並びに（calc-formula-display の display:flex を上書き）。
+                        // 有効数字: F は整数または小数第 1 位、tan α は小数第 1 位（小数第 2 位を四捨五入）。
                         content.innerHTML = header + staticCanvas1_6 + `
                             <div class="calc-stage-container">
                                 <div class="calc-question-text">合力 F の大きさと tan α を計算してください（電卓を使って構いません）。</div>
                                 <div class="calc-formula-display" style="flex-direction:column; line-height:2.0;">
                                     <div style="margin-bottom:8px;">$F = \\sqrt{${problem.f1}^{\\,2} + ${problem.f2}^{\\,2}} = {\\color{#c62828}?}\\ \\mathrm{[N]}$</div>
                                     <div>$\\tan\\alpha = \\dfrac{${problem.f2}}{${problem.f1}} = {\\color{#c62828}?}$</div>
+                                </div>
+                                <div style="background:#eef3fa; border-left:3px solid #4a7cbe; padding:8px 12px; border-radius:3px; margin:8px 0 10px; font-size:12px; line-height:1.6; color:#333;">
+                                    <strong>有効数字</strong>：計算結果が小数点以下第 2 位以上になる場合、第 2 位を四捨五入して<strong>小数第 1 位まで</strong>で答えてください。<br>
+                                    例：tan α ＝ 80 ÷ 60 ＝ 1.333... → <strong>1.3</strong>。
                                 </div>
                                 <div class="calc-input-row" style="margin-bottom:10px;">
                                     <span class="calc-input-label">答え：F ＝</span>
@@ -4791,7 +5692,7 @@
                                 </div>
                                 <div class="calc-input-row">
                                     <span class="calc-input-label">　　　tan α ＝</span>
-                                    <input type="number" id="answerInputTanA" class="calc-answer-input" placeholder="数値" style="width:120px;" step="0.1">
+                                    <input type="number" id="answerInputTanA" class="calc-answer-input" placeholder="数値（小数第 1 位）" style="width:170px;" step="0.1">
                                 </div>
                             </div>
                         `;
@@ -5418,6 +6319,19 @@
                     const s = (rm && rm.size) ? rm.size : 10;
                     // F₁ は水平右向き、F₂' は垂直上向きを前提（1-6 の全問題でこの配置）
                     svg += `<path d="M ${f1.x2 - s},${f1.y2} L ${f1.x2 - s},${f1.y2 - s} L ${f1.x2},${f1.y2 - s}" fill="none" stroke="#333" stroke-width="1.5"/>`;
+                    // 角 α の弧マーク（F₁ と F のなす角）+ ラベル
+                    //   F₁ 方向 = 水平右向き、F 方向 = 原点 O から F₂' 終点へ
+                    //   atan2 で α を計算（math 角度。screen-y 反転を考慮）
+                    const alphaRad = Math.atan2(o.y - f2pY2, f2pX2 - o.x);
+                    const arcR = 28;
+                    const arcEndX = o.x + arcR * Math.cos(alphaRad);
+                    const arcEndY = o.y - arcR * Math.sin(alphaRad);
+                    svg += `<path d="M ${o.x + arcR} ${o.y} A ${arcR} ${arcR} 0 0 0 ${arcEndX} ${arcEndY}" fill="none" stroke="#333" stroke-width="1.5"/>`;
+                    // α ラベル（弧の中央外側）
+                    const labelR = arcR + 12;
+                    const labelX = o.x + labelR * Math.cos(alphaRad / 2);
+                    const labelY = o.y - labelR * Math.sin(alphaRad / 2) + 4;
+                    svg += `<text x="${labelX}" y="${labelY}" font-size="13" fill="#333" font-family="sans-serif" font-weight="600">α</text>`;
                 } else {
                     // F₂（垂直）
                     svg += `<line x1="${f2.x1}" y1="${f2.y1}" x2="${f2.x2}" y2="${f2.y2}" stroke="${f2.color}" stroke-width="2.5" marker-end="url(#stc16-red2)"/>`;
@@ -5937,6 +6851,19 @@
                   <!-- 合力 F（斜辺・青、初期 opacity 0） -->
                   <line id="anim16-resultant" x1="${o.x}" y1="${o.y}" x2="${f2pX2}" y2="${f2pY2}" stroke="#1e5fa8" stroke-width="3" marker-end="url(#anim16-blue)" opacity="0"/>
                   <text id="anim16-resultant-label" x="${fLx}" y="${fLy}" font-size="13" fill="#1e5fa8" font-family="sans-serif" font-weight="600" opacity="0">F（合力）</text>
+                  <!-- 角 α の弧 + ラベル（合力 F と一緒にフェードイン）。
+                       F₁（水平右向き）と F（O→F₂' 終点）のなす角を表す。 -->`;
+                const alphaRad16 = Math.atan2(o.y - f2pY2, f2pX2 - o.x);
+                const arcR16 = 28;
+                const arcEndX16 = o.x + arcR16 * Math.cos(alphaRad16);
+                const arcEndY16 = o.y - arcR16 * Math.sin(alphaRad16);
+                const labelR16 = arcR16 + 12;
+                const labelX16 = o.x + labelR16 * Math.cos(alphaRad16 / 2);
+                const labelY16 = o.y - labelR16 * Math.sin(alphaRad16 / 2) + 4;
+                svg += `
+                  <path id="anim16-alpha-arc" d="M ${o.x + arcR16} ${o.y} A ${arcR16} ${arcR16} 0 0 0 ${arcEndX16} ${arcEndY16}" fill="none" stroke="#333" stroke-width="1.5" opacity="0"/>
+                  <text id="anim16-alpha-label" x="${labelX16}" y="${labelY16}" font-size="13" fill="#333" font-family="sans-serif" font-weight="600" opacity="0">α</text>`;
+                svg += `
                   <!-- 作用点 O -->
                   <circle cx="${o.x}" cy="${o.y}" r="4" fill="#333"/>
                   <text x="${o.x - 16}" y="${o.y + 16}" font-size="12" fill="#333" font-family="sans-serif">O</text>
@@ -5996,7 +6923,7 @@
                         rightAngle.setAttribute('opacity', '1');
                     }
                 }, 820);
-                // 1200ms 後: 合力 F とラベルをフェードイン
+                // 1200ms 後: 合力 F とラベル + 角 α 弧 + α ラベルをフェードイン
                 setTimeout(() => {
                     if (resultant) {
                         resultant.style.transition = 'opacity 0.4s ease-in';
@@ -6005,6 +6932,16 @@
                     if (resultantLabel) {
                         resultantLabel.style.transition = 'opacity 0.4s ease-in';
                         resultantLabel.setAttribute('opacity', '1');
+                    }
+                    const alphaArc = document.getElementById('anim16-alpha-arc');
+                    const alphaLabel = document.getElementById('anim16-alpha-label');
+                    if (alphaArc) {
+                        alphaArc.style.transition = 'opacity 0.4s ease-in';
+                        alphaArc.setAttribute('opacity', '1');
+                    }
+                    if (alphaLabel) {
+                        alphaLabel.style.transition = 'opacity 0.4s ease-in';
+                        alphaLabel.setAttribute('opacity', '1');
                     }
                 }, 1200);
             }
@@ -8794,7 +9731,8 @@
                 const sub = this.calcInputs.substitutions;
                 const feedback = document.getElementById('stageFeedback');
                 // 汎用化: slot role 名をキーに、slot === role（自己一致）のとき正解。
-                //   2-1: {v:'v', t:'t'}、1-6: {F1:'F1', F2:'F2'}、1-7: {F:'F', Fx:'Fx'}
+                //   2-1: {v:'v', t:'t'}、1-6: {F1:'F1', F2:'F2', F1tan:'F1', F2tan:'F2'}（マップ経由）、
+                //   1-7: {F:'F', Fx:'Fx'}
                 const slotRoles = Object.keys(sub);
                 const slotEls = {};
                 const slotLabels = {
@@ -8802,14 +9740,21 @@
                     F1: 'F₁', F2: 'F₂',
                     F: 'F', Fx: 'Fx',
                     r: 'r', d: 'd',
-                    cosAlpha: 'cos α', sinAlpha: 'sin α'
+                    cosAlpha: 'cos α', sinAlpha: 'sin α',
+                    F1tan: 'F₁', F2tan: 'F₂'
                 };
                 slotRoles.forEach(r => { slotEls[r] = document.getElementById('slot-' + r); });
                 // Reset visual state
                 slotRoles.forEach(r => { if (slotEls[r]) slotEls[r].classList.remove('correct', 'incorrect'); });
 
+                // 1-6 は slot 名と card role が異なる（F1tan slot には F1 card）。
+                //   slotToCardRoleMap が設定されていればそれを使い、そうでなければ自己一致で判定。
+                const roleMap = this.calcInputs.slotToCardRoleMap;
                 const perSlotCorrect = {};
-                slotRoles.forEach(r => { perSlotCorrect[r] = (sub[r] === r); });
+                slotRoles.forEach(r => {
+                    const expected = roleMap && roleMap[r] ? roleMap[r] : r;
+                    perSlotCorrect[r] = (sub[r] === expected);
+                });
                 const allCorrect = slotRoles.every(r => perSlotCorrect[r]);
 
                 if (allCorrect) {
