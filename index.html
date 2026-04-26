@@ -2165,12 +2165,20 @@
                     </div>
                     <div class="dashboard-actions">
                         <button class="btn btn-secondary" onclick="app.fetchDashboardData()">今すぐ更新</button>
+                        <button class="btn btn-secondary" onclick="app.sendTestLoginLog()">テスト送信</button>
+                        <button class="btn btn-secondary" onclick="app.toggleRawLogsView()">生ログ表示</button>
                         <button class="btn btn-secondary" onclick="app.backToMenuFromDashboard()">メニューに戻る</button>
                     </div>
                 </div>
 
                 <!-- (c) 全体統計 -->
                 <div class="dashboard-stats" id="dashboardStats"></div>
+
+                <!-- 生ログ表示エリア（デバッグ用、デフォルト非表示） -->
+                <div class="dashboard-section" id="rawLogsSection" style="display:none;">
+                    <div class="dashboard-section-title">生ログ（GAS から取得した JSON）</div>
+                    <pre id="rawLogsContent" style="background:#1e1e1e; color:#d4d4d4; padding:12px; border-radius:4px; font-family:monospace; font-size:12px; max-height:400px; overflow:auto; white-space:pre-wrap; word-break:break-all;"></pre>
+                </div>
 
                 <!-- (a) ログイン状況グリッド -->
                 <div class="dashboard-section">
@@ -11264,6 +11272,64 @@
             // 匿名ログ送信（GAS Web App 経由）
             // 仕様書§13.1 準拠：氏名・学校名・クラス名は絶対に送信しない、出席番号のみ
             // 教員モード（40番）は送信しない、サイレント失敗
+            // 教員モードからのテスト送信用：教員モードチェックをスキップして送信。
+            //   ダッシュボードの「テスト送信」ボタンから呼ぶ。生徒には公開されない。
+            //   送信内容を console に出力するので、ブラウザのコンソールで送信状況を確認可能。
+            async sendTestLoginLog() {
+                if (!this.isTeacherMode()) return;
+                if (!LOG_ENDPOINT) {
+                    alert('LOG_ENDPOINT が未設定です。');
+                    return;
+                }
+                const payload = {
+                    timestamp: new Date().toISOString(),
+                    student_id: 99,  // 教員テスト用の特殊な student_id
+                    unit_id: '',
+                    problem_id: '',
+                    stage: 'login',
+                    is_correct: '',
+                    hint_level_used: 'none',
+                    hint_count: 0,
+                    elapsed_seconds: 0,
+                    level: '基礎',
+                    answer: '',
+                    note: 'teacher-test-' + new Date().toISOString().slice(11, 19)
+                };
+                console.log('[sendTestLoginLog] sending:', payload);
+                try {
+                    const resp = await fetch(LOG_ENDPOINT, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        keepalive: true,
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify(payload)
+                    });
+                    console.log('[sendTestLoginLog] response (opaque due to no-cors):', resp);
+                    alert('テストログを送信しました。\n\n10〜30 秒後に「今すぐ更新」を押して、student_id=99 の login ログが届いているか「生ログ表示」で確認してください。\n\n届いていなければ、GAS doPost が動作していない可能性があります（実行履歴の確認が必要）。');
+                } catch (e) {
+                    console.error('[sendTestLoginLog] error:', e);
+                    alert('送信エラー: ' + e.message);
+                }
+            }
+
+            // 生ログを表示／非表示切替（デバッグ用）
+            toggleRawLogsView() {
+                const section = document.getElementById('rawLogsSection');
+                if (!section) return;
+                const isHidden = section.style.display === 'none';
+                section.style.display = isHidden ? 'block' : 'none';
+                if (isHidden) {
+                    const content = document.getElementById('rawLogsContent');
+                    if (content) {
+                        const logs = this.dashboardLastLogs || [];
+                        content.textContent = JSON.stringify({
+                            count: logs.length,
+                            logs: logs
+                        }, null, 2);
+                    }
+                }
+            }
+
             sendLog(payload) {
                 // 教員モード（40番）は送信しない
                 if (this.isTeacherMode()) return;
@@ -11286,10 +11352,13 @@
                 });
                 // サイレント送信（失敗しても無視）
                 // mode: 'no-cors' で Content-Type を text/plain にすることで CORS preflight を回避
+                // keepalive: true でナビゲーション中も送信を継続させる（ログイン後の goToMenu() 等で
+                //   ページ遷移しても fetch が中断されないようにするため）
                 try {
                     fetch(LOG_ENDPOINT, {
                         method: 'POST',
                         mode: 'no-cors',
+                        keepalive: true,
                         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                         body: body
                     }).catch(() => {});
