@@ -2309,11 +2309,13 @@
                 stage1Correct: 'angle_given',
                 stage2Text: '力 F を直角な 2 方向（水平と垂直）に分解するとき、三角比を使って次のように求められます。<br>水平成分 <strong>Fx ＝ F × cos α</strong>、垂直成分 <strong>Fy ＝ F × sin α</strong><br>（α は力 F が水平面となす角度）',
                 formula: 'F_x = F \\times \\cos \\alpha',
+                // 新フロー（2026-04-26 再構成）：Stage 3 で F と α をカードで代入。
+                //   trig 値（cos α 等）は Stage 4 で別途求める。
                 substitutions: {
-                    slots: ['F', 'cosAlpha'],
+                    slots: ['F', 'angle'],
                     cards: [
-                        { role: 'F',        label: 'F',     value: 100,   unit: 'N' },
-                        { role: 'cosAlpha', label: 'cos α', value: 0.866, unit: '' }
+                        { role: 'F',     label: 'F', value: 100, unit: 'N' },
+                        { role: 'angle', label: 'α', value: 30,  unit: '°' }
                     ]
                 }
             },
@@ -2347,10 +2349,10 @@
                 stage2Text: '力 F を直角な 2 方向（水平と垂直）に分解するとき、三角比を使って次のように求められます。<br>水平成分 <strong>Fx ＝ F × cos α</strong>、垂直成分 <strong>Fy ＝ F × sin α</strong><br>（α は力 F が水平面となす角度）',
                 formula: 'F_y = F \\times \\sin \\alpha',
                 substitutions: {
-                    slots: ['F', 'sinAlpha'],
+                    slots: ['F', 'angle'],
                     cards: [
-                        { role: 'F',        label: 'F',     value: 80,    unit: 'N' },
-                        { role: 'sinAlpha', label: 'sin α', value: 0.707, unit: '' }
+                        { role: 'F',     label: 'F', value: 80, unit: 'N' },
+                        { role: 'angle', label: 'α', value: 45, unit: '°' }
                     ]
                 }
             },
@@ -2384,10 +2386,10 @@
                 stage2Text: '力 F を直角な 2 方向（水平と垂直）に分解するとき、三角比を使って次のように求められます。<br>水平成分 <strong>Fx ＝ F × cos α</strong>、垂直成分 <strong>Fy ＝ F × sin α</strong><br>（α は力 F が水平面となす角度）',
                 formula: 'F_x = F \\times \\cos \\alpha',
                 substitutions: {
-                    slots: ['F', 'cosAlpha'],
+                    slots: ['F', 'angle'],
                     cards: [
-                        { role: 'F',        label: 'F',     value: 200, unit: 'N' },
-                        { role: 'cosAlpha', label: 'cos α', value: 0.5, unit: '' }
+                        { role: 'F',     label: 'F', value: 200, unit: 'N' },
+                        { role: 'angle', label: 'α', value: 60,  unit: '°' }
                     ]
                 }
             },
@@ -2421,10 +2423,10 @@
                 stage2Text: '力 F を直角な 2 方向（水平と垂直）に分解するとき、三角比を使って次のように求められます。<br>水平成分 <strong>Fx ＝ F × cos α</strong>、垂直成分 <strong>Fy ＝ F × sin α</strong><br>（α は力 F が水平面となす角度）',
                 formula: 'F_y = F \\times \\sin \\alpha',
                 substitutions: {
-                    slots: ['F', 'sinAlpha'],
+                    slots: ['F', 'angle'],
                     cards: [
-                        { role: 'F',        label: 'F',     value: 50,  unit: 'N' },
-                        { role: 'sinAlpha', label: 'sin α', value: 0.5, unit: '' }
+                        { role: 'F',     label: 'F', value: 50, unit: 'N' },
+                        { role: 'angle', label: 'α', value: 30, unit: '°' }
                     ]
                 }
             }
@@ -2456,8 +2458,8 @@
                 c: '教科書28ページ 式(2-6) を確認してください。'
             },
             stage3: {
-                b: '問題文に書かれた「F = ○○ N」と「α = ○○°」の値を、上の式の F と α の場所にそれぞれ書き入れます。',
-                a: '例：問題文が「F = 100 N、α = 30°」なら、式 Fx = F × cos α に代入して Fx = 100 × cos 30°。 cos 30° の値を求めるのは次のステップ。',
+                b: '下の数値カード（F の値と α の値）をタップしてから、式の中の空欄をタップすると、そこにカードの数値が入ります。',
+                a: '例：問題文が「F = 100 N、α = 30°」なら、F の空欄にカード「F ＝ 100 N」、α の空欄にカード「α ＝ 30°」を入れて Fx = 100 × cos 30° を作ります。 cos 30° の値を求めるのは次のステップ。',
                 c: '教科書28ページ 例題で、力の大きさと角度を式に代入する流れを確認してください。'
             },
             stage4: {
@@ -5074,38 +5076,46 @@
                     this.renderMathInProblemArea();
                 }
                 else if (stageIndex === 3) {
-                    // Stage 3（NEW）: 力 F と角度 α を式に代入する。
-                    //   問題文の F の値と α の値を読み取り、上の式の F・α の位置にそれぞれ
-                    //   入力させる。正解で「${target} = ${F} × ${trig} ${angle}°」が確定する。
-                    //   次の Stage 4 で三角比の値（cos 30° 等）を求める展開につなげる。
-                    const trigSym = correctTrig === 'cos' ? 'cos α' : 'sin α';
+                    // Stage 3（NEW、2026-04-26 カード方式に統一）: 力 F と角度 α を式に代入する。
+                    //   他単元（1-6/1-8/1-9/2-1）と同じ「数値カード→式の空欄」方式で代入。
+                    //   problem.substitutions.cards から F・α のカードを生成し、式の F/angle スロットに
+                    //   タップで配置する。正解時に enteredF / enteredAlpha を保存し Stage 4 へ。
                     const trigPrefix = correctTrig === 'cos' ? 'cos' : 'sin';
+                    const cardsRaw = problem.substitutions.cards;
+                    const valueCards = this.shuffleArray([...cardsRaw]);
+                    const valuesHTML = valueCards.map(c =>
+                        `<div class="calc-value-card draggable-value" data-role="${c.role}" data-value="${c.value}">${c.label} ＝ ${c.value} ${c.unit}</div>`
+                    ).join('');
+                    // 式: ${target} = [F] × cos [α]°
+                    const fSlot = `<span class="calc-formula-input empty" data-slot="F" id="slot-F">F</span>`;
+                    const aSlot = `<span class="calc-formula-input empty" data-slot="angle" id="slot-angle">α</span>`;
                     content.innerHTML = header + staticCanvas + `
                         <div class="calc-stage-container">
-                            <div class="calc-question-text">問題文から <strong>F の値</strong> と <strong>α の値</strong> を読み取り、上の式に代入してください。</div>
-                            <div class="calc-formula-display" style="font-size:20px; line-height:2.0; margin:14px 0;">
-                                ${targetLabel} ＝ F × ${trigSym}
+                            <div class="calc-question-text">それぞれの数値を、式の正しい場所に入れよう。</div>
+                            <div style="margin-bottom:14px; font-size:13px; color:#555;">
+                                下の<strong>数値カード</strong>をタップしてから、式の中の<strong>空欄（黄色）</strong>をタップすると、そこに数値が入ります。
                             </div>
-                            <div style="margin:18px 0 8px; font-size:18px; line-height:2.2; display:flex; align-items:center; flex-wrap:wrap; gap:8px;">
-                                <span>${targetLabel} ＝</span>
-                                <input type="number" id="fSubstInput" class="calc-answer-input" placeholder="F の値" style="width:110px;" step="0.1">
-                                <span>×&nbsp;${trigPrefix}</span>
-                                <input type="number" id="angleSubstInput" class="calc-answer-input" placeholder="α の値" style="width:90px;" step="1">
-                                <span>°</span>
+                            <div class="calc-formula-display" style="font-size:22px;">
+                                ${targetLabel} ＝ ${fSlot} × ${trigPrefix} ${aSlot}°
                             </div>
-                            <div style="background:#eef3fa; border-left:3px solid #4a7cbe; padding:10px 14px; border-radius:3px; margin:10px 0 14px; font-size:13px; line-height:1.7; color:#333;">
-                                問題文に書かれている <strong>F = ○○ N</strong> と <strong>α = ○○°</strong> の数値を、それぞれの欄に入力します。三角比の値を求めるのは次のステップです。
+                            <div style="display:flex; gap:12px; margin-top:16px; flex-wrap:wrap;">
+                                ${valuesHTML}
                             </div>
                             <div id="stageFeedback" style="margin-top:12px; font-size:14px; min-height:20px;"></div>
                         </div>
                     `;
-                    setTimeout(() => {
-                        const inp = document.getElementById('fSubstInput');
-                        if (inp) inp.focus();
-                    }, 80);
+                    // substitutions tracking 初期化（共通ヘルパー fillSlotFromSelectedCard で使用）
+                    this.calcInputs.substitutions = { F: null, angle: null };
+                    this.calcInputs.selectedCard = null;
+                    document.querySelectorAll('.draggable-value').forEach(card => {
+                        card.onclick = () => this.selectValueCard(card);
+                    });
+                    document.querySelectorAll('.calc-formula-input[data-slot]').forEach(slot => {
+                        slot.onclick = () => this.fillSlotFromSelectedCard(slot);
+                    });
                     document.getElementById('controlButtons').innerHTML = `
                         <button class="btn hint-btn" onclick="app.showHint('calc_${this.currentProblemIndex}_stage3')">ヒント</button>
-                        <button class="check-btn" id="stage3ConfirmBtn" onclick="app.submitFAlphaSubst()">確認</button>
+                        <button class="check-btn" id="stage4ConfirmBtn" onclick="app.confirmFAlphaSubst()" disabled style="opacity:0.4;">確認</button>
                     `;
                 }
                 else if (stageIndex === 4) {
@@ -5298,52 +5308,41 @@
                 }
             }
 
-            // 1-7 Stage 3（NEW）: 力 F と角度 α の代入を判定。
-            //   問題文の F・α と入力値が一致したら、enteredF / enteredAlpha を保存し、
-            //   後続ステージで「Fx = ${F} × cos ${α}°」の形を引き継いで表示する。
-            //   tolerance: F は ±0.5（学習者の小数表記ぶれを許容）、α は ±0.5°（整数想定）。
-            submitFAlphaSubst() {
+            // 1-7 Stage 3（NEW、2026-04-26 カード方式）: 力 F と角度 α の代入を判定。
+            //   selectValueCard / fillSlotFromSelectedCard で this.calcInputs.substitutions に
+            //   { F: 'F'|'angle', angle: 'F'|'angle' } の形で保存されている前提。
+            //   F/angle ともに正しい slot に入っていれば正解。enteredF / enteredAlpha を保存し
+            //   Stage 4 で「${target} = ${F} × cos ${α}°」の形を引き継ぐ。
+            confirmFAlphaSubst() {
                 const problem = this.getCalcProblem();
-                const fInp = document.getElementById('fSubstInput');
-                const aInp = document.getElementById('angleSubstInput');
+                const sub = this.calcInputs.substitutions || {};
                 const feedback = document.getElementById('stageFeedback');
-                if (!fInp || !aInp) return;
-                const fVal = parseFloat(fInp.value);
-                const aVal = parseFloat(aInp.value);
-                if (isNaN(fVal) || isNaN(aVal)) {
-                    if (feedback) {
-                        feedback.style.color = '#c62828';
-                        feedback.textContent = 'F と α の値を両方入力してください。';
-                    }
-                    return;
-                }
-                const fOk = Math.abs(fVal - problem.f) <= 0.5 + 1e-9;
-                const aOk = Math.abs(aVal - problem.angle) <= 0.5 + 1e-9;
-                const trigSym = problem.correctTrigFunc === 'cos' ? 'cos α' : 'sin α';
+                const fSlot = document.getElementById('slot-F');
+                const aSlot = document.getElementById('slot-angle');
+                // visual reset
+                [fSlot, aSlot].forEach(el => { if (el) el.classList.remove('correct', 'incorrect'); });
+                const fOk = sub.F === 'F';
+                const aOk = sub.angle === 'angle';
                 const trigPrefix = problem.correctTrigFunc === 'cos' ? 'cos' : 'sin';
+                const targetLabel = problem.target === 'Fx' ? 'Fx' : 'Fy';
                 if (fOk && aOk) {
-                    this.calcInputs.enteredF = fVal;
-                    this.calcInputs.enteredAlpha = aVal;
+                    if (fSlot) fSlot.classList.add('correct');
+                    if (aSlot) aSlot.classList.add('correct');
+                    this.calcInputs.enteredF = problem.f;
+                    this.calcInputs.enteredAlpha = problem.angle;
                     if (feedback) {
                         feedback.style.color = '#2e7d32';
-                        const targetLabel = problem.target === 'Fx' ? 'Fx' : 'Fy';
-                        feedback.innerHTML = `正解。<strong>${targetLabel} ＝ ${fVal} × ${trigPrefix} ${aVal}°</strong> となりました。次のステップで ${trigPrefix} ${aVal}° の値を求めます。`;
+                        feedback.innerHTML = `正解。<strong>${targetLabel} ＝ ${problem.f} × ${trigPrefix} ${problem.angle}°</strong> となりました。次のステップで ${trigPrefix} ${problem.angle}° の値を求めます。`;
                     }
-                    fInp.disabled = true;
-                    aInp.disabled = true;
-                    const btn = document.getElementById('stage3ConfirmBtn');
+                    const btn = document.getElementById('stage4ConfirmBtn');
                     if (btn) { btn.textContent = '次へ'; btn.onclick = () => this.nextCalcStage(); }
                 } else {
+                    if (!fOk && fSlot) fSlot.classList.add('incorrect');
+                    if (!aOk && aSlot) aSlot.classList.add('incorrect');
                     if (feedback) {
                         feedback.style.color = '#c62828';
-                        let msg = '不正解。';
-                        if (!fOk) msg += `F の値を問題文「F = ○○ N」から読み取ってください。`;
-                        if (!fOk && !aOk) msg += ' ';
-                        if (!aOk) msg += `α の値を問題文「α = ○○°」から読み取ってください。`;
-                        feedback.textContent = msg;
+                        feedback.textContent = '不正解。F の空欄には「F ＝ ○○ N」のカード、α の空欄には「α ＝ ○○°」のカードを入れてください（単位 N と ° に注目）。';
                     }
-                    if (!fOk) { fInp.value = ''; fInp.focus(); }
-                    else if (!aOk) { aInp.value = ''; aInp.focus(); }
                 }
             }
 
