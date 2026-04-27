@@ -5247,22 +5247,61 @@
             }
 
             _svgHandleWheelCouple(p) {
-                // 偶力：円 + F 上下矢印
-                const W = 200, H = 160;
-                const cx = W / 2, cy = H / 2, R = 50;
+                // 問9 用：先生指摘により過去問の構成に合わせて書き直し。
+                //   ハンドル車（円 + スポーク 4 本）、対角配置の偶力 2 力（接線方向、anti-parallel）、
+                //   d は両グリップを結ぶ対角線（ハンドル直径）。
+                const W = 240, H = 200;
+                const cx = W / 2, cy = H / 2;
+                const R = 60;            // ハンドル外周半径
+                const Rh = 8;            // ハブ（中心軸）半径
+                const F_len = 36;        // F 矢印長
+                // グリップ位置：垂直から CW 30°
+                const a = 30 * Math.PI / 180;
+                const sin_a = Math.sin(a), cos_a = Math.cos(a);
+                // 上のグリップ（右上）と下のグリップ（左下）の位置
+                const g1x = cx + R * sin_a, g1y = cy - R * cos_a;  // 右上
+                const g2x = cx - R * sin_a, g2y = cy + R * cos_a;  // 左下
+                // 接線方向（CW 回転を与える偶力）：
+                //   右上グリップ at (R sin α, -R cos α)、半径方向 (sin α, -cos α)
+                //   時計回り tangent = (cos α, sin α)
+                const t1x = cos_a, t1y = sin_a;     // 右上での F 方向（右下方向）
+                const t2x = -cos_a, t2y = -sin_a;   // 左下での F 方向（左上方向、anti-parallel）
+                // F 矢印の終点
+                const f1ex = g1x + F_len * t1x, f1ey = g1y + F_len * t1y;
+                const f2ex = g2x + F_len * t2x, f2ey = g2y + F_len * t2y;
+                // スポーク（4 本、十字）
+                const spokes = [0, 90, 180, 270].map(deg => {
+                    const r = deg * Math.PI / 180;
+                    const sx = cx + Rh * Math.cos(r), sy = cy + Rh * Math.sin(r);
+                    const ex = cx + (R - 6) * Math.cos(r), ey = cy + (R - 6) * Math.sin(r);
+                    return `<line x1="${sx}" y1="${sy}" x2="${ex}" y2="${ey}" stroke="#888" stroke-width="2"/>`;
+                }).join('');
                 return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" class="figure-svg">
                     <defs>
-                        <marker id="m9r" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#d23a2a"/></marker>
+                        <marker id="m9r" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0,0 8,3 0,6" fill="#d23a2a"/>
+                        </marker>
                     </defs>
-                    <circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="#888" stroke-width="2"/>
-                    <circle cx="${cx}" cy="${cy}" r="4" fill="#888"/>
-                    <line x1="${cx - R}" y1="${cy}" x2="${cx - R}" y2="${cy - 40}" stroke="#d23a2a" stroke-width="2" marker-end="url(#m9r)"/>
-                    <text x="${cx - R - 10}" y="${cy - 44}" font-size="10pt">F</text>
-                    <line x1="${cx + R}" y1="${cy}" x2="${cx + R}" y2="${cy + 40}" stroke="#d23a2a" stroke-width="2" marker-end="url(#m9r)"/>
-                    <text x="${cx + R + 4}" y="${cy + 50}" font-size="10pt">F</text>
-                    <line x1="${cx - R}" y1="${cy + 8}" x2="${cx + R}" y2="${cy + 8}" stroke="#888" stroke-width="1" stroke-dasharray="3,2"/>
-                    <text x="${cx + 10}" y="${cy + 22}" font-size="10pt">d = ${p.params.d} mm</text>
-                    <text x="${cx + R + 12}" y="${cy - 30}" font-size="9pt">F = ${p.params.F} N</text>
+                    <!-- ハンドル外周（やや太め） -->
+                    <circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="#888" stroke-width="3"/>
+                    <!-- ハブ（中心軸） -->
+                    <circle cx="${cx}" cy="${cy}" r="${Rh}" fill="#888"/>
+                    <!-- スポーク -->
+                    ${spokes}
+                    <!-- 偶力 d（対角線、両グリップ間、グレー破線、両端ティック） -->
+                    <line x1="${g1x}" y1="${g1y}" x2="${g2x}" y2="${g2y}" stroke="#666" stroke-width="1.5" stroke-dasharray="4,3"/>
+                    <text x="${cx + 4}" y="${cy - 4}" font-size="10pt" fill="#444">d = ${p.params.d} mm</text>
+                    <!-- グリップを示す小さな黒丸 -->
+                    <circle cx="${g1x}" cy="${g1y}" r="3" fill="#000"/>
+                    <circle cx="${g2x}" cy="${g2y}" r="3" fill="#000"/>
+                    <!-- F 矢印（右上、F方向 = 右下接線、anti-parallel pair の片方） -->
+                    <line x1="${g1x}" y1="${g1y}" x2="${f1ex}" y2="${f1ey}" stroke="#d23a2a" stroke-width="2.5" marker-end="url(#m9r)"/>
+                    <text x="${f1ex + 6}" y="${f1ey + 4}" font-size="10pt" fill="#d23a2a">F</text>
+                    <!-- F 矢印（左下、F方向 = 左上接線、anti-parallel） -->
+                    <line x1="${g2x}" y1="${g2y}" x2="${f2ex}" y2="${f2ey}" stroke="#d23a2a" stroke-width="2.5" marker-end="url(#m9r)"/>
+                    <text x="${f2ex - 14}" y="${f2ey - 4}" font-size="10pt" fill="#d23a2a">F</text>
+                    <!-- F の値 -->
+                    <text x="${W - 80}" y="${H - 8}" font-size="9pt" fill="#666">F = ${p.params.F} N</text>
                 </svg>`;
             }
 
