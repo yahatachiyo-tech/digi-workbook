@@ -2380,8 +2380,8 @@
                 },
                 stage0Choices: [
                     { value: 'resultant',  label: '合力 F の大きさと、F₁ との成す角 tan α' },
-                    { value: 'decomposed', label: '分力 Fx, Fy' },
-                    { value: 'sum',        label: '2 力の和 F₁ ＋ F₂' }
+                    { value: 'difference', label: '2 力の差 F₁ − F₂' },
+                    { value: 'sum',        label: '2 力の単純和 F₁ ＋ F₂' }
                 ],
                 stage0Correct: 'resultant',
                 stage1Choices: [
@@ -2417,8 +2417,8 @@
                 },
                 stage0Choices: [
                     { value: 'resultant',  label: '合力 F の大きさと、F₁ との成す角 tan α' },
-                    { value: 'decomposed', label: '分力 Fx, Fy' },
-                    { value: 'sum',        label: '2 力の和 F₁ ＋ F₂' }
+                    { value: 'difference', label: '2 力の差 F₁ − F₂' },
+                    { value: 'sum',        label: '2 力の単純和 F₁ ＋ F₂' }
                 ],
                 stage0Correct: 'resultant',
                 stage1Choices: [
@@ -2454,8 +2454,8 @@
                 },
                 stage0Choices: [
                     { value: 'resultant',  label: '合力 F の大きさと、F₁ との成す角 tan α' },
-                    { value: 'decomposed', label: '分力 Fx, Fy' },
-                    { value: 'sum',        label: '2 力の和 F₁ ＋ F₂' }
+                    { value: 'difference', label: '2 力の差 F₁ − F₂' },
+                    { value: 'sum',        label: '2 力の単純和 F₁ ＋ F₂' }
                 ],
                 stage0Correct: 'resultant',
                 stage1Choices: [
@@ -2491,8 +2491,8 @@
                 },
                 stage0Choices: [
                     { value: 'resultant',  label: '合力 F の大きさと、F₁ との成す角 tan α' },
-                    { value: 'decomposed', label: '分力 Fx, Fy' },
-                    { value: 'sum',        label: '2 力の和 F₁ ＋ F₂' }
+                    { value: 'difference', label: '2 力の差 F₁ − F₂' },
+                    { value: 'sum',        label: '2 力の単純和 F₁ ＋ F₂' }
                 ],
                 stage0Correct: 'resultant',
                 stage1Choices: [
@@ -2750,7 +2750,7 @@
                 id: 1,
                 f: 10, r: 0.5, expectedMoment: 5, tolerance: 0.1, unit: 'N·m',
                 tool: 'eyeWrench',
-                sentence: '回転の中心 O から 0.5 m の距離にある点Aに、腕 OA に垂直に F ＝ 10 N の力が働いている。点 O のまわりの力のモーメント M の大きさを求めよ。',
+                sentence: '回転の中心 O から 0.5 m の距離にある点 A に F ＝ 10 N の力が働いている。力 F は線分 OA に対して垂直である。点 O のまわりの力のモーメント M の大きさを求めよ。<br><span style="font-size:11pt; color:#555;">※ 線分 OA（O から A までの距離 r）を「腕」とよびます。</span>',
                 condition: '基礎、F=10 N, r=0.5 m → M=5 N·m',
                 baselineTime: 90,
                 canvasType: '2d-static',
@@ -2930,7 +2930,7 @@
                 id: 1,
                 f: 10, d: 0.5, expectedCoupleMoment: 5, tolerance: 0.1, unit: 'N·m',
                 tool: 'wheel',
-                sentence: '大きさ F ＝ 10 N の 2 力が、逆向きで平行に、作用線間の距離 d ＝ 0.5 m をへだてて働いている（偶力）。この偶力のモーメント M の大きさを求めよ。',
+                sentence: '大きさ F ＝ 10 N の 2 力が、逆向きで平行に、作用線間の距離 d ＝ 0.5 m をへだてて働いている。この 2 力によって生じるモーメント M の大きさを求めよ。',
                 condition: '基礎、F=10 N, d=0.5 m → M=5 N·m',
                 baselineTime: 90,
                 canvasType: '2d-static',
@@ -2968,7 +2968,7 @@
                 id: 2,
                 f: 40, d: 0.3, expectedCoupleMoment: 12, tolerance: 0.1, unit: 'N·m',
                 tool: 'wheel',  // 1-9 統一: 全問ハンドル
-                sentence: '大きさ F ＝ 40 N の 2 力が、逆向きで平行に、作用線間の距離 d ＝ 0.3 m をへだてて働いている（偶力）。この偶力のモーメント M の大きさを求めよ。',
+                sentence: '大きさ F ＝ 40 N の 2 力が、逆向きで平行に、作用線間の距離 d ＝ 0.3 m をへだてて働いている。この 2 力によって生じるモーメント M の大きさを求めよ。',
                 condition: '基礎、F=40 N, d=0.3 m → M=12 N·m',
                 baselineTime: 90,
                 canvasType: '2d-static',
@@ -3005,7 +3005,7 @@
                 id: 3,
                 f: 25, d: 0.4, expectedCoupleMoment: 10, tolerance: 0.1, unit: 'N·m',
                 tool: 'wheel',  // 1-9 統一: 全問ハンドル
-                sentence: '大きさ F ＝ 25 N の 2 力が、逆向きで平行に、作用線間の距離 d ＝ 0.4 m をへだてて働いている（偶力）。この偶力のモーメント M の大きさを求めよ。',
+                sentence: '大きさ F ＝ 25 N の 2 力が、逆向きで平行に、作用線間の距離 d ＝ 0.4 m をへだてて働いている。この 2 力によって生じるモーメント M の大きさを求めよ。',
                 condition: '基礎、F=25 N, d=0.4 m → M=10 N·m',
                 baselineTime: 90,
                 canvasType: '2d-static',
@@ -3042,7 +3042,7 @@
                 id: 4,
                 f: 100, d: 0.15, expectedCoupleMoment: 15, tolerance: 0.1, unit: 'N·m',
                 tool: 'wheel',  // 1-9 統一: 全問ハンドル
-                sentence: '大きさ F ＝ 100 N の 2 力が、逆向きで平行に、作用線間の距離 d ＝ 0.15 m をへだてて働いている（偶力）。この偶力のモーメント M の大きさを求めよ。',
+                sentence: '大きさ F ＝ 100 N の 2 力が、逆向きで平行に、作用線間の距離 d ＝ 0.15 m をへだてて働いている。この 2 力によって生じるモーメント M の大きさを求めよ。',
                 condition: '教科書問12相当（単位をmに換算）、F=100 N, d=0.15 m → M=15 N·m',
                 baselineTime: 90,
                 canvasType: '2d-static',
@@ -5077,21 +5077,13 @@
             _svgRightTriangleFilled(p) {
                 // 問5 用：F₁ と F₂ を「両方とも原点 O から」描画（問題文時の正しい状態）。
                 //   F₁: 原点 O から右、F₂: 原点 O から上（共通の原点）。
-                //   F: 原点から斜辺の対角線方向（先生指摘により、平行移動済みの図を回避）。
-                //   α: 原点で F₁ と F のなす角。
+                //   合力 F は学生が計算で求める量のため、図には表示しない（spec-auditor HIGH-2 反映）。
                 const W = 220, H = 180;
                 const ox = 50, oy = H - 40;
                 const f1px = 100, f2px = (p.params.F2 / p.params.F1) * f1px;
-                const fEndX = ox + f1px, fEndY = oy - f2px;
-                // α の弧
-                const arcR = 22;
-                const alpha = Math.atan2(f2px, f1px);
-                const arcEndX = ox + arcR * Math.cos(alpha);
-                const arcEndY = oy - arcR * Math.sin(alpha);
                 return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" class="figure-svg">
                     <defs>
                         <marker id="m4r" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#d23a2a"/></marker>
-                        <marker id="m4b" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#1e5fa8"/></marker>
                     </defs>
                     <!-- F₁ from O going right (red solid) -->
                     <line x1="${ox}" y1="${oy}" x2="${ox + f1px}" y2="${oy}" stroke="#d23a2a" stroke-width="2.5" marker-end="url(#m4r)"/>
@@ -5099,12 +5091,6 @@
                     <!-- F₂ from O going up (red solid) -->
                     <line x1="${ox}" y1="${oy}" x2="${ox}" y2="${oy - f2px}" stroke="#d23a2a" stroke-width="2.5" marker-end="url(#m4r)"/>
                     <text x="${ox - 38}" y="${oy - f2px / 2}" font-size="10pt">F₂ = ${p.params.F2} N</text>
-                    <!-- F (resultant, blue diagonal from O) -->
-                    <line x1="${ox}" y1="${oy}" x2="${fEndX}" y2="${fEndY}" stroke="#1e5fa8" stroke-width="2" marker-end="url(#m4b)"/>
-                    <text x="${(ox + fEndX) / 2 + 4}" y="${(oy + fEndY) / 2 - 4}" font-size="11pt" fill="#1e5fa8" font-weight="bold">F</text>
-                    <!-- α arc at O -->
-                    <path d="M ${ox + arcR} ${oy} A ${arcR} ${arcR} 0 0 0 ${arcEndX} ${arcEndY}" fill="none" stroke="#333" stroke-width="1"/>
-                    <text x="${ox + arcR + 2}" y="${oy - 6}" font-size="9pt">α</text>
                     <!-- Origin O -->
                     <circle cx="${ox}" cy="${oy}" r="2.5" fill="#000"/>
                     <text x="${ox - 12}" y="${oy + 14}" font-size="9pt">O</text>
@@ -6111,7 +6097,10 @@
             }
 
             examPrepRetry() {
-                // 入力欄をクリアして再描画
+                // 「もう一度」: 類題を自動生成して再挑戦（丸暗記防止 / 仕様§9.1）
+                if (this.examPrepCurrentExam && this.examPrepCurrentIdx !== null && this.examPrepCurrentIdx !== undefined) {
+                    this._regenerateExamProblemVariant(this.examPrepCurrentExam, this.examPrepCurrentIdx);
+                }
                 this._renderExamPrepView();
             }
 
@@ -6898,7 +6887,7 @@
                             <div class="calc-stage-container">
                                 <div class="calc-question-text">それぞれの数値を、式の正しい場所に入れよう。</div>
                                 <div style="margin-bottom:14px; font-size:13px; color:#555;">
-                                    下の<strong>数値カード</strong>をタップしてから、式の中の<strong>空欄（黄色）</strong>をタップすると、そこに数値が入ります。単位に注目して対応を考えましょう。
+                                    下の<strong>数値カード</strong>をタップしてから、式の中の<strong>空欄（黄色）</strong>をタップすると、そこに数値が入ります。単位に注目して対応を確認してください。
                                 </div>
                                 <div class="calc-formula-display" style="font-size:22px;">
                                     s ＝ <span class="calc-formula-input empty" data-slot="v" id="slot-v">v</span> × <span class="calc-formula-input empty" data-slot="t" id="slot-t">t</span>
@@ -7041,7 +7030,7 @@
                                     この直角三角形に三平方の定理 <strong>F² ＝ F₁² ＋ F₂²</strong> を適用すると合力 F の大きさが、底辺 F₁ と高さ F₂ の比から <strong>tan α ＝ F₂ ／ F₁</strong> が求まります。
                                 </div>
                                 <div style="margin-top:14px; font-size:13px; color:#555;">
-                                    次の問題に進む前に、式と直角三角形の関係を頭の中で思い浮かべてみましょう。
+                                    次の問題に進む前に、式と直角三角形の関係を頭の中で思い浮かべてください。
                                 </div>
                             </div>
                         `;
@@ -7063,7 +7052,7 @@
                                     分解する力 F（青）と角度 α が分かっているとき、三角比で水平・垂直成分が求まります。
                                 </div>
                                 <div style="margin-top:14px; font-size:13px; color:#555;">
-                                    次の問題に進む前に、式と直角三角形の関係を頭の中で思い浮かべてみましょう。
+                                    次の問題に進む前に、式と直角三角形の関係を頭の中で思い浮かべてください。
                                 </div>
                             </div>
                         `;
@@ -7080,7 +7069,7 @@
                                     力のモーメントは「回転させるはたらきの強さ」を表し、単位は N·m（ニュートンメートル）です。腕が長いほど、また力が大きいほどモーメントは大きくなります。
                                 </div>
                                 <div style="margin-top:14px; font-size:13px; color:#555;">
-                                    次の問題に進む前に、式と回転の図を頭の中で思い浮かべてみましょう。
+                                    次の問題に進む前に、式と回転の図を頭の中で思い浮かべてください。
                                 </div>
                             </div>
                         `;
@@ -7097,7 +7086,7 @@
                                     偶力は合力が 0 でも、物体を回転させる働きが残ります。偶力のモーメントは回転中心の位置に依存しません。
                                 </div>
                                 <div style="margin-top:14px; font-size:13px; color:#555;">
-                                    次の問題に進む前に、式と偶力の図を頭の中で思い浮かべてみましょう。
+                                    次の問題に進む前に、式と偶力の図を頭の中で思い浮かべてください。
                                 </div>
                             </div>
                         `;
@@ -7114,7 +7103,7 @@
                                     速さ <strong>${problem.velocity} m/s</strong>（1秒間に ${problem.velocity} m 進む）の物体が、${problem.time} 秒間進むので、合計で ${problem.velocity} × ${problem.time} ＝ <strong>${ans} m</strong> という結果になります。
                                 </div>
                                 <div style="margin-top:14px; font-size:13px; color:#555;">
-                                    次の問題に進む前に、計算結果と場面の対応を頭の中で思い浮かべてみましょう。
+                                    次の問題に進む前に、計算結果と場面の対応を頭の中で思い浮かべてください。
                                 </div>
                             </div>
                         `;
@@ -7216,7 +7205,7 @@
                     const trigLatex = correctTrig === 'cos' ? '\\cos\\alpha' : '\\sin\\alpha';
                     content.innerHTML = header + `
                         <div class="calc-stage-container">
-                            <div class="calc-question-text">選んだ三角比から、求めたい量の式を導きましょう。</div>
+                            <div class="calc-question-text">選んだ三角比から、求めたい量の式を導いてください。</div>
                             <div style="background:#fafbfc; border:1px solid #e0e0e0; border-radius:4px; padding:18px 20px; margin:14px 0; font-size:17px; line-height:2.4;">
                                 <div style="display:flex; align-items:center; margin-bottom:14px;">
                                     <span style="min-width:90px; color:#666; font-size:13px;">ステップ 1</span>
@@ -7377,7 +7366,7 @@
                                 直角三角形を取り出し、斜辺 F と ${sideName} の関係から ${trigText} α を選び、教科書付録の値を引いて代入することで、分力の大きさが求まります。
                             </div>
                             <div style="margin-top:14px; font-size:13px; color:#555;">
-                                次の問題に進む前に、式と直角三角形の関係を頭の中で思い浮かべてみましょう。
+                                次の問題に進む前に、式と直角三角形の関係を頭の中で思い浮かべてください。
                             </div>
                         </div>
                     `;
@@ -8453,7 +8442,7 @@
                         const unit = problem.magnitudeUnit || 'N';
                         content.innerHTML = header + staticCanvas + `
                             <div class="calc-stage-container">
-                                <div class="calc-question-text">作図した合力の大きさを求めて、キーボードで入力してください。</div>
+                                <div class="calc-question-text">作図した合力の大きさを求めて入力してください。</div>
                                 <div style="font-size:13px; color:#555; margin-bottom:12px;">凡例（1マス = 10 N）をもとに矢印の長さを読み取り、計算して入力してください。</div>
                                 <div class="calc-input-row">
                                     <span class="calc-input-label">合力 F ＝</span>
@@ -10823,8 +10812,8 @@
                         feedback.style.color = '#c62828';
                         let msg;
                         if (is1_6) {
-                            if (value === 'decomposed') {
-                                msg = '不正解。分力 Fx, Fy を求めるのは「分解」の操作です（1-5）。この問題は 2 力を 1 つにまとめる「合成」です。';
+                            if (value === 'difference') {
+                                msg = '不正解。直角に交わる 2 力の場合、F₁ − F₂ の差では合力は求まりません（同じ作用線上で逆向きに働くときの式です）。';
                             } else if (value === 'sum') {
                                 msg = '不正解。直角に交わる 2 力の合力は、単純に F₁＋F₂ では求まりません（同じ向きならそれで正解）。';
                             } else {
