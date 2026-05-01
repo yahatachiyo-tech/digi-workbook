@@ -1781,6 +1781,18 @@
             background: #f0f0f0;
             color: #9a9a9a;
         }
+        /* 離脱（タブ閉じ・ブラウザ閉じ）— 黄色系 */
+        .dashboard-login-cell.status-leave {
+            background: #fff3cd;
+            border-color: #d4a017;
+            color: #7a5a00;
+        }
+        /* 明示的にログアウトした生徒 — 灰青系 */
+        .dashboard-login-cell.status-logout {
+            background: #e0e4ec;
+            border-color: #8a96aa;
+            color: #4a5468;
+        }
         .dashboard-login-cell.teacher {
             background: #fde8a3;
             border-color: #d3a500;
@@ -4213,6 +4225,31 @@
                 if (!this.currentUser) {
                     document.getElementById('nameInputSection').classList.add('active');
                 }
+
+                // タブ／ブラウザ閉じ・ページ遷移時に stage='leave' ログを送る
+                //   pagehide は iOS Safari やバックグラウンド化でも発火（beforeunload は発火しないことがある）
+                //   visibilitychange (hidden) はモバイルでホーム画面に戻ったとき等で発火
+                //   _leaveLogSent フラグで二重送信を防止
+                this._leaveLogSent = false;
+                const sendLeaveOnce = () => {
+                    if (this._leaveLogSent) return;
+                    if (!this.currentUser) return;
+                    if (this.isTeacherMode && this.isTeacherMode()) return;
+                    this._leaveLogSent = true;
+                    this._sendLeaveLog('unload');
+                };
+                window.addEventListener('pagehide', sendLeaveOnce);
+                window.addEventListener('beforeunload', sendLeaveOnce);
+                document.addEventListener('visibilitychange', () => {
+                    if (document.visibilityState === 'hidden') {
+                        // visibilitychange は復帰の可能性があるため送信後にフラグをリセットしない
+                        sendLeaveOnce();
+                    } else if (document.visibilityState === 'visible') {
+                        // 復帰時は次の hidden で再度送れるよう、フラグを戻しておく
+                        // （ただし pagehide / beforeunload の後はページが破棄されるので影響なし）
+                        this._leaveLogSent = false;
+                    }
+                });
             }
 
             // ===== USER AUTHENTICATION =====
@@ -4280,6 +4317,50 @@
                     level: '基礎',
                     answer: ''
                 });
+            }
+
+            // 匿名ログ送信: stage='logout' / 'leave' を GAS に送る
+            //   reason='logout' : 「ログアウト」ボタン押下
+            //   reason='unload' : ブラウザ／タブを閉じた、ページ遷移、PCスリープなど
+            //   sendBeacon を優先（unload 中も確実に送れる API）。失敗時は keepalive fetch にフォールバック。
+            _sendLeaveLog(reason) {
+                if (this.isTeacherMode && this.isTeacherMode()) return;
+                if (!LOG_ENDPOINT || !this.currentUser) return;
+                const body = JSON.stringify({
+                    timestamp: new Date().toISOString(),
+                    student_id: this.currentUser.number != null ? this.currentUser.number : null,
+                    unit_id: this.currentUnitId || '',
+                    problem_id: '',
+                    stage: reason === 'logout' ? 'logout' : 'leave',
+                    is_correct: '',
+                    hint_level_used: 'none',
+                    hint_count: 0,
+                    elapsed_seconds: 0,
+                    level: '基礎',
+                    answer: '',
+                    note: reason === 'logout' ? 'logout button' : 'browser unload'
+                });
+                let beaconSent = false;
+                try {
+                    if (typeof navigator !== 'undefined' && typeof navigator.sendBeacon === 'function') {
+                        const blob = new Blob([body], { type: 'text/plain;charset=utf-8' });
+                        beaconSent = navigator.sendBeacon(LOG_ENDPOINT, blob);
+                    }
+                } catch (e) {
+                    beaconSent = false;
+                }
+                if (!beaconSent) {
+                    // フォールバック: keepalive fetch
+                    try {
+                        fetch(LOG_ENDPOINT, {
+                            method: 'POST',
+                            mode: 'no-cors',
+                            keepalive: true,
+                            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                            body: body
+                        }).catch(() => {});
+                    } catch (e) { /* 無視 */ }
+                }
             }
 
             startFreshLogin() {
@@ -4395,6 +4476,8 @@
             }
 
             confirmLogoutYes() {
+                // 匿名ログ送信: stage='logout'（currentUser を null にする前に送る）
+                this._sendLeaveLog('logout');
                 this.stopDashboardPolling();
                 this.currentUser = null;
                 localStorage.removeItem('auth');
@@ -6153,8 +6236,33 @@
                 const loggedInSet = new Set();
                 const loginTimes = new Map();
                 const byStudent = new Map();
+                // 各生徒の最新状態を追跡
+                //   sid -> { status: 'active'|'logout'|'leave', timeText: 'HH:MM', timeMs: ms, latestActivityMs: ms }
+                //   - login/complete/その他活動 → active 扱い、latestActivityMs を更新
+                //   - logout → logout 状態に切替
+                //   - leave  → leave  状態に切替
+                //   - leave/logout 後に活動があれば active に戻る
+                const latestStatus = new Map();
                 let totalAttempts = 0;
                 let totalCorrect = 0;
+
+                const updateStatus = (sid, log, status) => {
+                    if (!log.timestamp) return;
+                    const d = new Date(log.timestamp);
+                    if (isNaN(d)) return;
+                    const ms = d.getTime();
+                    const hh = String(d.getHours()).padStart(2, '0');
+                    const mm = String(d.getMinutes()).padStart(2, '0');
+                    const cur = latestStatus.get(sid);
+                    if (!cur || ms >= cur.timeMs) {
+                        latestStatus.set(sid, {
+                            status: status,
+                            timeText: `${hh}:${mm}`,
+                            timeMs: ms,
+                            latestActivityMs: status === 'active' ? ms : (cur ? cur.latestActivityMs : ms)
+                        });
+                    }
+                };
 
                 for (const log of logs) {
                     const sid = Number(log.student_id);
@@ -6171,11 +6279,20 @@
                                 loginTimes.set(sid, `${hh}:${mm}`);
                             }
                         }
+                        updateStatus(sid, log, 'active');
+                    }
+
+                    // ログアウト/離脱判定
+                    if (log.stage === 'logout') {
+                        updateStatus(sid, log, 'logout');
+                    } else if (log.stage === 'leave') {
+                        updateStatus(sid, log, 'leave');
                     }
 
                     // complete ステージの集計
                     if (log.stage === 'complete' && log.unit_id) {
                         loggedInSet.add(sid);  // complete ログしかない生徒も「ログイン済み」扱い
+                        updateStatus(sid, log, 'active');
                         if (!byStudent.has(sid)) byStudent.set(sid, { units: new Map() });
                         const units = byStudent.get(sid).units;
                         const uid = log.unit_id;
@@ -6205,12 +6322,24 @@
                     }
                 }
 
+                // 状態カウント
+                let activeCount = 0, logoutCount = 0, leaveCount = 0;
+                for (const [, st] of latestStatus) {
+                    if (st.status === 'active') activeCount++;
+                    else if (st.status === 'logout') logoutCount++;
+                    else if (st.status === 'leave') leaveCount++;
+                }
+
                 return {
                     loggedInSet,
                     loginTimes,
+                    latestStatus,
                     byStudent,
                     totals: {
                         loginCount: loggedInSet.size,
+                        activeCount,
+                        logoutCount,
+                        leaveCount,
                         totalAttempts,
                         totalCorrect,
                         correctRate: totalAttempts > 0 ? Math.round(100 * totalCorrect / totalAttempts) : 0
@@ -6228,35 +6357,50 @@
                             <div class="dashboard-stat-value">${agg.totals.loginCount} / 36</div>
                         </div>
                         <div class="dashboard-stat-card">
+                            <div class="dashboard-stat-label">アクティブ</div>
+                            <div class="dashboard-stat-value" style="color:#2e7d32;">${agg.totals.activeCount}</div>
+                            <div class="dashboard-stat-label" style="font-size:10px;color:#888;">離脱: ${agg.totals.leaveCount} / ログアウト: ${agg.totals.logoutCount}</div>
+                        </div>
+                        <div class="dashboard-stat-card">
                             <div class="dashboard-stat-label">問題試行回数</div>
                             <div class="dashboard-stat-value">${agg.totals.totalAttempts}</div>
                         </div>
                         <div class="dashboard-stat-card">
-                            <div class="dashboard-stat-label">正答回数</div>
-                            <div class="dashboard-stat-value">${agg.totals.totalCorrect}</div>
-                        </div>
-                        <div class="dashboard-stat-card">
                             <div class="dashboard-stat-label">正答率</div>
                             <div class="dashboard-stat-value">${agg.totals.correctRate}%</div>
+                            <div class="dashboard-stat-label" style="font-size:10px;color:#888;">正答 ${agg.totals.totalCorrect} / 試行 ${agg.totals.totalAttempts}</div>
                         </div>
                     `;
                 }
 
-                // (a) ログイン状況グリッド（1-40）
+                // (a) ログイン状況グリッド（1-40）— 状態色分け
+                //   active=緑 / leave=黄 / logout=灰青 / 未ログイン=灰
                 const grid = document.getElementById('dashboardLoginGrid');
                 if (grid) {
                     let html = '';
                     for (let i = 1; i <= 40; i++) {
                         let cls = 'dashboard-login-cell';
+                        let title = '';
                         if (i === 40) {
                             cls += ' teacher';
                         } else if (agg.loggedInSet.has(i)) {
-                            cls += ' active';
+                            const st = agg.latestStatus.get(i);
+                            if (st && st.status === 'logout') {
+                                cls += ' status-logout';
+                                title = `ログアウト (${st.timeText})`;
+                            } else if (st && st.status === 'leave') {
+                                cls += ' status-leave';
+                                title = `離脱 (${st.timeText})`;
+                            } else {
+                                cls += ' active';
+                                title = st ? `アクティブ (最終 ${st.timeText})` : 'アクティブ';
+                            }
                         } else {
                             cls += ' inactive';
+                            title = '未ログイン';
                         }
                         const label = (i === 40) ? '40<br><span style="font-size:10px;">教員</span>' : i;
-                        html += `<div class="${cls}">${label}</div>`;
+                        html += `<div class="${cls}" title="${title}">${label}</div>`;
                     }
                     grid.innerHTML = html;
                 }
@@ -6264,7 +6408,7 @@
                 // (b) 生徒取り組みテーブル（1-36 のみ）
                 const table = document.getElementById('dashboardTable');
                 if (table) {
-                    let html = '<thead><tr><th>番号</th><th>ログイン</th>';
+                    let html = '<thead><tr><th>番号</th><th>状態</th>';
                     for (const uid of DASHBOARD_UNIT_ORDER) {
                         html += `<th>${uid}</th>`;
                     }
@@ -6273,11 +6417,18 @@
                     for (let i = 1; i <= 36; i++) {
                         const loggedIn = agg.loggedInSet.has(i);
                         const loginTime = agg.loginTimes.get(i);
+                        const st = agg.latestStatus.get(i);
                         const studentData = agg.byStudent.get(i);
                         html += `<tr><td class="dashboard-number">${i}</td>`;
-                        html += loggedIn
-                            ? `<td class="dashboard-login-time">${loginTime || '✓'}</td>`
-                            : `<td class="dashboard-no-login">–</td>`;
+                        if (!loggedIn) {
+                            html += `<td class="dashboard-no-login">–</td>`;
+                        } else if (st && st.status === 'logout') {
+                            html += `<td class="dashboard-login-time" style="color:#666;">ログアウト ${st.timeText}<br><span style="font-size:10px;color:#aaa;">in ${loginTime || '?'}</span></td>`;
+                        } else if (st && st.status === 'leave') {
+                            html += `<td class="dashboard-login-time" style="color:#b8860b;">離脱 ${st.timeText}<br><span style="font-size:10px;color:#aaa;">in ${loginTime || '?'}</span></td>`;
+                        } else {
+                            html += `<td class="dashboard-login-time" style="color:#2e7d32;">在席 ${loginTime || '✓'}</td>`;
+                        }
                         for (const uid of DASHBOARD_UNIT_ORDER) {
                             const u = studentData && studentData.units.get(uid);
                             if (!u) {
