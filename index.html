@@ -5056,29 +5056,32 @@
             // 図 SVG 生成（プリント用、シンプル版。改良は Phase 2 後半で）
             // ==================================================================
             _svgCollinear(f, showAnswers) {
-                // 1D グリッド（10マス）+ 既存の F1, F2 矢印 + 答え F の矢印（showAnswers のみ）
-                const W = 240, H = 80, cell = 16;
+                // 1D グリッド + F1, F2 矢印（同じ作用点 O から、上下にずらして表示）
+                //   学生の合力の作図位置（中央 cy）と分けるため、F₁ を上、F₂ を下に配置。
+                //   答え F（合力）は cy 上に青で表示（showAnswers のみ）。
+                const W = 240, H = 110, cell = 16;
                 const cx = W / 2, cy = H / 2;
+                const yOffset = 14;
+                const y1 = cy - yOffset;     // F₁ の y
+                const y2 = cy + yOffset;     // F₂ の y
                 const F1 = f.f1 / f.scaleN, F2 = f.f2 / f.scaleN;
                 let arrows = '';
-                // F1 矢印（赤）：右向き
-                const f1End = cx + F1 * cell;
-                arrows += `<line x1="${cx}" y1="${cy}" x2="${f1End}" y2="${cy}" stroke="#d23a2a" stroke-width="2" marker-end="url(#mEndR)"/>`;
-                // F2 矢印（赤）：same のとき右、opposite のとき左
-                if (f.case === 'same') {
-                    const f2Start = f1End;
-                    arrows += `<line x1="${f2Start}" y1="${cy}" x2="${f2Start + F2 * cell}" y2="${cy}" stroke="#d23a2a" stroke-width="2" marker-end="url(#mEndR)"/>`;
-                } else {
-                    arrows += `<line x1="${cx + F1 * cell}" y1="${cy}" x2="${cx + (F1 - F2) * cell}" y2="${cy}" stroke="#d23a2a" stroke-width="2" marker-end="url(#mEndR)"/>`;
-                }
-                // 答え：合力 F（青）
+                // F₁ 矢印（赤）: O から右、上ライン
+                arrows += `<line x1="${cx}" y1="${y1}" x2="${cx + F1 * cell}" y2="${y1}" stroke="#d23a2a" stroke-width="2" marker-end="url(#mEndR)"/>`;
+                arrows += `<text x="${cx + F1 * cell / 2 - 6}" y="${y1 - 4}" font-size="10" fill="#d23a2a" font-weight="600">F₁</text>`;
+                // F₂ 矢印（赤）: O から（same: 右 / opposite: 左）、下ライン
+                const f2Dir = (f.case === 'same') ? 1 : -1;
+                const f2EndX = cx + f2Dir * F2 * cell;
+                arrows += `<line x1="${cx}" y1="${y2}" x2="${f2EndX}" y2="${y2}" stroke="#d23a2a" stroke-width="2" marker-end="url(#mEndR)"/>`;
+                arrows += `<text x="${(cx + f2EndX) / 2 - 6}" y="${y2 + 12}" font-size="10" fill="#d23a2a" font-weight="600">F₂</text>`;
+                // 答え：合力 F（青）— 中央 cy 上に表示
                 let answer = '';
                 if (showAnswers) {
-                    const cy2 = cy + 18;
                     const dir = (f.expected && f.expected.dir === 'left') ? -1 : 1;
                     const mag = (f.expected && f.expected.mag) ? f.expected.mag / f.scaleN : 0;
                     const x2 = cx + dir * mag * cell;
-                    answer = `<line x1="${cx}" y1="${cy2}" x2="${x2}" y2="${cy2}" stroke="#1e5fa8" stroke-width="2" marker-end="url(#mEndB)"/>`;
+                    answer = `<line x1="${cx}" y1="${cy}" x2="${x2}" y2="${cy}" stroke="#1e5fa8" stroke-width="2" marker-end="url(#mEndB)"/>`;
+                    answer += `<text x="${(cx + x2) / 2 - 4}" y="${cy - 4}" font-size="10" fill="#1e5fa8" font-weight="600">F</text>`;
                 }
                 // グリッド
                 let grid = '';
@@ -5094,7 +5097,8 @@
                         <marker id="mEndB" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#1e5fa8"/></marker>
                     </defs>
                     ${grid}
-                    <circle cx="${cx}" cy="${cy}" r="2" fill="#000"/>
+                    <circle cx="${cx}" cy="${cy}" r="2.5" fill="#000"/>
+                    <text x="${cx - 8}" y="${cy + 4}" font-size="10" fill="#000" font-weight="600">O</text>
                     ${arrows}
                     ${answer}
                 </svg>`;
@@ -5817,14 +5821,20 @@
             }
 
             // ----- drawing-1d 用 SVG -----
+            //   F₁ と F₂ は同じ作用点 O から働く 2 力。視覚的に重ならないよう、
+            //   F₁ を O の上方、F₂ を O の下方にずらして表示する（合成は学生が
+            //   y=oy の中央線上に作図する）。
             _epBuildDrawingSvg1D(fig, idx) {
-                const W = 400, H = 100, cell = 20;
-                const ox = 80, oy = 50;
+                const W = 400, H = 120, cell = 20;
+                const ox = 80, oy = 60;
+                const yOffset = 16;          // F₁/F₂ を上下にずらす量
+                const y1 = oy - yOffset;     // F₁ の y
+                const y2 = oy + yOffset;     // F₂ の y
                 const f1px = (fig.f1 / fig.scaleN) * cell;
                 const f2px = (fig.f2 / fig.scaleN) * cell;
-                // 配置: F1 は origin から右、F2 は F1 終点から（same: 右、opposite: 左）
+                // F₁: O から右、F₂: O から（same: 右 / opposite: 左）
                 const f1End = ox + f1px;
-                const f2End = (fig.case === 'same') ? f1End + f2px : f1End - f2px;
+                const f2End = (fig.case === 'same') ? ox + f2px : ox - f2px;
                 let grid = '';
                 for (let x = 0; x <= W; x += cell) grid += `<line x1="${x}" y1="0" x2="${x}" y2="${H}" stroke="#eee" stroke-width="0.5"/>`;
                 for (let y = 0; y <= H; y += cell) grid += `<line x1="0" y1="${y}" x2="${W}" y2="${y}" stroke="#eee" stroke-width="0.5"/>`;
@@ -5836,12 +5846,15 @@
                         </defs>
                         ${grid}
                         <text x="6" y="${H - 4}" font-size="10" fill="#888">1 マス = ${fig.scaleN} N</text>
-                        <line x1="${ox}" y1="${oy}" x2="${f1End}" y2="${oy}" stroke="#d23a2a" stroke-width="2.5" marker-end="url(#ep-mr-${idx})"/>
-                        <text x="${(ox + f1End) / 2 - 14}" y="${oy - 8}" font-size="11" fill="#d23a2a" font-weight="600">F₁</text>
-                        <line x1="${f1End}" y1="${oy}" x2="${f2End}" y2="${oy}" stroke="#d23a2a" stroke-width="2.5" marker-end="url(#ep-mr-${idx})"/>
-                        <text x="${(f1End + f2End) / 2 - 8}" y="${oy + 18}" font-size="11" fill="#d23a2a" font-weight="600">F₂</text>
-                        <circle cx="${ox}" cy="${oy}" r="3" fill="#000"/>
-                        <text x="${ox - 4}" y="${oy + 18}" font-size="10" fill="#000">O</text>
+                        <!-- F₁: O の上にずらして描画（同じ作用点 O から） -->
+                        <line x1="${ox}" y1="${y1}" x2="${f1End}" y2="${y1}" stroke="#d23a2a" stroke-width="2.5" marker-end="url(#ep-mr-${idx})"/>
+                        <text x="${(ox + f1End) / 2 - 6}" y="${y1 - 5}" font-size="11" fill="#d23a2a" font-weight="600">F₁</text>
+                        <!-- F₂: O の下にずらして描画（same/opposite で向きが変わる） -->
+                        <line x1="${ox}" y1="${y2}" x2="${f2End}" y2="${y2}" stroke="#d23a2a" stroke-width="2.5" marker-end="url(#ep-mr-${idx})"/>
+                        <text x="${(ox + f2End) / 2 - 6}" y="${y2 + 14}" font-size="11" fill="#d23a2a" font-weight="600">F₂</text>
+                        <!-- 共通の作用点 O（学生はここから合力を描く） -->
+                        <circle cx="${ox}" cy="${oy}" r="3.5" fill="#000"/>
+                        <text x="${ox - 12}" y="${oy + 4}" font-size="11" fill="#000" font-weight="600">O</text>
                         <g id="ep-shapes-${idx}"></g>
                         <g id="ep-cursor-${idx}"></g>
                     </svg>`;
@@ -6102,8 +6115,8 @@
                 const tolPx = 12;  // 端点許容（±12 px = ±0.6 cell）
                 const vectors = state.shapes.filter(s => s.type === 'vector');
                 if (problem.pattern === 'drawing-1d') {
-                    // origin = (80, 50)（_epBuildDrawingSvg1D と同じ値）
-                    const ox = 80, oy = 50, cell = 20;
+                    // origin = (80, 60)（_epBuildDrawingSvg1D と同じ値）
+                    const ox = 80, oy = 60, cell = 20;
                     const expectedDx = (fig.expected.dir === 'right' ? 1 : -1) * (fig.expected.mag / fig.scaleN) * cell;
                     const targetX = ox + expectedDx;
                     const targetY = oy;
