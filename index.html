@@ -3318,11 +3318,11 @@
                     {
                         id: 'mp1-q8', num: 8, category: 'thinking', pattern: 'composite',
                         unitTags: ['1-7', '1-8'], points: 12,
-                        titleTemplate: '下図で、a = {a} mm、F = {F} N、θ = {theta}° のとき、次の問いに答えよ。',
+                        titleTemplate: '下図で、r = {r} mm、F = {F} N、θ = {theta}° のとき、次の問いに答えよ。',
                         figureSvg: 'inclinedAxisR',
-                        params: { a: 250, F: 150, theta: 60 },
+                        params: { r: 250, F: 150, theta: 60 },
                         paramRanges: {
-                            a: { values: [200, 250, 300] },
+                            r: { values: [200, 250, 300] },
                             F: { values: [100, 150, 200] },
                             theta: { values: [30, 45, 60] }
                         },
@@ -3331,13 +3331,14 @@
                               expected: 129.9, formula: 'F₁ = F sin θ',
                               workflow: ['sin θ = 高さ／斜辺 = F₁/F より', 'F₁ = F × sin θ = 150 × sin 60° = 129.9 [N]'],
                               unit: 'N', points: 4 },
-                            { sub: '(2)', title: '図中の r の長さを求めよ。',
-                              expected: 216.5, formula: 'r = a sin θ',
-                              workflow: ['sin θ = 高さ／斜辺 = r/a より', 'r = a × sin θ = 250 × sin 60° = 216.5 [mm]'],
-                              unit: 'mm', points: 4 },
+                            { sub: '(2)', title: '力 F の分力 F₂ の大きさを求めよ。',
+                              expected: 75, formula: 'F₂ = F cos θ',
+                              workflow: ['cos θ = 底辺／斜辺 = F₂/F より', 'F₂ = F × cos θ = 150 × cos 60° = 75 [N]'],
+                              unit: 'N', points: 4 },
                             { sub: '(3)', title: '点 O のまわりの力 F のモーメントを求めよ。',
-                              expected: 32475, formula: 'M = F·r',
-                              workflow: ['M = F·r = 150 × 216.5 = 32475 [N·mm]'],
+                              expected: 32475, formula: 'M = F₁·r',
+                              workflow: ['F₂ は線分 OA 上にあり、O を通るのでモーメントを生じない。',
+                                         'M = F₁·r = 129.9 × 250 = 32475 [N·mm]'],
                               unit: 'N·mm', points: 4 }
                         ]
                     },
@@ -4794,18 +4795,20 @@
                         `cos θ = 底辺／斜辺 = F₂/F より F₂ = F × cos θ = ${F} × cos ${theta}° ≈ ${p.expected.F2} [N]`
                     ];
                 } else if (p.pattern === 'composite' && p.subQuestions) {
-                    // 問8 専用: a, F, theta から (1) F sin θ, (2) a sin θ, (3) F · r
-                    const a = p.params.a, F = p.params.F, theta = p.params.theta;
+                    // 問8 専用: r, F, theta から (1) F sin θ, (2) F cos θ, (3) F₁ · r
+                    const r = p.params.r, F = p.params.F, theta = p.params.theta;
                     const sinT = Math.sin(theta * Math.PI / 180);
+                    const cosT = Math.cos(theta * Math.PI / 180);
                     const F1 = round1(F * sinT);
-                    const r  = round1(a * sinT);
-                    const M  = Math.round(F * r);
+                    const F2 = round1(F * cosT);
+                    const M  = Math.round(F1 * r);
                     p.subQuestions[0].expected = F1;
                     p.subQuestions[0].workflow = ['sin θ = 高さ／斜辺 = F₁/F より', `F₁ = F × sin θ = ${F} × sin ${theta}° ≈ ${F1} [N]`];
-                    p.subQuestions[1].expected = r;
-                    p.subQuestions[1].workflow = ['sin θ = 高さ／斜辺 = r/a より', `r = a × sin θ = ${a} × sin ${theta}° ≈ ${r} [mm]`];
+                    p.subQuestions[1].expected = F2;
+                    p.subQuestions[1].workflow = ['cos θ = 底辺／斜辺 = F₂/F より', `F₂ = F × cos θ = ${F} × cos ${theta}° ≈ ${F2} [N]`];
                     p.subQuestions[2].expected = M;
-                    p.subQuestions[2].workflow = [`M = F·r = ${F} × ${r} = ${M} [N·mm]`];
+                    p.subQuestions[2].workflow = ['F₂ は線分 OA 上にあり、O を通るのでモーメントを生じない。',
+                                                  `M = F₁·r = ${F1} × ${r} = ${M} [N·mm]`];
                 }
             }
 
@@ -5279,49 +5282,34 @@
             }
 
             _svgInclinedAxisR(p) {
-                // 問8 用：先生指摘により全面書き直し（過去問の正しい構成に整合）。
-                //   構成: A(上) - 垂直バー a - O(下)。A 点に F、F₁(水平、AO に垂直)、F₂(垂直、AO 方向)。
-                //   θ = F と AO 軸（垂直）のなす角。F は A から右下方向。
-                //   r = O から F の作用線への垂線（直角マーク付き）。
-                //   r = a sin θ、F₁ = F sin θ、F₂ = F cos θ の幾何関係を視覚化。
+                // 問8 用：先生指摘により図を整理。
+                //   構成: A(上) - 垂直バー r - O(下)。A 点に F が角度 θ で働く。
+                //   F を F₁ (OA に垂直、水平右) と F₂ (OA 方向、A から下) に分解。
+                //   F₂ は OA バーに重ねて表示（バーは黒実線、F₂ は赤破線で上に重ねる）。
+                //   平行四辺形の補助線（F の終点から F₁ 軸・F₂ 軸への垂線）を破線で表示。
+                //   θ = F と OA 軸（垂直下方向）のなす角。
                 const W = 320, H = 260;
                 const ax = 110, ay = 50;          // A 点（上）
-                const a_px = 150;                  // バー長（px、a を表現）
-                const ox = ax, oy = ay + a_px;    // O 点（下、A の真下）
+                const r_px = 150;                  // バー長（px、r を表現）
+                const ox = ax, oy = ay + r_px;    // O 点（下、A の真下）
                 const t = (p.params.theta || 60) * Math.PI / 180;
                 const sin_t = Math.sin(t), cos_t = Math.cos(t);
-                // F の表示長（バーの 0.7 倍程度）
-                const F_len = a_px * 0.75;
+                // F の表示長（バーの 0.75 倍程度）
+                const F_len = r_px * 0.75;
                 // F の方向: 垂直下 (0,+1) から CW に θ 回転 → (sin θ, cos θ)
                 const fx = ax + F_len * sin_t;
                 const fy = ay + F_len * cos_t;
-                // F₁ の長さ（同じスケール、水平方向）
+                // F₁ の長さ（水平方向、F·sin θ）
                 const f1_len = F_len * sin_t;
-                // F₂ の長さ（同じスケール、垂直方向）
+                const f1End_x = ax + f1_len, f1End_y = ay;
+                // F₂ の長さ（垂直方向、F·cos θ）
                 const f2_len = F_len * cos_t;
-                // F の作用線への O からの垂線の足
-                //   AO ベクトル = (0, a_px) を F̂=(sin θ, cos θ) 方向へ射影 → 射影スカラー = a_px * cos θ
-                //   足 = A + 射影スカラー * F̂ = (ax + a_px*cosθ*sinθ, ay + a_px*cos²θ)
-                const proj = a_px * cos_t;
-                const foot_x = ax + proj * sin_t;
-                const foot_y = ay + proj * cos_t;
-                // 足が F 矢印先端より遠い場合は破線で延長
-                const footBeyondF = proj > F_len;
-                // θ 弧（A 点で AO 下方向 → F 方向）
+                const f2End_x = ax, f2End_y = ay + f2_len;
+                // θ 弧（A 点で OA 下方向 → F 方向）
                 const arcR = 22;
-                const arcStartX = ax;
-                const arcStartY = ay + arcR;
+                const arcStartX = ax, arcStartY = ay + arcR;
                 const arcEndX = ax + arcR * sin_t;
                 const arcEndY = ay + arcR * cos_t;
-                // 直角マーク（足の所、F̂ 方向と r 方向のなす直角）
-                const ramSize = 8;
-                // 足から後方（-F̂）へ ramSize、足から O 方向へ ramSize の小さな L 字
-                const e1x = foot_x - ramSize * sin_t;
-                const e1y = foot_y - ramSize * cos_t;
-                const e2x = foot_x - ramSize * cos_t;
-                const e2y = foot_y + ramSize * sin_t;
-                const cornerX = e1x - ramSize * cos_t;
-                const cornerY = e1y + ramSize * sin_t;
                 return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" class="figure-svg">
                     <defs>
                         <marker id="m8F" markerWidth="9" markerHeight="6" refX="8" refY="3" orient="auto">
@@ -5331,36 +5319,31 @@
                             <polygon points="0,0 6,2.5 0,5" fill="#b83a2a"/>
                         </marker>
                     </defs>
-                    <!-- AO バー（縦、実線） -->
+                    <!-- OA バー（縦、実線、黒） -->
                     <line x1="${ax}" y1="${ay}" x2="${ox}" y2="${oy}" stroke="#000" stroke-width="1.5"/>
                     <!-- A, O 点 + ラベル -->
                     <circle cx="${ax}" cy="${ay}" r="2.5" fill="#000"/>
                     <text x="${ax - 14}" y="${ay - 4}" font-size="10pt">A</text>
                     <circle cx="${ox}" cy="${oy}" r="2.5" fill="#000"/>
                     <text x="${ox - 14}" y="${oy + 14}" font-size="10pt">O</text>
-                    <!-- a ラベル（バー左側） -->
-                    <text x="${ax - 60}" y="${(ay + oy) / 2 + 4}" font-size="10pt">a = ${p.params.a} mm</text>
+                    <!-- r ラベル（バー左側） -->
+                    <text x="${ax - 60}" y="${(ay + oy) / 2 + 4}" font-size="10pt">r = ${p.params.r} mm</text>
+                    <!-- 補助線（平行四辺形の右辺）: F の終点 → F₁ の終点（垂直） -->
+                    <line x1="${fx}" y1="${fy}" x2="${f1End_x}" y2="${f1End_y}" stroke="#888" stroke-width="1" stroke-dasharray="4,3"/>
+                    <!-- 補助線（平行四辺形の下辺）: F の終点 → F₂ の終点（水平） -->
+                    <line x1="${fx}" y1="${fy}" x2="${f2End_x}" y2="${f2End_y}" stroke="#888" stroke-width="1" stroke-dasharray="4,3"/>
                     <!-- F₁ 成分（A から水平右、破線、淡赤） -->
-                    <line x1="${ax}" y1="${ay}" x2="${ax + f1_len}" y2="${ay}" stroke="#b83a2a" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#m8C)"/>
+                    <line x1="${ax}" y1="${ay}" x2="${f1End_x}" y2="${f1End_y}" stroke="#b83a2a" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#m8C)"/>
                     <text x="${ax + f1_len / 2 - 10}" y="${ay - 6}" font-size="9pt" fill="#b83a2a">F₁</text>
-                    <!-- F₂ 成分（A から下、破線、淡赤、AO バーと重ねず少しずらす） -->
-                    <line x1="${ax + 6}" y1="${ay}" x2="${ax + 6}" y2="${ay + f2_len}" stroke="#b83a2a" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#m8C)"/>
-                    <text x="${ax + 10}" y="${ay + f2_len - 6}" font-size="9pt" fill="#b83a2a">F₂</text>
+                    <!-- F₂ 成分（A から下、OA バーに重ねて、破線、淡赤） -->
+                    <line x1="${ax}" y1="${ay}" x2="${f2End_x}" y2="${f2End_y}" stroke="#b83a2a" stroke-width="1.8" stroke-dasharray="4,3" marker-end="url(#m8C)"/>
+                    <text x="${ax + 6}" y="${ay + f2_len - 6}" font-size="9pt" fill="#b83a2a">F₂</text>
                     <!-- F 本体（A から右下、実線、赤） -->
                     <line x1="${ax}" y1="${ay}" x2="${fx}" y2="${fy}" stroke="#d23a2a" stroke-width="2.5" marker-end="url(#m8F)"/>
                     <text x="${fx + 6}" y="${fy + 4}" font-size="10pt" fill="#d23a2a">F = ${p.params.F} N</text>
-                    <!-- F の作用線が足を超える場合は破線で延長 -->
-                    ${footBeyondF ? `<line x1="${fx}" y1="${fy}" x2="${foot_x}" y2="${foot_y}" stroke="#d23a2a" stroke-width="1" stroke-dasharray="3,2" opacity="0.5"/>` : ''}
                     <!-- θ 弧（A 点） -->
                     <path d="M ${arcStartX} ${arcStartY} A ${arcR} ${arcR} 0 0 0 ${arcEndX} ${arcEndY}" fill="none" stroke="#333" stroke-width="1"/>
                     <text x="${ax + 10}" y="${ay + arcR + 6}" font-size="9pt">θ = ${p.params.theta}°</text>
-                    <!-- r（O から足、破線、グレー） -->
-                    <line x1="${ox}" y1="${oy}" x2="${foot_x}" y2="${foot_y}" stroke="#666" stroke-width="1.5" stroke-dasharray="3,2"/>
-                    <text x="${(ox + foot_x) / 2 - 14}" y="${(oy + foot_y) / 2 + 4}" font-size="10pt" fill="#444">r</text>
-                    <!-- 直角マーク（足の所） -->
-                    <path d="M ${e1x} ${e1y} L ${cornerX} ${cornerY} L ${e2x} ${e2y}" fill="none" stroke="#333" stroke-width="1"/>
-                    <!-- 足の小さな黒丸 -->
-                    <circle cx="${foot_x}" cy="${foot_y}" r="1.5" fill="#444"/>
                 </svg>`;
             }
 
