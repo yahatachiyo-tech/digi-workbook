@@ -3362,7 +3362,7 @@
                     {
                         id: 'mp1-q10', num: 10, category: 'thinking', pattern: 'incline-decompose',
                         unitTags: ['1-7'], points: 6,
-                        titleTemplate: '下図のように、{F} N の力が斜面に働いている。この力を斜面に平行および垂直な２力に分解したときのそれぞれの大きさを求めよ。',
+                        titleTemplate: '下図のように、斜面上の物体に {F} N の重力が下向きに働いている。この力を斜面に平行および垂直な 2 力に分解したときのそれぞれの大きさを求めよ。',
                         figureSvg: 'inclineForceTriangle',
                         params: { F: 200, theta: 30 },
                         paramRanges: {
@@ -5407,21 +5407,83 @@
             }
 
             _svgInclineForceTriangle(p) {
-                // 斜面 + 力 F（三角形図と斜面図の対応）
-                const W = 240, H = 160;
+                // 斜面上に置かれた物体に重力 F が下向きに働く図。
+                //   F を斜面に平行な F₁（下方向、滑り落ちる成分）と
+                //   斜面に垂直な F₂（押し付け成分）に分解する補助線を表示。
+                //   斜面: 角度 θ で右上に登る。物体は斜面中腹に配置。
+                const W = 320, H = 240;
                 const t = p.params.theta;
-                const ox = 30, oy = H - 30, slope = 100;
                 const tr = t * Math.PI / 180;
-                const tx = ox + slope * Math.cos(tr), ty = oy - slope * Math.sin(tr);
+                const sin_t = Math.sin(tr), cos_t = Math.cos(tr);
+                const ox = 40, oy = H - 30;             // 斜面下端（角度 θ の頂点）
+                const slope = 220;                       // 斜面長
+                const tx = ox + slope * cos_t;
+                const ty = oy - slope * sin_t;
+                // 斜面方向（上り方向）の単位ベクトル
+                const u_para = { x: cos_t, y: -sin_t };
+                // 斜面の外向き法線（上方）
+                const u_perp = { x: -sin_t, y: -cos_t };
+                // 物体の中点位置（斜面の 0.45 倍の位置）
+                const slopePos = 0.40;
+                const baseX = ox + slope * slopePos * cos_t;
+                const baseY = oy - slope * slopePos * sin_t;
+                // 物体（正方形）の 4 頂点
+                const boxSize = 32;
+                const half = boxSize / 2;
+                const p1 = { x: baseX - half * u_para.x, y: baseY - half * u_para.y };                                           // 底・後
+                const p2 = { x: baseX + half * u_para.x, y: baseY + half * u_para.y };                                           // 底・前
+                const p3 = { x: p2.x + boxSize * u_perp.x, y: p2.y + boxSize * u_perp.y };                                       // 上・前
+                const p4 = { x: p1.x + boxSize * u_perp.x, y: p1.y + boxSize * u_perp.y };                                       // 上・後
+                // 重心 G（物体の中心、底面中点から法線方向に half）
+                const gx = baseX + half * u_perp.x;
+                const gy = baseY + half * u_perp.y;
+                // 重力 F の表示長
+                const F_len = 80;
+                const fx = gx, fy = gy + F_len;          // 真下
+                // 分力 F₁（斜面に平行、下向き = -u_para 方向）
+                const f1_len = F_len * sin_t;
+                const f1End = { x: gx - f1_len * u_para.x, y: gy - f1_len * u_para.y };
+                // 分力 F₂（斜面に垂直、内向き = -u_perp 方向、つまり斜面押し付け）
+                const f2_len = F_len * cos_t;
+                const f2End = { x: gx - f2_len * u_perp.x, y: gy - f2_len * u_perp.y };
+                // 角度 θ の弧
+                const arcR = 26;
+                const arcEndX = ox + arcR * cos_t;
+                const arcEndY = oy - arcR * sin_t;
                 return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" class="figure-svg">
                     <defs>
-                        <marker id="m10r" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#d23a2a"/></marker>
+                        <marker id="m10r" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                            <polygon points="0,0 8,3 0,6" fill="#d23a2a"/>
+                        </marker>
+                        <marker id="m10c" markerWidth="6" markerHeight="5" refX="5" refY="2.5" orient="auto">
+                            <polygon points="0,0 6,2.5 0,5" fill="#b83a2a"/>
+                        </marker>
                     </defs>
-                    <line x1="${ox}" y1="${oy}" x2="${tx + 50}" y2="${oy}" stroke="#888" stroke-width="1.5"/>
+                    <!-- 水平基線（斜面の延長） -->
+                    <line x1="${ox}" y1="${oy}" x2="${tx + 30}" y2="${oy}" stroke="#888" stroke-width="1.2"/>
+                    <!-- 斜面（黒実線） -->
                     <line x1="${ox}" y1="${oy}" x2="${tx}" y2="${ty}" stroke="#000" stroke-width="2"/>
-                    <text x="${ox + 22}" y="${oy - 6}" font-size="9pt">${t}°</text>
-                    <line x1="${(tx + ox) / 2 + 6}" y1="${(ty + oy) / 2 - 6}" x2="${(tx + ox) / 2 + 6 - 30 * Math.sin(tr)}" y2="${(ty + oy) / 2 - 6 - 30 * Math.cos(tr)}" stroke="#d23a2a" stroke-width="2" marker-end="url(#m10r)"/>
-                    <text x="${(tx + ox) / 2 - 30}" y="${(ty + oy) / 2 - 16}" font-size="10pt">${p.params.F} N</text>
+                    <!-- 角度 θ の弧 + ラベル -->
+                    <path d="M ${ox + arcR} ${oy} A ${arcR} ${arcR} 0 0 0 ${arcEndX} ${arcEndY}" fill="none" stroke="#333" stroke-width="1"/>
+                    <text x="${ox + 30}" y="${oy - 4}" font-size="9pt">${t}°</text>
+                    <!-- 物体（四角形、斜面に乗る） -->
+                    <polygon points="${p1.x.toFixed(1)},${p1.y.toFixed(1)} ${p2.x.toFixed(1)},${p2.y.toFixed(1)} ${p3.x.toFixed(1)},${p3.y.toFixed(1)} ${p4.x.toFixed(1)},${p4.y.toFixed(1)}"
+                             fill="#e8d8b0" stroke="#000" stroke-width="1.5"/>
+                    <!-- 重心 G（小黒丸） -->
+                    <circle cx="${gx.toFixed(1)}" cy="${gy.toFixed(1)}" r="2" fill="#000"/>
+                    <!-- 補助線（平行四辺形）: F の終点 → F₁ の終点 -->
+                    <line x1="${fx}" y1="${fy}" x2="${f1End.x.toFixed(1)}" y2="${f1End.y.toFixed(1)}" stroke="#888" stroke-width="1" stroke-dasharray="4,3"/>
+                    <!-- 補助線: F の終点 → F₂ の終点 -->
+                    <line x1="${fx}" y1="${fy}" x2="${f2End.x.toFixed(1)}" y2="${f2End.y.toFixed(1)}" stroke="#888" stroke-width="1" stroke-dasharray="4,3"/>
+                    <!-- F₁: G から斜面下方向（淡赤破線） -->
+                    <line x1="${gx.toFixed(1)}" y1="${gy.toFixed(1)}" x2="${f1End.x.toFixed(1)}" y2="${f1End.y.toFixed(1)}" stroke="#b83a2a" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#m10c)"/>
+                    <text x="${(f1End.x - 14).toFixed(1)}" y="${(f1End.y + 14).toFixed(1)}" font-size="9pt" fill="#b83a2a">F₁</text>
+                    <!-- F₂: G から斜面押し付け方向（淡赤破線） -->
+                    <line x1="${gx.toFixed(1)}" y1="${gy.toFixed(1)}" x2="${f2End.x.toFixed(1)}" y2="${f2End.y.toFixed(1)}" stroke="#b83a2a" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#m10c)"/>
+                    <text x="${(f2End.x + 4).toFixed(1)}" y="${(f2End.y + 4).toFixed(1)}" font-size="9pt" fill="#b83a2a">F₂</text>
+                    <!-- 重力 F（重心から真下、実線、赤） -->
+                    <line x1="${gx.toFixed(1)}" y1="${gy.toFixed(1)}" x2="${fx}" y2="${fy}" stroke="#d23a2a" stroke-width="2.5" marker-end="url(#m10r)"/>
+                    <text x="${(fx + 6).toFixed(1)}" y="${((gy + fy) / 2).toFixed(1)}" font-size="10pt" fill="#d23a2a">F = ${p.params.F} N</text>
                 </svg>`;
             }
 
