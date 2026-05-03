@@ -3242,16 +3242,24 @@
                         ]
                     },
                     // 問4: 作図 分解（4 サブ）/ 知・技
+                    //   1 マス = 10 N（cell=20px, lenScale=2 px/N）+ 3-4-5 三角形角度を採用。
+                    //   F の終点も分力 F₁/F₂ の終点もすべてグリッド交点に乗る。
+                    //   1-7（直角分解）の範囲なので分解方向は直交（dir1 ⊥ dir2）。
+                    //   第 1〜第 4 象限で F の向きをずらし、向き判別の練習を兼ねる。
                     {
                         id: 'mp1-q4', num: 4, category: 'knowledge', pattern: 'drawing-decompose',
                         unitTags: ['1-5'], points: 8,
                         title: '次の力を２つの分力 F₁ および F₂ に分解しなさい。',
                         figureSvg: 'decomposePair',
                         figures: [
-                            { sub: '(1)', fAngle:  60, fMag: 50, dir1Angle: 0,   dir2Angle: 90 },
-                            { sub: '(2)', fAngle:  30, fMag: 50, dir1Angle: 0,   dir2Angle: 90 },
-                            { sub: '(3)', fAngle: 300, fMag: 50, dir1Angle: 270, dir2Angle: 30 },
-                            { sub: '(4)', fAngle: 240, fMag: 50, dir1Angle: 180, dir2Angle: 270 }
+                            // (1) 第1象限: F=50 at 53.13°、分力 F₁=30(右)、F₂=40(上)
+                            { sub: '(1)', fAngle:  53.13010, fMag: 50, dir1Angle:   0, dir2Angle:  90 },
+                            // (2) 第2象限: F=50 at 126.87°、分力 F₁=30(左)、F₂=40(上)
+                            { sub: '(2)', fAngle: 126.86990, fMag: 50, dir1Angle: 180, dir2Angle:  90 },
+                            // (3) 第3象限: F=50 at 233.13°、分力 F₁=30(左)、F₂=40(下)
+                            { sub: '(3)', fAngle: 233.13010, fMag: 50, dir1Angle: 180, dir2Angle: 270 },
+                            // (4) 第4象限: F=50 at 323.13°、分力 F₁=40(右)、F₂=30(下)（比率反転）
+                            { sub: '(4)', fAngle: 323.13010, fMag: 50, dir1Angle:   0, dir2Angle: 270 }
                         ]
                     },
                     // 問5: 計算 F + tan α（基本）/ 知・技
@@ -5145,26 +5153,56 @@
             }
 
             _svgDecompose(f, showAnswers) {
-                // 元の力 F + 分解方向の破線（answer なら F1, F2 を実線で）
-                const W = 200, H = 160, cell = 16;
+                // 元の力 F + 分解方向の破線（1 マス = 10 N、3-4-5 角度でグリッド一致）
+                const W = 240, H = 200, cell = 16;
                 const cx = W / 2, cy = H / 2;
-                const lenScale = 0.06;
+                const lenScale = 0.1;  // 1 N = 1.6 px → 10 N = 1 マス（cell=16）
                 const fLen = f.fMag * lenScale * cell;
                 const fa = f.fAngle * Math.PI / 180;
                 const fx = cx + fLen * Math.cos(fa), fy = cy - fLen * Math.sin(fa);
+                // グリッド
+                let grid = '';
+                for (let i = 0; i < W / cell; i++) grid += `<line x1="${i * cell}" y1="0" x2="${i * cell}" y2="${H}" stroke="#ddd" stroke-width="0.5"/>`;
+                for (let j = 0; j < H / cell; j++) grid += `<line x1="0" y1="${j * cell}" x2="${W}" y2="${j * cell}" stroke="#ddd" stroke-width="0.5"/>`;
+                // 分解方向の破線
                 let dirs = '';
                 [f.dir1Angle, f.dir2Angle].forEach(deg => {
                     const a = deg * Math.PI / 180;
-                    const dx = cx + 60 * Math.cos(a), dy = cy - 60 * Math.sin(a);
+                    const dx = cx + 90 * Math.cos(a), dy = cy - 90 * Math.sin(a);
                     dirs += `<line x1="${cx}" y1="${cy}" x2="${dx}" y2="${dy}" stroke="#888" stroke-width="1" stroke-dasharray="3,2"/>`;
                 });
+                // 答え：分力 F₁/F₂（青、showAnswers のみ）
+                let answer = '';
+                if (showAnswers) {
+                    const d1 = f.dir1Angle * Math.PI / 180;
+                    const d2 = f.dir2Angle * Math.PI / 180;
+                    const Fx = fx - cx, Fy = fy - cy;
+                    const det = Math.cos(d1) * (-Math.sin(d2)) - (-Math.sin(d1)) * Math.cos(d2);
+                    let f1Mag = 0, f2Mag = 0;
+                    if (Math.abs(det) > 1e-6) {
+                        f1Mag = ((-Math.sin(d2)) * Fx - Math.cos(d2) * Fy) / det;
+                        f2Mag = (-((-Math.sin(d1)) * Fx) + Math.cos(d1) * Fy) / det;
+                    }
+                    const f1End = { x: cx + f1Mag * Math.cos(d1), y: cy - f1Mag * Math.sin(d1) };
+                    const f2End = { x: cx + f2Mag * Math.cos(d2), y: cy - f2Mag * Math.sin(d2) };
+                    answer = `<line x1="${cx}" y1="${cy}" x2="${f1End.x}" y2="${f1End.y}" stroke="#1e5fa8" stroke-width="2" marker-end="url(#mEndB3)"/>`;
+                    answer += `<text x="${(cx + f1End.x) / 2 + 4}" y="${(cy + f1End.y) / 2 - 4}" font-size="10" fill="#1e5fa8" font-weight="600">F₁</text>`;
+                    answer += `<line x1="${cx}" y1="${cy}" x2="${f2End.x}" y2="${f2End.y}" stroke="#1e5fa8" stroke-width="2" marker-end="url(#mEndB3)"/>`;
+                    answer += `<text x="${(cx + f2End.x) / 2 + 4}" y="${(cy + f2End.y) / 2 - 4}" font-size="10" fill="#1e5fa8" font-weight="600">F₂</text>`;
+                }
                 return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" class="figure-svg" style="border:1px solid #888;">
                     <defs>
                         <marker id="mEndR3" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#d23a2a"/></marker>
+                        <marker id="mEndB3" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#1e5fa8"/></marker>
                     </defs>
-                    <circle cx="${cx}" cy="${cy}" r="2" fill="#000"/>
+                    ${grid}
+                    <text x="6" y="${H - 4}" font-size="9" fill="#888">1 マス = 10 N</text>
                     ${dirs}
                     <line x1="${cx}" y1="${cy}" x2="${fx}" y2="${fy}" stroke="#d23a2a" stroke-width="2" marker-end="url(#mEndR3)"/>
+                    <text x="${(cx + fx) / 2 + 4}" y="${(cy + fy) / 2 - 4}" font-size="10" fill="#d23a2a" font-weight="600">F</text>
+                    ${answer}
+                    <circle cx="${cx}" cy="${cy}" r="2.5" fill="#000"/>
+                    <text x="${cx - 10}" y="${cy + 12}" font-size="10" fill="#000" font-weight="600">O</text>
                 </svg>`;
             }
 
@@ -5901,16 +5939,18 @@
             }
 
             // ----- drawing-decompose 用 SVG -----
+            //   1 マス = 10 N（cell=20px, lenScale=2 px/N）。3-4-5 角度で F の終点も
+            //   分力の終点もすべてグリッド交点に乗る。
             _epBuildDrawingSvgDecompose(fig, idx) {
                 const W = 320, H = 240, cell = 20;
                 const ox = 160, oy = 120;
-                const lenScale = 1.5;
+                const lenScale = 2;
                 const fa = (fig.fAngle || 30) * Math.PI / 180;
                 const fEnd = { x: ox + fig.fMag * lenScale * Math.cos(fa), y: oy - fig.fMag * lenScale * Math.sin(fa) };
-                // 分解方向の補助線（点線で 80px 程度延長）
+                // 分解方向の補助線（点線、F が含まれる方向に十分な長さ）
                 const d1 = (fig.dir1Angle || 0) * Math.PI / 180;
                 const d2 = (fig.dir2Angle || 90) * Math.PI / 180;
-                const dirLen = 90;
+                const dirLen = 110;
                 const dir1End = { x: ox + dirLen * Math.cos(d1), y: oy - dirLen * Math.sin(d1) };
                 const dir2End = { x: ox + dirLen * Math.cos(d2), y: oy - dirLen * Math.sin(d2) };
                 let grid = '';
@@ -6157,7 +6197,7 @@
                 }
                 if (problem.pattern === 'drawing-decompose') {
                     // origin = (160, 120)、F = fMag・fAngle、分力は dir1Angle / dir2Angle 方向
-                    const ox = 160, oy = 120, lenScale = 1.5;
+                    const ox = 160, oy = 120, lenScale = 2;
                     const fa = (fig.fAngle || 30) * Math.PI / 180;
                     const fEnd = { x: ox + fig.fMag * lenScale * Math.cos(fa), y: oy - fig.fMag * lenScale * Math.sin(fa) };
                     const d1 = (fig.dir1Angle || 0) * Math.PI / 180;
