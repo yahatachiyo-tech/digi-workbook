@@ -3227,16 +3227,16 @@
                     // 問3: 作図 2D 合成（6 サブ）/ 知・技
                     {
                         id: 'mp1-q3', num: 3, category: 'knowledge', pattern: 'drawing-2d',
-                        unitTags: ['1-4'], points: 12,
+                        unitTags: ['1-4'], points: 8,
                         title: '次の２つの力の合力 F を図示しなさい。',
                         figureSvg: 'twoForcesPair',
+                        // 全パターン直角（交わる 2 力）+ 矢印先端がグリッド交点に揃うよう
+                        // 大きさはすべて 30N / 40N（1 マス = 10 N）。第 1〜第 4 象限で向き違い。
                         figures: [
-                            { sub: '(1)', f1Angle:   0, f2Angle:  90, f1: 40, f2: 30 },
-                            { sub: '(2)', f1Angle:   0, f2Angle:  60, f1: 40, f2: 30 },
-                            { sub: '(3)', f1Angle:  90, f2Angle:   0, f1: 30, f2: 40 },
-                            { sub: '(4)', f1Angle: 180, f2Angle:  60, f1: 30, f2: 40 },
-                            { sub: '(5)', f1Angle:  60, f2Angle: 300, f1: 40, f2: 30 },
-                            { sub: '(6)', f1Angle:  30, f2Angle: 330, f1: 40, f2: 30 }
+                            { sub: '(1)', f1Angle:   0, f2Angle:  90, f1: 40, f2: 30 },  // 右 + 上（第1象限）
+                            { sub: '(2)', f1Angle: 180, f2Angle:  90, f1: 30, f2: 40 },  // 左 + 上（第2象限）
+                            { sub: '(3)', f1Angle: 180, f2Angle: 270, f1: 40, f2: 30 },  // 左 + 下（第3象限）
+                            { sub: '(4)', f1Angle:   0, f2Angle: 270, f1: 30, f2: 40 }   // 右 + 下（第4象限）
                         ]
                     },
                     // 問4: 作図 分解（4 サブ）/ 知・技
@@ -5105,10 +5105,10 @@
             }
 
             _svgTwoForces2D(f, showAnswers) {
-                // 2D グリッド + F1, F2 矢印（角度・長さ指定）
-                const W = 200, H = 160, cell = 16;
+                // 2D グリッド + F1, F2 矢印（直角に交わる 2 力。1 マス = 10 N でグリッド一致）
+                const W = 240, H = 200, cell = 16;
                 const cx = W / 2, cy = H / 2;
-                const lenScale = 0.04;  // N → px 比
+                const lenScale = 0.1;  // 1 N = 1.6 px → 10 N = 1 マス（cell=16）
                 const f1Len = f.f1 * lenScale * cell;
                 const f2Len = f.f2 * lenScale * cell;
                 const a1 = f.f1Angle * Math.PI / 180;
@@ -5123,6 +5123,7 @@
                     const rx = (x1 + x2) / 2 * 2 - cx;
                     const ry = (y1 + y2) / 2 * 2 - cy;
                     answer = `<line x1="${cx}" y1="${cy}" x2="${rx}" y2="${ry}" stroke="#1e5fa8" stroke-width="2" stroke-dasharray="3,2" marker-end="url(#mEndB2)"/>`;
+                    answer += `<text x="${(cx + rx) / 2 + 4}" y="${(cy + ry) / 2 - 4}" font-size="10" fill="#1e5fa8" font-weight="600">F</text>`;
                 }
                 return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" class="figure-svg" style="border:1px solid #888;">
                     <defs>
@@ -5130,9 +5131,13 @@
                         <marker id="mEndB2" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#1e5fa8"/></marker>
                     </defs>
                     ${grid}
-                    <circle cx="${cx}" cy="${cy}" r="2" fill="#000"/>
+                    <text x="6" y="${H - 4}" font-size="9" fill="#888">1 マス = 10 N</text>
                     <line x1="${cx}" y1="${cy}" x2="${x1}" y2="${y1}" stroke="#d23a2a" stroke-width="2" marker-end="url(#mEndR2)"/>
+                    <text x="${(cx + x1) / 2 + 4}" y="${(cy + y1) / 2 - 4}" font-size="10" fill="#d23a2a" font-weight="600">F₁</text>
                     <line x1="${cx}" y1="${cy}" x2="${x2}" y2="${y2}" stroke="#d23a2a" stroke-width="2" marker-end="url(#mEndR2)"/>
+                    <text x="${(cx + x2) / 2 + 4}" y="${(cy + y2) / 2 - 4}" font-size="10" fill="#d23a2a" font-weight="600">F₂</text>
+                    <circle cx="${cx}" cy="${cy}" r="2.5" fill="#000"/>
+                    <text x="${cx - 10}" y="${cy + 12}" font-size="10" fill="#000" font-weight="600">O</text>
                     ${answer}
                 </svg>`;
             }
@@ -5861,10 +5866,12 @@
             }
 
             // ----- drawing-2d 用 SVG -----
+            //   1 マス = 10 N（cell=20px, lenScale=2px/N）。直角に交わる 2 力なら矢印先端
+            //   が必ずグリッド交点に揃う。学生は合力を始点 O から平行四辺形の対角線上に作図。
             _epBuildDrawingSvg2D(fig, idx) {
                 const W = 320, H = 240, cell = 20;
                 const ox = 160, oy = 140;
-                const lenScale = 1.5;  // 1 N = 1.5 px
+                const lenScale = 2;  // 1 N = 2 px → 1 マス（20px）= 10 N
                 const a1 = (fig.f1Angle || 0) * Math.PI / 180;
                 const a2 = (fig.f2Angle || 90) * Math.PI / 180;
                 const f1End = { x: ox + fig.f1 * lenScale * Math.cos(a1), y: oy - fig.f1 * lenScale * Math.sin(a1) };
@@ -5879,13 +5886,13 @@
                             <marker id="ep-mb-${idx}" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#1e5fa8"/></marker>
                         </defs>
                         ${grid}
-                        <text x="6" y="${H - 4}" font-size="10" fill="#888">1 N = ${lenScale} px（目安）</text>
+                        <text x="6" y="${H - 4}" font-size="10" fill="#888">1 マス = 10 N</text>
                         <line x1="${ox}" y1="${oy}" x2="${f1End.x}" y2="${f1End.y}" stroke="#d23a2a" stroke-width="2.5" marker-end="url(#ep-mr-${idx})"/>
                         <text x="${(ox + f1End.x) / 2 + 4}" y="${(oy + f1End.y) / 2 - 4}" font-size="11" fill="#d23a2a" font-weight="600">F₁</text>
                         <line x1="${ox}" y1="${oy}" x2="${f2End.x}" y2="${f2End.y}" stroke="#d23a2a" stroke-width="2.5" marker-end="url(#ep-mr-${idx})"/>
                         <text x="${(ox + f2End.x) / 2 + 4}" y="${(oy + f2End.y) / 2 - 4}" font-size="11" fill="#d23a2a" font-weight="600">F₂</text>
-                        <circle cx="${ox}" cy="${oy}" r="3" fill="#000"/>
-                        <text x="${ox - 12}" y="${oy + 16}" font-size="10" fill="#000">O</text>
+                        <circle cx="${ox}" cy="${oy}" r="3.5" fill="#000"/>
+                        <text x="${ox - 12}" y="${oy + 4}" font-size="11" fill="#000" font-weight="600">O</text>
                         <g id="ep-shapes-${idx}"></g>
                         <g id="ep-cursor-${idx}"></g>
                     </svg>`;
@@ -6130,7 +6137,7 @@
                 }
                 if (problem.pattern === 'drawing-2d') {
                     // origin = (160, 140)（_epBuildDrawingSvg2D と同じ値）
-                    const ox = 160, oy = 140, lenScale = 1.5;
+                    const ox = 160, oy = 140, lenScale = 2;
                     const a1 = (fig.f1Angle || 0) * Math.PI / 180;
                     const a2 = (fig.f2Angle || 90) * Math.PI / 180;
                     // 合力 F の終点 = F1 + F2 のベクトル和
