@@ -5742,10 +5742,74 @@
                     <button class="btn btn-primary" onclick="app.submitExamPrepAnswer()">確認</button>`;
             }
 
-            _epRenderDrawingAndCalc(p) {
+            // Q6 用作図 SVG: 直角配置（F₁ 水平右、F₂ 垂直上）、origin は左下隅。
+            //   1 マス = 10 N（cell=20px, lenScale=2 px/N）。F₁/F₂ ともに 80N まで対応。
+            //   学生は合力 F を O から平行四辺形の対角線終点 (ox+F1*scale, oy-F2*scale) まで作図。
+            _epBuildDrawingSvgRightAngle(F1, F2, idx) {
+                const W = 320, H = 240, cell = 20;
+                const ox = 60, oy = 200;
+                const lenScale = 2;
+                const f1TipX = ox + F1 * lenScale;
+                const f2TipY = oy - F2 * lenScale;
+                let grid = '';
+                for (let x = 0; x <= W; x += cell) grid += `<line x1="${x}" y1="0" x2="${x}" y2="${H}" stroke="#eee" stroke-width="0.5"/>`;
+                for (let y = 0; y <= H; y += cell) grid += `<line x1="0" y1="${y}" x2="${W}" y2="${y}" stroke="#eee" stroke-width="0.5"/>`;
                 return `
-                    <div style="font-size:13px; color:#666; margin-bottom:10px;">作図は紙のプリントで行います。ここでは計算結果を入力してください。</div>
-                    ${this._epRenderCalcResultant(p)}`;
+                    <svg id="ep-svg-${idx}" class="ep-drawing-svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" data-cell="${cell}" data-ox="${ox}" data-oy="${oy}" data-lenscale="${lenScale}">
+                        <defs>
+                            <marker id="ep-mr-${idx}" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#d23a2a"/></marker>
+                            <marker id="ep-mb-${idx}" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#1e5fa8"/></marker>
+                        </defs>
+                        ${grid}
+                        <text x="6" y="${H - 4}" font-size="10" fill="#888">1 マス = 10 N</text>
+                        <!-- F₁ 水平右 -->
+                        <line x1="${ox}" y1="${oy}" x2="${f1TipX}" y2="${oy}" stroke="#d23a2a" stroke-width="2.5" marker-end="url(#ep-mr-${idx})"/>
+                        <text x="${(ox + f1TipX) / 2 - 24}" y="${oy + 16}" font-size="11" fill="#d23a2a" font-weight="600">F₁ = ${F1} N</text>
+                        <!-- F₂ 垂直上 -->
+                        <line x1="${ox}" y1="${oy}" x2="${ox}" y2="${f2TipY}" stroke="#d23a2a" stroke-width="2.5" marker-end="url(#ep-mr-${idx})"/>
+                        <text x="${ox + 6}" y="${(oy + f2TipY) / 2}" font-size="11" fill="#d23a2a" font-weight="600">F₂ = ${F2} N</text>
+                        <!-- 共通の作用点 O -->
+                        <circle cx="${ox}" cy="${oy}" r="3.5" fill="#000"/>
+                        <text x="${ox - 14}" y="${oy + 4}" font-size="11" fill="#000" font-weight="600">O</text>
+                        <g id="ep-shapes-${idx}"></g>
+                        <g id="ep-cursor-${idx}"></g>
+                    </svg>`;
+            }
+
+            _epRenderDrawingAndCalc(p) {
+                // 作図 + 計算 の複合問題。問1〜4 と同じ作図 UI を組み合わせ、
+                //   さらに F の大きさ・tan α の数値入力欄を表示。
+                const F1 = p.params.F1, F2 = p.params.F2;
+                this.examPrepDrawing = {
+                    problemId: p.id,
+                    figures: [{ mode: 'vector', startPoint: null, shapes: [] }]
+                };
+                const svgHTML = this._epBuildDrawingSvgRightAngle(F1, F2, 0);
+                // SVG への click ハンドラ取り付け（DOM 確定後）
+                setTimeout(() => {
+                    const svg = document.getElementById('ep-svg-0');
+                    if (svg) svg.onclick = (e) => this._epDrawClick(0, e);
+                }, 50);
+                return `
+                    <div class="ep-drawing-fig" data-fig-idx="0">
+                        <div class="ep-drawing-toolbar">
+                            <button class="ep-drawing-mode active" id="ep-mode-vec-0" onclick="app._epDrawSetMode(0, 'vector')">▶ ベクトル（実線）</button>
+                            <button class="ep-drawing-mode" id="ep-mode-aux-0" onclick="app._epDrawSetMode(0, 'aux')">- - 補助線（破線）</button>
+                            <button class="ep-drawing-clear" onclick="app._epDrawClear(0)">消す</button>
+                        </div>
+                        ${svgHTML}
+                        <div class="ep-drawing-help">合力 F を作図してください。<strong>始点 → 終点</strong> の順にタップ。グリッドの交点に自動でスナップします。</div>
+                    </div>
+                    <div class="ep-subq-row">
+                        <span class="ep-subq-label">F ＝</span>
+                        <input type="number" class="ep-subq-input" data-key="F" placeholder="数値" step="0.1">
+                        <span>[N]</span>
+                    </div>
+                    <div class="ep-subq-row">
+                        <span class="ep-subq-label">tan α ＝</span>
+                        <input type="number" class="ep-subq-input" data-key="tanA" placeholder="小数第 1 位" step="0.1">
+                    </div>
+                    <button class="btn btn-primary" onclick="app.submitExamPrepAnswer()">確認</button>`;
             }
 
             _epRenderCalcMoment(p) {
@@ -6090,6 +6154,10 @@
                 if (problem.pattern === 'drawing-1d' || problem.pattern === 'drawing-2d' || problem.pattern === 'drawing-decompose') {
                     return this._epCheckDrawingAnswer(problem);
                 }
+                // 作図 + 計算 (Q6): 作図と計算 両方をチェック
+                if (problem.pattern === 'drawing-and-calc') {
+                    return this._epCheckDrawingAndCalcAnswer(problem, inputs);
+                }
                 if (problem.pattern === 'fill-in-blank') {
                     let allOk = true;
                     inputs.forEach(inp => {
@@ -6128,6 +6196,58 @@
                 });
                 return { allCorrect: allOk, wrongKeys, correctKeys,
                          message: allOk ? '' : '答えが期待値と異なります（赤）。' };
+            }
+
+            // 作図 + 計算（Q6）の正誤判定。
+            //   ① 作図: O から (ox+F1*scale, oy-F2*scale) の終点まで線が引かれているか
+            //   ② 計算: F の大きさ・tan α 入力欄が期待値と一致するか
+            //   どちらか片方でも誤りがあれば不正解扱い。誤った要素を wrongKeys に列挙。
+            _epCheckDrawingAndCalcAnswer(problem, inputs) {
+                const tol = (a, b, t) => Math.abs(a - b) <= (t || 0.5) + 1e-9;
+                const wrongKeys = [];
+                const correctKeys = [];
+                const messages = [];
+
+                // ① 作図検証
+                const tolPx = 12;
+                const ox = 60, oy = 200, lenScale = 2;
+                const F1 = problem.params.F1, F2 = problem.params.F2;
+                const targetX = ox + F1 * lenScale;
+                const targetY = oy - F2 * lenScale;
+                let drawOk = false;
+                if (this.examPrepDrawing && this.examPrepDrawing.figures && this.examPrepDrawing.figures[0]) {
+                    const vectors = this.examPrepDrawing.figures[0].shapes.filter(s => s.type === 'vector');
+                    drawOk = vectors.some(v => {
+                        const startOk = Math.hypot(v.x1 - ox, v.y1 - oy) < tolPx + 4;
+                        const endOk = Math.hypot(v.x2 - targetX, v.y2 - targetY) < tolPx + 4;
+                        return startOk && endOk;
+                    });
+                }
+                if (drawOk) correctKeys.push('drawing');
+                else {
+                    wrongKeys.push('drawing');
+                    messages.push('作図: 合力 F は O を始点とし、F₁ と F₂ のベクトル和（平行四辺形の対角線）の終点まで描いてください。');
+                }
+
+                // ② 計算検証
+                const exp = problem.expected || {};
+                inputs.forEach(inp => {
+                    const key = inp.getAttribute('data-key');
+                    const userVal = parseFloat(inp.value);
+                    if (isNaN(userVal)) { wrongKeys.push(key); messages.push(`${key}: 数値を入力してください。`); return; }
+                    const expectedVal = exp[key];
+                    const tolerance = (key === 'tanA' || key === 'tanAlpha') ? 0.05 : 0.5;
+                    if (expectedVal === undefined) { wrongKeys.push(key); return; }
+                    if (tol(userVal, expectedVal, tolerance)) correctKeys.push(key);
+                    else { wrongKeys.push(key); }
+                });
+                const allOk = wrongKeys.length === 0;
+                return {
+                    allCorrect: allOk,
+                    wrongKeys,
+                    correctKeys,
+                    message: allOk ? '' : (messages.length ? messages.join('<br>') : '答えが期待値と異なります（赤）。')
+                };
             }
 
             // 作図系の正誤判定。各サブ図ごとに「正しいベクトル」が描かれているかチェック。
