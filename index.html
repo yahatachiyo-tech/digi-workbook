@@ -5210,22 +5210,40 @@
             }
 
             _svgRightTriangleFilled(p) {
-                // 問5 用：F₁ と F₂ を「両方とも原点 O から」描画（問題文時の正しい状態）。
-                //   F₁: 原点 O から右、F₂: 原点 O から上（共通の原点）。
-                //   合力 F は学生が計算で求める量のため、図には表示しない（spec-auditor HIGH-2 反映）。
-                const W = 220, H = 180;
+                // 問5 用：作図完了済みの図。生徒は数値計算のみ行う（問6 の前段階）。
+                //   F₁ と F₂ が原点 O から働く 2 力（赤実線）。
+                //   平行四辺形（直角の場合は長方形）の補助線（灰色破線）を表示。
+                //   合力 F を対角線として青実線で表示し、α 弧 + ラベルを示す。
+                const W = 240, H = 200;
                 const ox = 50, oy = H - 40;
-                const f1px = 100, f2px = (p.params.F2 / p.params.F1) * f1px;
+                const f1px = 110, f2px = (p.params.F2 / p.params.F1) * f1px;
+                const fEndX = ox + f1px, fEndY = oy - f2px;
+                // α 弧（O 点で F₁ 方向 → F 方向）
+                const arcR = 24;
+                const alpha = Math.atan2(f2px, f1px);
+                const arcEndX = ox + arcR * Math.cos(alpha);
+                const arcEndY = oy - arcR * Math.sin(alpha);
                 return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" class="figure-svg">
                     <defs>
-                        <marker id="m4r" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#d23a2a"/></marker>
+                        <marker id="m5r" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#d23a2a"/></marker>
+                        <marker id="m5b" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#1e5fa8"/></marker>
                     </defs>
+                    <!-- 補助線（平行四辺形の右辺）: F₁ 終点 → F 終点 -->
+                    <line x1="${ox + f1px}" y1="${oy}" x2="${fEndX}" y2="${fEndY}" stroke="#888" stroke-width="1" stroke-dasharray="4,3"/>
+                    <!-- 補助線（平行四辺形の上辺）: F₂ 終点 → F 終点 -->
+                    <line x1="${ox}" y1="${oy - f2px}" x2="${fEndX}" y2="${fEndY}" stroke="#888" stroke-width="1" stroke-dasharray="4,3"/>
                     <!-- F₁ from O going right (red solid) -->
-                    <line x1="${ox}" y1="${oy}" x2="${ox + f1px}" y2="${oy}" stroke="#d23a2a" stroke-width="2.5" marker-end="url(#m4r)"/>
+                    <line x1="${ox}" y1="${oy}" x2="${ox + f1px}" y2="${oy}" stroke="#d23a2a" stroke-width="2.5" marker-end="url(#m5r)"/>
                     <text x="${ox + f1px / 2 - 18}" y="${oy + 14}" font-size="10pt">F₁ = ${p.params.F1} N</text>
                     <!-- F₂ from O going up (red solid) -->
-                    <line x1="${ox}" y1="${oy}" x2="${ox}" y2="${oy - f2px}" stroke="#d23a2a" stroke-width="2.5" marker-end="url(#m4r)"/>
-                    <text x="${ox - 38}" y="${oy - f2px / 2}" font-size="10pt">F₂ = ${p.params.F2} N</text>
+                    <line x1="${ox}" y1="${oy}" x2="${ox}" y2="${oy - f2px}" stroke="#d23a2a" stroke-width="2.5" marker-end="url(#m5r)"/>
+                    <text x="${ox - 50}" y="${oy - f2px / 2}" font-size="10pt">F₂ = ${p.params.F2} N</text>
+                    <!-- 合力 F（青実線、対角線） -->
+                    <line x1="${ox}" y1="${oy}" x2="${fEndX}" y2="${fEndY}" stroke="#1e5fa8" stroke-width="2.5" marker-end="url(#m5b)"/>
+                    <text x="${(ox + fEndX) / 2 + 6}" y="${(oy + fEndY) / 2 - 6}" font-size="11pt" fill="#1e5fa8" font-weight="bold">F</text>
+                    <!-- α 弧（O 点で F₁ → F のなす角） -->
+                    <path d="M ${ox + arcR} ${oy} A ${arcR} ${arcR} 0 0 0 ${arcEndX.toFixed(2)} ${arcEndY.toFixed(2)}" fill="none" stroke="#333" stroke-width="1"/>
+                    <text x="${ox + arcR + 4}" y="${oy - 6}" font-size="10pt">α</text>
                     <!-- Origin O -->
                     <circle cx="${ox}" cy="${oy}" r="2.5" fill="#000"/>
                     <text x="${ox - 12}" y="${oy + 14}" font-size="9pt">O</text>
