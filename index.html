@@ -1700,6 +1700,47 @@
             color: #666;
             margin-top: 4px;
         }
+        /* 作図モード使い分けの説明（SVG の上に表示） */
+        .ep-drawing-instructions {
+            background: #f5f8fc;
+            border: 1px solid #cfd8e3;
+            border-left: 3px solid #1e5fa8;
+            border-radius: 4px;
+            padding: 10px 14px;
+            margin-bottom: 14px;
+            font-size: 13px;
+            line-height: 1.7;
+            color: #234;
+        }
+        .ep-drawing-modeguide {
+            font-size: 12px;
+            color: #456;
+            margin-bottom: 6px;
+        }
+        .ep-drawing-modeguide .ep-mode-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: 600;
+            margin: 0 2px;
+        }
+        .ep-drawing-modeguide .ep-mode-vec {
+            background: #d23a2a; color: #fff;
+        }
+        .ep-drawing-modeguide .ep-mode-aux {
+            background: #e8eef5; color: #333; border: 1px dashed #888;
+        }
+        .ep-drawing-modeguide .ep-mode-sep {
+            margin: 0 6px; color: #888;
+        }
+        .ep-drawing-steps {
+            margin: 4px 0 0 1.1em;
+            padding: 0;
+        }
+        .ep-drawing-steps li {
+            margin-bottom: 4px;
+        }
         .dashboard-header {
             display: flex;
             justify-content: space-between;
@@ -5853,15 +5894,17 @@
                     const svg = document.getElementById('ep-svg-0');
                     if (svg) svg.onclick = (e) => this._epDrawClick(0, e);
                 }, 50);
+                const guide = this._epDrawingInstructions('drawing-and-calc');
                 return `
+                    ${guide}
                     <div class="ep-drawing-fig" data-fig-idx="0">
                         <div class="ep-drawing-toolbar">
-                            <button class="ep-drawing-mode active" id="ep-mode-vec-0" onclick="app._epDrawSetMode(0, 'vector')">▶ ベクトル（実線）</button>
-                            <button class="ep-drawing-mode" id="ep-mode-aux-0" onclick="app._epDrawSetMode(0, 'aux')">- - 補助線（破線）</button>
+                            <button class="ep-drawing-mode active" id="ep-mode-vec-0" onclick="app._epDrawSetMode(0, 'vector')">▶ ベクトル（実線・答え）</button>
+                            <button class="ep-drawing-mode" id="ep-mode-aux-0" onclick="app._epDrawSetMode(0, 'aux')">- - 補助線（破線・作図用）</button>
                             <button class="ep-drawing-clear" onclick="app._epDrawClear(0)">消す</button>
                         </div>
                         ${svgHTML}
-                        <div class="ep-drawing-help">合力 F を作図してください。<strong>始点 → 終点</strong> の順にタップ。グリッドの交点に自動でスナップします。</div>
+                        <div class="ep-drawing-help">図の上をタップして、<strong>始点 → 終点</strong> の順に 2 点を選ぶと線が引けます。グリッドの交点に自動でスナップします。</div>
                     </div>
                     <div class="ep-subq-row">
                         <span class="ep-subq-label">F ＝</span>
@@ -5953,20 +5996,53 @@
             //   モード切替: ベクトル（実線・矢印）/ 補助線（破線）
             //   状態は this.examPrepDrawing に保持。問題遷移時に再初期化。
             // ==================================================================
+            // 作図問題の「いつどちらのモードを使うか」をパターン別に明示する手順説明。
+            //   生徒が「ベクトル＝答えとなる力」「補助線＝平行四辺形などの作図用」と
+            //   迷わず使い分けられるよう、SVG の上に手順 1, 2 で示す。
+            _epDrawingInstructions(pattern) {
+                const base = `
+                    <div class="ep-drawing-modeguide">
+                        <span class="ep-mode-tag ep-mode-vec">▶ ベクトル（実線）</span>= <strong>答えの力</strong>を表す矢印
+                        <span class="ep-mode-sep">／</span>
+                        <span class="ep-mode-tag ep-mode-aux">- - 補助線（破線）</span>= 平行四辺形などの<strong>作図用</strong>の線
+                    </div>`;
+                let steps = '';
+                if (pattern === 'drawing-1d') {
+                    steps = `
+                        <ol class="ep-drawing-steps">
+                            <li><strong>ベクトル</strong>で、O を始点に合力 F を 1 本引く（補助線は不要）。</li>
+                        </ol>`;
+                } else if (pattern === 'drawing-2d' || pattern === 'drawing-and-calc') {
+                    steps = `
+                        <ol class="ep-drawing-steps">
+                            <li><strong>補助線</strong>で、F₁ の終点から F₂ に平行な直線、F₂ の終点から F₁ に平行な直線を引いて<strong>平行四辺形</strong>を作る。</li>
+                            <li><strong>ベクトル</strong>で、O から平行四辺形の対角線の終点まで<strong>合力 F</strong> を引く。</li>
+                        </ol>`;
+                } else if (pattern === 'drawing-decompose') {
+                    steps = `
+                        <ol class="ep-drawing-steps">
+                            <li><strong>補助線</strong>で、F の終点から、灰色の破線で示された 2 つの方向に平行な直線を引く。</li>
+                            <li><strong>ベクトル</strong>で、O を始点に <strong>F₁、F₂</strong> をそれぞれ平行線との交点まで引く（2 本）。</li>
+                        </ol>`;
+                }
+                return `<div class="ep-drawing-instructions">${base}${steps}</div>`;
+            }
+
             _epRenderDrawingInteractive(problem) {
                 this.examPrepDrawing = {
                     problemId: problem.id,
                     figures: problem.figures.map(() => ({ mode: 'vector', startPoint: null, shapes: [] }))
                 };
-                let html = '<div class="ep-drawing-figs">';
+                const guide = this._epDrawingInstructions(problem.pattern);
+                let html = guide + '<div class="ep-drawing-figs">';
                 problem.figures.forEach((f, i) => {
                     const svgHTML = this._epBuildDrawingSvg(problem, f, i);
                     html += `
                         <div class="ep-drawing-fig" data-fig-idx="${i}">
                             <div class="ep-drawing-caption">${f.sub}</div>
                             <div class="ep-drawing-toolbar">
-                                <button class="ep-drawing-mode active" id="ep-mode-vec-${i}" onclick="app._epDrawSetMode(${i}, 'vector')">▶ ベクトル（実線）</button>
-                                <button class="ep-drawing-mode" id="ep-mode-aux-${i}" onclick="app._epDrawSetMode(${i}, 'aux')">- - 補助線（破線）</button>
+                                <button class="ep-drawing-mode active" id="ep-mode-vec-${i}" onclick="app._epDrawSetMode(${i}, 'vector')">▶ ベクトル（実線・答え）</button>
+                                <button class="ep-drawing-mode" id="ep-mode-aux-${i}" onclick="app._epDrawSetMode(${i}, 'aux')">- - 補助線（破線・作図用）</button>
                                 <button class="ep-drawing-clear" onclick="app._epDrawClear(${i})">消す</button>
                             </div>
                             ${svgHTML}
