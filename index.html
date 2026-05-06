@@ -4881,39 +4881,52 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.js"><\/script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"><\/script>
 <style>
-  @page { size: B4 portrait; margin: 12mm 14mm; }
+  /* B4 横向き（B4 = 257 × 364mm、横向きで 364 × 257mm） */
+  @page { size: B4 landscape; margin: 10mm 12mm; }
   @media print {
       .no-print { display: none !important; }
       .answer-shown { color: ${showAnswers ? '#c00' : 'transparent'} !important; }
   }
-  body { font-family: 'Hiragino Mincho ProN', 'Yu Mincho', 'MS Mincho', serif; font-size: 11pt; line-height: 1.6; color: #000; margin: 0; padding: 16px; }
+  body { font-family: 'Hiragino Mincho ProN', 'Yu Mincho', 'MS Mincho', serif; font-size: 10pt; line-height: 1.5; color: #000; margin: 0; padding: 12px; }
   .print-toolbar { background:#f0f0f0; border:1px solid #ccc; padding:8px 12px; margin-bottom:14px; display:flex; gap:10px; align-items:center; }
   .print-toolbar button { padding:6px 14px; cursor:pointer; }
-  .exam-page { max-width: 700px; margin: 0 auto; }
+  .exam-page { max-width: none; margin: 0; }
   .header-row { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1.5px solid #000; padding-bottom: 4px; margin-bottom: 6px; }
-  .header-title { font-weight: bold; font-size: 13pt; border: 1px solid #000; padding: 2px 8px; display: inline-block; }
-  .header-name-area { font-size: 11pt; }
+  .header-title { font-weight: bold; font-size: 12pt; border: 1px solid #000; padding: 2px 8px; display: inline-block; }
+  .header-name-area { font-size: 10pt; }
   .score-table { border-collapse: collapse; font-size: 9pt; }
   .score-table th, .score-table td { border: 1px solid #000; padding: 2px 8px; min-width: 32px; text-align: center; }
-  .instructions { font-size: 9pt; color: #333; margin-bottom: 10px; }
-  .problem { margin-bottom: 14px; page-break-inside: avoid; }
+  .instructions { font-size: 9pt; color: #333; margin-bottom: 8px; }
+  /* 2 段組レイアウト（B4 横向き） */
+  .problems-grid {
+      column-count: 2;
+      column-gap: 10mm;
+      column-fill: auto;
+      column-rule: 1px solid #ccc;
+  }
+  .problem {
+      margin-bottom: 10px;
+      break-inside: avoid;
+      -webkit-column-break-inside: avoid;
+      page-break-inside: avoid;
+  }
   .problem-num { font-weight: bold; }
-  .problem-title { font-weight: normal; margin-bottom: 6px; }
+  .problem-title { font-weight: normal; margin-bottom: 4px; }
   .problem-category { font-size: 9pt; color: #444; margin-left: 6px; }
-  .problem-figures { display: flex; flex-wrap: wrap; gap: 12px; margin: 6px 0; align-items: flex-start; }
-  .problem-figures > div { font-size: 10pt; }
-  .answer-area { display: flex; gap: 14px; align-items: center; margin-top: 8px; flex-wrap: wrap; }
-  .answer-line { border-bottom: 1px solid #000; min-width: 80px; padding: 2px 6px; display: inline-block; }
-  .answer-box { border: 1px solid #000; padding: 3px 10px; min-width: 80px; text-align: center; display: inline-block; }
-  .blanks-table { border-collapse: collapse; margin-top: 6px; }
-  .blanks-table td { border: 1px solid #000; padding: 4px 12px; min-width: 60px; text-align: center; font-size: 10pt; }
+  .problem-figures { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0; align-items: flex-start; }
+  .problem-figures > div { font-size: 9pt; }
+  .answer-area { display: flex; gap: 10px; align-items: center; margin-top: 6px; flex-wrap: wrap; }
+  .answer-line { border-bottom: 1px solid #000; min-width: 60px; padding: 2px 6px; display: inline-block; }
+  .answer-box { border: 1px solid #000; padding: 3px 8px; min-width: 70px; text-align: center; display: inline-block; }
+  .blanks-table { border-collapse: collapse; margin-top: 4px; }
+  .blanks-table td { border: 1px solid #000; padding: 3px 10px; min-width: 50px; text-align: center; font-size: 9pt; }
   .answer-shown { color: ${showAnswers ? '#c00' : 'transparent'}; font-weight: ${showAnswers ? 'bold' : 'normal'}; }
-  .workflow { font-size: 9pt; color: #c00; line-height: 1.5; margin-top: 4px; padding-left: 14px; display: ${showAnswers ? 'block' : 'none'}; }
+  .workflow { font-size: 9pt; color: #c00; line-height: 1.4; margin-top: 4px; padding-left: 10px; display: ${showAnswers ? 'block' : 'none'}; }
   .workflow div { margin-bottom: 2px; }
-  .figure-svg { display: block; }
+  .figure-svg { display: block; max-width: 100%; }
   .figure-caption { font-size: 9pt; text-align: center; }
-  h1 { font-size: 14pt; margin: 0; }
-  hr { border: none; border-top: 1px solid #999; margin: 12px 0; }
+  h1 { font-size: 13pt; margin: 0; }
+  hr { border: none; border-top: 1px solid #999; margin: 10px 0; }
 </style>
 </head>
 <body>
@@ -4932,7 +4945,9 @@
       ${isExam ? this._buildScoreTable() : ''}
     </div>
     <div class="instructions">${meta.instructions}</div>
-    ${problemsHTML}
+    <div class="problems-grid">
+      ${problemsHTML}
+    </div>
   </div>
 </body>
 </html>`;
@@ -5179,9 +5194,14 @@
                 for (let j = 0; j < H / cell; j++) grid += `<line x1="0" y1="${j * cell}" x2="${W}" y2="${j * cell}" stroke="#ddd" stroke-width="0.5"/>`;
                 let answer = '';
                 if (showAnswers) {
-                    const rx = (x1 + x2) / 2 * 2 - cx;
-                    const ry = (y1 + y2) / 2 * 2 - cy;
-                    answer = `<line x1="${cx}" y1="${cy}" x2="${rx}" y2="${ry}" stroke="#1e5fa8" stroke-width="2" stroke-dasharray="3,2" marker-end="url(#mEndB2)"/>`;
+                    // 合力 F の終点（平行四辺形の対角線終点）
+                    const rx = x1 + (x2 - cx);
+                    const ry = y1 + (y2 - cy);
+                    // 補助線（平行四辺形の右上 2 辺、灰色破線）
+                    answer = `<line x1="${x1}" y1="${y1}" x2="${rx}" y2="${ry}" stroke="#888" stroke-width="1" stroke-dasharray="3,2"/>`;
+                    answer += `<line x1="${x2}" y1="${y2}" x2="${rx}" y2="${ry}" stroke="#888" stroke-width="1" stroke-dasharray="3,2"/>`;
+                    // 合力 F（青実線、対角線）
+                    answer += `<line x1="${cx}" y1="${cy}" x2="${rx}" y2="${ry}" stroke="#1e5fa8" stroke-width="2" marker-end="url(#mEndB2)"/>`;
                     answer += `<text x="${(cx + rx) / 2 + 4}" y="${(cy + ry) / 2 - 4}" font-size="10" fill="#1e5fa8" font-weight="600">F</text>`;
                 }
                 return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" class="figure-svg" style="border:1px solid #888;">
@@ -5234,7 +5254,12 @@
                     }
                     const f1End = { x: cx + f1Mag * Math.cos(d1), y: cy - f1Mag * Math.sin(d1) };
                     const f2End = { x: cx + f2Mag * Math.cos(d2), y: cy - f2Mag * Math.sin(d2) };
-                    answer = `<line x1="${cx}" y1="${cy}" x2="${f1End.x}" y2="${f1End.y}" stroke="#1e5fa8" stroke-width="2" marker-end="url(#mEndB3)"/>`;
+                    // 補助線（平行四辺形完成）: F の終点 → F₁ 終点（F₂ に平行）
+                    answer = `<line x1="${fx}" y1="${fy}" x2="${f1End.x}" y2="${f1End.y}" stroke="#888" stroke-width="1" stroke-dasharray="3,2"/>`;
+                    // 補助線: F の終点 → F₂ 終点（F₁ に平行）
+                    answer += `<line x1="${fx}" y1="${fy}" x2="${f2End.x}" y2="${f2End.y}" stroke="#888" stroke-width="1" stroke-dasharray="3,2"/>`;
+                    // 分力 F₁・F₂（青実線）
+                    answer += `<line x1="${cx}" y1="${cy}" x2="${f1End.x}" y2="${f1End.y}" stroke="#1e5fa8" stroke-width="2" marker-end="url(#mEndB3)"/>`;
                     answer += `<text x="${(cx + f1End.x) / 2 + 4}" y="${(cy + f1End.y) / 2 - 4}" font-size="10" fill="#1e5fa8" font-weight="600">F₁</text>`;
                     answer += `<line x1="${cx}" y1="${cy}" x2="${f2End.x}" y2="${f2End.y}" stroke="#1e5fa8" stroke-width="2" marker-end="url(#mEndB3)"/>`;
                     answer += `<text x="${(cx + f2End.x) / 2 + 4}" y="${(cy + f2End.y) / 2 - 4}" font-size="10" fill="#1e5fa8" font-weight="600">F₂</text>`;
@@ -5305,8 +5330,12 @@
                 const fEndX = ox + f1px, fEndY = oy - f2px;
                 let resultant = '';
                 if (showAnswers) {
-                    resultant = `<line x1="${ox}" y1="${oy}" x2="${fEndX}" y2="${fEndY}" stroke="#1e5fa8" stroke-width="2" marker-end="url(#m6b)" stroke-dasharray="3,2"/>
-                                 <text x="${(ox + fEndX) / 2 + 4}" y="${(oy + fEndY) / 2 - 4}" font-size="11pt" fill="#1e5fa8" font-weight="bold">F</text>`;
+                    // 補助線（平行四辺形完成）: F₁ 終点 → F 終点（垂直）、F₂ 終点 → F 終点（水平）
+                    resultant = `<line x1="${ox + f1px}" y1="${oy}" x2="${fEndX}" y2="${fEndY}" stroke="#888" stroke-width="1" stroke-dasharray="3,2"/>
+                                 <line x1="${ox}" y1="${oy - f2px}" x2="${fEndX}" y2="${fEndY}" stroke="#888" stroke-width="1" stroke-dasharray="3,2"/>`;
+                    // 合力 F（青実線、対角線）
+                    resultant += `<line x1="${ox}" y1="${oy}" x2="${fEndX}" y2="${fEndY}" stroke="#1e5fa8" stroke-width="2" marker-end="url(#m6b)"/>
+                                  <text x="${(ox + fEndX) / 2 + 4}" y="${(oy + fEndY) / 2 - 4}" font-size="11pt" fill="#1e5fa8" font-weight="bold">F</text>`;
                 }
                 return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" class="figure-svg">
                     <defs>
