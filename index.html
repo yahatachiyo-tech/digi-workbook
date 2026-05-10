@@ -6196,10 +6196,63 @@
             // ----- drawing-2d 用 SVG -----
             //   1 マス = 10 N（cell=20px, lenScale=2px/N）。直角に交わる 2 力なら矢印先端
             //   が必ずグリッド交点に揃う。学生は合力を始点 O から平行四辺形の対角線上に作図。
+            // 適応原点計算（drawing-2d）: F₁/F₂/合力 F の bounding box 中心が
+            //   canvas 中心に来るよう原点をグリッド交点に snap して返す。
+            //   _epBuildDrawingSvg2D と _epCheckSingleFigure で共有して同じ原点を使う。
+            _epOrigin2D(fig, W, H, cell, lenScale) {
+                const a1 = (fig.f1Angle || 0) * Math.PI / 180;
+                const a2 = (fig.f2Angle || 90) * Math.PI / 180;
+                const v1x = fig.f1 * lenScale * Math.cos(a1), v1y = -fig.f1 * lenScale * Math.sin(a1);
+                const v2x = fig.f2 * lenScale * Math.cos(a2), v2y = -fig.f2 * lenScale * Math.sin(a2);
+                const vfx = v1x + v2x, vfy = v1y + v2y;
+                const xMin = Math.min(0, v1x, v2x, vfx);
+                const xMax = Math.max(0, v1x, v2x, vfx);
+                const yMin = Math.min(0, v1y, v2y, vfy);
+                const yMax = Math.max(0, v1y, v2y, vfy);
+                const cxIdeal = W / 2 - (xMin + xMax) / 2;
+                const cyIdeal = H / 2 - (yMin + yMax) / 2;
+                return {
+                    ox: Math.round(cxIdeal / cell) * cell,
+                    oy: Math.round(cyIdeal / cell) * cell
+                };
+            }
+
+            // 適応原点計算（drawing-decompose）: F、F₁、F₂、dir 補助線終点を含む
+            //   bounding box 中心が canvas 中心に来るよう原点を配置。
+            _epOriginDecompose(fig, W, H, cell, lenScale, dirLen) {
+                const fa = (fig.fAngle || 30) * Math.PI / 180;
+                const a1 = (fig.dir1Angle || 0) * Math.PI / 180;
+                const a2 = (fig.dir2Angle || 90) * Math.PI / 180;
+                const vfx = fig.fMag * lenScale * Math.cos(fa);
+                const vfy = -fig.fMag * lenScale * Math.sin(fa);
+                // F₁/F₂ を線形代数で計算（dir1/dir2 への射影）
+                const det = Math.cos(a1) * (-Math.sin(a2)) - (-Math.sin(a1)) * Math.cos(a2);
+                let f1MagPx = 0, f2MagPx = 0;
+                if (Math.abs(det) > 1e-6) {
+                    f1MagPx = ((-Math.sin(a2)) * vfx - Math.cos(a2) * vfy) / det;
+                    f2MagPx = (-((-Math.sin(a1)) * vfx) + Math.cos(a1) * vfy) / det;
+                }
+                const v1x = f1MagPx * Math.cos(a1), v1y = -f1MagPx * Math.sin(a1);
+                const v2x = f2MagPx * Math.cos(a2), v2y = -f2MagPx * Math.sin(a2);
+                const d1x = dirLen * Math.cos(a1), d1y = -dirLen * Math.sin(a1);
+                const d2x = dirLen * Math.cos(a2), d2y = -dirLen * Math.sin(a2);
+                const allX = [0, vfx, v1x, v2x, d1x, d2x];
+                const allY = [0, vfy, v1y, v2y, d1y, d2y];
+                const xMin = Math.min(...allX), xMax = Math.max(...allX);
+                const yMin = Math.min(...allY), yMax = Math.max(...allY);
+                const cxIdeal = W / 2 - (xMin + xMax) / 2;
+                const cyIdeal = H / 2 - (yMin + yMax) / 2;
+                return {
+                    ox: Math.round(cxIdeal / cell) * cell,
+                    oy: Math.round(cyIdeal / cell) * cell
+                };
+            }
+
             _epBuildDrawingSvg2D(fig, idx) {
                 const W = 320, H = 240, cell = 20;
-                const ox = 160, oy = 140;
                 const lenScale = 2;  // 1 N = 2 px → 1 マス（20px）= 10 N
+                // 適応原点（bbox 中心 = canvas 中心）
+                const { ox, oy } = this._epOrigin2D(fig, W, H, cell, lenScale);
                 const a1 = (fig.f1Angle || 0) * Math.PI / 180;
                 const a2 = (fig.f2Angle || 90) * Math.PI / 180;
                 const f1End = { x: ox + fig.f1 * lenScale * Math.cos(a1), y: oy - fig.f1 * lenScale * Math.sin(a1) };
@@ -6231,14 +6284,15 @@
             //   分力の終点もすべてグリッド交点に乗る。
             _epBuildDrawingSvgDecompose(fig, idx) {
                 const W = 320, H = 240, cell = 20;
-                const ox = 160, oy = 120;
                 const lenScale = 2;
+                const dirLen = 110;
+                // 適応原点（bbox 中心 = canvas 中心）
+                const { ox, oy } = this._epOriginDecompose(fig, W, H, cell, lenScale, dirLen);
                 const fa = (fig.fAngle || 30) * Math.PI / 180;
                 const fEnd = { x: ox + fig.fMag * lenScale * Math.cos(fa), y: oy - fig.fMag * lenScale * Math.sin(fa) };
-                // 分解方向の補助線（点線、F が含まれる方向に十分な長さ）
+                // 分解方向の補助線
                 const d1 = (fig.dir1Angle || 0) * Math.PI / 180;
                 const d2 = (fig.dir2Angle || 90) * Math.PI / 180;
-                const dirLen = 110;
                 const dir1End = { x: ox + dirLen * Math.cos(d1), y: oy - dirLen * Math.sin(d1) };
                 const dir2End = { x: ox + dirLen * Math.cos(d2), y: oy - dirLen * Math.sin(d2) };
                 let grid = '';
@@ -6522,8 +6576,9 @@
                     return { ok: false, reason: `合力 F の方向と大きさを再確認（向き=${fig.expected.dir === 'right' ? '右' : '左'}、大きさ=${fig.expected.mag} N）` };
                 }
                 if (problem.pattern === 'drawing-2d') {
-                    // origin = (160, 140)（_epBuildDrawingSvg2D と同じ値）
-                    const ox = 160, oy = 140, lenScale = 2;
+                    // 適応原点（_epBuildDrawingSvg2D と同じ計算を共有）
+                    const W = 320, H = 240, cell = 20, lenScale = 2;
+                    const { ox, oy } = this._epOrigin2D(fig, W, H, cell, lenScale);
                     const a1 = (fig.f1Angle || 0) * Math.PI / 180;
                     const a2 = (fig.f2Angle || 90) * Math.PI / 180;
                     // 合力 F の終点 = F1 + F2 のベクトル和
@@ -6540,8 +6595,9 @@
                     return { ok: false, reason: '合力 F は F₁ と F₂ のベクトル和（平行四辺形の対角線）の終点まで引きます' };
                 }
                 if (problem.pattern === 'drawing-decompose') {
-                    // origin = (160, 120)、F = fMag・fAngle、分力は dir1Angle / dir2Angle 方向
-                    const ox = 160, oy = 120, lenScale = 2;
+                    // 適応原点（_epBuildDrawingSvgDecompose と同じ計算を共有）
+                    const W = 320, H = 240, cell = 20, lenScale = 2, dirLen = 110;
+                    const { ox, oy } = this._epOriginDecompose(fig, W, H, cell, lenScale, dirLen);
                     const fa = (fig.fAngle || 30) * Math.PI / 180;
                     const fEnd = { x: ox + fig.fMag * lenScale * Math.cos(fa), y: oy - fig.fMag * lenScale * Math.sin(fa) };
                     const d1 = (fig.dir1Angle || 0) * Math.PI / 180;
