@@ -4918,8 +4918,11 @@
   .answer-area { display: flex; gap: 10px; align-items: center; margin-top: 6px; flex-wrap: wrap; }
   .answer-line { border-bottom: 1px solid #000; min-width: 60px; padding: 2px 6px; display: inline-block; }
   .answer-box { border: 1px solid #000; padding: 3px 8px; min-width: 70px; text-align: center; display: inline-block; }
-  .blanks-table { border-collapse: collapse; margin-top: 4px; }
-  .blanks-table td { border: 1px solid #000; padding: 3px 10px; min-width: 50px; text-align: center; font-size: 9pt; }
+  /* 語句穴埋めの解答欄（Q1）: 段幅に収めるため 2 列グリッドで縦に並べる */
+  .blanks-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 8px; margin-top: 6px; }
+  .blank-cell { display: flex; align-items: center; gap: 4px; font-size: 9pt; }
+  .blank-cell .blank-id { display: inline-block; width: 22px; text-align: center; font-weight: 600; flex-shrink: 0; }
+  .blank-cell .blank-ans { display: inline-block; flex: 1; min-height: 18px; border: 1px solid #000; padding: 2px 6px; }
   .answer-shown { color: ${showAnswers ? '#c00' : 'transparent'}; font-weight: ${showAnswers ? 'bold' : 'normal'}; }
   .workflow { font-size: 9pt; color: #c00; line-height: 1.4; margin-top: 4px; padding-left: 10px; display: ${showAnswers ? 'block' : 'none'}; }
   .workflow div { margin-bottom: 2px; }
@@ -4998,14 +5001,16 @@
             // ----- 各 pattern のレンダラ -----
             _renderFillInBlank(p, showAnswers) {
                 const stems = (p.stems || []).map(s => `<div>${s}</div>`).join('');
+                // 解答欄を 2 列グリッドで表示（段幅に収まる）
                 const cells = (p.blanks || []).map(b =>
-                    `<td>${b.id}</td><td><span class="answer-shown">${b.answer}</span></td>`
+                    `<div class="blank-cell">
+                        <span class="blank-id">${b.id}</span>
+                        <span class="blank-ans"><span class="answer-shown">${b.answer}</span></span>
+                    </div>`
                 ).join('');
                 return `
                 ${stems}
-                <table class="blanks-table">
-                    <tr>${cells}</tr>
-                </table>`;
+                <div class="blanks-grid">${cells}</div>`;
             }
 
             _renderDrawing1D(p, showAnswers) {
@@ -5133,11 +5138,12 @@
                 // 1D グリッド + F1, F2 矢印（同じ作用点 O から、上下にずらして表示）
                 //   学生の合力の作図位置（中央 cy）と分けるため、F₁ を上、F₂ を下に配置。
                 //   答え F（合力）は cy 上に青で表示（showAnswers のみ）。
-                const W = 240, H = 110, cell = 16;
-                const cx = W / 2, cy = H / 2;
-                const yOffset = 14;
-                const y1 = cy - yOffset;     // F₁ の y
-                const y2 = cy + yOffset;     // F₂ の y
+                //   グリッド整合: cell=20、W/H/cx/cy/yOffset すべて 20 の倍数。
+                const W = 240, H = 120, cell = 20;
+                const cx = W / 2, cy = H / 2;     // (120, 60) — 共にグリッド交点
+                const yOffset = cell;              // F₁/F₂ ラインを 1 マス分ずつ上下へ
+                const y1 = cy - yOffset;           // F₁ の y = 40（グリッド交点）
+                const y2 = cy + yOffset;           // F₂ の y = 80（グリッド交点）
                 const F1 = f.f1 / f.scaleN, F2 = f.f2 / f.scaleN;
                 let arrows = '';
                 // F₁ 矢印（赤）: O から右、上ライン
@@ -5180,9 +5186,10 @@
 
             _svgTwoForces2D(f, showAnswers) {
                 // 2D グリッド + F1, F2 矢印（直角に交わる 2 力。1 マス = 10 N でグリッド一致）
-                const W = 240, H = 200, cell = 16;
-                const cx = W / 2, cy = H / 2;
-                const lenScale = 0.1;  // 1 N = 1.6 px → 10 N = 1 マス（cell=16）
+                //   cell=20px、W/H/cx/cy すべて 20 の倍数で原点・矢印先端をグリッド交点に。
+                const W = 240, H = 200, cell = 20;
+                const cx = W / 2, cy = H / 2;     // (120, 100) — 共にグリッド交点
+                const lenScale = 0.1;  // 1 N = 2 px → 10 N = 1 マス（cell=20）
                 const f1Len = f.f1 * lenScale * cell;
                 const f2Len = f.f2 * lenScale * cell;
                 const a1 = f.f1Angle * Math.PI / 180;
@@ -5223,9 +5230,10 @@
 
             _svgDecompose(f, showAnswers) {
                 // 元の力 F + 分解方向の破線（1 マス = 10 N、3-4-5 角度でグリッド一致）
-                const W = 240, H = 200, cell = 16;
-                const cx = W / 2, cy = H / 2;
-                const lenScale = 0.1;  // 1 N = 1.6 px → 10 N = 1 マス（cell=16）
+                //   cell=20px、原点 (cx,cy) を 20 の倍数に配置。
+                const W = 240, H = 200, cell = 20;
+                const cx = W / 2, cy = H / 2;     // (120, 100) — 共にグリッド交点
+                const lenScale = 0.1;  // 1 N = 2 px → 10 N = 1 マス（cell=20）
                 const fLen = f.fMag * lenScale * cell;
                 const fa = f.fAngle * Math.PI / 180;
                 const fx = cx + fLen * Math.cos(fa), fy = cy - fLen * Math.sin(fa);
@@ -5233,11 +5241,11 @@
                 let grid = '';
                 for (let i = 0; i < W / cell; i++) grid += `<line x1="${i * cell}" y1="0" x2="${i * cell}" y2="${H}" stroke="#ddd" stroke-width="0.5"/>`;
                 for (let j = 0; j < H / cell; j++) grid += `<line x1="0" y1="${j * cell}" x2="${W}" y2="${j * cell}" stroke="#ddd" stroke-width="0.5"/>`;
-                // 分解方向の破線
+                // 分解方向の破線（F₂ の最大長 100 px を越える 110 px まで延長）
                 let dirs = '';
                 [f.dir1Angle, f.dir2Angle].forEach(deg => {
                     const a = deg * Math.PI / 180;
-                    const dx = cx + 90 * Math.cos(a), dy = cy - 90 * Math.sin(a);
+                    const dx = cx + 110 * Math.cos(a), dy = cy - 110 * Math.sin(a);
                     dirs += `<line x1="${cx}" y1="${cy}" x2="${dx}" y2="${dy}" stroke="#888" stroke-width="1" stroke-dasharray="3,2"/>`;
                 });
                 // 答え：分力 F₁/F₂（青、showAnswers のみ）
