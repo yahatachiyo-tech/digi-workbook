@@ -5138,28 +5138,36 @@
                 // 1D グリッド + F1, F2 矢印（同じ作用点 O から、上下にずらして表示）
                 //   学生の合力の作図位置（中央 cy）と分けるため、F₁ を上、F₂ を下に配置。
                 //   答え F（合力）は cy 上に青で表示（showAnswers のみ）。
-                //   グリッド整合: cell=20、W/H/cx/cy/yOffset すべて 20 の倍数。
-                const W = 240, H = 120, cell = 20;
-                const cx = W / 2, cy = H / 2;     // (120, 60) — 共にグリッド交点
+                //   原点 cx を bbox 中心に適応配置（同じ向きの場合は左寄り、逆向きは中央）。
+                const W = 200, H = 120, cell = 20;
+                const cy = H / 2;
                 const yOffset = cell;              // F₁/F₂ ラインを 1 マス分ずつ上下へ
-                const y1 = cy - yOffset;           // F₁ の y = 40（グリッド交点）
-                const y2 = cy + yOffset;           // F₂ の y = 80（グリッド交点）
+                const y1 = cy - yOffset;
+                const y2 = cy + yOffset;
                 const F1 = f.f1 / f.scaleN, F2 = f.f2 / f.scaleN;
+                const F1px = F1 * cell;
+                const F2px = F2 * cell;
+                const f2Dir = (f.case === 'same') ? 1 : -1;
+                const expDir = (f.expected && f.expected.dir === 'left') ? -1 : 1;
+                const expPx = (f.expected && f.expected.mag) ? (f.expected.mag / f.scaleN) * cell : 0;
+                // 全ての x 範囲（O, F₁ 終点, F₂ 終点, 合力 F 終点）
+                const xs = [0, F1px, f2Dir * F2px, expDir * expPx];
+                const xMin = Math.min(...xs), xMax = Math.max(...xs);
+                const cxIdeal = W / 2 - (xMin + xMax) / 2;
+                const cx = Math.round(cxIdeal / cell) * cell;
                 let arrows = '';
                 // F₁ 矢印（赤）: O から右、上ライン
-                arrows += `<line x1="${cx}" y1="${y1}" x2="${cx + F1 * cell}" y2="${y1}" stroke="#d23a2a" stroke-width="2" marker-end="url(#mEndR)"/>`;
-                arrows += `<text x="${cx + F1 * cell / 2 - 6}" y="${y1 - 4}" font-size="10" fill="#d23a2a" font-weight="600">F₁</text>`;
+                const f1End = cx + F1px;
+                arrows += `<line x1="${cx}" y1="${y1}" x2="${f1End}" y2="${y1}" stroke="#d23a2a" stroke-width="2" marker-end="url(#mEndR)"/>`;
+                arrows += `<text x="${(cx + f1End) / 2 - 6}" y="${y1 - 4}" font-size="10" fill="#d23a2a" font-weight="600">F₁</text>`;
                 // F₂ 矢印（赤）: O から（same: 右 / opposite: 左）、下ライン
-                const f2Dir = (f.case === 'same') ? 1 : -1;
-                const f2EndX = cx + f2Dir * F2 * cell;
+                const f2EndX = cx + f2Dir * F2px;
                 arrows += `<line x1="${cx}" y1="${y2}" x2="${f2EndX}" y2="${y2}" stroke="#d23a2a" stroke-width="2" marker-end="url(#mEndR)"/>`;
                 arrows += `<text x="${(cx + f2EndX) / 2 - 6}" y="${y2 + 12}" font-size="10" fill="#d23a2a" font-weight="600">F₂</text>`;
                 // 答え：合力 F（青）— 中央 cy 上に表示
                 let answer = '';
                 if (showAnswers) {
-                    const dir = (f.expected && f.expected.dir === 'left') ? -1 : 1;
-                    const mag = (f.expected && f.expected.mag) ? f.expected.mag / f.scaleN : 0;
-                    const x2 = cx + dir * mag * cell;
+                    const x2 = cx + expDir * expPx;
                     answer = `<line x1="${cx}" y1="${cy}" x2="${x2}" y2="${cy}" stroke="#1e5fa8" stroke-width="2" marker-end="url(#mEndB)"/>`;
                     answer += `<text x="${(cx + x2) / 2 - 4}" y="${cy - 4}" font-size="10" fill="#1e5fa8" font-weight="600">F</text>`;
                 }
@@ -5188,7 +5196,8 @@
                 // 2D グリッド + F1, F2 矢印（直角に交わる 2 力。1 マス = 10 N でグリッド一致）
                 //   原点を「F₁ + F₂ + 合力 F の bounding box 中心」が canvas 中心に来るよう
                 //   適応的に配置 → 余白が左右上下バランス良く分配され、生徒の作図領域を確保。
-                const W = 280, H = 240, cell = 20;
+                //   コンパクト版: W=200, H=160 でページ密度向上（2 段組 B4 横）。
+                const W = 200, H = 160, cell = 20;
                 const lenScale = 0.1;  // 1 N = 2 px → 10 N = 1 マス
                 const f1Len = f.f1 * lenScale * cell;
                 const f2Len = f.f2 * lenScale * cell;
@@ -5247,7 +5256,8 @@
                 // 元の力 F + 分解方向の破線（1 マス = 10 N、3-4-5 角度でグリッド一致）
                 //   原点を「F + F₁ + F₂ + dir 補助線 の bounding box 中心」が canvas 中心に
                 //   来るよう適応的に配置。
-                const W = 280, H = 240, cell = 20;
+                //   コンパクト版: W=200, H=160 でページ密度向上。dir 線を 110→90 px に短縮。
+                const W = 200, H = 160, cell = 20;
                 const lenScale = 0.1;  // 1 N = 2 px → 10 N = 1 マス
                 const fLen = f.fMag * lenScale * cell;
                 const fa = f.fAngle * Math.PI / 180;
@@ -5264,8 +5274,8 @@
                 }
                 const v1x = f1MagPx * Math.cos(a1), v1y = -f1MagPx * Math.sin(a1);
                 const v2x = f2MagPx * Math.cos(a2), v2y = -f2MagPx * Math.sin(a2);
-                // dir 補助線の終点（破線、ベクトル長を超える方を採用 / 110 px 固定）
-                const dirLen = 110;
+                // dir 補助線の終点（破線、90 px 固定。F₂ 終点 80 px をわずかに超える）
+                const dirLen = 90;
                 const d1x = dirLen * Math.cos(a1), d1y = -dirLen * Math.sin(a1);
                 const d2x = dirLen * Math.cos(a2), d2y = -dirLen * Math.sin(a2);
                 // bounding box（O, F, F₁ 終点, F₂ 終点, dir 補助線終点 を含む）
@@ -5282,11 +5292,11 @@
                 let grid = '';
                 for (let i = 0; i < W / cell; i++) grid += `<line x1="${i * cell}" y1="0" x2="${i * cell}" y2="${H}" stroke="#ddd" stroke-width="0.5"/>`;
                 for (let j = 0; j < H / cell; j++) grid += `<line x1="0" y1="${j * cell}" x2="${W}" y2="${j * cell}" stroke="#ddd" stroke-width="0.5"/>`;
-                // 分解方向の破線（F₂ の最大長 100 px を越える 110 px まで延長）
+                // 分解方向の破線（90 px、上部の dirLen と一致）
                 let dirs = '';
                 [f.dir1Angle, f.dir2Angle].forEach(deg => {
                     const a = deg * Math.PI / 180;
-                    const dx = cx + 110 * Math.cos(a), dy = cy - 110 * Math.sin(a);
+                    const dx = cx + 90 * Math.cos(a), dy = cy - 90 * Math.sin(a);
                     dirs += `<line x1="${cx}" y1="${cy}" x2="${dx}" y2="${dy}" stroke="#888" stroke-width="1" stroke-dasharray="3,2"/>`;
                 });
                 // 答え：分力 F₁/F₂（青、showAnswers のみ）
