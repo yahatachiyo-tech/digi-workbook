@@ -2118,8 +2118,10 @@
                     <div class="menu-header-actions">
                         <button class="btn dashboard-btn" id="examPrepBtn" onclick="app.goToExamPrep()">対策モード</button>
                         <button class="btn dashboard-btn" id="dashboardBtn" onclick="app.goToDashboard()" style="display:none;">ダッシュボード</button>
-                        <button class="btn dashboard-btn" id="prepPrintBtn" onclick="app.openPrepPrint('midterm-1')" style="display:none;">対策プリント</button>
-                        <button class="btn dashboard-btn" id="examPrintBtn" onclick="app.openExamPrint('midterm-1')" style="display:none;">考査問題</button>
+                        <button class="btn dashboard-btn" id="prepPrintBtn"        onclick="app.openPrepPrint('midterm-1', false)" style="display:none;">対策プリント（配布）</button>
+                        <button class="btn dashboard-btn" id="prepPrintAnsBtn"     onclick="app.openPrepPrint('midterm-1', true)"  style="display:none;">対策プリント（解答）</button>
+                        <button class="btn dashboard-btn" id="examPrintBtn"        onclick="app.openExamPrint('midterm-1', false)" style="display:none;">考査問題（配布）</button>
+                        <button class="btn dashboard-btn" id="examPrintAnsBtn"     onclick="app.openExamPrint('midterm-1', true)"  style="display:none;">考査問題（解答）</button>
                         <button class="btn logout-btn" onclick="app.logout()">ログアウト</button>
                     </div>
                 </div>
@@ -4673,12 +4675,16 @@
                 // 教員モードなら「ダッシュボード」「対策プリント」「考査問題」を表示（生徒は非表示）
                 const dashBtn = document.getElementById('dashboardBtn');
                 const prepBtn = document.getElementById('prepPrintBtn');
+                const prepAnsBtn = document.getElementById('prepPrintAnsBtn');
                 const examBtn = document.getElementById('examPrintBtn');
+                const examAnsBtn = document.getElementById('examPrintAnsBtn');
                 const examPrepBtn = document.getElementById('examPrepBtn');
                 const teacher = this.isTeacherMode();
                 if (dashBtn) dashBtn.style.display = teacher ? 'inline-block' : 'none';
                 if (prepBtn) prepBtn.style.display = teacher ? 'inline-block' : 'none';
+                if (prepAnsBtn) prepAnsBtn.style.display = teacher ? 'inline-block' : 'none';
                 if (examBtn) examBtn.style.display = teacher ? 'inline-block' : 'none';
+                if (examAnsBtn) examAnsBtn.style.display = teacher ? 'inline-block' : 'none';
                 // 対策モードボタン: 教員は常時表示。生徒は公開中のセクションが 1 つ以上あるときのみ表示。
                 if (examPrepBtn) {
                     let visibleForUser = teacher;
@@ -4755,53 +4761,45 @@
             //   B4 サイズは @page で指定。KaTeX は CDN から再ロード。
             //   教員モード限定で動作（isTeacherMode() でガード）。
 
-            openPrepPrint(examKey) {
+            // 対策プリントを直接生成（prompt/confirm を使わず、引数で版を指定）
+            //   ボタンを「配布」「解答」の 2 つに分けることで、ユーザージェスチャー直後に
+            //   window.open() を呼べてポップアップブロックを完全に回避。
+            openPrepPrint(examKey, showAnswers) {
                 if (!this.isTeacherMode()) return;
                 const data = (typeof EXAM_PREP_MASTER !== 'undefined') ? EXAM_PREP_MASTER[examKey] : null;
                 if (!data) { alert('対策プリントのデータが見つかりません: ' + examKey); return; }
-                // ① ウィンドウを先に開く（ユーザージェスチャーが直接の click 由来のうちに）
-                //    confirm/prompt 後に window.open() を呼ぶとブラウザのポップアップ
-                //    ブロッカーに引っかかるため、必ず click 直後に open する。
+                const html = this._buildPrintHTML(data, { mode: 'prep', showAnswers: !!showAnswers });
                 const w = window.open('about:blank', '_blank', 'width=1200,height=900');
                 if (!w) {
                     alert('ポップアップがブロックされました。\nブラウザの URL バー右側のアイコンから、このサイトのポップアップを「許可」に設定してください。');
                     return;
                 }
-                // 一時的なロード表示
-                w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>対策プリント</title></head><body style="font-family:sans-serif; padding:24px;">対策プリントを生成中...</body></html>');
-                // ② 模範解答版か通常版か選択
-                const showAnswers = confirm('模範解答版を開きますか？\n[OK] = 模範解答版／[キャンセル] = 配布用（空欄）');
-                // ③ HTML 生成 & 書き込み
-                const html = this._buildPrintHTML(data, { mode: 'prep', showAnswers });
                 w.document.open();
                 w.document.write(html);
                 w.document.close();
-                w.document.title = '対策プリント';
+                w.document.title = showAnswers ? '対策プリント（解答）' : '対策プリント（配布）';
             }
 
-            openExamPrint(examKey) {
+            // 考査問題プリントを直接生成。日付はシステム日付から「R0X.M.D」を自動生成。
+            openExamPrint(examKey, showAnswers) {
                 if (!this.isTeacherMode()) return;
                 const data = (typeof EXAM_PREP_MASTER !== 'undefined') ? EXAM_PREP_MASTER[examKey] : null;
                 if (!data) { alert('考査問題のデータが見つかりません: ' + examKey); return; }
-                // ① ウィンドウを先に開く（ポップアップブロック回避）
+                // 今日の日付を「RXX.M.D」形式で生成（令和 = 西暦 - 2018）
+                const today = new Date();
+                const era = today.getFullYear() - 2018;
+                const date = `R${String(era).padStart(2, '0')}.${today.getMonth() + 1}.${today.getDate()}`;
+                const examData = this._generateExamFromPrep(data);
+                const html = this._buildPrintHTML(examData, { mode: 'exam', showAnswers: !!showAnswers, date });
                 const w = window.open('about:blank', '_blank', 'width=1200,height=900');
                 if (!w) {
                     alert('ポップアップがブロックされました。\nブラウザの URL バー右側のアイコンから、このサイトのポップアップを「許可」に設定してください。');
                     return;
                 }
-                w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>考査問題</title></head><body style="font-family:sans-serif; padding:24px;">考査問題を生成中...</body></html>');
-                // ② 実施日を入力
-                const date = prompt('実施日を入力してください（例: R08.5.12）', 'R08.5.12');
-                if (date === null) { w.close(); return; }
-                // ③ 模範解答版選択
-                const showAnswers = confirm('模範解答版を開きますか？\n[OK] = 模範解答版／[キャンセル] = 配布用（空欄）');
-                // ④ HTML 生成 & 書き込み（対策の数値違いで生成）
-                const examData = this._generateExamFromPrep(data);
-                const html = this._buildPrintHTML(examData, { mode: 'exam', showAnswers, date });
                 w.document.open();
                 w.document.write(html);
                 w.document.close();
-                w.document.title = '考査問題';
+                w.document.title = showAnswers ? '考査問題（解答）' : '考査問題（配布）';
             }
 
             // C 用：A の paramRanges から数値違いの値をランダム選択して問題を再構成。
