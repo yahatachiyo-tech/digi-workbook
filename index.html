@@ -2118,12 +2118,10 @@
                     <div class="menu-header-actions">
                         <button class="btn dashboard-btn" id="examPrepBtn" onclick="app.goToExamPrep()">対策モード</button>
                         <button class="btn dashboard-btn" id="dashboardBtn" onclick="app.goToDashboard()" style="display:none;">ダッシュボード</button>
-                        <button class="btn dashboard-btn" id="prepPrintBtn"        onclick="app.openPrepPrint('midterm-1', false, false)" style="display:none;">対策プリント（配布）</button>
-                        <button class="btn dashboard-btn" id="prepPrintAnsBtn"     onclick="app.openPrepPrint('midterm-1', true,  false)" style="display:none;">対策プリント（解答）</button>
-                        <button class="btn dashboard-btn" id="prepPrintExpBtn"     onclick="app.openPrepPrint('midterm-1', true,  true)"  style="display:none;">対策プリント（解説）</button>
-                        <button class="btn dashboard-btn" id="examPrintBtn"        onclick="app.openExamPrint('midterm-1', false, false)" style="display:none;">考査問題（配布）</button>
-                        <button class="btn dashboard-btn" id="examPrintAnsBtn"     onclick="app.openExamPrint('midterm-1', true,  false)" style="display:none;">考査問題（解答）</button>
-                        <button class="btn dashboard-btn" id="examPrintExpBtn"     onclick="app.openExamPrint('midterm-1', true,  true)"  style="display:none;">考査問題（解説）</button>
+                        <button class="btn dashboard-btn" id="prepPrintBtn"    onclick="app.openPrepPrint('midterm-1', false)" style="display:none;">対策プリント（配布）</button>
+                        <button class="btn dashboard-btn" id="prepPrintAnsBtn" onclick="app.openPrepPrint('midterm-1', true)"  style="display:none;">対策プリント（解答・解説）</button>
+                        <button class="btn dashboard-btn" id="examPrintBtn"    onclick="app.openExamPrint('midterm-1', false)" style="display:none;">考査問題（配布）</button>
+                        <button class="btn dashboard-btn" id="examPrintAnsBtn" onclick="app.openExamPrint('midterm-1', true)"  style="display:none;">考査問題（解答・解説）</button>
                         <button class="btn logout-btn" onclick="app.logout()">ログアウト</button>
                     </div>
                 </div>
@@ -3325,8 +3323,8 @@
                         },
                         expected: { F: 100, tanA: 1.3 },
                         workflow: [
-                            'F = √(F₁² + F₂²) = √(60² + 80²) = √10000 = 100 [N]',
-                            'tan α = F₂/F₁ = 80/60 = 1.3'
+                            '$F = \\sqrt{F_1^{\\,2} + F_2^{\\,2}} = \\sqrt{60^2 + 80^2} = \\sqrt{10000} = 100$ [N]',
+                            '$\\tan\\alpha = \\dfrac{F_2}{F_1} = \\dfrac{80}{60} \\fallingdotseq 1.3$'
                         ],
                         answerLabels: ['合力 F', '角度 tan α']
                     },
@@ -3343,8 +3341,8 @@
                         },
                         expected: { F: 94.3, tanA: 0.6 },
                         workflow: [
-                            'F = √(F₁² + F₂²) = √(80² + 50²) = √8900 ≈ 94.3 [N]',
-                            'tan α = F₂/F₁ = 50/80 = 0.6'
+                            '$F = \\sqrt{F_1^{\\,2} + F_2^{\\,2}} = \\sqrt{80^2 + 50^2} = \\sqrt{8900} \\fallingdotseq 94.3$ [N]',
+                            '$\\tan\\alpha = \\dfrac{F_2}{F_1} = \\dfrac{50}{80} \\fallingdotseq 0.6$'
                         ],
                         answerLabels: ['合力 F', '角度 tan α']
                     },
@@ -3361,7 +3359,7 @@
                         },
                         expected: { M: 52500 },
                         unit: 'N·mm',
-                        workflow: ['M = F·r = 150 × 350 = 52500 [N·mm]'],
+                        workflow: ['$M = F \\cdot r = 150 \\times 350 = 52500$ [N·mm]'],
                         answerLabels: ['M']
                     },
                     // 問8: 複合 (3 小問) / 思・判・表
@@ -3379,16 +3377,18 @@
                         subQuestions: [
                             { sub: '(1)', title: '力 F の分力 F₁ の大きさを求めよ。',
                               expected: 129.9, formula: 'F₁ = F sin θ',
-                              workflow: ['sin θ = 高さ／斜辺 = F₁/F より', 'F₁ = F × sin θ = 150 × sin 60° = 129.9 [N]'],
+                              workflow: ['$\\sin\\theta = \\dfrac{\\text{高さ}}{\\text{斜辺}} = \\dfrac{F_1}{F}$ より',
+                                         '$F_1 = F \\times \\sin\\theta = 150 \\times \\sin 60° \\fallingdotseq 129.9$ [N]'],
                               unit: 'N', points: 4 },
                             { sub: '(2)', title: '力 F の分力 F₂ の大きさを求めよ。',
                               expected: 75, formula: 'F₂ = F cos θ',
-                              workflow: ['cos θ = 底辺／斜辺 = F₂/F より', 'F₂ = F × cos θ = 150 × cos 60° = 75 [N]'],
+                              workflow: ['$\\cos\\theta = \\dfrac{\\text{底辺}}{\\text{斜辺}} = \\dfrac{F_2}{F}$ より',
+                                         '$F_2 = F \\times \\cos\\theta = 150 \\times \\cos 60° = 75$ [N]'],
                               unit: 'N', points: 4 },
                             { sub: '(3)', title: '点 O のまわりの力 F のモーメントを求めよ。',
                               expected: 32475, formula: 'M = F₁·r',
                               workflow: ['F₂ は線分 OA 上にあり、O を通るのでモーメントを生じない。',
-                                         'M = F₁·r = 129.9 × 250 = 32475 [N·mm]'],
+                                         '$M = F_1 \\cdot r = 129.9 \\times 250 = 32475$ [N·mm]'],
                               unit: 'N·mm', points: 4 }
                         ]
                     },
@@ -3405,7 +3405,7 @@
                         },
                         expected: { M: 15000 },
                         unit: 'N·mm',
-                        workflow: ['M = F·d = 100 × 150 = 15000 [N·mm]'],
+                        workflow: ['$M = F \\cdot d = 100 \\times 150 = 15000$ [N·mm]'],
                         answerLabels: ['M']
                     },
                     // 問10: 斜面分解 / 思・判・表
@@ -3422,8 +3422,8 @@
                         expected: { F1: 100, F2: 173.2 },
                         unit: 'N',
                         workflow: [
-                            'sin θ = 高さ／斜辺 = F₁/F より F₁ = F × sin θ = 200 × sin 30° = 100 [N]',
-                            'cos θ = 底辺／斜辺 = F₂/F より F₂ = F × cos θ = 200 × cos 30° = 173.2 [N]'
+                            '$\\sin\\theta = \\dfrac{\\text{高さ}}{\\text{斜辺}} = \\dfrac{F_1}{F}$ より $F_1 = F \\times \\sin\\theta = 200 \\times \\sin 30° = 100$ [N]',
+                            '$\\cos\\theta = \\dfrac{\\text{底辺}}{\\text{斜辺}} = \\dfrac{F_2}{F}$ より $F_2 = F \\times \\cos\\theta = 200 \\times \\cos 30° \\fallingdotseq 173.2$ [N]'
                         ],
                         answerLabels: ['平行な分力 F₁', '垂直な分力 F₂']
                     },
@@ -3439,7 +3439,7 @@
                         },
                         expected: { M: 17500 },
                         unit: 'N·mm',
-                        workflow: ['M = F·d = 50 × 350 = 17500 [N·mm]（d はハンドルの直径）'],
+                        workflow: ['$M = F \\cdot d = 50 \\times 350 = 17500$ [N·mm]（$d$ はハンドルの直径）'],
                         answerLabels: ['M']
                     },
                     // 問12: 複合モーメント（符号付き）/ 思・判・表
@@ -3452,10 +3452,10 @@
                         expected: { Ma: 9000, Mb: 12000, Mtotal: 3000 },
                         unit: 'N·mm',
                         workflow: [
-                            '点 A に働く力のモーメント MA = F·r = 60 × 150 = 9000 [N·mm]（半時計回り）',
-                            '点 B に働く力のモーメント MB = F·r = 60 × 200 = 12000 [N·mm]（時計回り）',
-                            '時計回りを正（+）として、点 O まわりの力のモーメントは',
-                            'M = (−MA) + MB = −9000 + 12000 = 3000 [N·mm]（時計回り）'
+                            '点 A に働く力のモーメント $M_A = F \\cdot r = 60 \\times 150 = 9000$ [N·mm]（反時計回り）',
+                            '点 B に働く力のモーメント $M_B = F \\cdot r = 60 \\times 200 = 12000$ [N·mm]（時計回り）',
+                            '時計回りを正（＋）として、点 O まわりの力のモーメントは',
+                            '$M = (-M_A) + M_B = -9000 + 12000 = 3000$ [N·mm]（時計回り）'
                         ],
                         answerLabels: ['M']
                     }
@@ -4678,19 +4678,15 @@
                 const dashBtn = document.getElementById('dashboardBtn');
                 const prepBtn = document.getElementById('prepPrintBtn');
                 const prepAnsBtn = document.getElementById('prepPrintAnsBtn');
-                const prepExpBtn = document.getElementById('prepPrintExpBtn');
                 const examBtn = document.getElementById('examPrintBtn');
                 const examAnsBtn = document.getElementById('examPrintAnsBtn');
-                const examExpBtn = document.getElementById('examPrintExpBtn');
                 const examPrepBtn = document.getElementById('examPrepBtn');
                 const teacher = this.isTeacherMode();
                 if (dashBtn) dashBtn.style.display = teacher ? 'inline-block' : 'none';
                 if (prepBtn) prepBtn.style.display = teacher ? 'inline-block' : 'none';
                 if (prepAnsBtn) prepAnsBtn.style.display = teacher ? 'inline-block' : 'none';
-                if (prepExpBtn) prepExpBtn.style.display = teacher ? 'inline-block' : 'none';
                 if (examBtn) examBtn.style.display = teacher ? 'inline-block' : 'none';
                 if (examAnsBtn) examAnsBtn.style.display = teacher ? 'inline-block' : 'none';
-                if (examExpBtn) examExpBtn.style.display = teacher ? 'inline-block' : 'none';
                 // 対策モードボタン: 教員は常時表示。生徒は公開中のセクションが 1 つ以上あるときのみ表示。
                 if (examPrepBtn) {
                     let visibleForUser = teacher;
@@ -4767,15 +4763,16 @@
             //   B4 サイズは @page で指定。KaTeX は CDN から再ロード。
             //   教員モード限定で動作（isTeacherMode() でガード）。
 
-            // 対策プリントを直接生成。3 種類のボタンから呼び分け。
-            //   showAnswers=false, showWorkflow=false → 配布版（空欄）
-            //   showAnswers=true,  showWorkflow=false → 解答版（採点用、配布と同レイアウト）
-            //   showAnswers=true,  showWorkflow=true  → 解説版（解答 + workflow、生徒振り返り用）
-            openPrepPrint(examKey, showAnswers, showWorkflow) {
+            // 対策プリントを直接生成。
+            //   showAnswers=false → 配布版（空欄、workflow 領域は予約され見えない）
+            //   showAnswers=true  → 解答・解説版（赤字解答 + workflow 表示）
+            //   両版とも HTML 構造とサイズは完全一致。配布版は visibility: hidden で
+            //   workflow 領域を非可視化するだけ → 採点システムで overlay 可能。
+            openPrepPrint(examKey, showAnswers) {
                 if (!this.isTeacherMode()) return;
                 const data = (typeof EXAM_PREP_MASTER !== 'undefined') ? EXAM_PREP_MASTER[examKey] : null;
                 if (!data) { alert('対策プリントのデータが見つかりません: ' + examKey); return; }
-                const html = this._buildPrintHTML(data, { mode: 'prep', showAnswers: !!showAnswers, showWorkflow: !!showWorkflow });
+                const html = this._buildPrintHTML(data, { mode: 'prep', showAnswers: !!showAnswers });
                 const w = window.open('about:blank', '_blank', 'width=1200,height=900');
                 if (!w) {
                     alert('ポップアップがブロックされました。\nブラウザの URL バー右側のアイコンから、このサイトのポップアップを「許可」に設定してください。');
@@ -4784,22 +4781,21 @@
                 w.document.open();
                 w.document.write(html);
                 w.document.close();
-                w.document.title = showWorkflow ? '対策プリント（解説）' : (showAnswers ? '対策プリント（解答）' : '対策プリント（配布）');
+                w.document.title = showAnswers ? '対策プリント（解答・解説）' : '対策プリント（配布）';
             }
 
             // 考査問題プリントを直接生成。日付はシステム日付から「R0X.M.D」を自動生成。
-            //   配布版・解答版は採点システム連携のため完全に同じレイアウト。
-            //   解説版は workflow を含む（生徒振り返り用）。
-            openExamPrint(examKey, showAnswers, showWorkflow) {
+            //   配布版・解答版は採点システム連携のため完全に同じレイアウト
+            //   （workflow 領域は配布版でも予約されており見えないだけ）。
+            openExamPrint(examKey, showAnswers) {
                 if (!this.isTeacherMode()) return;
                 const data = (typeof EXAM_PREP_MASTER !== 'undefined') ? EXAM_PREP_MASTER[examKey] : null;
                 if (!data) { alert('考査問題のデータが見つかりません: ' + examKey); return; }
-                // 今日の日付を「RXX.M.D」形式で生成（令和 = 西暦 - 2018）
                 const today = new Date();
                 const era = today.getFullYear() - 2018;
                 const date = `R${String(era).padStart(2, '0')}.${today.getMonth() + 1}.${today.getDate()}`;
                 const examData = this._generateExamFromPrep(data);
-                const html = this._buildPrintHTML(examData, { mode: 'exam', showAnswers: !!showAnswers, showWorkflow: !!showWorkflow, date });
+                const html = this._buildPrintHTML(examData, { mode: 'exam', showAnswers: !!showAnswers, date });
                 const w = window.open('about:blank', '_blank', 'width=1200,height=900');
                 if (!w) {
                     alert('ポップアップがブロックされました。\nブラウザの URL バー右側のアイコンから、このサイトのポップアップを「許可」に設定してください。');
@@ -4808,7 +4804,7 @@
                 w.document.open();
                 w.document.write(html);
                 w.document.close();
-                w.document.title = showWorkflow ? '考査問題（解説）' : (showAnswers ? '考査問題（解答）' : '考査問題（配布）');
+                w.document.title = showAnswers ? '考査問題（解答・解説）' : '考査問題（配布）';
             }
 
             // C 用：A の paramRanges から数値違いの値をランダム選択して問題を再構成。
@@ -4840,29 +4836,29 @@
                     const F1 = p.params.F1, F2 = p.params.F2;
                     p.expected = { F: round1(Math.sqrt(F1 * F1 + F2 * F2)), tanA: round1(F2 / F1) };
                     p.workflow = [
-                        `F = √(F₁² + F₂²) = √(${F1}² + ${F2}²) = √${F1 * F1 + F2 * F2} ≈ ${p.expected.F} [N]`,
-                        `tan α = F₂/F₁ = ${F2}/${F1} = ${p.expected.tanA}`
+                        `$F = \\sqrt{F_1^{\\,2} + F_2^{\\,2}} = \\sqrt{${F1}^2 + ${F2}^2} = \\sqrt{${F1 * F1 + F2 * F2}} \\fallingdotseq ${p.expected.F}$ [N]`,
+                        `$\\tan\\alpha = \\dfrac{F_2}{F_1} = \\dfrac{${F2}}{${F1}} \\fallingdotseq ${p.expected.tanA}$`
                     ];
                 } else if (p.pattern === 'calc-moment') {
                     const r = p.params.r, F = p.params.F;
                     p.expected = { M: F * r };
-                    p.workflow = [`M = F·r = ${F} × ${r} = ${F * r} [N·mm]`];
+                    p.workflow = [`$M = F \\cdot r = ${F} \\times ${r} = ${F * r}$ [N·mm]`];
                 } else if (p.pattern === 'calc-couple') {
                     const F = p.params.F, d = p.params.d;
                     p.expected = { M: F * d };
-                    p.workflow = [`M = F·d = ${F} × ${d} = ${F * d} [N·mm]`];
+                    p.workflow = [`$M = F \\cdot d = ${F} \\times ${d} = ${F * d}$ [N·mm]`];
                 } else if (p.pattern === 'calc-couple-applied') {
                     const D = p.params.D, F = p.params.F;
                     p.expected = { M: F * D };
-                    p.workflow = [`M = F·d = ${F} × ${D} = ${F * D} [N·mm]（d はハンドルの直径）`];
+                    p.workflow = [`$M = F \\cdot d = ${F} \\times ${D} = ${F * D}$ [N·mm]（$d$ はハンドルの直径）`];
                 } else if (p.pattern === 'incline-decompose') {
                     const F = p.params.F, theta = p.params.theta;
                     const sinT = Math.sin(theta * Math.PI / 180);
                     const cosT = Math.cos(theta * Math.PI / 180);
                     p.expected = { F1: round1(F * sinT), F2: round1(F * cosT) };
                     p.workflow = [
-                        `sin θ = 高さ／斜辺 = F₁/F より F₁ = F × sin θ = ${F} × sin ${theta}° ≈ ${p.expected.F1} [N]`,
-                        `cos θ = 底辺／斜辺 = F₂/F より F₂ = F × cos θ = ${F} × cos ${theta}° ≈ ${p.expected.F2} [N]`
+                        `$\\sin\\theta = \\dfrac{\\text{高さ}}{\\text{斜辺}} = \\dfrac{F_1}{F}$ より $F_1 = F \\times \\sin\\theta = ${F} \\times \\sin ${theta}° \\fallingdotseq ${p.expected.F1}$ [N]`,
+                        `$\\cos\\theta = \\dfrac{\\text{底辺}}{\\text{斜辺}} = \\dfrac{F_2}{F}$ より $F_2 = F \\times \\cos\\theta = ${F} \\times \\cos ${theta}° \\fallingdotseq ${p.expected.F2}$ [N]`
                     ];
                 } else if (p.pattern === 'composite' && p.subQuestions) {
                     // 問8 専用: r, F, theta から (1) F sin θ, (2) F cos θ, (3) F₁ · r
@@ -4873,12 +4869,20 @@
                     const F2 = round1(F * cosT);
                     const M  = Math.round(F1 * r);
                     p.subQuestions[0].expected = F1;
-                    p.subQuestions[0].workflow = ['sin θ = 高さ／斜辺 = F₁/F より', `F₁ = F × sin θ = ${F} × sin ${theta}° ≈ ${F1} [N]`];
+                    p.subQuestions[0].workflow = [
+                        '$\\sin\\theta = \\dfrac{\\text{高さ}}{\\text{斜辺}} = \\dfrac{F_1}{F}$ より',
+                        `$F_1 = F \\times \\sin\\theta = ${F} \\times \\sin ${theta}° \\fallingdotseq ${F1}$ [N]`
+                    ];
                     p.subQuestions[1].expected = F2;
-                    p.subQuestions[1].workflow = ['cos θ = 底辺／斜辺 = F₂/F より', `F₂ = F × cos θ = ${F} × cos ${theta}° ≈ ${F2} [N]`];
+                    p.subQuestions[1].workflow = [
+                        '$\\cos\\theta = \\dfrac{\\text{底辺}}{\\text{斜辺}} = \\dfrac{F_2}{F}$ より',
+                        `$F_2 = F \\times \\cos\\theta = ${F} \\times \\cos ${theta}° \\fallingdotseq ${F2}$ [N]`
+                    ];
                     p.subQuestions[2].expected = M;
-                    p.subQuestions[2].workflow = ['F₂ は線分 OA 上にあり、O を通るのでモーメントを生じない。',
-                                                  `M = F₁·r = ${F1} × ${r} = ${M} [N·mm]`];
+                    p.subQuestions[2].workflow = [
+                        'F₂ は線分 OA 上にあり、O を通るのでモーメントを生じない。',
+                        `$M = F_1 \\cdot r = ${F1} \\times ${r} = ${M}$ [N·mm]`
+                    ];
                 }
             }
 
@@ -4892,16 +4896,14 @@
                     ? `${meta.paperHeader.examTitlePrefix}（${opts.date}）`
                     : meta.paperHeader.prepTitle;
                 const showAnswers = !!opts.showAnswers;
-                // 解説（workflow）の表示は showAnswers とは独立。配布版・解答版で
-                // レイアウトを完全一致させるため、解答版でも workflow は表示しない。
-                // 解説（学生振り返り用）は別ボタンで showWorkflow=true を指定して出す。
-                const showWorkflow = !!opts.showWorkflow;
-                const versionLabel = showWorkflow ? '解説版' : (showAnswers ? '解答版（採点用）' : '配布版');
-                const versionBadge = (showAnswers || showWorkflow)
+                // 解答・解説版: 解答（赤字）+ workflow（解説）を一緒に表示。
+                // 配布版: 解答 transparent、workflow は visibility: hidden（空間予約のみ）。
+                // 両版とも HTML 構造・寸法が完全一致 → 採点システムで overlay 可能。
+                const versionLabel = showAnswers ? '解答・解説版' : '配布版';
+                const versionBadge = showAnswers
                     ? `<span style="margin-left:10px; padding:2px 8px; background:#d23a2a; color:#fff; font-size:11px; border-radius:3px;">${versionLabel}</span>`
                     : '';
-                // 全問題 HTML を生成
-                const problemsHTML = data.problems.map(p => this._buildProblemHTML(p, { isExam, showAnswers, showWorkflow })).join('\n');
+                const problemsHTML = data.problems.map(p => this._buildProblemHTML(p, { isExam, showAnswers })).join('\n');
 
                 return `<!DOCTYPE html>
 <html lang="ja">
@@ -4921,13 +4923,20 @@
   body { font-family: 'Hiragino Mincho ProN', 'Yu Mincho', 'MS Mincho', serif; font-size: 10pt; line-height: 1.5; color: #000; margin: 0; padding: 12px; }
   .print-toolbar { background:#f0f0f0; border:1px solid #ccc; padding:8px 12px; margin-bottom:14px; display:flex; gap:10px; align-items:center; }
   .print-toolbar button { padding:6px 14px; cursor:pointer; }
-  .exam-page { max-width: none; margin: 0; }
+  /* ページヘッダーを各ページに自動繰り返しするための table 構造 */
+  .exam-page-table { width: 100%; border-collapse: collapse; }
+  .exam-page-table > thead.exam-page-thead { display: table-header-group; }
+  .exam-page-table > tbody { display: table-row-group; }
+  .exam-page-table > thead > tr > td,
+  .exam-page-table > tbody > tr > td { padding: 0; vertical-align: top; border: none; }
+  /* 印刷時、thead はページ上部に自動繰り返し。下に余白を入れて段組と分離 */
+  .exam-page-thead td { padding-bottom: 6px !important; }
   .header-row { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1.5px solid #000; padding-bottom: 4px; margin-bottom: 6px; }
   .header-title { font-weight: bold; font-size: 12pt; border: 1px solid #000; padding: 2px 8px; display: inline-block; }
   .header-name-area { font-size: 10pt; }
-  /* 点数記入欄: 3 セル等幅、採点システム連携のため位置固定 */
+  /* 点数記入欄: 3 セル等幅、項目名は 1 行に収まるよう white-space: nowrap */
   .score-table { border-collapse: collapse; font-size: 9pt; table-layout: fixed; }
-  .score-table th, .score-table td { border: 1px solid #000; padding: 2px 4px; width: 60px; height: 22px; text-align: center; vertical-align: middle; box-sizing: border-box; }
+  .score-table th, .score-table td { border: 1px solid #000; padding: 2px 4px; width: 75px; height: 22px; text-align: center; vertical-align: middle; box-sizing: border-box; white-space: nowrap; }
   .instructions { font-size: 9pt; color: #333; margin-bottom: 8px; }
   /* 2 段組レイアウト（B4 横向き） */
   .problems-grid {
@@ -4959,10 +4968,11 @@
      font-weight を切り替えるとテキスト幅が変わるため normal で固定し、
      配布版・解答版の解答欄の位置を完全一致させる（採点システム連携対応） */
   .answer-shown { color: ${showAnswers ? '#c00' : 'transparent'}; font-weight: normal; }
-  /* 解説（workflow）は showWorkflow フラグで制御。
-     配布版・解答版（採点用）では display:none で完全に空間を取らず、
-     解答欄の位置が変わらないようにする。解説版でのみ表示。 */
-  .workflow { font-size: 9pt; color: #c00; line-height: 1.4; margin-top: 4px; padding-left: 10px; display: ${showWorkflow ? 'block' : 'none'}; }
+  /* 解説（workflow）の空間予約方式:
+     配布版でも workflow ブロックは block で配置し、visibility: hidden で
+     見えない状態にする → 解答版（解説あり）と vertical 位置が完全一致。
+     これにより採点システムで配布版を overlay 比較する際に解答欄位置がズレない。 */
+  .workflow { font-size: 9pt; color: #c00; line-height: 1.4; margin-top: 4px; padding-left: 10px; visibility: ${showAnswers ? 'visible' : 'hidden'}; }
   .workflow div { margin-bottom: 2px; }
   .figure-svg { display: block; max-width: 100%; }
   .figure-caption { font-size: 9pt; text-align: center; }
@@ -4976,20 +4986,30 @@
     <button onclick="window.close()">閉じる</button>
     <span style="margin-left:auto; color:#666;">ブラウザの「印刷 → PDF として保存」で配布用ファイルが作れます。</span>
   </div>
-  <div class="exam-page">
-    <div class="header-row">
-      <div>
-        <span class="header-title">機械設計</span>
-        <span style="margin-left:6px;">${headerTitle.replace('機械設計　', '')}</span>${versionBadge}
-        <span style="margin-left:14px;">${meta.paperHeader.classLabel}（　　）番　氏名（　　　　　　　　）</span>
-      </div>
-      ${isExam ? this._buildScoreTable() : ''}
-    </div>
-    <div class="instructions">${meta.instructions}</div>
-    <div class="problems-grid">
-      ${problemsHTML}
-    </div>
-  </div>
+  <!-- ページヘッダーを各ページに繰り返すため <thead> + display: table-header-group。
+       Chrome / Firefox / Safari のいずれも、印刷時に thead を各ページ上部へ自動繰り返し。 -->
+  <table class="exam-page-table">
+    <thead class="exam-page-thead">
+      <tr><td>
+        <div class="header-row">
+          <div>
+            <span class="header-title">機械設計</span>
+            <span style="margin-left:6px;">${headerTitle.replace('機械設計　', '')}</span>${versionBadge}
+            <span style="margin-left:14px;">${meta.paperHeader.classLabel}（　　）番　氏名（　　　　　　　　）</span>
+          </div>
+          ${isExam ? this._buildScoreTable() : ''}
+        </div>
+        <div class="instructions">${meta.instructions}</div>
+      </td></tr>
+    </thead>
+    <tbody>
+      <tr><td>
+        <div class="problems-grid">
+          ${problemsHTML}
+        </div>
+      </td></tr>
+    </tbody>
+  </table>
 </body>
 </html>`;
             }
