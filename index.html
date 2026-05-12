@@ -4759,32 +4759,49 @@
                 if (!this.isTeacherMode()) return;
                 const data = (typeof EXAM_PREP_MASTER !== 'undefined') ? EXAM_PREP_MASTER[examKey] : null;
                 if (!data) { alert('対策プリントのデータが見つかりません: ' + examKey); return; }
-                // 模範解答版か通常版か選択
+                // ① ウィンドウを先に開く（ユーザージェスチャーが直接の click 由来のうちに）
+                //    confirm/prompt 後に window.open() を呼ぶとブラウザのポップアップ
+                //    ブロッカーに引っかかるため、必ず click 直後に open する。
+                const w = window.open('about:blank', '_blank', 'width=1200,height=900');
+                if (!w) {
+                    alert('ポップアップがブロックされました。\nブラウザの URL バー右側のアイコンから、このサイトのポップアップを「許可」に設定してください。');
+                    return;
+                }
+                // 一時的なロード表示
+                w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>対策プリント</title></head><body style="font-family:sans-serif; padding:24px;">対策プリントを生成中...</body></html>');
+                // ② 模範解答版か通常版か選択
                 const showAnswers = confirm('模範解答版を開きますか？\n[OK] = 模範解答版／[キャンセル] = 配布用（空欄）');
+                // ③ HTML 生成 & 書き込み
                 const html = this._buildPrintHTML(data, { mode: 'prep', showAnswers });
-                this._openPrintWindow(html, '対策プリント');
+                w.document.open();
+                w.document.write(html);
+                w.document.close();
+                w.document.title = '対策プリント';
             }
 
             openExamPrint(examKey) {
                 if (!this.isTeacherMode()) return;
                 const data = (typeof EXAM_PREP_MASTER !== 'undefined') ? EXAM_PREP_MASTER[examKey] : null;
                 if (!data) { alert('考査問題のデータが見つかりません: ' + examKey); return; }
+                // ① ウィンドウを先に開く（ポップアップブロック回避）
+                const w = window.open('about:blank', '_blank', 'width=1200,height=900');
+                if (!w) {
+                    alert('ポップアップがブロックされました。\nブラウザの URL バー右側のアイコンから、このサイトのポップアップを「許可」に設定してください。');
+                    return;
+                }
+                w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>考査問題</title></head><body style="font-family:sans-serif; padding:24px;">考査問題を生成中...</body></html>');
+                // ② 実施日を入力
                 const date = prompt('実施日を入力してください（例: R08.5.12）', 'R08.5.12');
-                if (date === null) return;
+                if (date === null) { w.close(); return; }
+                // ③ 模範解答版選択
                 const showAnswers = confirm('模範解答版を開きますか？\n[OK] = 模範解答版／[キャンセル] = 配布用（空欄）');
-                // 考査問題は対策の数値違いで生成
+                // ④ HTML 生成 & 書き込み（対策の数値違いで生成）
                 const examData = this._generateExamFromPrep(data);
                 const html = this._buildPrintHTML(examData, { mode: 'exam', showAnswers, date });
-                this._openPrintWindow(html, '考査問題');
-            }
-
-            _openPrintWindow(html, title) {
-                const w = window.open('', '_blank', 'width=1200,height=900');
-                if (!w) { alert('ポップアップがブロックされました。ブラウザの設定で許可してください。'); return; }
                 w.document.open();
                 w.document.write(html);
                 w.document.close();
-                w.document.title = title;
+                w.document.title = '考査問題';
             }
 
             // C 用：A の paramRanges から数値違いの値をランダム選択して問題を再構成。
