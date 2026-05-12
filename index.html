@@ -2118,10 +2118,12 @@
                     <div class="menu-header-actions">
                         <button class="btn dashboard-btn" id="examPrepBtn" onclick="app.goToExamPrep()">対策モード</button>
                         <button class="btn dashboard-btn" id="dashboardBtn" onclick="app.goToDashboard()" style="display:none;">ダッシュボード</button>
-                        <button class="btn dashboard-btn" id="prepPrintBtn"        onclick="app.openPrepPrint('midterm-1', false)" style="display:none;">対策プリント（配布）</button>
-                        <button class="btn dashboard-btn" id="prepPrintAnsBtn"     onclick="app.openPrepPrint('midterm-1', true)"  style="display:none;">対策プリント（解答）</button>
-                        <button class="btn dashboard-btn" id="examPrintBtn"        onclick="app.openExamPrint('midterm-1', false)" style="display:none;">考査問題（配布）</button>
-                        <button class="btn dashboard-btn" id="examPrintAnsBtn"     onclick="app.openExamPrint('midterm-1', true)"  style="display:none;">考査問題（解答）</button>
+                        <button class="btn dashboard-btn" id="prepPrintBtn"        onclick="app.openPrepPrint('midterm-1', false, false)" style="display:none;">対策プリント（配布）</button>
+                        <button class="btn dashboard-btn" id="prepPrintAnsBtn"     onclick="app.openPrepPrint('midterm-1', true,  false)" style="display:none;">対策プリント（解答）</button>
+                        <button class="btn dashboard-btn" id="prepPrintExpBtn"     onclick="app.openPrepPrint('midterm-1', true,  true)"  style="display:none;">対策プリント（解説）</button>
+                        <button class="btn dashboard-btn" id="examPrintBtn"        onclick="app.openExamPrint('midterm-1', false, false)" style="display:none;">考査問題（配布）</button>
+                        <button class="btn dashboard-btn" id="examPrintAnsBtn"     onclick="app.openExamPrint('midterm-1', true,  false)" style="display:none;">考査問題（解答）</button>
+                        <button class="btn dashboard-btn" id="examPrintExpBtn"     onclick="app.openExamPrint('midterm-1', true,  true)"  style="display:none;">考査問題（解説）</button>
                         <button class="btn logout-btn" onclick="app.logout()">ログアウト</button>
                     </div>
                 </div>
@@ -4676,15 +4678,19 @@
                 const dashBtn = document.getElementById('dashboardBtn');
                 const prepBtn = document.getElementById('prepPrintBtn');
                 const prepAnsBtn = document.getElementById('prepPrintAnsBtn');
+                const prepExpBtn = document.getElementById('prepPrintExpBtn');
                 const examBtn = document.getElementById('examPrintBtn');
                 const examAnsBtn = document.getElementById('examPrintAnsBtn');
+                const examExpBtn = document.getElementById('examPrintExpBtn');
                 const examPrepBtn = document.getElementById('examPrepBtn');
                 const teacher = this.isTeacherMode();
                 if (dashBtn) dashBtn.style.display = teacher ? 'inline-block' : 'none';
                 if (prepBtn) prepBtn.style.display = teacher ? 'inline-block' : 'none';
                 if (prepAnsBtn) prepAnsBtn.style.display = teacher ? 'inline-block' : 'none';
+                if (prepExpBtn) prepExpBtn.style.display = teacher ? 'inline-block' : 'none';
                 if (examBtn) examBtn.style.display = teacher ? 'inline-block' : 'none';
                 if (examAnsBtn) examAnsBtn.style.display = teacher ? 'inline-block' : 'none';
+                if (examExpBtn) examExpBtn.style.display = teacher ? 'inline-block' : 'none';
                 // 対策モードボタン: 教員は常時表示。生徒は公開中のセクションが 1 つ以上あるときのみ表示。
                 if (examPrepBtn) {
                     let visibleForUser = teacher;
@@ -4761,14 +4767,15 @@
             //   B4 サイズは @page で指定。KaTeX は CDN から再ロード。
             //   教員モード限定で動作（isTeacherMode() でガード）。
 
-            // 対策プリントを直接生成（prompt/confirm を使わず、引数で版を指定）
-            //   ボタンを「配布」「解答」の 2 つに分けることで、ユーザージェスチャー直後に
-            //   window.open() を呼べてポップアップブロックを完全に回避。
-            openPrepPrint(examKey, showAnswers) {
+            // 対策プリントを直接生成。3 種類のボタンから呼び分け。
+            //   showAnswers=false, showWorkflow=false → 配布版（空欄）
+            //   showAnswers=true,  showWorkflow=false → 解答版（採点用、配布と同レイアウト）
+            //   showAnswers=true,  showWorkflow=true  → 解説版（解答 + workflow、生徒振り返り用）
+            openPrepPrint(examKey, showAnswers, showWorkflow) {
                 if (!this.isTeacherMode()) return;
                 const data = (typeof EXAM_PREP_MASTER !== 'undefined') ? EXAM_PREP_MASTER[examKey] : null;
                 if (!data) { alert('対策プリントのデータが見つかりません: ' + examKey); return; }
-                const html = this._buildPrintHTML(data, { mode: 'prep', showAnswers: !!showAnswers });
+                const html = this._buildPrintHTML(data, { mode: 'prep', showAnswers: !!showAnswers, showWorkflow: !!showWorkflow });
                 const w = window.open('about:blank', '_blank', 'width=1200,height=900');
                 if (!w) {
                     alert('ポップアップがブロックされました。\nブラウザの URL バー右側のアイコンから、このサイトのポップアップを「許可」に設定してください。');
@@ -4777,11 +4784,13 @@
                 w.document.open();
                 w.document.write(html);
                 w.document.close();
-                w.document.title = showAnswers ? '対策プリント（解答）' : '対策プリント（配布）';
+                w.document.title = showWorkflow ? '対策プリント（解説）' : (showAnswers ? '対策プリント（解答）' : '対策プリント（配布）');
             }
 
             // 考査問題プリントを直接生成。日付はシステム日付から「R0X.M.D」を自動生成。
-            openExamPrint(examKey, showAnswers) {
+            //   配布版・解答版は採点システム連携のため完全に同じレイアウト。
+            //   解説版は workflow を含む（生徒振り返り用）。
+            openExamPrint(examKey, showAnswers, showWorkflow) {
                 if (!this.isTeacherMode()) return;
                 const data = (typeof EXAM_PREP_MASTER !== 'undefined') ? EXAM_PREP_MASTER[examKey] : null;
                 if (!data) { alert('考査問題のデータが見つかりません: ' + examKey); return; }
@@ -4790,7 +4799,7 @@
                 const era = today.getFullYear() - 2018;
                 const date = `R${String(era).padStart(2, '0')}.${today.getMonth() + 1}.${today.getDate()}`;
                 const examData = this._generateExamFromPrep(data);
-                const html = this._buildPrintHTML(examData, { mode: 'exam', showAnswers: !!showAnswers, date });
+                const html = this._buildPrintHTML(examData, { mode: 'exam', showAnswers: !!showAnswers, showWorkflow: !!showWorkflow, date });
                 const w = window.open('about:blank', '_blank', 'width=1200,height=900');
                 if (!w) {
                     alert('ポップアップがブロックされました。\nブラウザの URL バー右側のアイコンから、このサイトのポップアップを「許可」に設定してください。');
@@ -4799,7 +4808,7 @@
                 w.document.open();
                 w.document.write(html);
                 w.document.close();
-                w.document.title = showAnswers ? '考査問題（解答）' : '考査問題（配布）';
+                w.document.title = showWorkflow ? '考査問題（解説）' : (showAnswers ? '考査問題（解答）' : '考査問題（配布）');
             }
 
             // C 用：A の paramRanges から数値違いの値をランダム選択して問題を再構成。
@@ -4883,9 +4892,16 @@
                     ? `${meta.paperHeader.examTitlePrefix}（${opts.date}）`
                     : meta.paperHeader.prepTitle;
                 const showAnswers = !!opts.showAnswers;
-                const answerBadge = showAnswers ? '<span style="margin-left:10px; padding:2px 8px; background:#d23a2a; color:#fff; font-size:11px; border-radius:3px;">模範解答版</span>' : '';
+                // 解説（workflow）の表示は showAnswers とは独立。配布版・解答版で
+                // レイアウトを完全一致させるため、解答版でも workflow は表示しない。
+                // 解説（学生振り返り用）は別ボタンで showWorkflow=true を指定して出す。
+                const showWorkflow = !!opts.showWorkflow;
+                const versionLabel = showWorkflow ? '解説版' : (showAnswers ? '解答版（採点用）' : '配布版');
+                const versionBadge = (showAnswers || showWorkflow)
+                    ? `<span style="margin-left:10px; padding:2px 8px; background:#d23a2a; color:#fff; font-size:11px; border-radius:3px;">${versionLabel}</span>`
+                    : '';
                 // 全問題 HTML を生成
-                const problemsHTML = data.problems.map(p => this._buildProblemHTML(p, { isExam, showAnswers })).join('\n');
+                const problemsHTML = data.problems.map(p => this._buildProblemHTML(p, { isExam, showAnswers, showWorkflow })).join('\n');
 
                 return `<!DOCTYPE html>
 <html lang="ja">
@@ -4909,8 +4925,9 @@
   .header-row { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1.5px solid #000; padding-bottom: 4px; margin-bottom: 6px; }
   .header-title { font-weight: bold; font-size: 12pt; border: 1px solid #000; padding: 2px 8px; display: inline-block; }
   .header-name-area { font-size: 10pt; }
-  .score-table { border-collapse: collapse; font-size: 9pt; }
-  .score-table th, .score-table td { border: 1px solid #000; padding: 2px 8px; min-width: 32px; text-align: center; }
+  /* 点数記入欄: 3 セル等幅、採点システム連携のため位置固定 */
+  .score-table { border-collapse: collapse; font-size: 9pt; table-layout: fixed; }
+  .score-table th, .score-table td { border: 1px solid #000; padding: 2px 4px; width: 60px; height: 22px; text-align: center; vertical-align: middle; box-sizing: border-box; }
   .instructions { font-size: 9pt; color: #333; margin-bottom: 8px; }
   /* 2 段組レイアウト（B4 横向き） */
   .problems-grid {
@@ -4938,8 +4955,14 @@
   .blank-cell { display: flex; align-items: center; gap: 4px; font-size: 9pt; }
   .blank-cell .blank-id { display: inline-block; width: 22px; text-align: center; font-weight: 600; flex-shrink: 0; }
   .blank-cell .blank-ans { display: inline-block; flex: 1; min-height: 18px; border: 1px solid #000; padding: 2px 6px; }
-  .answer-shown { color: ${showAnswers ? '#c00' : 'transparent'}; font-weight: ${showAnswers ? 'bold' : 'normal'}; }
-  .workflow { font-size: 9pt; color: #c00; line-height: 1.4; margin-top: 4px; padding-left: 10px; display: ${showAnswers ? 'block' : 'none'}; }
+  /* 解答テキスト: 配布版 = 透明、解答版 = 赤字。
+     font-weight を切り替えるとテキスト幅が変わるため normal で固定し、
+     配布版・解答版の解答欄の位置を完全一致させる（採点システム連携対応） */
+  .answer-shown { color: ${showAnswers ? '#c00' : 'transparent'}; font-weight: normal; }
+  /* 解説（workflow）は showWorkflow フラグで制御。
+     配布版・解答版（採点用）では display:none で完全に空間を取らず、
+     解答欄の位置が変わらないようにする。解説版でのみ表示。 */
+  .workflow { font-size: 9pt; color: #c00; line-height: 1.4; margin-top: 4px; padding-left: 10px; display: ${showWorkflow ? 'block' : 'none'}; }
   .workflow div { margin-bottom: 2px; }
   .figure-svg { display: block; max-width: 100%; }
   .figure-caption { font-size: 9pt; text-align: center; }
@@ -4957,7 +4980,7 @@
     <div class="header-row">
       <div>
         <span class="header-title">機械設計</span>
-        <span style="margin-left:6px;">${headerTitle.replace('機械設計　', '')}</span>${answerBadge}
+        <span style="margin-left:6px;">${headerTitle.replace('機械設計　', '')}</span>${versionBadge}
         <span style="margin-left:14px;">${meta.paperHeader.classLabel}（　　）番　氏名（　　　　　　　　）</span>
       </div>
       ${isExam ? this._buildScoreTable() : ''}
