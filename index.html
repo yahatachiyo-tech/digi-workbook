@@ -1651,6 +1651,22 @@
         }
         .ep-review-btn:hover { background: #0d47a1; border-color: #0d47a1; }
         .ep-actions { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+        /* 対策モード 3 段階ヒント（B→A→C） */
+        .ep-hint-block { margin-top: 14px; }
+        .ep-hint-btn { margin-bottom: 8px; }
+        .ep-hint-display {
+            display: none;
+            padding: 10px 14px;
+            background: #fffbe6;
+            border: 1px solid #FFEB3B;
+            border-left: 3px solid #f0c674;
+            border-radius: 4px;
+            font-size: 14px;
+            line-height: 1.7;
+            color: #333;
+        }
+        .ep-hint-display.active { display: block; }
+        .ep-hint-label { font-weight: 600; color: #8a6d00; margin-bottom: 4px; }
         /* ===== 対策モード作図 (問2/3/4 用) ===== */
         .ep-drawing-figs {
             display: flex;
@@ -2315,7 +2331,8 @@
         //   false: 生徒には対策モードボタン非表示／セクション一覧から非公開
         //   教員モードでは値に関わらず常時アクセス可能
         const EXAM_PREP_PUBLIC_FOR_STUDENTS = {
-            'midterm-1': true,   // 1 学期中間考査（5/12-15）に向け公開
+            'midterm-1': true,            // 1 学期中間考査（5/12-15）に向け公開
+            'midterm-1-advanced': true,   // 1 学期中間考査 応用問題（発展、生徒公開）
             'final-1':   false
         };
         // 単元ごとの問題数（ダッシュボード集計用）
@@ -3477,6 +3494,132 @@
                             '$M = (-M_A) + M_B = -9000 + 12000 = 3000$ [N·mm]（時計回り）'
                         ],
                         answerLabels: ['M']
+                    }
+                ]
+            },
+            // 1 学期中間考査 応用問題（発展、100 点満点、画面自習専用）
+            //   pattern 'calc-applied' は逆算（params に未知量が null）に対応した汎用パターン。
+            //   紙印刷（_buildProblemHTML）には非対応。
+            'midterm-1-advanced': {
+                meta: {
+                    title: '1 学期中間考査 応用問題',
+                    titleShort: '中間考査 応用',
+                    scope: '1 節 機械に働く力（発展）',
+                    year: '令和 8 年度',
+                    paperHeader: {
+                        prepTitle: '機械設計　令和 8 年度　1 学期中間考査対策プリント',
+                        examTitlePrefix: '機械設計　令和 8 年度　1 学期中間考査',
+                        classLabel: '1G'
+                    },
+                    instructions: '※導出過程も含めて計算結果が小数点以下第 2 位以上になる場合、小数点以下第 2 位を四捨五入して小数点以下第 1 位までで答えること。'
+                },
+                problems: [
+                    // 応用問1: モーメントのつり合いからの逆算 / 思・判・表
+                    {
+                        id: 'ma1-q1', num: 1, category: 'applied', pattern: 'calc-applied',
+                        unitTags: ['1-8'], points: 10,
+                        figureSvg: 'lShapeFrame',
+                        title: '下図のように、点 A、B にそれぞれ力が働いている。点 A の力は 80 N、点 O から点 A までの距離は 150 mm である。点 O のまわりの力のモーメント M 全体を 0（つり合い）にするには、点 B の力を何 N にすればよいか求めよ。ただし点 O から点 B までの距離は 200 mm とする。',
+                        params: { Fa: 80, ra: 150, Fb: null, rb: 200 },
+                        answerSlots: [
+                            { key: 'Fb', label: '点 B の力 F_B', unit: 'N', expected: 60, tolerance: 0.5 }
+                        ],
+                        workflow: [
+                            '点 A の力のモーメント $M_A = F_A \\cdot r_A = 80 \\times 150 = 12000$ [N·mm]（反時計回り）',
+                            'つり合うには、点 B の力のモーメント $M_B$ が $M_A$ と大きさが等しく逆回り（時計回り）であればよい。',
+                            '$M_B = M_A = 12000$ [N·mm]',
+                            '$F_B = \\dfrac{M_B}{r_B} = \\dfrac{12000}{200} = 60$ [N]'
+                        ],
+                        hint_b: '点 A の力は物体を反時計回りに回そうとします。全体で回らない（つり合う）ためには、点 B の力は物体をどちら回りに回さなければなりませんか。まず点 A のモーメント M_A = F_A × r_A を計算しましょう。',
+                        hint_a: 'つり合いとは M 全体が 0 の状態です。M_A（反時計回り）と M_B（時計回り）の大きさが等しければ打ち消し合います。M_B = M_A とおき、F_B = M_B ÷ r_B で逆算します。',
+                        hint_c: '教科書 29〜30 ページ「力のモーメント」、図 2-19（モーメントの符号）を確認してください。'
+                    },
+                    // 応用問2: 分力 + モーメントの複合 / 思・判・表
+                    {
+                        id: 'ma1-q2', num: 2, category: 'applied', pattern: 'composite',
+                        unitTags: ['1-7', '1-8'], points: 12,
+                        figureSvg: 'inclinedAxisR',
+                        titleTemplate: '下図で、r = {r} mm、F = {F} N、θ = {theta}° のとき、次の問いに答えよ。',
+                        params: { r: 300, F: 120, theta: 50 },
+                        subQuestions: [
+                            { sub: '(1)', title: '力 F の、線分 OA に垂直な分力 F₁ の大きさを求めよ。',
+                              expected: 91.9, formula: 'F₁ = F sin θ',
+                              workflow: ['$\\sin\\theta = \\dfrac{F_1}{F}$ より',
+                                         '$F_1 = F \\times \\sin\\theta = 120 \\times \\sin 50° \\fallingdotseq 91.9$ [N]'],
+                              unit: 'N', points: 4 },
+                            { sub: '(2)', title: '力 F の、線分 OA に平行な分力 F₂ の大きさを求めよ。',
+                              expected: 77.1, formula: 'F₂ = F cos θ',
+                              workflow: ['$\\cos\\theta = \\dfrac{F_2}{F}$ より',
+                                         '$F_2 = F \\times \\cos\\theta = 120 \\times \\cos 50° \\fallingdotseq 77.1$ [N]'],
+                              unit: 'N', points: 4 },
+                            { sub: '(3)', title: '点 O のまわりの力 F のモーメントを求めよ。',
+                              expected: 27570, formula: 'M = F₁·r',
+                              workflow: ['$F_2$ は線分 OA 上にあり、点 O を通るのでモーメントを生じない。',
+                                         'モーメントを生じるのは OA に垂直な分力 $F_1$ だけである。',
+                                         '$M = F_1 \\cdot r = 91.9 \\times 300 = 27570$ [N·mm]'],
+                              unit: 'N·mm', points: 4 }
+                        ],
+                        hint_b: '(1) 力 F を OA に垂直な向きと平行な向きの 2 つに分けます。直角三角形で、斜辺が F、垂直方向が F₁ です。sin は「高さ÷斜辺」なので F₁ = F sinθ。電卓で sin50° を求めましょう。(3) 2 つの分力のうち、点 O を通ってしまう力は物体を回せません。回せるのはどちらの分力か考えましょう。',
+                        hint_a: 'OA に垂直な分力 F₁ = F sinθ、平行な分力 F₂ = F cosθ。点 O を通る力はモーメント 0。モーメントは M = F₁ · r。',
+                        hint_c: '教科書 28 ページ「計算による力の分解」、29 ページ式 (2-11) M = Fa sinθ を確認してください。'
+                    },
+                    // 応用問3: 分力からもとの力を逆算 / 思・判・表
+                    {
+                        id: 'ma1-q3', num: 3, category: 'applied', pattern: 'calc-applied',
+                        unitTags: ['1-7'], points: 8,
+                        figureSvg: 'inclineForceTriangle',
+                        titleTemplate: '下図のように、斜面上の物体に重力が下向きに働いている。この重力を斜面に平行・垂直な 2 力に分解したところ、斜面に平行な分力 F₁ が {F1given} N となった。斜面の傾き θ が {theta}° のとき、もとの重力 F の大きさと、斜面に垂直な分力 F₂ の大きさを求めよ。',
+                        params: { theta: 30, F1given: 150, F: null },
+                        answerSlots: [
+                            { key: 'F',  label: 'もとの重力 F', unit: 'N', expected: 300,   tolerance: 0.5 },
+                            { key: 'F2', label: '垂直な分力 F₂', unit: 'N', expected: 259.8, tolerance: 0.5 }
+                        ],
+                        workflow: [
+                            '斜面に平行な分力は $F_1 = F \\sin\\theta$ である。',
+                            'これを F について解くと $F = \\dfrac{F_1}{\\sin\\theta} = \\dfrac{150}{\\sin 30°} = \\dfrac{150}{0.5} = 300$ [N]',
+                            '斜面に垂直な分力は $F_2 = F \\cos\\theta = 300 \\times \\cos 30° \\fallingdotseq 259.8$ [N]'
+                        ],
+                        hint_b: 'いつもは F から F₁ を求めますが、今回は逆です。F₁ がわかっていて F を探します。F₁ = F sinθ という関係式で、F₁ と θ がわかっているなら、F は割り算で求められます。F = F₁ ÷ sinθ。sin30° は 0.5 です。F が出たら、F₂ = F cosθ で垂直分力を求めます。',
+                        hint_a: 'F₁ = F sinθ を F について解くと F = F₁ ÷ sinθ。求めた F を F₂ = F cosθ に代入する。',
+                        hint_c: '教科書 27〜28 ページ「計算による力の分解」を確認してください。'
+                    },
+                    // 応用問4: 直角 2 力の合力からの逆算 / 思・判・表
+                    {
+                        id: 'ma1-q4', num: 4, category: 'applied', pattern: 'calc-applied',
+                        unitTags: ['1-6'], points: 8,
+                        figureSvg: 'rightTriangleResultant',
+                        title: 'たがいに直角に働く 2 力 F₁、F₂ がある。F₁ = 90 N で、2 力の合力 F の大きさが 150 N であった。もう一方の力 F₂ の大きさと、合力 F が力 F₁ となす角 tan α を計算で求めよ。',
+                        params: { F1: 90, F: 150, F2: null },
+                        answerSlots: [
+                            { key: 'F2',   label: 'もう一方の力 F₂', unit: 'N', expected: 120, tolerance: 0.5 },
+                            { key: 'tanA', label: '角度 tan α',     unit: '',  expected: 1.3, tolerance: 0.05 }
+                        ],
+                        workflow: [
+                            '直角 2 力の合成は $F = \\sqrt{F_1^{\\,2} + F_2^{\\,2}}$ である。',
+                            '両辺を 2 乗して $F^2 = F_1^{\\,2} + F_2^{\\,2}$、よって $F_2^{\\,2} = F^2 - F_1^{\\,2}$',
+                            '$F_2 = \\sqrt{F^2 - F_1^{\\,2}} = \\sqrt{150^2 - 90^2} = \\sqrt{22500 - 8100} = \\sqrt{14400} = 120$ [N]',
+                            '$\\tan\\alpha = \\dfrac{F_2}{F_1} = \\dfrac{120}{90} \\fallingdotseq 1.3$'
+                        ],
+                        hint_b: '直角 2 力の合力は F = √(F₁² + F₂²) という関係です。今回は合力 F がわかっていて、F₂ を探します。式を変形すると F₂² = F² − F₁²（足し算が引き算に変わります）。150² = 22500、90² = 8100、その差の平方根が F₂ です。',
+                        hint_a: 'F = √(F₁² + F₂²) を F₂ について解くと F₂ = √(F² − F₁²)。求めた F₂ で tan α = F₂ ÷ F₁。',
+                        hint_c: '教科書 26 ページ「計算による力の合成」、式 (2-1)(2-2) を確認してください。'
+                    },
+                    // 応用問5: 偶力モーメントからの逆算 / 思・判・表
+                    {
+                        id: 'ma1-q5', num: 5, category: 'applied', pattern: 'calc-applied',
+                        unitTags: ['1-9'], points: 7,
+                        titleTemplate: '直径 {D} mm のハンドル車を両手で回したところ、偶力のモーメントが {Mgiven} N·mm であった。両手がハンドルにおのおの加えた力は何 N か求めよ。',
+                        params: { D: 400, Mgiven: 16000, F: null },
+                        answerSlots: [
+                            { key: 'F', label: '片手の力 F', unit: 'N', expected: 40, tolerance: 0.5 }
+                        ],
+                        workflow: [
+                            '偶力のモーメントは $M = F \\cdot d$ で、$d$ はハンドルの直径である。',
+                            'F について解くと $F = \\dfrac{M}{d} = \\dfrac{16000}{400} = 40$ [N]'
+                        ],
+                        hint_b: '両手でハンドルを回す力は、大きさが等しく逆向きの平行な 2 力＝偶力です。偶力のモーメントは M = F × d。ハンドル車では d は 2 つの力の作用線の間の距離、つまりハンドルの直径です（半径ではないので注意）。M と d がわかっているので、F は割り算 F = M ÷ d で求めます。',
+                        hint_a: '偶力のモーメント M = F · d、d は直径。F について解いて F = M ÷ d。',
+                        hint_c: '教科書 31 ページ「偶力」、式 (2-13) M = Fd、図 2-22(a) を確認してください。'
                     }
                 ]
             }
@@ -5671,6 +5814,12 @@
                 const arcR = 26;
                 const arcEndX = ox + arcR * cos_t;
                 const arcEndY = oy - arcR * sin_t;
+                // 逆算問題（F が null）では重力ラベルを「F = ？」、
+                //   F1given があれば斜面平行成分のラベルに既知の値を表示する。
+                const fLabel = (p.params.F === null || p.params.F === undefined)
+                    ? 'F = ？' : `F = ${p.params.F} N`;
+                const f1Label = (p.params.F1given !== undefined && p.params.F1given !== null)
+                    ? `F₁ = ${p.params.F1given} N` : 'F₁';
                 return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" class="figure-svg">
                     <defs>
                         <marker id="m10r" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
@@ -5698,21 +5847,69 @@
                     <line x1="${fx}" y1="${fy}" x2="${f2End.x.toFixed(1)}" y2="${f2End.y.toFixed(1)}" stroke="#888" stroke-width="1" stroke-dasharray="4,3"/>
                     <!-- F₁: G から斜面下方向（淡赤破線） -->
                     <line x1="${gx.toFixed(1)}" y1="${gy.toFixed(1)}" x2="${f1End.x.toFixed(1)}" y2="${f1End.y.toFixed(1)}" stroke="#b83a2a" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#m10c)"/>
-                    <text x="${(f1End.x - 14).toFixed(1)}" y="${(f1End.y + 14).toFixed(1)}" font-size="9pt" fill="#b83a2a">F₁</text>
+                    <text x="${(f1End.x - 26).toFixed(1)}" y="${(f1End.y + 14).toFixed(1)}" font-size="9pt" fill="#b83a2a">${f1Label}</text>
                     <!-- F₂: G から斜面押し付け方向（淡赤破線） -->
                     <line x1="${gx.toFixed(1)}" y1="${gy.toFixed(1)}" x2="${f2End.x.toFixed(1)}" y2="${f2End.y.toFixed(1)}" stroke="#b83a2a" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#m10c)"/>
                     <text x="${(f2End.x + 4).toFixed(1)}" y="${(f2End.y + 4).toFixed(1)}" font-size="9pt" fill="#b83a2a">F₂</text>
                     <!-- 重力 F（重心から真下、実線、赤） -->
                     <line x1="${gx.toFixed(1)}" y1="${gy.toFixed(1)}" x2="${fx}" y2="${fy}" stroke="#d23a2a" stroke-width="2.5" marker-end="url(#m10r)"/>
-                    <text x="${(fx + 6).toFixed(1)}" y="${((gy + fy) / 2).toFixed(1)}" font-size="10pt" fill="#d23a2a">F = ${p.params.F} N</text>
+                    <text x="${(fx + 6).toFixed(1)}" y="${((gy + fy) / 2).toFixed(1)}" font-size="10pt" fill="#d23a2a">${fLabel}</text>
+                </svg>`;
+            }
+
+            // 直角 2 力の合成（逆算）用 SVG。
+            //   底辺 = F₁（既知、赤実線・横）、斜辺 = 合力 F（既知、青実線・対角）、
+            //   高さ = F₂（未知、赤破線・縦、ラベル「F₂ = ？」）。原点 O に直角マーク。
+            _svgRightTriangleResultant(p) {
+                const W = 240, H = 200;
+                const ox = 50, oy = H - 40;
+                const f1px = 120;
+                // F₂ は未知だが、図のバランスのため F₁ の 0.9 倍程度の高さで描画する。
+                const f2px = f1px * 0.9;
+                const f1EndX = ox + f1px, f1EndY = oy;
+                const f2EndX = ox, f2EndY = oy - f2px;
+                const fEndX = f1EndX, fEndY = f2EndY;
+                const alpha = Math.atan2(f2px, f1px);
+                const arcR = 24;
+                const arcEndX = ox + arcR * Math.cos(alpha);
+                const arcEndY = oy - arcR * Math.sin(alpha);
+                const f1Label = (p.params.F1 !== null && p.params.F1 !== undefined)
+                    ? `F₁ = ${p.params.F1} N` : 'F₁';
+                const fLabel = (p.params.F !== null && p.params.F !== undefined)
+                    ? `F = ${p.params.F} N` : 'F';
+                return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" class="figure-svg">
+                    <defs>
+                        <marker id="mRTRr" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#d23a2a"/></marker>
+                        <marker id="mRTRb" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#1e5fa8"/></marker>
+                    </defs>
+                    <!-- F₁: O から右、赤実線（既知） -->
+                    <line x1="${ox}" y1="${oy}" x2="${f1EndX}" y2="${f1EndY}" stroke="#d23a2a" stroke-width="2.5" marker-end="url(#mRTRr)"/>
+                    <text x="${ox + f1px / 2 - 22}" y="${oy + 16}" font-size="10pt" fill="#d23a2a">${f1Label}</text>
+                    <!-- F₂: O から上、赤破線（未知） -->
+                    <line x1="${ox}" y1="${oy}" x2="${f2EndX}" y2="${f2EndY}" stroke="#d23a2a" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#mRTRr)"/>
+                    <text x="${ox - 44}" y="${oy - f2px / 2}" font-size="10pt" fill="#d23a2a">F₂ = ？</text>
+                    <!-- 合力 F: O から対角線、青実線（既知） -->
+                    <line x1="${ox}" y1="${oy}" x2="${fEndX}" y2="${fEndY}" stroke="#1e5fa8" stroke-width="2.5" marker-end="url(#mRTRb)"/>
+                    <text x="${(ox + fEndX) / 2 + 6}" y="${(oy + fEndY) / 2 - 6}" font-size="10pt" fill="#1e5fa8" font-weight="bold">${fLabel}</text>
+                    <!-- α 弧（O 点で F₁ → F のなす角） -->
+                    <path d="M ${ox + arcR} ${oy} A ${arcR} ${arcR} 0 0 0 ${arcEndX.toFixed(2)} ${arcEndY.toFixed(2)}" fill="none" stroke="#333" stroke-width="1"/>
+                    <text x="${ox + arcR + 4}" y="${oy - 6}" font-size="10pt">α</text>
+                    <!-- 直角マーク（O 点） -->
+                    <path d="M ${ox + 10} ${oy} L ${ox + 10} ${oy - 10} L ${ox} ${oy - 10}" fill="none" stroke="#333" stroke-width="1"/>
+                    <!-- 原点 O -->
+                    <circle cx="${ox}" cy="${oy}" r="2.5" fill="#000"/>
+                    <text x="${ox - 12}" y="${oy + 14}" font-size="9pt">O</text>
                 </svg>`;
             }
 
             _svgLShapeFrame(p) {
                 // L 形フレーム：A（左）と B（右下）に力、O（折れ点）
+                //   逆算問題（Fb が null）では点 B のラベルを「F_B = ？」と表示する。
                 const W = 240, H = 180;
                 const ox = 90, oy = 80;
                 const ax = ox, ay = oy - 60, bx = ox + 80, by = oy;
+                const fbLabel = (p.params.Fb === null || p.params.Fb === undefined)
+                    ? 'F_B = ？' : `${p.params.Fb} N`;
                 return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" class="figure-svg">
                     <defs>
                         <marker id="m12r" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#d23a2a"/></marker>
@@ -5721,7 +5918,7 @@
                     <line x1="${ax}" y1="${ay}" x2="${ax - 50}" y2="${ay}" stroke="#d23a2a" stroke-width="2" marker-end="url(#m12r)"/>
                     <text x="${ax - 64}" y="${ay - 4}" font-size="9pt">${p.params.Fa} N</text>
                     <line x1="${bx}" y1="${by}" x2="${bx}" y2="${by + 50}" stroke="#d23a2a" stroke-width="2" marker-end="url(#m12r)"/>
-                    <text x="${bx + 6}" y="${by + 50}" font-size="9pt">${p.params.Fb} N</text>
+                    <text x="${bx + 6}" y="${by + 50}" font-size="9pt">${fbLabel}</text>
                     <text x="${ax - 12}" y="${ay - 4}" font-size="10pt">A</text>
                     <text x="${bx + 4}" y="${by + 4}" font-size="10pt">B</text>
                     <text x="${ox - 12}" y="${oy + 12}" font-size="10pt">O</text>
@@ -5924,7 +6121,8 @@
                     'calc-couple':         '偶力',
                     'incline-decompose':   '斜面分解',
                     'calc-couple-applied': '偶力(応用)',
-                    'signed-moment':       '符号付き'
+                    'signed-moment':       '符号付き',
+                    'calc-applied':        '逆算'
                 };
                 return map[pattern] || pattern;
             }
@@ -5945,6 +6143,7 @@
                     case 'calc-couple-applied': body = this._epRenderCalcCoupleApplied(problem); break;
                     case 'incline-decompose':   body = this._epRenderInclineDecompose(problem); break;
                     case 'composite':           body = this._epRenderComposite(problem); break;
+                    case 'calc-applied':        body = this._epRenderCalcApplied(problem); break;
                     case 'drawing-and-calc':    body = this._epRenderDrawingAndCalc(problem); break;
                     case 'drawing-1d':
                     case 'drawing-2d':
@@ -5954,14 +6153,57 @@
                     default: body = '<div style="color:#888;">この問題型は近日対応予定です。</div>';
                 }
                 const figureHTML = this._epRenderFigure(problem);
+                const hintHTML = this._epRenderHintBlock(problem);
                 return `
                     <div class="ep-solve-container">
                         <div class="ep-problem-stem">問 ${problem.num}　${title}</div>
                         ${figureHTML}
                         ${body}
+                        ${hintHTML}
                         <div id="epFeedback" class="ep-feedback"></div>
                         <div class="ep-actions" id="epActions"></div>
                     </div>`;
+            }
+
+            // 3 段階ヒント（B→A→C）の UI。ヒントを持つ問題でのみ表示する。
+            //   段階状態は this.examPrepHintStage に問題 ID 単位で保持し、問題遷移で 0 に戻る。
+            _epRenderHintBlock(problem) {
+                if (!problem.hint_b && !problem.hint_a && !problem.hint_c) return '';
+                if (!this.examPrepHintStage) this.examPrepHintStage = {};
+                this.examPrepHintStage[problem.id] = 0;
+                return `
+                    <div class="ep-hint-block">
+                        <button class="btn hint-btn ep-hint-btn" id="epHintBtn" onclick="app._epShowHint()">ヒント</button>
+                        <div class="ep-hint-display" id="epHintDisplay"></div>
+                    </div>`;
+            }
+
+            // ヒント B → A → C を 1 段階ずつ表示する。
+            _epShowHint() {
+                const data = EXAM_PREP_MASTER[this.examPrepCurrentExam];
+                const problem = data.problems[this.examPrepCurrentIdx];
+                if (!problem) return;
+                if (!this.examPrepHintStage) this.examPrepHintStage = {};
+                const stages = [
+                    { text: problem.hint_b, label: 'ヒント 1/3' },
+                    { text: problem.hint_a, label: 'ヒント 2/3' },
+                    { text: problem.hint_c, label: 'ヒント 3/3' }
+                ].filter(s => s.text);
+                const display = document.getElementById('epHintDisplay');
+                const btn = document.getElementById('epHintBtn');
+                if (!display) return;
+                let stage = this.examPrepHintStage[problem.id] || 0;
+                if (stage >= stages.length) return;
+                const s = stages[stage];
+                display.classList.add('active');
+                display.innerHTML = `<div class="ep-hint-label">${s.label}</div><div>${s.text}</div>`;
+                stage++;
+                this.examPrepHintStage[problem.id] = stage;
+                if (btn) {
+                    const remaining = stages.length - stage;
+                    if (remaining > 0) btn.textContent = `ヒント (あと${remaining})`;
+                    else { btn.textContent = 'ヒント (終了)'; btn.disabled = true; btn.style.opacity = '0.5'; }
+                }
             }
 
             _epRenderFigure(problem) {
@@ -5975,6 +6217,7 @@
                         case 'handleWheelCouple':     return app._svgHandleWheelCouple(p);
                         case 'inclineForceTriangle':  return app._svgInclineForceTriangle(p);
                         case 'lShapeFrame':           return app._svgLShapeFrame(p);
+                        case 'rightTriangleResultant': return app._svgRightTriangleResultant(p);
                         default: return '';
                     }
                 })(problem, this);
@@ -6126,6 +6369,21 @@
                         </div>
                     </div>`).join('');
                 return `${subs}<button class="btn btn-primary" style="margin-top:16px;" onclick="app.submitExamPrepAnswer()">確認</button>`;
+            }
+
+            // calc-applied: 逆算問題用の汎用レンダラ。answerSlots ごとに数値入力欄を出す。
+            _epRenderCalcApplied(p) {
+                const rows = (p.answerSlots || []).map(slot => {
+                    const unit = slot.unit ? `<span>[${slot.unit}]</span>` : '';
+                    const step = (slot.tolerance && slot.tolerance <= 0.05) ? '0.1' : '0.1';
+                    return `
+                    <div class="ep-subq-row">
+                        <span class="ep-subq-label">${slot.label} ＝</span>
+                        <input type="number" class="ep-subq-input" data-key="${slot.key}" placeholder="数値" step="${step}">
+                        ${unit}
+                    </div>`;
+                }).join('');
+                return `${rows}<button class="btn btn-primary" onclick="app.submitExamPrepAnswer()">確認</button>`;
             }
 
             _epRenderSignedMoment(p) {
@@ -6537,6 +6795,23 @@
                     });
                     return { allCorrect: allOk, wrongKeys, correctKeys,
                              message: allOk ? '' : '正答と一致しない欄があります（赤）。' };
+                }
+                // calc-applied: answerSlots の expected / tolerance と入力値を照合
+                if (problem.pattern === 'calc-applied') {
+                    const slots = problem.answerSlots || [];
+                    let allOk = true;
+                    inputs.forEach(inp => {
+                        const key = inp.getAttribute('data-key');
+                        const slot = slots.find(s => s.key === key);
+                        const userVal = parseFloat(inp.value);
+                        if (!slot) { wrongKeys.push(key); allOk = false; return; }
+                        if (isNaN(userVal)) { wrongKeys.push(key); allOk = false; return; }
+                        const tolerance = (slot.tolerance !== undefined) ? slot.tolerance : 0.5;
+                        if (tol(userVal, slot.expected, tolerance)) correctKeys.push(key);
+                        else { wrongKeys.push(key); allOk = false; }
+                    });
+                    return { allCorrect: allOk, wrongKeys, correctKeys,
+                             message: allOk ? '' : '答えが期待値と異なります（赤）。' };
                 }
                 // 数値系: data-key と problem.expected を照合
                 const exp = problem.expected || {};
