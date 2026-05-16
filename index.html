@@ -1631,6 +1631,25 @@
         .ep-feedback.active { display: block; }
         .ep-feedback.correct { background: #e8f5e9; color: #1b5e20; border-left: 3px solid #2e7d32; }
         .ep-feedback.incorrect { background: #fff5f5; color: #b00; border-left: 3px solid #c62828; }
+        /* 誤答時の単元誘導ガイド */
+        .ep-review-guide {
+            margin-top: 10px;
+            padding: 10px 12px;
+            background: #fff;
+            border: 1px solid #f0c0c0;
+            border-radius: 4px;
+            color: #333;
+            font-size: 13px;
+            line-height: 1.7;
+        }
+        .ep-review-guide strong { color: #c62828; }
+        /* 復習へ誘導するボタン: 通常の btn-primary より目立たせる */
+        .ep-review-btn {
+            background: #1565c0;
+            border-color: #1565c0;
+            font-weight: 600;
+        }
+        .ep-review-btn:hover { background: #0d47a1; border-color: #0d47a1; }
         .ep-actions { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
         /* ===== 対策モード作図 (問2/3/4 用) ===== */
         .ep-drawing-figs {
@@ -6128,7 +6147,7 @@
                         画面上での作図は対応しておりません。紙の対策プリントで取り組むか、関連する学習セクションで作図の練習をしてください。
                     </div>
                     <div class="ep-actions">
-                        <button class="btn btn-primary" onclick="app.examPrepGoToUnit('${unitTag}', null)">${unitTag} の学習セクションへ</button>
+                        <button class="btn btn-primary ep-review-btn" onclick="app.examPrepGoToUnit('${unitTag}', null)">${this._unitDisplayName(unitTag)} を復習する</button>
                         <button class="btn btn-secondary" onclick="app.examPrepBack()">問題一覧に戻る</button>
                     </div>`;
             }
@@ -6465,16 +6484,29 @@
                 } else {
                     prog.status = 'wrong';
                     fb.className = 'ep-feedback active incorrect';
-                    fb.innerHTML = `<strong>不正解です。</strong>　${result.message || 'もう一度確認しましょう。'}`;
+                    // 誤答時の誘導強化: 関連する単元名を明示し、基礎からの復習を促す
+                    const tags = (problem.unitTags || []).filter(t => UNITS.some(u => u.id === t));
+                    let guideHtml = '';
+                    if (tags.length > 0) {
+                        const unitListText = tags.map(t => this._unitDisplayName(t)).join('、');
+                        guideHtml = `<div class="ep-review-guide">
+                            この問題は <strong>${unitListText}</strong> の内容です。<br>
+                            まちがえた原因をはっきりさせるため、下のボタンから学習セクションで基礎を確認しましょう。
+                        </div>`;
+                    }
+                    fb.innerHTML = `<strong>不正解です。</strong>　${result.message || ''}${guideHtml}`;
                     inputs.forEach(inp => {
                         const key = inp.getAttribute('data-key') || inp.getAttribute('data-blank-id');
                         if (result.wrongKeys && result.wrongKeys.includes(key)) inp.classList.add('incorrect');
                         else if (result.correctKeys && result.correctKeys.includes(key)) inp.classList.add('correct');
                     });
-                    const unitTag = (problem.unitTags && problem.unitTags[0]) || null;
+                    // 関連単元ごとに誘導ボタンを生成（複数単元タグに対応）
+                    const unitBtns = tags.map(t =>
+                        `<button class="btn btn-primary ep-review-btn" onclick="app.examPrepGoToUnit('${t}', '${problem.id}')">${this._unitDisplayName(t)} を復習する</button>`
+                    ).join('');
                     actions.innerHTML = `
-                        ${unitTag ? `<button class="btn btn-primary" onclick="app.examPrepGoToUnit('${unitTag}', '${problem.id}')">${unitTag} の学習セクションで確認する</button>` : ''}
-                        <button class="btn btn-secondary" onclick="app.examPrepRetry()">もう一度</button>
+                        ${unitBtns}
+                        <button class="btn btn-secondary" onclick="app.examPrepRetry()">もう一度挑戦</button>
                         <button class="btn btn-secondary" onclick="app.examPrepBack()">問題一覧に戻る</button>`;
                 }
                 this.examPrepProgress[problem.id] = prog;
@@ -6715,6 +6747,12 @@
                     problemId: returnProblemId
                 };
                 this.startUnit(unitId);
+            }
+
+            // 単元 ID から「1-3「作用線が重なる2力の合成」」形式の表示名を返す
+            _unitDisplayName(unitId) {
+                const u = (typeof UNITS !== 'undefined') ? UNITS.find(x => x.id === unitId) : null;
+                return u ? `${unitId}「${u.title}」` : unitId;
             }
             // ==================================================================
 
