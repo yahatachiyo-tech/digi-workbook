@@ -10940,34 +10940,46 @@
                 // ===== 左側：問題図（OB を分解） =====
                 let oX, oY, obDirX, obDirY;   // 点 O と、ひも OB の向き（O→B、画面座標）
                 if (problem.tool === 'twoRopeSymmetric') {
-                    const cx = 160, ceilY = 30, objY = 165;
-                    const ax = cx - 80, bx = cx + 80;
-                    oY = objY - 12; oX = cx;
+                    const ceilY = 30;
+                    oX = 160; oY = 150;                       // ひも OA・OB の交点 O
+                    const ax = oX - 80, bx = oX + 80;
+                    const boxCenterY = oY + 30;               // O と箱の間にすき間を作る
                     svg += drawCeilingHatch(ax - 22, bx + 22, ceilY);
-                    svg += `<line x1="${ax}" y1="${ceilY}" x2="${cx}" y2="${oY}" stroke="#3A434C" stroke-width="2"/>`;
-                    svg += `<line x1="${bx}" y1="${ceilY}" x2="${cx}" y2="${oY}" stroke="#3A434C" stroke-width="2"/>`;
+                    svg += `<line x1="${ax}" y1="${ceilY}" x2="${oX}" y2="${oY}" stroke="#3A434C" stroke-width="2"/>`;
+                    svg += `<line x1="${bx}" y1="${ceilY}" x2="${oX}" y2="${oY}" stroke="#3A434C" stroke-width="2"/>`;
                     svg += `<circle cx="${ax}" cy="${ceilY}" r="3" fill="#333"/><text x="${ax - 6}" y="${ceilY + 16}" text-anchor="end" font-size="12" fill="#333" font-weight="600">A</text>`;
                     svg += `<circle cx="${bx}" cy="${ceilY}" r="3" fill="#333"/><text x="${bx + 6}" y="${ceilY + 16}" font-size="12" fill="#333" font-weight="600">B</text>`;
-                    svg += drawWeight(cx, objY);
-                    svg += `<circle cx="${cx}" cy="${oY}" r="3" fill="#333"/><text x="${cx - 8}" y="${oY + 22}" text-anchor="end" font-size="12" fill="#333" font-weight="600">O</text>`;
+                    // 角 θ（天井とひものなす角）＝ θ が定義された場所。A・B 両側に表示し、
+                    //   右側に取り出す直角三角形の角が θ と等しいことの根拠を示す。
+                    const angSym = Math.atan2(oY - ceilY, oX - ax);
+                    svg += `<path d="M ${ax + 24} ${ceilY} A 24 24 0 0 1 ${ax + 24 * Math.cos(angSym)} ${ceilY + 24 * Math.sin(angSym)}" stroke="${AUX}" stroke-width="1.5" fill="none"/>`;
+                    svg += `<text x="${ax + 31}" y="${ceilY + 23}" font-size="12" fill="#555" font-style="italic">θ</text>`;
+                    svg += `<path d="M ${bx - 24 * Math.cos(angSym)} ${ceilY + 24 * Math.sin(angSym)} A 24 24 0 0 1 ${bx - 24} ${ceilY}" stroke="${AUX}" stroke-width="1.5" fill="none"/>`;
+                    svg += `<text x="${bx - 39}" y="${ceilY + 23}" font-size="12" fill="#555" font-style="italic">θ</text>`;
+                    // O と箱をつなぐ短い線・箱
+                    svg += `<line x1="${oX}" y1="${oY}" x2="${oX}" y2="${boxCenterY - 12}" stroke="#3A434C" stroke-width="2"/>`;
+                    svg += drawWeight(oX, boxCenterY);
+                    svg += `<circle cx="${oX}" cy="${oY}" r="3" fill="#333"/><text x="${oX - 9}" y="${oY + 11}" text-anchor="end" font-size="12" fill="#333" font-weight="600">O</text>`;
                     // W↓
-                    const wY1 = objY + 12, wY2 = objY + 48;
-                    svg += `<line x1="${cx}" y1="${wY1}" x2="${cx}" y2="${wY2}" stroke="${RED}" stroke-width="2.5" marker-end="url(#stc110d-red)"/>`;
-                    svg += `<text x="${cx + 8}" y="${wY2 - 8}" font-size="12" fill="${RED}" font-weight="600">W = ${problem.w} N</text>`;
-                    obDirX = bx - cx; obDirY = ceilY - oY;
+                    const wY1 = boxCenterY + 12, wY2 = wY1 + 38;
+                    svg += `<line x1="${oX}" y1="${wY1}" x2="${oX}" y2="${wY2}" stroke="${RED}" stroke-width="2.5" marker-end="url(#stc110d-red)"/>`;
+                    svg += `<text x="${oX + 8}" y="${wY2 - 8}" font-size="12" fill="${RED}" font-weight="600">W = ${problem.w} N</text>`;
+                    obDirX = bx - oX; obDirY = ceilY - oY;
                 } else {
-                    // twoRopeLshape
-                    const wallX = 40, objY = 150;
-                    oX = 200; oY = objY - 12;
-                    const bX = 275, bY = 55;
-                    svg += drawWallHatch(wallX, 30, H - 60);
+                    // twoRopeLshape — θ は水平なひも OA とひも OB のなす角（点 O で定義）
+                    const wallX = 40;
+                    oX = 200; oY = 132;                       // ひも OA・OB の交点 O
+                    const bX = 280, bY = 86;                  // OB はおよそ水平から 30°
+                    const boxCenterY = oY + 30;
+                    svg += drawWallHatch(wallX, 30, H - 56);
                     svg += `<line x1="${wallX}" y1="${oY}" x2="${oX}" y2="${oY}" stroke="#3A434C" stroke-width="2"/>`;
                     svg += `<circle cx="${wallX}" cy="${oY}" r="3" fill="#333"/><text x="${wallX + 6}" y="${oY - 8}" font-size="12" fill="#333" font-weight="600">A</text>`;
                     svg += `<line x1="${oX}" y1="${oY}" x2="${bX}" y2="${bY}" stroke="#3A434C" stroke-width="2"/>`;
                     svg += `<circle cx="${bX}" cy="${bY}" r="3" fill="#333"/><text x="${bX + 5}" y="${bY - 4}" font-size="12" fill="#333" font-weight="600">B</text>`;
-                    svg += drawWeight(oX, objY);
-                    svg += `<circle cx="${oX}" cy="${oY}" r="3" fill="#333"/><text x="${oX - 8}" y="${oY + 22}" text-anchor="end" font-size="12" fill="#333" font-weight="600">O</text>`;
-                    const wY1 = objY + 12, wY2 = objY + 50;
+                    svg += `<line x1="${oX}" y1="${oY}" x2="${oX}" y2="${boxCenterY - 12}" stroke="#3A434C" stroke-width="2"/>`;
+                    svg += drawWeight(oX, boxCenterY);
+                    svg += `<circle cx="${oX}" cy="${oY}" r="3" fill="#333"/><text x="${oX - 9}" y="${oY + 11}" text-anchor="end" font-size="12" fill="#333" font-weight="600">O</text>`;
+                    const wY1 = boxCenterY + 12, wY2 = wY1 + 40;
                     svg += `<line x1="${oX}" y1="${wY1}" x2="${oX}" y2="${wY2}" stroke="${RED}" stroke-width="2.5" marker-end="url(#stc110d-red)"/>`;
                     svg += `<text x="${oX + 8}" y="${wY2 - 12}" font-size="12" fill="${RED}" font-weight="600">W = ${problem.w} N</text>`;
                     obDirX = bX - oX; obDirY = bY - oY;
@@ -10983,9 +10995,9 @@
                 // 補助線（破線）：T を対角線とする長方形
                 svg += `<line x1="${oX + compH}" y1="${oY}" x2="${tEndX}" y2="${tEndY}" stroke="${AUX}" stroke-width="1.3" stroke-dasharray="4 3"/>`;
                 svg += `<line x1="${oX}" y1="${oY + compV}" x2="${tEndX}" y2="${tEndY}" stroke="${AUX}" stroke-width="1.3" stroke-dasharray="4 3"/>`;
-                // 横の分力（O → 真横）
+                // 横の分力（O → 真横）— ラベルは矢印の下・箱とのすき間に置く
                 svg += `<line x1="${oX}" y1="${oY}" x2="${oX + compH}" y2="${oY}" stroke="${BLUE}" stroke-width="2" marker-end="url(#stc110d-blue)"/>`;
-                svg += `<text x="${oX + compH / 2}" y="${oY + 16}" text-anchor="middle" font-size="11" fill="${BLUE}" font-weight="600">横の分力</text>`;
+                svg += `<text x="${oX + compH / 2}" y="${oY + 14}" text-anchor="middle" font-size="11" fill="${BLUE}" font-weight="600">横の分力</text>`;
                 // 縦の分力（O → 真上）
                 svg += `<line x1="${oX}" y1="${oY}" x2="${oX}" y2="${oY + compV}" stroke="${BLUE}" stroke-width="2" marker-end="url(#stc110d-blue)"/>`;
                 svg += `<text x="${oX - 6}" y="${oY + compV / 2}" text-anchor="end" font-size="11" fill="${BLUE}" font-weight="600">縦の分力</text>`;
@@ -10995,11 +11007,12 @@
                 // O の直角マーク（横の分力＝+x 方向 と 縦の分力＝-y 方向 のなす角）
                 const vSign = compV < 0 ? -1 : 1;
                 svg += rightAngleMark(oX, oY, Math.sign(compH) || 1, 0, 0, vSign, 11);
-                // 角 θ（横の分力(水平) と T(斜辺) のなす角）
-                const aStart = 0;                       // 水平方向の角（O→横分力先端）
-                const aEnd = Math.atan2(compV, compH);  // O→T 先端の角
-                svg += `<path d="M ${oX + 30} ${oY} A 30 30 0 0 ${aEnd < 0 ? 1 : 0} ${oX + 30 * Math.cos(aEnd)} ${oY + 30 * Math.sin(aEnd)}" stroke="${AUX}" stroke-width="1.5" fill="none"/>`;
-                svg += `<text x="${oX + 38}" y="${oY + (compV < 0 ? -14 : 18)}" font-size="12" fill="#555" font-style="italic">θ</text>`;
+                // 角 θ（横の分力(水平) と T(斜辺) のなす角）＝ 天井（または OA）で定義した θ と等しい。
+                //   T は上向き（aEnd<0）なので、水平から T へ反時計回りの小さい弧（sweep 0）を描く。
+                const aEnd = Math.atan2(compV, compH);
+                const thR = 26;
+                svg += `<path d="M ${oX + thR} ${oY} A ${thR} ${thR} 0 0 0 ${oX + thR * Math.cos(aEnd)} ${oY + thR * Math.sin(aEnd)}" stroke="${AUX}" stroke-width="1.5" fill="none"/>`;
+                svg += `<text x="${oX + 31}" y="${oY - 7}" font-size="12" fill="#555" font-style="italic">θ</text>`;
 
                 // ===== 右側：取り出した直角三角形（向きを整えた） =====
                 // 縦/横 = tan θ。base=120 でまず計算し、height>120 なら height=120 に縮める。
