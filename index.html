@@ -5050,6 +5050,7 @@
                 this.problemStartTime = 0;
                 this.sessionStartTime = 0;
                 this.sessionScore = 0;
+                this.sessionScoredProblems = {};
                 this.allAnswered = false;
                 this.drawingStageIndex = 0;
                 this.drawingState = 'idle';  // 'idle' | 'start_set' | 'done' | 'submitted' | 'f2_selected'(1-4 triangle)
@@ -5423,6 +5424,10 @@
                 this.hintStage = {};
                 this.sessionHintTotal = 0;
                 this.sessionScore = 0;
+                // 問題ごとの正誤を記録（同一 problemId の二重加算を防ぐ）。
+                //   score は毎回この集計から算出するため、saveProgress が同じ問題で
+                //   複数回呼ばれても正答数が水増しされない。
+                this.sessionScoredProblems = {};
                 this.sessionStartTime = Date.now();
 
                 // Reset this session's score/hints in localStorage so we don't accumulate across attempts
@@ -13648,9 +13653,13 @@
                 }
                 if (!Array.isArray(progress[unit].history)) progress[unit].history = [];
 
-                if (isCorrect) {
-                    this.sessionScore++;
-                }
+                // 問題ごとの正誤を記録し、score はその集計から算出する。
+                //   同一 problemId で saveProgress が複数回呼ばれても（確認の再クリックや
+                //   3-strikes 開示後の再判定など）、正答数が二重加算されない。
+                //   最新の正誤で上書き（例: 一度不正解→後で正解 なら正解として数える）。
+                if (!this.sessionScoredProblems) this.sessionScoredProblems = {};
+                this.sessionScoredProblems[problemId] = !!isCorrect;
+                this.sessionScore = Object.values(this.sessionScoredProblems).filter(Boolean).length;
 
                 // hintUsedCount is already the running total for this session
                 progress[unit].total = this.getProblemCount(unit);
