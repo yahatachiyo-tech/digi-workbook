@@ -2337,10 +2337,10 @@
         };
         // 単元ごとの問題数（ダッシュボード集計用）
         const DASHBOARD_UNIT_COUNTS = {
-            '1-1': 4, '1-2': 6, '1-3': 4, '1-4': 4, '1-5': 4, '1-10': 4, '1-11': 4, '2-1': 5
+            '1-1': 4, '1-2': 6, '1-3': 4, '1-4': 4, '1-5': 4, '1-10': 4, '1-11': 4, '1-12': 4, '2-1': 5
         };
         // 単元表示順
-        const DASHBOARD_UNIT_ORDER = ['1-1', '1-2', '1-3', '1-4', '1-5', '1-10', '1-11', '2-1'];
+        const DASHBOARD_UNIT_ORDER = ['1-1', '1-2', '1-3', '1-4', '1-5', '1-10', '1-11', '1-12', '2-1'];
 
         // 【校内版では実名ロスターを定義していたが、GitHub Pages 配信のため空に変更】
         // 将来、名簿照合に戻す場合は 1番〜36番 + 40番の形式で復活可能
@@ -2442,6 +2442,15 @@
                 id: '1-11',
                 title: '作用点の異なる力のつり合い',
                 subtitle: 'モーメントのつり合い（てこ）',
+                level: '基礎',
+                completed: false,
+                score: 0,
+                total: 0
+            },
+            {
+                id: '1-12',
+                title: '重心',
+                subtitle: '2 つの重りの重心の位置（モーメントのつり合い）',
                 level: '基礎',
                 completed: false,
                 score: 0,
@@ -3619,6 +3628,209 @@
             2: HINTS_1_11_FORCE,
             3: HINTS_1_11_DIST,
             4: HINTS_1_11_DIST
+        };
+
+        // Problems for sub-unit 1-12: 重心（2 つの重りの重心の位置・モーメントのつり合い）
+        //   1-11 と同じ 6 ステージ計算問題フロー（renderCalculationProblem）を共有する。
+        //   問のタイプ（formulaType）:
+        //     'centroid'       — 重心の左端からの距離 x を求める  x = (W₂×L) ÷ (W₁+W₂)（問1・問2）
+        //     'centroidWeight' — 右端の重さ W を求める           W₂ = (W₁×r₁) ÷ r₂（問3・問4）
+        //   tool: 'centroidBar' 固定（build1_12StaticCanvas が描画）。
+        //   W1/W2＝左右の重さ（N）、length＝棒の長さ、r1/r2＝重心から左端／右端の距離（cm）。
+        //   問1・問2 は W₂ が分子・分母の 2 箇所に出るため、代入は 1-6 と同じ
+        //   slotToCardRoleMap 方式（W₂ カードを 2 つのスロットに繰り返し使う）で実装する。
+        const PROBLEMS_1_12 = [
+            {
+                id: 1,
+                W1: 20, W2: 10, length: 60,
+                fL: 20, rL: 30, fR: 10, rR: 30,
+                expected: 20, expectedDist: 20, tolerance: 0.5, unit: 'cm',
+                tool: 'centroidBar', formulaType: 'centroid',
+                sentence: '軽くてまっすぐな棒がある。棒の左端に重さ 20 N の重り、右端に重さ 10 N の重りを取り付けた。棒全体の重さが 1 点に集まっていると考えられる点を重心という。この棒を 1 本の指で支えて水平に静止させるには、左端から何 cm のところを支えればよいか。その距離 x を求めよ。',
+                condition: '基礎、重心、W1=20 N, W2=10 N, L=60 cm → x=20 cm',
+                baselineTime: 120,
+                canvasType: '2d-static',
+                canvas: { width: 360, height: 200 },
+                stage0Choices: [
+                    { value: 'distX',   label: '指で支える位置の左端からの距離 x' },
+                    { value: 'weightL', label: '左の重りの重さの大きさ' },
+                    { value: 'length',  label: '棒全体の長さ' }
+                ],
+                stage0Correct: 'distX',
+                stage1Choices: [
+                    { value: 'centroid', label: '棒全体の重さが集まる 1 点（重心）を求める問題である' },
+                    { value: 'lever',    label: '支点が決まっていて、つり合う重さや距離を求める問題である' },
+                    { value: 'rope',     label: '1 点につながれたひもの張力を求める問題である' }
+                ],
+                stage1Correct: 'centroid',
+                stage2Text: '重心とは、棒全体の重さが 1 点に集まっていると考えられる点です。<br>教科書 35 ページにあるように、<strong>重心を支点にすると、棒はどの向きでも静止します</strong>。指で重心を支えれば棒は回らずにつり合います。<br>1-11 で学んだように、棒が回らずにつり合うとき、<strong>左回りのモーメント ＝ 右回りのモーメント</strong>です。<br>支える点（重心）から左端までの距離を r₁、右端までの距離を r₂ とします。左の重り W₁ は棒を左回りに、右の重り W₂ は棒を右回りに回すので、W₁ × r₁ ＝ W₂ × r₂ です。<br>支える点が左端から x のところにあるとき、r₁ ＝ x、r₂ ＝ L − x です。これを入れると：<br>W₁ × x ＝ W₂ ×（L − x）<br>かっこを開くと W₁ × x ＝ W₂ × L − W₂ × x<br>x のついた項を左にまとめると（W₁ ＋ W₂）× x ＝ W₂ × L<br>両辺を（W₁ ＋ W₂）で割ると、x ＝ (W₂ × L) ÷ (W₁ ＋ W₂) となります。',
+                formula: 'x = \\dfrac{W_2 \\times L}{W_1 + W_2}',
+                substitutions: {
+                    slots: ['W2num', 'L', 'W1den', 'W2den'],
+                    cards: [
+                        { role: 'W2', label: '右の重さ W₂', value: 10, unit: 'N' },
+                        { role: 'L',  label: '棒の長さ L',   value: 60, unit: 'cm' },
+                        { role: 'W1', label: '左の重さ W₁', value: 20, unit: 'N' }
+                    ]
+                }
+            },
+            {
+                id: 2,
+                W1: 12, W2: 36, length: 80,
+                fL: 12, rL: 40, fR: 36, rR: 40,
+                expected: 60, expectedDist: 60, tolerance: 0.5, unit: 'cm',
+                tool: 'centroidBar', formulaType: 'centroid',
+                sentence: '軽くてまっすぐな棒がある。棒の左端に重さ 12 N の重り、右端に重さ 36 N の重りを取り付けた。棒全体の重さが 1 点に集まっていると考えられる点を重心という。この棒を 1 本の指で支えて水平に静止させるには、左端から何 cm のところを支えればよいか。その距離 x を求めよ。',
+                condition: '基礎、重心、W1=12 N, W2=36 N, L=80 cm → x=60 cm',
+                baselineTime: 120,
+                canvasType: '2d-static',
+                canvas: { width: 360, height: 200 },
+                stage0Choices: [
+                    { value: 'distX',   label: '指で支える位置の左端からの距離 x' },
+                    { value: 'weightL', label: '左の重りの重さの大きさ' },
+                    { value: 'length',  label: '棒全体の長さ' }
+                ],
+                stage0Correct: 'distX',
+                stage1Choices: [
+                    { value: 'centroid', label: '棒全体の重さが集まる 1 点（重心）を求める問題である' },
+                    { value: 'lever',    label: '支点が決まっていて、つり合う重さや距離を求める問題である' },
+                    { value: 'rope',     label: '1 点につながれたひもの張力を求める問題である' }
+                ],
+                stage1Correct: 'centroid',
+                stage2Text: '重心とは、棒全体の重さが 1 点に集まっていると考えられる点です。<br>教科書 35 ページにあるように、<strong>重心を支点にすると、棒はどの向きでも静止します</strong>。指で重心を支えれば棒は回らずにつり合います。<br>1-11 で学んだように、棒が回らずにつり合うとき、<strong>左回りのモーメント ＝ 右回りのモーメント</strong>です。<br>支える点（重心）から左端までの距離を r₁、右端までの距離を r₂ とします。左の重り W₁ は棒を左回りに、右の重り W₂ は棒を右回りに回すので、W₁ × r₁ ＝ W₂ × r₂ です。<br>支える点が左端から x のところにあるとき、r₁ ＝ x、r₂ ＝ L − x です。これを入れると：<br>W₁ × x ＝ W₂ ×（L − x）<br>かっこを開くと W₁ × x ＝ W₂ × L − W₂ × x<br>x のついた項を左にまとめると（W₁ ＋ W₂）× x ＝ W₂ × L<br>両辺を（W₁ ＋ W₂）で割ると、x ＝ (W₂ × L) ÷ (W₁ ＋ W₂) となります。',
+                formula: 'x = \\dfrac{W_2 \\times L}{W_1 + W_2}',
+                substitutions: {
+                    slots: ['W2num', 'L', 'W1den', 'W2den'],
+                    cards: [
+                        { role: 'W2', label: '右の重さ W₂', value: 36, unit: 'N' },
+                        { role: 'L',  label: '棒の長さ L',   value: 80, unit: 'cm' },
+                        { role: 'W1', label: '左の重さ W₁', value: 12, unit: 'N' }
+                    ]
+                }
+            },
+            {
+                id: 3,
+                W1: 15, r1: 20, r2: 30,
+                fL: 15, rL: 20, fR: null, rR: 30,
+                expected: 10, expectedWeight: 10, tolerance: 0.5, unit: 'N',
+                tool: 'centroidBar', formulaType: 'centroidWeight',
+                sentence: '軽くてまっすぐな棒がある。棒の左端に重さ 15 N の重り、右端に別の重りを取り付けた。棒全体の重さが 1 点に集まっていると考えられる点を重心という。この棒の重心は、左端から 20 cm のところにある。また、重心から右端までは 30 cm である。右端の重りの重さ W を求めよ。',
+                condition: '基礎、重心、W1=15 N, r1=20 cm, r2=30 cm → W=10 N',
+                baselineTime: 120,
+                canvasType: '2d-static',
+                canvas: { width: 360, height: 200 },
+                stage0Choices: [
+                    { value: 'weightR', label: '右の重りの重さ W' },
+                    { value: 'weightL', label: '左の重りの重さの大きさ' },
+                    { value: 'distG',   label: '重心の左端からの距離' }
+                ],
+                stage0Correct: 'weightR',
+                stage1Choices: [
+                    { value: 'centroid', label: '棒全体の重さが集まる 1 点（重心）を求める問題である' },
+                    { value: 'lever',    label: '支点が決まっていて、つり合う重さや距離を求める問題である' },
+                    { value: 'rope',     label: '1 点につながれたひもの張力を求める問題である' }
+                ],
+                stage1Correct: 'centroid',
+                stage2Text: '重心とは、棒全体の重さが 1 点に集まっていると考えられる点です。<br>教科書 35 ページにあるように、<strong>重心を支点にすると、棒はどの向きでも静止します</strong>。重心で棒を支えれば棒は回らずにつり合います。<br>1-11 で学んだように、棒がつり合うとき <strong>左回りのモーメント ＝ 右回りのモーメント</strong>です。<br>重心から左端までの距離を r₁、右端までの距離を r₂ とします。左の重り W₁ は棒を左回りに、右の重り W₂ は棒を右回りに回すので、W₁ × r₁ ＝ W₂ × r₂ です。<br>これを W₂ について解くと、W₂ ＝ (W₁ × r₁) ÷ r₂ となります。',
+                formula: 'W_2 = \\dfrac{W_1 \\times r_1}{r_2}',
+                substitutions: {
+                    slots: ['W1', 'r1', 'r2'],
+                    cards: [
+                        { role: 'W1', label: '左の重さ W₁',     value: 15, unit: 'N' },
+                        { role: 'r1', label: '左端〜重心 r₁', value: 20, unit: 'cm' },
+                        { role: 'r2', label: '重心〜右端 r₂', value: 30, unit: 'cm' }
+                    ]
+                }
+            },
+            {
+                id: 4,
+                W1: 8, r1: 45, r2: 15,
+                fL: 8, rL: 45, fR: null, rR: 15,
+                expected: 24, expectedWeight: 24, tolerance: 0.5, unit: 'N',
+                tool: 'centroidBar', formulaType: 'centroidWeight',
+                sentence: '軽くてまっすぐな棒がある。棒の左端に重さ 8 N の重り、右端に別の重りを取り付けた。棒全体の重さが 1 点に集まっていると考えられる点を重心という。この棒の重心は、左端から 45 cm のところにある。また、重心から右端までは 15 cm である。右端の重りの重さ W を求めよ。',
+                condition: '基礎、重心、W1=8 N, r1=45 cm, r2=15 cm → W=24 N',
+                baselineTime: 120,
+                canvasType: '2d-static',
+                canvas: { width: 360, height: 200 },
+                stage0Choices: [
+                    { value: 'weightR', label: '右の重りの重さ W' },
+                    { value: 'weightL', label: '左の重りの重さの大きさ' },
+                    { value: 'distG',   label: '重心の左端からの距離' }
+                ],
+                stage0Correct: 'weightR',
+                stage1Choices: [
+                    { value: 'centroid', label: '棒全体の重さが集まる 1 点（重心）を求める問題である' },
+                    { value: 'lever',    label: '支点が決まっていて、つり合う重さや距離を求める問題である' },
+                    { value: 'rope',     label: '1 点につながれたひもの張力を求める問題である' }
+                ],
+                stage1Correct: 'centroid',
+                stage2Text: '重心とは、棒全体の重さが 1 点に集まっていると考えられる点です。<br>教科書 35 ページにあるように、<strong>重心を支点にすると、棒はどの向きでも静止します</strong>。重心で棒を支えれば棒は回らずにつり合います。<br>1-11 で学んだように、棒がつり合うとき <strong>左回りのモーメント ＝ 右回りのモーメント</strong>です。<br>重心から左端までの距離を r₁、右端までの距離を r₂ とします。左の重り W₁ は棒を左回りに、右の重り W₂ は棒を右回りに回すので、W₁ × r₁ ＝ W₂ × r₂ です。<br>これを W₂ について解くと、W₂ ＝ (W₁ × r₁) ÷ r₂ となります。',
+                formula: 'W_2 = \\dfrac{W_1 \\times r_1}{r_2}',
+                substitutions: {
+                    slots: ['W1', 'r1', 'r2'],
+                    cards: [
+                        { role: 'W1', label: '左の重さ W₁',     value: 8,  unit: 'N' },
+                        { role: 'r1', label: '左端〜重心 r₁', value: 45, unit: 'cm' },
+                        { role: 'r2', label: '重心〜右端 r₂', value: 15, unit: 'cm' }
+                    ]
+                }
+            }
+        ];
+
+        // 1-12 のヒント（重心 — 3 段階 B→A→C）。
+        //   問のタイプが 2 種類あるため、問 id ごとに引く。問1・問2 は DIST、問3・問4 は WEIGHT 共通。
+        //   Stage 2（必然の公式）は表示のみなのでヒントなし。
+        const HINTS_1_12_DIST = {
+            stage0: {
+                b: '問題文の最後の文に注目してください。「求めよ」と書かれている量が求めるものです。重りの重さや棒の長さは問題文にすでに数値が書かれているので、求めるものではありません。',
+                a: '問題文の末尾に「その距離 x を求めよ」とあります。求めるものは、指で支える位置の左端からの距離 x [cm] です。',
+                c: '教科書35ページ「重心」の冒頭を確認してください。'
+            },
+            stage1: {
+                b: '棒全体の重さが 1 点に集まっていると考えられる点を、何といったか思い出してください。問題文の中にその言葉の説明があります。',
+                a: '棒を 1 本の指で支えて静止させる点は、棒全体の重さが集まる点、すなわち重心です。重心を支点にすると棒は回らずにつり合います。',
+                c: '教科書35ページ「重心」を確認してください。'
+            },
+            stage3: {
+                b: '式は x ＝ (W₂ × L) ÷ (W₁ ＋ W₂) です。W₁ には左の重さ、W₂ には右の重さ、L には棒の長さを入れます。問題文の数値を読み取ってください。',
+                a: '式 x ＝ (W₂ × L) ÷ (W₁ ＋ W₂) の各空欄に、左の重さ・右の重さ・棒の長さの数値を入れてください。',
+                c: '教科書36ページ 重心の求め方を確認してください。'
+            },
+            stage4: {
+                b: 'まず W₂ × L を計算します。次に W₁ ＋ W₂ を計算します。最後に、前の答えを後の答えで割ります。電卓を使って構いません。',
+                a: 'x ＝ (W₂ × L) ÷ (W₁ ＋ W₂)。かけ算とたし算を先に計算し、わり算をしてください。単位は cm です。',
+                c: '教科書36ページ 例題を確認してください。'
+            }
+        };
+        const HINTS_1_12_WEIGHT = {
+            stage0: {
+                b: '問題文の最後の文に注目してください。求めるのは「右端の重りの重さ W」です。左の重さ・重心の位置は問題文にすでに数値が書かれています。',
+                a: '問題文の末尾に「右端の重りの重さ W を求めよ」とあります。求めるものは右端の重りの重さ W [N] です。',
+                c: '教科書35ページ「重心」の冒頭を確認してください。'
+            },
+            stage1: {
+                b: '棒全体の重さが 1 点に集まっていると考えられる点を、何といったか思い出してください。問題文の中にその言葉の説明があります。',
+                a: 'この問題は、棒の重心のまわりのモーメントのつり合いを使う問題です。重心を支点にすると棒は回らずにつり合います。',
+                c: '教科書35ページ「重心」を確認してください。'
+            },
+            stage3: {
+                b: '式は W₂ ＝ (W₁ × r₁) ÷ r₂ です。W₁ には左の重さ、r₁ には左端から重心までの距離、r₂ には重心から右端までの距離を入れます。',
+                a: '式 W₂ ＝ (W₁ × r₁) ÷ r₂ の各空欄に、左の重さ・左端〜重心の距離・重心〜右端の距離の数値を入れてください。',
+                c: '教科書36ページ 重心の求め方を確認してください。'
+            },
+            stage4: {
+                b: 'まず W₁ × r₁ を計算します。次にその答えを r₂ で割ります。電卓を使って構いません。',
+                a: 'W₂ ＝ (W₁ × r₁) ÷ r₂。かけ算を先に計算し、その値を r₂ で割ってください。単位は N です。',
+                c: '教科書36ページ 例題を確認してください。'
+            }
+        };
+        // 問 id（1〜4）→ ヒント表。renderCalculationProblem / showHint から参照。
+        const HINTS_1_12_BY_ID = {
+            1: HINTS_1_12_DIST,
+            2: HINTS_1_12_DIST,
+            3: HINTS_1_12_WEIGHT,
+            4: HINTS_1_12_WEIGHT
         };
 
         // Problems for sub-unit 2-1: displacement and velocity (repetitive calculation)
@@ -5252,6 +5464,7 @@
                 if (unitId === '1-9') return PROBLEMS_1_9.length;
                 if (unitId === '1-10') return PROBLEMS_1_10.length;
                 if (unitId === '1-11') return PROBLEMS_1_11.length;
+                if (unitId === '1-12') return PROBLEMS_1_12.length;
                 if (unitId === '2-1') return PROBLEMS_2_1.length;
                 return 0;
             }
@@ -7720,6 +7933,7 @@
                 else if (this.currentUnitId === '1-9') problems = PROBLEMS_1_9;
                 else if (this.currentUnitId === '1-10') problems = PROBLEMS_1_10;
                 else if (this.currentUnitId === '1-11') problems = PROBLEMS_1_11;
+                else if (this.currentUnitId === '1-12') problems = PROBLEMS_1_12;
                 else if (this.currentUnitId === '2-1') problems = PROBLEMS_2_1;
 
                 if (this.currentProblemIndex >= problems.length) {
@@ -7829,6 +8043,7 @@
                     else if (this.currentUnitId === '1-9') problems = PROBLEMS_1_9;
                     else if (this.currentUnitId === '1-10') problems = PROBLEMS_1_10;
                     else if (this.currentUnitId === '1-11') problems = PROBLEMS_1_11;
+                    else if (this.currentUnitId === '1-12') problems = PROBLEMS_1_12;
                     else if (this.currentUnitId === '2-1') problems = PROBLEMS_2_1;
                     sidebarList.innerHTML = problems.map((p, i) =>
                         `<li class="${i === this.currentProblemIndex ? 'is-active' : ''}">問 ${p.id}</li>`
@@ -7857,7 +8072,7 @@
                 const content = document.getElementById('problemContent');
 
                 // Handle different problem types
-                if (this.currentUnitId === '2-1' || this.currentUnitId === '1-6' || this.currentUnitId === '1-7' || this.currentUnitId === '1-8' || this.currentUnitId === '1-9' || this.currentUnitId === '1-10' || this.currentUnitId === '1-11') {
+                if (this.currentUnitId === '2-1' || this.currentUnitId === '1-6' || this.currentUnitId === '1-7' || this.currentUnitId === '1-8' || this.currentUnitId === '1-9' || this.currentUnitId === '1-10' || this.currentUnitId === '1-11' || this.currentUnitId === '1-12') {
                     this.renderCalculationProblem(problem, content);
                 } else if (this.currentUnitId === '1-3' || this.currentUnitId === '1-4' || this.currentUnitId === '1-5') {
                     this.drawingStageIndex = 0;
@@ -7955,7 +8170,8 @@
                 const is1_9 = this.currentUnitId === '1-9';
                 const is1_10 = this.currentUnitId === '1-10';
                 const is1_11 = this.currentUnitId === '1-11';
-                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11;
+                const is1_12 = this.currentUnitId === '1-12';
+                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12;
                 // Persistent problem statement shown at the top of every stage
                 const problemText = isForceCalc
                     ? problem.sentence
@@ -8019,6 +8235,15 @@
                         '計算する',
                         '答えの意味を確認'
                     ]
+                    : is1_12
+                    ? [
+                        '求める量を確認する',
+                        '力のつり合いを確認する',
+                        '使う式を確認する',
+                        '数値を代入する',
+                        '計算する',
+                        '答えの意味を確認'
+                    ]
                     : [
                         '求める量を確認する',
                         '運動の種類を確認する',
@@ -8045,6 +8270,7 @@
                                       : is1_9 ? this.build1_9StaticCanvas(problem)
                                       : is1_10 ? this.build1_10StaticCanvas(problem)
                                       : is1_11 ? this.build1_11StaticCanvas(problem)
+                                      : is1_12 ? this.build1_12StaticCanvas(problem)
                                       : '';
 
                 // 1-7（案B 7 ステージ）は専用ルートで処理し、early return する。
@@ -8107,6 +8333,8 @@
                         ? '図の物体にはたらく力の関係はどれですか？'
                         : is1_11
                         ? '図の棒にはたらく力の関係はどれですか？'
+                        : is1_12
+                        ? 'この問題はどのような問題ですか？'
                         : '問題文の「一定の速さで運動した」は、どのような運動ですか？';
                     content.innerHTML = header + staticCanvas1_6 + `
                         <div class="calc-stage-container">
@@ -8258,6 +8486,25 @@
                                 </div>
                             </div>
                         `;
+                    } else if (is1_12) {
+                        // 1-12（重心）: 問題図 + stage2Text + 公式 + 補足
+                        const reasonHTML = (problem.formulaType === 'centroid')
+                            ? '棒は重心を支えると回らずに静止してつり合う<br>→ 左回りのモーメント W₁ × r₁ ＝ 右回りのモーメント W₂ × r₂<br>→ r₁ ＝ x、r₂ ＝ L − x を入れて x について解くと <strong>x ＝ (W₂ × L) ÷ (W₁ ＋ W₂)</strong>'
+                            : '棒は重心を支えると回らずに静止してつり合う<br>→ 左回りのモーメント W₁ × r₁ ＝ 右回りのモーメント W₂ × r₂<br>→ W₂ について解いて <strong>W₂ ＝ (W₁ × r₁) ÷ r₂</strong>';
+                        content.innerHTML = header + staticCanvas1_6 + `
+                            <div class="calc-stage-container">
+                                <div style="font-size:15px; margin-bottom:14px; line-height:1.7;">
+                                    ${problem.stage2Text}
+                                </div>
+                                <div class="calc-formula-display">
+                                    $${problem.formula}$
+                                </div>
+                                <div style="background:#eef3fa; border-left:3px solid #4a7cbe; padding:12px 16px; border-radius:3px; margin-top:16px; font-size:14px; line-height:1.7; color:#222;">
+                                    <strong>この式になる理由：</strong><br>
+                                    ${reasonHTML}
+                                </div>
+                            </div>
+                        `;
                     } else {
                         content.innerHTML = header + `
                             <div class="calc-stage-container">
@@ -8294,7 +8541,7 @@
                         // 式の表示: 1-6 → F = √( [F₁]² + [F₂]² ) と tan α = [F₂num]/[F₁den] の 2 式
                         //         1-7 → Fx = [F] × [cos α] or Fy = [F] × [sin α]
                         //         1-8 → M = [F] × [r] / 1-9 → M = [F] × [d]
-                        const slotLabel = { F1: 'F₁', F2: 'F₂', F: 'F', Fx: 'Fx', r: 'r', r1: 'r₁', r2: 'r₂', d: 'd', cosAlpha: 'cos α', sinAlpha: 'sin α', F1tan: 'F₁', F2tan: 'F₂', W: 'W', 'sinθ': 'sin θ' };
+                        const slotLabel = { F1: 'F₁', F2: 'F₂', F: 'F', Fx: 'Fx', r: 'r', r1: 'r₁', r2: 'r₂', d: 'd', cosAlpha: 'cos α', sinAlpha: 'sin α', F1tan: 'F₁', F2tan: 'F₂', W: 'W', 'sinθ': 'sin θ', W1: 'W₁', W2: 'W₂', L: 'L', W2num: 'W₂', W1den: 'W₁', W2den: 'W₂' };
                         const makeSlotSpan = (role, text) =>
                             `<span class="calc-formula-input empty" data-slot="${role}" id="slot-${role}">${text || slotLabel[role] || role}</span>`;
                         const slotSpans = slots.map(role => makeSlotSpan(role));
@@ -8351,6 +8598,19 @@
                             } else {
                                 formulaHTML = `r₂ ＝ (${slotSpans[0]} × ${slotSpans[1]}) ÷ ${slotSpans[2]}`;
                             }
+                        } else if (is1_12) {
+                            // 問のタイプで式の形が異なる:
+                            //   centroid       → x ＝ ([W₂] × [L]) ÷ ([W₁] ＋ [W₂])  ※W₂ が分子・分母の 2 箇所
+                            //                     slots=['W2num','L','W1den','W2den']、W₂ カードを 2 つの空欄に使う。
+                            //   centroidWeight → W₂ ＝ ([W₁] × [r₁]) ÷ [r₂]
+                            if (problem.formulaType === 'centroid') {
+                                formulaHTML = `x ＝ (${slotSpans[0]} × ${slotSpans[1]}) ÷ (${slotSpans[2]} ＋ ${slotSpans[3]})`;
+                                // W₂ カードが分子・分母の 2 つの空欄に対応する。
+                                //   1-6 と同じ slotToCardRoleMap 方式で照合する。
+                                slotToCardRoleMap = { W2num: 'W2', L: 'L', W1den: 'W1', W2den: 'W2' };
+                            } else {
+                                formulaHTML = `W₂ ＝ (${slotSpans[0]} × ${slotSpans[1]}) ÷ ${slotSpans[2]}`;
+                            }
                         } else {
                             formulaHTML = `M ＝ ${slotSpans[0]} × ${slotSpans[1]}`;
                         }
@@ -8358,7 +8618,7 @@
                             <div class="calc-stage-container">
                                 <div class="calc-question-text">それぞれの数値を、式の正しい場所に入れよう。</div>
                                 <div style="margin-bottom:14px; font-size:13px; color:#555;">
-                                    下の<strong>数値カード</strong>をタップしてから、式の中の<strong>空欄（黄色）</strong>をタップすると、そこに数値が入ります。${is1_6 ? '<br>1-6 は<strong>2 つの式</strong>に代入します（同じカードを 2 回タップして使えます）。' : ''}
+                                    下の<strong>数値カード</strong>をタップしてから、式の中の<strong>空欄（黄色）</strong>をタップすると、そこに数値が入ります。${is1_6 ? '<br>1-6 は<strong>2 つの式</strong>に代入します（同じカードを 2 回タップして使えます）。' : ''}${(is1_12 && problem.formulaType === 'centroid') ? '<br>W₂ は<strong>分子と分母の 2 か所</strong>に入ります（同じカードを 2 回タップして使えます）。' : ''}
                                 </div>
                                 <div class="calc-formula-display" style="font-size:22px; ${is1_6 ? 'flex-direction:column;' : ''}">
                                     ${formulaHTML}
@@ -8529,6 +8789,26 @@
                                 </div>
                             </div>
                         `;
+                    } else if (is1_12) {
+                        const isCentroid_s4 = problem.formulaType === 'centroid';
+                        const subFormula1_12 = isCentroid_s4
+                            ? `x = \\dfrac{${problem.W2} \\times ${problem.length}}{${problem.W1} + ${problem.W2}}`
+                            : `W = \\dfrac{${problem.W1} \\times ${problem.r1}}{${problem.r2}}`;
+                        const answerLabel_s4 = isCentroid_s4 ? 'x ＝' : 'W ＝';
+                        const answerUnit_s4 = isCentroid_s4 ? '[cm]' : '[N]';
+                        content.innerHTML = header + staticCanvas1_6 + `
+                            <div class="calc-stage-container">
+                                <div class="calc-question-text">計算結果を入力してください（電卓を使って構いません）。</div>
+                                <div class="calc-formula-display">
+                                    $${subFormula1_12} = {\\color{#c62828}?}$
+                                </div>
+                                <div class="calc-input-row">
+                                    <span class="calc-input-label">答え：${answerLabel_s4}</span>
+                                    <input type="number" id="answerInput" class="calc-answer-input" placeholder="数値" style="width:120px;" step="0.1">
+                                    <span style="font-size:14px; color:#555; margin-left:6px;">${answerUnit_s4}</span>
+                                </div>
+                            </div>
+                        `;
                     } else {
                         content.innerHTML = header + `
                             <div class="calc-stage-container">
@@ -8677,6 +8957,29 @@
                                 </div>
                                 <div style="margin-top:14px; font-size:13px; color:#555;">
                                     次の問題に進む前に、式とモーメントのつり合いの図を頭の中で思い浮かべてください。
+                                </div>
+                            </div>
+                        `;
+                    } else if (is1_12) {
+                        const isCentroid_s5 = problem.formulaType === 'centroid';
+                        const ans = isCentroid_s5 ? problem.expectedDist : problem.expectedWeight;
+                        const reflFormula = isCentroid_s5
+                            ? `x = \\dfrac{W_2 \\times L}{W_1 + W_2} = \\dfrac{${problem.W2} \\times ${problem.length}}{${problem.W1} + ${problem.W2}} = ${ans}\\,\\mathrm{[cm]}`
+                            : `W_2 = \\dfrac{W_1 \\times r_1}{r_2} = \\dfrac{${problem.W1} \\times ${problem.r1}}{${problem.r2}} = ${ans}\\,\\mathrm{[N]}`;
+                        const reflText = isCentroid_s5
+                            ? `左端の重り（<strong>${problem.W1} N</strong>）と右端の重り（<strong>${problem.W2} N</strong>）を取り付けた長さ <strong>${problem.length} cm</strong> の棒の重心は、左端から <strong>${ans} cm</strong> の位置です。<br>重心を 1 本の指で支えると、左回りのモーメント W₁ × r₁ と右回りのモーメント W₂ × r₂ が等しくなり、棒は回らずに水平のまま静止します。`
+                            : `左端の重り（<strong>${problem.W1} N</strong>）を取り付けた棒の重心が、左端から <strong>${problem.r1} cm</strong>・右端から <strong>${problem.r2} cm</strong> の位置にあるとき、右端の重りの重さは <strong>${ans} N</strong> です。<br>重心のまわりで、左回りのモーメント W₁ × r₁ と右回りのモーメント W₂ × r₂ が等しいとき、棒は回らずにつり合います。`;
+                        content.innerHTML = header + staticCanvas1_6 + `
+                            <div class="calc-stage-container">
+                                <div class="calc-question-text">答えの意味を確認しよう。</div>
+                                <div class="calc-formula-display">
+                                    $${reflFormula}$
+                                </div>
+                                <div style="background:#eaf1fa; border-left:4px solid #1e5fa8; padding:14px 18px; border-radius:3px; margin-top:18px; font-size:15px; line-height:1.7;">
+                                    ${reflText}
+                                </div>
+                                <div style="margin-top:14px; font-size:13px; color:#555;">
+                                    次の問題に進む前に、式と重心のつり合いの図を頭の中で思い浮かべてください。
                                 </div>
                             </div>
                         `;
@@ -9784,6 +10087,95 @@
                 const rDim = (problem.rR == null) ? 'r = ? cm' : `${problem.rR} cm`;
                 svg += drawWeightArrow(rx, rLabel);
                 svg += drawDimLine(cx, rx, rDim);
+
+                svg += `</svg></div>`;
+                return svg;
+            }
+
+            // 1-12（重心）の問題図を生成する。
+            //   tool: 'centroidBar' — 水平な棒・両端に下向きの重さ矢印・棒の下に重心を支える上向き三角形。
+            //   問1・問2（centroid）: 重心位置が未知。三角形は左右の重さで重み付けした代表位置に描き、
+            //                          寸法線ラベルを「x = ? cm」、全長の寸法線を「length cm」とする。
+            //   問3・問4（centroidWeight）: 重心位置は既知（左端から r1）。三角形を左端+r1 に置き、
+            //                          寸法線「r1 cm」「r2 cm」、右端の重さは「W = ? N」とする。
+            //   全ステージ（0〜5）で共通表示する。
+            build1_12StaticCanvas(problem) {
+                const c = problem.canvas;
+                const W = c.width, H = c.height;
+                const RED = '#d23a2a';
+                let svg = `<div class="drawing-wrapper" style="pointer-events:none;">
+                <svg class="drawing-svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="cursor:default;">
+                <defs>
+                  <marker id="stc112-red" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><polygon points="0,0 9,3.5 0,7" fill="${RED}"/></marker>
+                  <marker id="stc112-dim" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto"><polygon points="0,0 8,3.5 0,7" fill="#777"/></marker>
+                  <marker id="stc112-dimS" markerWidth="8" markerHeight="7" refX="1" refY="3.5" orient="auto"><polygon points="8,0 0,3.5 8,7" fill="#777"/></marker>
+                </defs>`;
+                const isCentroid = problem.formulaType === 'centroid';
+                // 棒の全長（cm）と重心の左端からの距離（cm）
+                const totalLen = isCentroid ? problem.length : (problem.r1 + problem.r2);
+                // 重心の左端からの距離: 問3・問4 は既知の r1、問1・問2 は答え（代表位置）を使う。
+                const gFromLeft = isCentroid ? problem.expectedDist : problem.r1;
+                // 棒の y、左右端の x（cm → px は固定縮尺）
+                const barY = 90;
+                const halfSpan = (W / 2) - 46;       // 中心から端までに使える px
+                const scale = (halfSpan * 2) / totalLen;  // px / cm
+                const leftX  = (W / 2) - halfSpan;
+                const rightX = (W / 2) + halfSpan;
+                const gX = leftX + gFromLeft * scale;
+
+                // 水平な棒
+                svg += `<line x1="${leftX}" y1="${barY}" x2="${rightX}" y2="${barY}" stroke="#3A434C" stroke-width="5" stroke-linecap="round"/>`;
+
+                // 重心を支える上向き三角形（棒の下）
+                const triH = 26, triW = 30;
+                svg += `<polygon points="${gX},${barY + 3} ${gX - triW / 2},${barY + 3 + triH} ${gX + triW / 2},${barY + 3 + triH}" fill="#8a939c" stroke="#3A434C" stroke-width="2"/>`;
+                const gLabel = isCentroid ? 'x = ? cm' : '重心';
+                svg += `<text x="${gX}" y="${barY + 3 + triH + 16}" text-anchor="middle" font-size="12" fill="#333" font-weight="600">${gLabel}</text>`;
+                // 重心位置の作用点（棒の上の黒丸）
+                svg += `<circle cx="${gX}" cy="${barY}" r="3.5" fill="#333"/>`;
+
+                // 重り（おもり）と下向きの力矢印を描く
+                const drawWeightArrow = (x, label) => {
+                    let s = '';
+                    const aY1 = barY + 4, aY2 = barY + 50;
+                    s += `<line x1="${x}" y1="${aY1}" x2="${x}" y2="${aY2}" stroke="${RED}" stroke-width="2.5" marker-end="url(#stc112-red)"/>`;
+                    s += `<rect x="${x - 13}" y="${aY2 + 2}" width="26" height="20" rx="3" fill="#dbe4ef" stroke="#3A434C" stroke-width="2"/>`;
+                    s += `<circle cx="${x}" cy="${barY}" r="3.5" fill="#333"/>`;
+                    s += `<text x="${x + 9}" y="${(aY1 + aY2) / 2 + 4}" font-size="13" fill="${RED}" font-family="sans-serif" font-weight="600">${label}</text>`;
+                    return s;
+                };
+                // 寸法線（棒の上に表示）
+                const drawDimLine = (x1, x2, label) => {
+                    const dimY = barY - 30;
+                    let s = '';
+                    s += `<line x1="${x1}" y1="${barY - 6}" x2="${x1}" y2="${dimY - 4}" stroke="#999" stroke-width="1"/>`;
+                    s += `<line x1="${x2}" y1="${barY - 6}" x2="${x2}" y2="${dimY - 4}" stroke="#999" stroke-width="1"/>`;
+                    s += `<line x1="${x1}" y1="${dimY}" x2="${x2}" y2="${dimY}" stroke="#777" stroke-width="1.5" marker-start="url(#stc112-dimS)" marker-end="url(#stc112-dim)"/>`;
+                    s += `<text x="${(x1 + x2) / 2}" y="${dimY - 6}" text-anchor="middle" font-size="12" fill="#555" font-weight="500">${label}</text>`;
+                    return s;
+                };
+
+                // 左端の重り（常に既知）
+                svg += drawWeightArrow(leftX, `${problem.W1} N`);
+                // 右端の重り（問1・問2 は既知 W₂、問3・問4 は未知）
+                const rLabel = isCentroid ? `${problem.W2} N` : 'W = ? N';
+                svg += drawWeightArrow(rightX, rLabel);
+
+                // 寸法線
+                if (isCentroid) {
+                    // 問1・問2: 左端〜重心の「x = ? cm」と、棒全長の「length cm」
+                    svg += drawDimLine(leftX, gX, 'x = ? cm');
+                    // 全長は上段に配置
+                    const fullDimY = barY - 56;
+                    svg += `<line x1="${leftX}" y1="${barY - 6}" x2="${leftX}" y2="${fullDimY - 4}" stroke="#bbb" stroke-width="1"/>`;
+                    svg += `<line x1="${rightX}" y1="${barY - 6}" x2="${rightX}" y2="${fullDimY - 4}" stroke="#bbb" stroke-width="1"/>`;
+                    svg += `<line x1="${leftX}" y1="${fullDimY}" x2="${rightX}" y2="${fullDimY}" stroke="#777" stroke-width="1.5" marker-start="url(#stc112-dimS)" marker-end="url(#stc112-dim)"/>`;
+                    svg += `<text x="${(leftX + rightX) / 2}" y="${fullDimY - 6}" text-anchor="middle" font-size="12" fill="#555" font-weight="500">${problem.length} cm</text>`;
+                } else {
+                    // 問3・問4: 左端〜重心「r1 cm」、重心〜右端「r2 cm」
+                    svg += drawDimLine(leftX, gX, `${problem.r1} cm`);
+                    svg += drawDimLine(gX, rightX, `${problem.r2} cm`);
+                }
 
                 svg += `</svg></div>`;
                 return svg;
@@ -12416,7 +12808,7 @@
                     }
 
                     // 1-6 は HINTS_1_6、1-7 は HINTS_1_7、1-8 は HINTS_1_8、1-9 は HINTS_1_9、2-1 は HINTS_2_1。
-                    //   1-10 / 1-11 は問のタイプが複数あるため、現在の問 id でヒント表を引く。
+                    //   1-10 / 1-11 / 1-12 は問のタイプが複数あるため、現在の問 id でヒント表を引く。
                     const hintsTable = (this.currentUnitId === '1-6') ? HINTS_1_6 :
                                        (this.currentUnitId === '1-7') ? HINTS_1_7 :
                                        (this.currentUnitId === '1-8') ? HINTS_1_8 :
@@ -12425,6 +12817,8 @@
                                            ? (HINTS_1_10_BY_ID[(this.getCalcProblem() || {}).id] || HINTS_1_10_TEQW)
                                        : (this.currentUnitId === '1-11')
                                            ? (HINTS_1_11_BY_ID[(this.getCalcProblem() || {}).id] || HINTS_1_11_FORCE)
+                                       : (this.currentUnitId === '1-12')
+                                           ? (HINTS_1_12_BY_ID[(this.getCalcProblem() || {}).id] || HINTS_1_12_DIST)
                                        : HINTS_2_1;
                     const stageHints = hintsTable[stagePart];
                     const levelKeys = ['b', 'a', 'c'];
@@ -12545,6 +12939,9 @@
                 if (this.currentUnitId === '1-11') {
                     return PROBLEMS_1_11[this.currentProblemIndex];
                 }
+                if (this.currentUnitId === '1-12') {
+                    return PROBLEMS_1_12[this.currentProblemIndex];
+                }
                 if (this.currentUnitId === '2-1') {
                     return PROBLEMS_2_1[this.currentProblemIndex];
                 }
@@ -12584,8 +12981,9 @@
                 const is1_9 = this.currentUnitId === '1-9';
                 const is1_10 = this.currentUnitId === '1-10';
                 const is1_11 = this.currentUnitId === '1-11';
-                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11;
-                // 1-6〜1-11 は problem.stage0Correct、2-1 は固定値 's'
+                const is1_12 = this.currentUnitId === '1-12';
+                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12;
+                // 1-6〜1-12 は problem.stage0Correct、2-1 は固定値 's'
                 const correct = isForceCalc ? problem.stage0Correct : 's';
                 const isCorrect = (value === correct);
                 if (isCorrect) {
@@ -12608,6 +13006,10 @@
                             msg = (problem.formulaType === 'leverForce')
                                 ? '正解。右の重りの重さ F の大きさを求めます。'
                                 : '正解。右の重りの支点からの距離 r を求めます。';
+                        } else if (is1_12) {
+                            msg = (problem.formulaType === 'centroid')
+                                ? '正解。指で支える位置の左端からの距離 x を求めます。'
+                                : '正解。右端の重りの重さ W を求めます。';
                         }
                         feedback.textContent = msg;
                     }
@@ -12672,6 +13074,24 @@
                                     msg = '不正解。問題文の末尾「○○を求めよ」に注目してください。';
                                 }
                             }
+                        } else if (is1_12) {
+                            if (problem.formulaType === 'centroid') {
+                                if (value === 'weightL') {
+                                    msg = '不正解。左の重りの重さは問題文に「重さ ○○ N の重り」で与えられています。求めるものは別の量です。';
+                                } else if (value === 'length') {
+                                    msg = '不正解。棒全体の長さは問題文に数値で与えられています。求めるものは別の量です。';
+                                } else {
+                                    msg = '不正解。問題文の末尾「○○を求めよ」に注目してください。';
+                                }
+                            } else {
+                                if (value === 'weightL') {
+                                    msg = '不正解。左の重りの重さは問題文に「重さ ○○ N の重り」で与えられています。求めるものは別の量です。';
+                                } else if (value === 'distG') {
+                                    msg = '不正解。重心の左端からの距離は問題文に数値で与えられています。求めるものは別の量です。';
+                                } else {
+                                    msg = '不正解。問題文の末尾「○○を求めよ」に注目してください。';
+                                }
+                            }
                         } else {
                             msg = (value === 'v')
                                 ? '不正解。速度は問題文に「○○ m/s」の形で数値が与えられています。「求めよ」と書かれている量を探してください。'
@@ -12708,8 +13128,9 @@
                 const is1_9 = this.currentUnitId === '1-9';
                 const is1_10 = this.currentUnitId === '1-10';
                 const is1_11 = this.currentUnitId === '1-11';
-                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11;
-                // 1-6〜1-11 は problem.stage1Correct、2-1 は固定値 'constant'
+                const is1_12 = this.currentUnitId === '1-12';
+                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12;
+                // 1-6〜1-12 は problem.stage1Correct、2-1 は固定値 'constant'
                 const correct = isForceCalc ? problem.stage1Correct : 'constant';
                 const isCorrect = (value === correct);
                 if (isCorrect) {
@@ -12728,6 +13149,8 @@
                             msg = '正解。図の 2 力は大きさが等しく、逆向きで平行な「偶力」です。この場合 M ＝ F × d の式で偶力のモーメントが求められます。';
                         } else if (is1_11) {
                             msg = '正解。2 つの重りは支点 O からはなれた別々の場所にあります。この場合は点 O のまわりのモーメントのつり合い F₁ × r₁ ＝ F₂ × r₂ で考えます。';
+                        } else if (is1_12) {
+                            msg = '正解。棒全体の重さが集まる 1 点（重心）を求める問題です。重心のまわりで左回りのモーメント W₁ × r₁ ＝ 右回りのモーメント W₂ × r₂ が成り立ちます。';
                         }
                         feedback.textContent = msg;
                     }
@@ -12749,6 +13172,8 @@
                             msg = '不正解。図の 2 力は同じ大きさで反対向き、かつ作用線が平行に離れています。これを「偶力」といいます。';
                         } else if (is1_11) {
                             msg = '不正解。2 つの重りは支点 O からはなれた別々の点につるされています。1 点に集まる力（1-10）でも偶力（1-9）でもありません。';
+                        } else if (is1_12) {
+                            msg = '不正解。これは棒全体の重さが集まる 1 点（重心）を求める問題です。問題文に重心の説明があります。';
                         }
                         feedback.textContent = msg;
                     }
@@ -12820,7 +13245,9 @@
                     r: 'r', r1: 'r₁', r2: 'r₂', d: 'd',
                     cosAlpha: 'cos α', sinAlpha: 'sin α',
                     F1tan: 'F₁', F2tan: 'F₂',
-                    W: 'W', 'sinθ': 'sin θ'
+                    W: 'W', 'sinθ': 'sin θ',
+                    W1: 'W₁', W2: 'W₂', L: 'L',
+                    W2num: 'W₂', W1den: 'W₁', W2den: 'W₂'
                 };
                 slotRoles.forEach(r => { slotEls[r] = document.getElementById('slot-' + r); });
                 // Reset visual state
@@ -12859,6 +13286,8 @@
                             feedback.textContent = '不正解。式の W の空欄には問題文の重さ W の値、sin θ の空欄には問題文の sin θ の値を入れてください。';
                         } else if (this.currentUnitId === '1-11') {
                             feedback.textContent = '不正解。F₁・r₁ には左の重りの重さ・距離、もう一方には右の重りの値を入れてください。単位（N・cm）にも注目してください。';
+                        } else if (this.currentUnitId === '1-12') {
+                            feedback.textContent = '不正解。W₁ には左の重さ、W₂ には右の重さ、L には棒の長さを入れてください。W₂ は分子・分母の 2 か所に入ります。単位（N・cm）にも注目してください。';
                         } else {
                             feedback.textContent = '不正解。単位に注目して入れ直してください。「m/s」が速度 v、「s（秒）」が時間 t です。';
                         }
@@ -12887,9 +13316,10 @@
                 const is1_9 = this.currentUnitId === '1-9';
                 const is1_10 = this.currentUnitId === '1-10';
                 const is1_11 = this.currentUnitId === '1-11';
-                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11;
+                const is1_12 = this.currentUnitId === '1-12';
+                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12;
 
-                // 1-6〜1-11 は小数入力（step=0.1 を許容）し tolerance で判定。
+                // 1-6〜1-12 は小数入力（step=0.1 を許容）し tolerance で判定。
                 const userAnswer = isForceCalc ? parseFloat(answerInput.value) : parseInt(answerInput.value);
                 const expected   = is1_6 ? problem.expectedResultant
                                  : is1_7 ? problem.expectedAnswer
@@ -12897,6 +13327,7 @@
                                  : is1_9 ? problem.expectedCoupleMoment
                                  : is1_10 ? problem.expectedTension
                                  : is1_11 ? (problem.formulaType === 'leverForce' ? problem.expectedForce : problem.expectedDist)
+                                 : is1_12 ? (problem.formulaType === 'centroid' ? problem.expectedDist : problem.expectedWeight)
                                  : problem.expectedDisplacement;
                 const tolerance  = isForceCalc ? (problem.tolerance || 1) : 0;
                 // 浮動小数点誤差対策: tolerance 境界（例 tolerance=0.1 で |userAnswer-expected|=0.10000...142）が
@@ -12976,6 +13407,16 @@
                             <div style="margin-bottom: 10px;">正解です。</div>
                             <div class="answer-explanation">
                                 ${expl1_11}
+                            </div>
+                        `;
+                    } else if (is1_12) {
+                        const expl1_12 = (problem.formulaType === 'centroid')
+                            ? `x ＝ (W₂ × L) ÷ (W₁ ＋ W₂) ＝ (${problem.W2} × ${problem.length}) ÷ (${problem.W1} ＋ ${problem.W2}) ＝ ${expected} [cm]`
+                            : `W₂ ＝ (W₁ × r₁) ÷ r₂ ＝ (${problem.W1} × ${problem.r1}) ÷ ${problem.r2} ＝ ${expected} [N]`;
+                        feedback.innerHTML = `
+                            <div style="margin-bottom: 10px;">正解です。</div>
+                            <div class="answer-explanation">
+                                ${expl1_12}
                             </div>
                         `;
                     } else {
