@@ -9847,8 +9847,10 @@
             render1_10TrigStage(problem, content, stageIndex, header, staticCanvas) {
                 const sinExpected = problem.sinValue;
 
-                // Stage 2 以降は、分解の補助線・分力・取り出した直角三角形つきの図に差し替える。
-                if (stageIndex >= 2) {
+                // Stage 3 以降は、分解の補助線・分力・取り出した直角三角形つきの図に差し替える。
+                //   Stage 2 はアコーディオンの進行（分力の大きさを考える段になったら）で
+                //   図を切り替えるため、ここでは差し替えない（render1_10DerivAccordion が制御）。
+                if (stageIndex >= 3) {
                     staticCanvas = this.build1_10DecomposedCanvas(problem);
                 }
 
@@ -9898,10 +9900,12 @@
                 }
                 else if (stageIndex === 2) {
                     // Stage 2: つり合いの式を導く（derivationSteps を 1 ステップずつアコーディオン表示）。
+                    //   問題図は #trigFigureSlot に入れ、分力の大きさを考える段に進んだら
+                    //   render1_10DerivAccordion が分解図（build1_10DecomposedCanvas）へ差し替える。
                     if (this.calcInputs.derivStepIndex === undefined) {
                         this.calcInputs.derivStepIndex = 0;
                     }
-                    content.innerHTML = header + staticCanvas + `
+                    content.innerHTML = header + `<div id="trigFigureSlot">${staticCanvas}</div>` + `
                         <div class="calc-stage-container">
                             <div class="calc-question-text">つり合いの式を、一段ずつ自分で導いてください。</div>
                             <div id="derivAccordion"></div>
@@ -10135,6 +10139,23 @@
                 document.querySelectorAll('#derivChips .calc-chip').forEach(chip => {
                     chip.onclick = () => this.select1_10DerivChip(chip.getAttribute('data-value'), chip);
                 });
+                // 1-10 問3・問4: 分力の大きさを考える段（T sin θ を選ぶステップ）に
+                //   進んだら、問題図を分解の補助線・分力つきの図に差し替える。
+                //   それより前は分解前のシンプルな図のまま。1-11 には #trigFigureSlot が
+                //   ないので何もしない。
+                const figSlot = document.getElementById('trigFigureSlot');
+                if (figSlot && (problem.tool === 'twoRopeSymmetric' || problem.tool === 'twoRopeLshape')) {
+                    let threshold = steps.findIndex(s => (s.choices || []).some(c => c.value === 'Tsin'));
+                    if (threshold < 0) threshold = 1;
+                    const wantDecomposed = cur >= threshold;
+                    const isDecomposed = figSlot.getAttribute('data-decomposed') === '1';
+                    if (wantDecomposed !== isDecomposed) {
+                        figSlot.innerHTML = wantDecomposed
+                            ? this.build1_10DecomposedCanvas(problem)
+                            : this.build1_10StaticCanvas(problem);
+                        figSlot.setAttribute('data-decomposed', wantDecomposed ? '1' : '0');
+                    }
+                }
                 // 全ステップ完了 → 「次へ」ボタンを表示
                 const nextSlot = document.getElementById('stage2NextSlot');
                 if (cur >= steps.length && nextSlot) {
