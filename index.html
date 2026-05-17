@@ -2688,8 +2688,8 @@
                 ],
                 stage0Correct: 'fx',
                 stage1Choices: [
-                    { value: 'angle_given', label: '合力 F と角度 α が分かっている（直角分解）' },
-                    { value: 'two_forces',  label: '2 つの力の合力を求める' }
+                    { value: 'angle_given', label: '1 つの力 F を、直角な 2 方向（水平・垂直）に分ける' },
+                    { value: 'two_forces',  label: '2 つの力を 1 つの合力にまとめる' }
                 ],
                 stage1Correct: 'angle_given',
                 stage2Text: '力 F を直角な 2 方向（水平と垂直）に分解するとき、三角比を使って次のように求められます。<br>水平成分 <strong>Fx ＝ F × cos α</strong>、垂直成分 <strong>Fy ＝ F × sin α</strong><br>（α は力 F が水平面となす角度）',
@@ -2727,8 +2727,8 @@
                 ],
                 stage0Correct: 'fy',
                 stage1Choices: [
-                    { value: 'angle_given', label: '合力 F と角度 α が分かっている（直角分解）' },
-                    { value: 'two_forces',  label: '2 つの力の合力を求める' }
+                    { value: 'angle_given', label: '1 つの力 F を、直角な 2 方向（水平・垂直）に分ける' },
+                    { value: 'two_forces',  label: '2 つの力を 1 つの合力にまとめる' }
                 ],
                 stage1Correct: 'angle_given',
                 stage2Text: '力 F を直角な 2 方向（水平と垂直）に分解するとき、三角比を使って次のように求められます。<br>水平成分 <strong>Fx ＝ F × cos α</strong>、垂直成分 <strong>Fy ＝ F × sin α</strong><br>（α は力 F が水平面となす角度）',
@@ -2764,8 +2764,8 @@
                 ],
                 stage0Correct: 'fx',
                 stage1Choices: [
-                    { value: 'angle_given', label: '合力 F と角度 α が分かっている（直角分解）' },
-                    { value: 'two_forces',  label: '2 つの力の合力を求める' }
+                    { value: 'angle_given', label: '1 つの力 F を、直角な 2 方向（水平・垂直）に分ける' },
+                    { value: 'two_forces',  label: '2 つの力を 1 つの合力にまとめる' }
                 ],
                 stage1Correct: 'angle_given',
                 stage2Text: '力 F を直角な 2 方向（水平と垂直）に分解するとき、三角比を使って次のように求められます。<br>水平成分 <strong>Fx ＝ F × cos α</strong>、垂直成分 <strong>Fy ＝ F × sin α</strong><br>（α は力 F が水平面となす角度）',
@@ -2801,8 +2801,8 @@
                 ],
                 stage0Correct: 'fy',
                 stage1Choices: [
-                    { value: 'angle_given', label: '合力 F と角度 α が分かっている（直角分解）' },
-                    { value: 'two_forces',  label: '2 つの力の合力を求める' }
+                    { value: 'angle_given', label: '1 つの力 F を、直角な 2 方向（水平・垂直）に分ける' },
+                    { value: 'two_forces',  label: '2 つの力を 1 つの合力にまとめる' }
                 ],
                 stage1Correct: 'angle_given',
                 stage2Text: '力 F を直角な 2 方向（水平と垂直）に分解するとき、三角比を使って次のように求められます。<br>水平成分 <strong>Fx ＝ F × cos α</strong>、垂直成分 <strong>Fy ＝ F × sin α</strong><br>（α は力 F が水平面となす角度）',
@@ -13440,6 +13440,10 @@
                 } else {
                     feedback.classList.add('incorrect');
                     feedback.classList.remove('correct');
+                    // 3-strikes: 3 回連続で不正解になったら正解値を開示して次へ進める。
+                    //   作図問題（checkDecomposeMagnitudes 等）と同じ仕組みを計算問題にも適用。
+                    this.stage4WrongCount = (this.stage4WrongCount || 0) + 1;
+                    const reveal = this.stage4WrongCount >= 3;
                     if (is1_6) {
                         // 1-6 では F・tan α のどちらが違うか具体的にフィードバック
                         const fOk = !isNaN(userAnswer) && Math.abs(userAnswer - expected) <= tolerance + 1e-9;
@@ -13452,12 +13456,35 @@
                             msg += 'tan α の値を計算し直してください（F は正解）。tan α ＝ F₂ ／ F₁ です。';
                         }
                         feedback.innerHTML = `<div style="margin-bottom: 10px;">${msg}</div>`;
+                        if (reveal) {
+                            feedback.innerHTML += `<div class="answer-explanation">正解は F ＝ ${expected} [N]、tan α ＝ ${expectedTanA} です。</div>`;
+                        }
                     } else {
                         feedback.innerHTML = `
                             <div style="margin-bottom: 10px;">不正解です。もう一度入力してみてください。</div>
                         `;
+                        if (reveal) {
+                            const unitLabel = (is1_8 || is1_9) ? 'N·m'
+                                            : (is1_11 && problem.formulaType !== 'leverForce') ? 'cm'
+                                            : (is1_12 && problem.formulaType === 'centroid') ? 'cm'
+                                            : 'N';
+                            feedback.innerHTML += `<div class="answer-explanation">正解は ${expected} [${unitLabel}] です。計算の手順をもう一度確認してください。</div>`;
+                        }
                     }
                     feedback.classList.add('active');
+                    // 3 回目以降は「正解を確認して次へ」ボタンを提示（無限ループ防止）。
+                    //   不正解のまま次へ進むため、この問題は不正解として進捗に記録する。
+                    //   記録は 3 回目ちょうどで 1 度だけ（確認の再クリックで二重加算しない）。
+                    if (this.stage4WrongCount === 3) {
+                        this.saveProgress(problem.id, false, problem);
+                    }
+                    if (reveal) {
+                        document.getElementById('controlButtons').innerHTML = `
+                            <button class="btn hint-btn" onclick="app.showHint('calc_${this.currentProblemIndex}_stage4')">ヒント</button>
+                            <button class="check-btn" onclick="app.checkCalcAnswers()">確認</button>
+                            <button class="next-btn" onclick="if(this.disabled)return; this.disabled=true; app.advanceToReflectionOrNext();">正解を確認して次へ</button>
+                        `;
+                    }
                     // Don't save as failure yet — let student retry
                     // Re-enable input
                     if (is1_6) {
