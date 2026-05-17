@@ -9956,18 +9956,21 @@
 
                 if (problem.tool === 'singleRope') {
                     // 天井 (y=30)、ひもは鉛直、物体は下方。W↓ と T↑ は同一鉛直線。
+                    //   2 力のつり合い（T = W）なので、視覚的に等しさが伝わるよう
+                    //   T↑ と W↓ の矢印は同じ長さ（forceLen）で描く。
                     const cx = W / 2;
                     const ceilY = 30, objY = 165;
+                    const forceLen = 58;  // T・W 共通の矢印長
                     svg += drawCeilingHatch(cx - 55, cx + 55, ceilY);
                     // ひも（天井 → 物体上端）
                     svg += `<line x1="${cx}" y1="${ceilY}" x2="${cx}" y2="${objY - 12}" stroke="#3A434C" stroke-width="2"/>`;
                     svg += drawWeight(cx, objY);
                     // W↓（物体中心から下向き）
-                    const wY1 = objY + 12, wY2 = objY + 70;
+                    const wY1 = objY + 12, wY2 = wY1 + forceLen;
                     svg += `<line x1="${cx}" y1="${wY1}" x2="${cx}" y2="${wY2}" stroke="${RED}" stroke-width="2.5" marker-end="url(#stc110-red)"/>`;
                     svg += `<text x="${cx + 8}" y="${wY2 - 14}" font-size="13" fill="${RED}" font-family="sans-serif" font-weight="600">W = ${problem.w} N</text>`;
-                    // T↑（ひもに沿って上向き、物体上端から）
-                    const tY1 = objY - 14, tY2 = ceilY + 18;
+                    // T↑（物体上端から上向き、W と同じ長さ）
+                    const tY1 = objY - 14, tY2 = tY1 - forceLen;
                     svg += `<line x1="${cx}" y1="${tY1}" x2="${cx}" y2="${tY2}" stroke="${BLUE}" stroke-width="2.5" marker-end="url(#stc110-blue)"/>`;
                     svg += `<text x="${cx + 9}" y="${(tY1 + tY2) / 2 + 4}" font-size="14" fill="${BLUE}" font-family="sans-serif" font-weight="600">T</text>`;
                 } else if (problem.tool === 'twoRopeSymmetric') {
@@ -13172,6 +13175,12 @@
                             msg = '正解。力 F は腕 OA に対して直角にはたらいています。この場合 M ＝ F × r の式が使えます。';
                         } else if (is1_9) {
                             msg = '正解。図の 2 力は大きさが等しく、逆向きで平行な「偶力」です。この場合 M ＝ F × d の式で偶力のモーメントが求められます。';
+                        } else if (is1_10) {
+                            msg = (problem.formulaType === 'TeqW')
+                                ? '正解。物体は静止しており、下向きの重さ W と上向きの張力 T という、大きさが等しく逆向きの 2 力がつり合っています。'
+                                : (problem.formulaType === 'sym')
+                                ? '正解。左右対称な 2 本のひもの張力と、下向きの重さの 3 力がつり合っています。'
+                                : '正解。水平なひも・ななめのひも・下向きの重さの 3 力がつり合っています。';
                         } else if (is1_11) {
                             msg = '正解。2 つの重りは支点 O からはなれた別々の場所にあります。この場合は点 O のまわりのモーメントのつり合い F₁ × r₁ ＝ F₂ × r₂ で考えます。';
                         } else if (is1_12) {
@@ -13195,6 +13204,8 @@
                             msg = '不正解。問題文に「腕 OA に垂直に」と書かれており、図でも力 F は腕 OA と直角にはたらいています。';
                         } else if (is1_9) {
                             msg = '不正解。図の 2 力は同じ大きさで反対向き、かつ作用線が平行に離れています。これを「偶力」といいます。';
+                        } else if (is1_10) {
+                            msg = '不正解。物体は静止してつり合っています。1 点にはたらく力がどのようにつり合っているか、図をよく見て考えてください。';
                         } else if (is1_11) {
                             msg = '不正解。2 つの重りは支点 O からはなれた別々の点につるされています。1 点に集まる力（1-10）でも偶力（1-9）でもありません。';
                         } else if (is1_12) {
