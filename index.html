@@ -4018,12 +4018,15 @@
         //   重心を支えると回らない→回らない＝モーメントが左右でつり合う→つり合いの式→
         //   式変形、と生徒が一段ずつ自分で導く。
         //   問のタイプ（formulaType）:
-        //     'centroid'       — 重心の左端からの距離 x を求める  x = (W₂×L) ÷ (W₁+W₂)（問1・問2）
-        //     'centroidWeight' — 右端の重さ W を求める           W₂ = (W₁×r₁) ÷ r₂（問3・問4）
-        //   tool: 'centroidBar' 固定（build1_12StaticCanvas が描画）。
-        //   W1/W2＝左右の重さ（N）、length＝棒の長さ、r1/r2＝重心から左端／右端の距離（cm）。
+        //     'centroid'       — 棒の重心の左端からの距離 x を求める  x = (W₂×L) ÷ (W₁+W₂)（問1・問2）
+        //     'centroidArea2'  — L 字の板の図心（2 長方形の足し算）       x,y（問3）
+        //     'centroidAreaCut'— 切り抜き型の板の図心（大長方形−正方形） x,y（問4）
+        //   tool: 問1・問2 'centroidBar'、問3・問4 'centroidPlate'（build1_12StaticCanvas /
+        //   build1_12PlateCanvas が描画）。
+        //   問1・問2: W1/W2＝左右の重さ（N）、length＝棒の長さ、r1/r2＝重心から左端／右端の距離（cm）。
         //   問1・問2 は W₂ が分子・分母の 2 箇所に出るため、代入は 1-6 と同じ
         //   slotToCardRoleMap 方式（W₂ カードを 2 つのスロットに繰り返し使う）で実装する。
+        //   問3・問4: 図心の x・y を両方求めさせる。x の式・y の式の 2 式に代入・計算する。
         const PROBLEMS_1_12 = [
             {
                 id: 1,
@@ -4257,178 +4260,255 @@
             },
             {
                 id: 3,
-                W1: 15, r1: 20, r2: 30,
-                fL: 15, rL: 20, fR: null, rR: 30,
-                expected: 10, expectedWeight: 10, tolerance: 0.5, unit: 'N',
-                tool: 'centroidBar', formulaType: 'centroidWeight',
-                sentence: '軽くてまっすぐな棒がある。棒の左端に重さ 15 N の重り、右端に別の重りを取り付けた。棒全体の重さが 1 点に集まっていると考えられる点を重心という。この棒の重心は、左端から 20 cm のところにある。また、重心から右端までは 30 cm である。右端の重りの重さ W を求めよ。',
-                condition: '基礎、重心、W1=15 N, r1=20 cm, r2=30 cm → W=10 N',
-                baselineTime: 120,
+                tool: 'centroidPlate', formulaType: 'centroidArea2',
+                rects: [ { x: 0, y: 0, w: 50, h: 120 }, { x: 50, y: 0, w: 100, h: 30 } ],
+                A1: 6000, x1: 25, y1: 60, A2: 3000, x2: 100, y2: 15, A: 9000,
+                expectedX: 50, expectedY: 45, tolerance: 0.5, unit: 'mm',
+                baselineTime: 150,
                 canvasType: '2d-static',
-                canvas: { width: 360, height: 200 },
+                canvas: { width: 380, height: 240 },
+                sentence: '厚さが一定で均質な、L 字の形をした板がある。図のように、板の左下のすみを原点 O とし、右向きに X 軸、上向きに Y 軸をとる。この板の図心 G の位置を、原点 O からの座標 (x, y) で求めよ。なお、図心とは平面図形の重心のことで、この点で板を支えると板はどの向きでも回らずにつり合う。長さの単位はすべて mm とする。',
+                condition: '基礎、図心（L字・足し算）、A₁=6000 G₁=(25,60) A₂=3000 G₂=(100,15) → x=50 y=45 mm',
                 stage0Choices: [
-                    { value: 'weightR', label: '右の重りの重さ W' },
-                    { value: 'weightL', label: '左の重りの重さの大きさ' },
-                    { value: 'distG',   label: '重心の左端からの距離' }
+                    { value: 'centroidXY', label: '板の図心 G の位置（x 座標と y 座標）' },
+                    { value: 'totalArea', label: '板全体の面積の大きさ' },
+                    { value: 'rectArea1', label: '縦長の長方形①だけの面積の大きさ' }
                 ],
-                stage0Correct: 'weightR',
+                stage0Correct: 'centroidXY',
                 stage1Choices: [
-                    { value: 'centroid', label: '棒全体の重さが集まる 1 点（重心）を求める問題である' },
-                    { value: 'lever',    label: '支点が決まっていて、つり合う重さや距離を求める問題である' },
-                    { value: 'rope',     label: '1 点につながれたひもの張力を求める問題である' }
+                    { value: 'centroidArea',  label: '平面図形の図心（重心）を求める問題である' },
+                    { value: 'forceOnePoint', label: '1 点に集まった何本かの力のつり合いを求める問題である' },
+                    { value: 'leverFixed',    label: '支点が決まっているてこの、つり合う重さや距離を求める問題である' }
                 ],
-                stage1Correct: 'centroid',
+                stage1Correct: 'centroidArea',
                 derivationSteps: [
                     {
-                        prompt: '「重心」とは、どんな点ですか？',
+                        prompt: '「図心」とは、どんな点ですか？',
                         choices: [
-                            { value: 'centroid', label: '棒全体の重さが 1 点に集まっていると考えられる点' },
-                            { value: 'middle',   label: '棒のちょうど真ん中の点' },
-                            { value: 'heavy',    label: '重い方の重りがついている点' }
+                            { value: 'centroid', label: '平面図形の重心、つまり板全体の重さが集まると考えられる点' },
+                            { value: 'cross',    label: 'X 軸と Y 軸が交わる点（原点 O）' },
+                            { value: 'corner',   label: '板のいちばん広い部分のすみの点' }
                         ],
                         correct: 'centroid',
-                        onCorrectText: '重心は、棒全体の重さが 1 点に集まっていると考えられる点です。'
+                        onCorrectText: '図心は、平面図形の重心です。この点で板を支えると、板はどの向きでも回らずにつり合います。'
                     },
                     {
-                        prompt: '棒の重心を支えると、棒はどうなりますか？',
+                        prompt: 'L 字の形は、図心がすぐにはわかりません。図心を求めるために、まず何をしますか？',
                         choices: [
-                            { value: 'balance', label: '回らずに静止してつり合う' },
-                            { value: 'heavy',   label: '重い方へかたむいて回る' },
-                            { value: 'light',   label: '軽い方へかたむいて回る' }
+                            { value: 'split',   label: '図心がわかる形（長方形）に分ける' },
+                            { value: 'asis',    label: 'L 字のまま、すみの座標をそのまま図心とする' },
+                            { value: 'measure', label: '定規で対角線を 1 本だけ引いて、その真ん中を図心とする' }
                         ],
-                        correct: 'balance',
-                        onCorrectText: '重心を支点にすると、棒はどの向きでも回らずに静止してつり合います。'
+                        correct: 'split',
+                        onCorrectText: 'L 字を、図心がわかる形に分けます。ここでは縦長の長方形①と、横長の長方形②の 2 つに分けます。'
                     },
                     {
-                        prompt: '棒が「回らずにつり合う」とき、何がつり合っていますか？（1-11 を思い出してください）',
+                        prompt: '長方形①・②それぞれの図心は、どこにありますか？',
                         choices: [
-                            { value: 'moment', label: '重心のまわりの、左回りのモーメントと右回りのモーメント' },
-                            { value: 'weight', label: '左の重りと右の重りの、重さそのもの' },
-                            { value: 'length', label: '棒の左半分と右半分の、長さ' }
+                            { value: 'diag',   label: '長方形の対角線の交点（長方形の中心）' },
+                            { value: 'corner', label: '長方形の左下のすみ' },
+                            { value: 'edge',   label: '長方形の下の辺の真ん中' }
+                        ],
+                        correct: 'diag',
+                        onCorrectText: '長方形の図心は対角線の交点、つまり長方形の中心です。長方形①の図心 G₁、長方形②の図心 G₂ がそれぞれ決まります。'
+                    },
+                    {
+                        prompt: 'この板は厚さが一定で均質です。図心を求めるとき、各長方形の「重さ」のかわりに何を使えますか？',
+                        choices: [
+                            { value: 'area',   label: '長方形の面積（A₁、A₂）' },
+                            { value: 'length', label: '長方形のたての長さ' },
+                            { value: 'corner', label: '長方形のすみの数' }
+                        ],
+                        correct: 'area',
+                        onCorrectText: '厚さが一定で均質なので、重さは面積に比例します。だから「重さ」のかわりに「面積」を使って図心を求められます。'
+                    },
+                    {
+                        prompt: '面積を「重さ」とみなすと、図心の問題も 1-11 と同じ考え方で解けます。回らずにつり合うとき、何がつり合っていますか？',
+                        choices: [
+                            { value: 'moment', label: '原点 O のまわりの、長方形①と長方形②によるモーメント' },
+                            { value: 'area',   label: '長方形①と長方形②の、面積そのもの' },
+                            { value: 'coord',  label: '長方形①と長方形②の、図心の座標そのもの' }
                         ],
                         correct: 'moment',
-                        onCorrectText: '回らない＝左回りのモーメントと右回りのモーメントがつり合っている、ということです。重心の問題も、1-11 と同じモーメントのつり合いで解けます。'
+                        onCorrectText: '面積を「重さ」とみなすと、原点 O のまわりのモーメントのつり合いで考えられます。モーメントは「面積 × 距離」です。'
                     },
                     {
-                        prompt: '重心から左端までの距離を r₁、右端までの距離を r₂ とします。左の重り W₁ と右の重り W₂ によるモーメントのつり合いの式はどれですか？',
+                        prompt: 'X 軸方向で考えます。板全体の面積を A、図心の x 座標を x とすると、原点 O のまわりのモーメントのつり合いの式はどれですか？',
                         choices: [
-                            { value: 'eq',    label: 'W₁ × r₁ ＝ W₂ × r₂' },
-                            { value: 'add',   label: 'W₁ ＋ r₁ ＝ W₂ ＋ r₂' },
-                            { value: 'cross', label: 'W₁ × W₂ ＝ r₁ × r₂' }
+                            { value: 'eq',    label: 'A × x ＝ A₁ × x₁ ＋ A₂ × x₂' },
+                            { value: 'add',   label: 'A ＋ x ＝ A₁ ＋ x₁ ＋ A₂ ＋ x₂' },
+                            { value: 'nomul', label: 'A × x ＝ A₁ ＋ A₂' }
                         ],
                         correct: 'eq',
-                        onCorrectText: 'モーメントのつり合いの式は W₁ × r₁ ＝ W₂ × r₂ です。'
+                        onCorrectText: '全体のモーメント A × x は、長方形①のモーメント A₁ × x₁ と長方形②のモーメント A₂ × x₂ の和に等しくなります。'
                     },
                     {
-                        prompt: 'つり合いの式 W₁ × r₁ ＝ W₂ × r₂ を、求めたい右の重さ W₂ について解くとどうなりますか？',
+                        prompt: 'A × x ＝ A₁ × x₁ ＋ A₂ × x₂ を、図心の x 座標について解くとどうなりますか？',
                         choices: [
-                            { value: 'solved', label: 'W₂ ＝ (W₁ × r₁) ÷ r₂' },
-                            { value: 'mul',    label: 'W₂ ＝ (W₁ × r₁) × r₂' },
-                            { value: 'inv',    label: 'W₂ ＝ r₂ ÷ (W₁ × r₁)' }
+                            { value: 'solved', label: 'x ＝ (A₁ × x₁ ＋ A₂ × x₂) ÷ A' },
+                            { value: 'mul',    label: 'x ＝ (A₁ × x₁ ＋ A₂ × x₂) × A' },
+                            { value: 'inv',    label: 'x ＝ A ÷ (A₁ × x₁ ＋ A₂ × x₂)' }
                         ],
                         correct: 'solved',
-                        onCorrectText: 'W₂ ＝ (W₁ × r₁) ÷ r₂ と求まりました。次のステップでこの式に数値を代入します。'
+                        onCorrectText: '両辺を A で割って、x ＝ (A₁ × x₁ ＋ A₂ × x₂) ÷ A と求まりました。A は全体の面積で A ＝ A₁ ＋ A₂ です。'
+                    },
+                    {
+                        prompt: 'Y 軸方向の図心の y 座標も、同じ考え方で求められます。y を求める式はどれですか？',
+                        choices: [
+                            { value: 'solved', label: 'y ＝ (A₁ × y₁ ＋ A₂ × y₂) ÷ A' },
+                            { value: 'mixXY',  label: 'y ＝ (A₁ × x₁ ＋ A₂ × x₂) ÷ A' },
+                            { value: 'mul',    label: 'y ＝ (A₁ × y₁ ＋ A₂ × y₂) × A' }
+                        ],
+                        correct: 'solved',
+                        onCorrectText: 'y も同じ形で、y ＝ (A₁ × y₁ ＋ A₂ × y₂) ÷ A です。次のステップで、x と y の式に数値を代入します。'
                     }
                 ],
-                formula: 'W_2 = \\dfrac{W_1 \\times r_1}{r_2}',
+                formula: 'x = \\dfrac{A_1 x_1 + A_2 x_2}{A} \\qquad y = \\dfrac{A_1 y_1 + A_2 y_2}{A}',
                 substitutions: {
-                    slots: ['W1', 'r1', 'r2'],
+                    slots: ['A1x', 'x1s', 'A2x', 'x2s', 'Ax', 'A1y', 'y1s', 'A2y', 'y2s', 'Ay'],
                     cards: [
-                        { role: 'W1', label: '左の重さ W₁',     value: 15, unit: 'N' },
-                        { role: 'r1', label: '左端〜重心 r₁', value: 20, unit: 'cm' },
-                        { role: 'r2', label: '重心〜右端 r₂', value: 30, unit: 'cm' }
-                    ]
+                        { role: 'A1', label: '長方形①の面積 A₁', value: 6000, unit: 'mm²' },
+                        { role: 'x1', label: '①の図心 x₁',       value: 25,   unit: 'mm' },
+                        { role: 'A2', label: '長方形②の面積 A₂', value: 3000, unit: 'mm²' },
+                        { role: 'x2', label: '②の図心 x₂',       value: 100,  unit: 'mm' },
+                        { role: 'A',  label: '全体の面積 A',      value: 9000, unit: 'mm²' },
+                        { role: 'y1', label: '①の図心 y₁',       value: 60,   unit: 'mm' },
+                        { role: 'y2', label: '②の図心 y₂',       value: 15,   unit: 'mm' }
+                    ],
+                    slotToCardRoleMap: {
+                        A1x: 'A1', x1s: 'x1', A2x: 'A2', x2s: 'x2', Ax: 'A',
+                        A1y: 'A1', y1s: 'y1', A2y: 'A2', y2s: 'y2', Ay: 'A'
+                    }
                 }
             },
             {
                 id: 4,
-                W1: 8, r1: 45, r2: 15,
-                fL: 8, rL: 45, fR: null, rR: 15,
-                expected: 24, expectedWeight: 24, tolerance: 0.5, unit: 'N',
-                tool: 'centroidBar', formulaType: 'centroidWeight',
-                sentence: '軽くてまっすぐな棒がある。棒の左端に重さ 8 N の重り、右端に別の重りを取り付けた。棒全体の重さが 1 点に集まっていると考えられる点を重心という。この棒の重心は、左端から 45 cm のところにある。また、重心から右端までは 15 cm である。右端の重りの重さ W を求めよ。',
-                condition: '基礎、重心、W1=8 N, r1=45 cm, r2=15 cm → W=24 N',
-                baselineTime: 120,
+                tool: 'centroidPlate', formulaType: 'centroidAreaCut',
+                big: { x: 0, y: 0, w: 120, h: 80 }, cut: { x: 80, y: 40, w: 40, h: 40 },
+                Abig: 9600, xbig: 60, ybig: 40, Acut: 1600, xcut: 100, ycut: 60, A0: 8000,
+                expectedX: 52, expectedY: 36, tolerance: 0.5, unit: 'mm',
+                baselineTime: 150,
                 canvasType: '2d-static',
-                canvas: { width: 360, height: 200 },
+                canvas: { width: 380, height: 240 },
+                sentence: '厚さが一定で均質な、横 120 mm・たて 80 mm の長方形の板がある。図のように、この板の右上のすみから、一辺 40 mm の正方形を切り抜いた。板の左下のすみを原点 O とし、右向きに X 軸、上向きに Y 軸をとる。切り抜いた後に残った板の図心 G の位置を、原点 O からの座標 (x, y) で求めよ。なお、図心とは平面図形の重心のことである。長さの単位はすべて mm とする。',
+                condition: '基礎、図心（切り抜き・引き算）、A_big=9600 中心(60,40) A_cut=1600 中心(100,60) → A₀=8000 x=52 y=36 mm',
                 stage0Choices: [
-                    { value: 'weightR', label: '右の重りの重さ W' },
-                    { value: 'weightL', label: '左の重りの重さの大きさ' },
-                    { value: 'distG',   label: '重心の左端からの距離' }
+                    { value: 'centroidXY', label: '切り抜いた後に残った板の図心 G の位置（x 座標と y 座標）' },
+                    { value: 'remainArea', label: '切り抜いた後に残った板の面積の大きさ' },
+                    { value: 'cutArea',    label: '切り抜いた正方形の面積の大きさ' }
                 ],
-                stage0Correct: 'weightR',
+                stage0Correct: 'centroidXY',
                 stage1Choices: [
-                    { value: 'centroid', label: '棒全体の重さが集まる 1 点（重心）を求める問題である' },
-                    { value: 'lever',    label: '支点が決まっていて、つり合う重さや距離を求める問題である' },
-                    { value: 'rope',     label: '1 点につながれたひもの張力を求める問題である' }
+                    { value: 'centroidArea',  label: '平面図形の図心（重心）を求める問題である' },
+                    { value: 'forceOnePoint', label: '1 点に集まった何本かの力のつり合いを求める問題である' },
+                    { value: 'leverFixed',    label: '支点が決まっているてこの、つり合う重さや距離を求める問題である' }
                 ],
-                stage1Correct: 'centroid',
+                stage1Correct: 'centroidArea',
                 derivationSteps: [
                     {
-                        prompt: '「重心」とは、どんな点ですか？',
+                        prompt: '「図心」とは、どんな点ですか？',
                         choices: [
-                            { value: 'centroid', label: '棒全体の重さが 1 点に集まっていると考えられる点' },
-                            { value: 'middle',   label: '棒のちょうど真ん中の点' },
-                            { value: 'heavy',    label: '重い方の重りがついている点' }
+                            { value: 'centroid', label: '平面図形の重心、つまり板全体の重さが集まると考えられる点' },
+                            { value: 'cross',    label: 'X 軸と Y 軸が交わる点（原点 O）' },
+                            { value: 'cut',      label: '切り抜いた正方形のすみの点' }
                         ],
                         correct: 'centroid',
-                        onCorrectText: '重心は、棒全体の重さが 1 点に集まっていると考えられる点です。'
+                        onCorrectText: '図心は、平面図形の重心です。この問題では、切り抜いた後に残った板の図心を求めます。'
                     },
                     {
-                        prompt: '棒の重心を支えると、棒はどうなりますか？',
+                        prompt: 'すみを切り抜いた形は、図心がすぐにはわかりません。切り抜く前の大きい長方形の図心は、どこにありますか？',
                         choices: [
-                            { value: 'balance', label: '回らずに静止してつり合う' },
-                            { value: 'heavy',   label: '重い方へかたむいて回る' },
-                            { value: 'light',   label: '軽い方へかたむいて回る' }
+                            { value: 'center', label: '長方形の中心（対角線の交点）' },
+                            { value: 'corner', label: '長方形の左下のすみ（原点 O）' },
+                            { value: 'cut',    label: '切り抜いた正方形の中心' }
                         ],
-                        correct: 'balance',
-                        onCorrectText: '重心を支点にすると、棒はどの向きでも回らずに静止してつり合います。'
+                        correct: 'center',
+                        onCorrectText: '切り抜く前の大きい長方形の図心は、その中心です。切り抜いた正方形の図心も、その正方形の中心です。'
                     },
                     {
-                        prompt: '棒が「回らずにつり合う」とき、何がつり合っていますか？（1-11 を思い出してください）',
+                        prompt: 'この板は厚さが一定で均質です。図心を求めるとき、各図形の「重さ」のかわりに何を使えますか？',
                         choices: [
-                            { value: 'moment', label: '重心のまわりの、左回りのモーメントと右回りのモーメント' },
-                            { value: 'weight', label: '左の重りと右の重りの、重さそのもの' },
-                            { value: 'length', label: '棒の左半分と右半分の、長さ' }
+                            { value: 'area',   label: '図形の面積' },
+                            { value: 'length', label: '図形のたての長さ' },
+                            { value: 'corner', label: '図形のすみの数' }
                         ],
-                        correct: 'moment',
-                        onCorrectText: '回らない＝左回りのモーメントと右回りのモーメントがつり合っている、ということです。重心の問題も、1-11 と同じモーメントのつり合いで解けます。'
+                        correct: 'area',
+                        onCorrectText: '厚さが一定で均質なので、重さは面積に比例します。だから「重さ」のかわりに「面積」を使って図心を求められます。'
                     },
                     {
-                        prompt: '重心から左端までの距離を r₁、右端までの距離を r₂ とします。左の重り W₁ と右の重り W₂ によるモーメントのつり合いの式はどれですか？',
+                        prompt: '「残った板」「切り抜いた正方形」「切り抜く前の大きい長方形」の 3 つの面積には、どんな関係がありますか？',
                         choices: [
-                            { value: 'eq',    label: 'W₁ × r₁ ＝ W₂ × r₂' },
-                            { value: 'add',   label: 'W₁ ＋ r₁ ＝ W₂ ＋ r₂' },
-                            { value: 'cross', label: 'W₁ × W₂ ＝ r₁ × r₂' }
+                            { value: 'sum',  label: '残った板 ＋ 切り抜いた正方形 ＝ 切り抜く前の大きい長方形' },
+                            { value: 'diff', label: '残った板 ＝ 切り抜いた正方形 ＋ 切り抜く前の大きい長方形' },
+                            { value: 'mul',  label: '残った板 × 切り抜いた正方形 ＝ 切り抜く前の大きい長方形' }
+                        ],
+                        correct: 'sum',
+                        onCorrectText: '残った板と切り抜いた正方形を合わせると、切り抜く前の大きい長方形になります。面積は A₀ ＋ A切 ＝ A大 です。'
+                    },
+                    {
+                        prompt: '面積が「残り ＋ 切り抜き ＝ 全体」なら、原点 O のまわりのモーメントも同じ関係になります。X 軸方向のモーメントのつり合いの式はどれですか？',
+                        choices: [
+                            { value: 'eq',  label: 'A₀ × x ＋ A切 × x切 ＝ A大 × x大' },
+                            { value: 'rev', label: 'A₀ × x ＝ A切 × x切 ＋ A大 × x大' },
+                            { value: 'add', label: 'A₀ ＋ x ＝ A切 ＋ x切 ＋ A大 ＋ x大' }
                         ],
                         correct: 'eq',
-                        onCorrectText: 'モーメントのつり合いの式は W₁ × r₁ ＝ W₂ × r₂ です。'
+                        onCorrectText: '残った板のモーメント A₀ × x と、切り抜いた正方形のモーメント A切 × x切 を足すと、全体のモーメント A大 × x大 になります。'
                     },
                     {
-                        prompt: 'つり合いの式 W₁ × r₁ ＝ W₂ × r₂ を、求めたい右の重さ W₂ について解くとどうなりますか？',
+                        prompt: 'A₀ × x ＋ A切 × x切 ＝ A大 × x大 を、残った板の図心 x について解くとどうなりますか？',
                         choices: [
-                            { value: 'solved', label: 'W₂ ＝ (W₁ × r₁) ÷ r₂' },
-                            { value: 'mul',    label: 'W₂ ＝ (W₁ × r₁) × r₂' },
-                            { value: 'inv',    label: 'W₂ ＝ r₂ ÷ (W₁ × r₁)' }
+                            { value: 'solved', label: 'x ＝ (A大 × x大 − A切 × x切) ÷ A₀' },
+                            { value: 'plus',   label: 'x ＝ (A大 × x大 ＋ A切 × x切) ÷ A₀' },
+                            { value: 'inv',    label: 'x ＝ A₀ ÷ (A大 × x大 − A切 × x切)' }
                         ],
                         correct: 'solved',
-                        onCorrectText: 'W₂ ＝ (W₁ × r₁) ÷ r₂ と求まりました。次のステップでこの式に数値を代入します。'
+                        onCorrectText: 'A切 × x切 を右辺へ移して引き算にし、両辺を A₀ で割ると x ＝ (A大 × x大 − A切 × x切) ÷ A₀ です。切り抜き型は「引き算」になります。'
+                    },
+                    {
+                        prompt: '式の中の A₀（残った板の面積）は、どうやって求めますか？',
+                        choices: [
+                            { value: 'sub', label: 'A₀ ＝ A大 − A切（全体から切り抜きを引く）' },
+                            { value: 'add', label: 'A₀ ＝ A大 ＋ A切（全体に切り抜きを足す）' },
+                            { value: 'mul', label: 'A₀ ＝ A大 × A切（全体に切り抜きを掛ける）' }
+                        ],
+                        correct: 'sub',
+                        onCorrectText: '残った板の面積は、切り抜く前の全体から切り抜いた正方形を引いて A₀ ＝ A大 − A切 で求めます。'
+                    },
+                    {
+                        prompt: 'Y 軸方向の図心 y も、同じ考え方で求められます。y を求める式はどれですか？',
+                        choices: [
+                            { value: 'solved', label: 'y ＝ (A大 × y大 − A切 × y切) ÷ A₀' },
+                            { value: 'mixXY',  label: 'y ＝ (A大 × x大 − A切 × x切) ÷ A₀' },
+                            { value: 'plus',   label: 'y ＝ (A大 × y大 ＋ A切 × y切) ÷ A₀' }
+                        ],
+                        correct: 'solved',
+                        onCorrectText: 'y も同じ形で、y ＝ (A大 × y大 − A切 × y切) ÷ A₀ です。次のステップで、x と y の式に数値を代入します。'
                     }
                 ],
-                formula: 'W_2 = \\dfrac{W_1 \\times r_1}{r_2}',
+                formula: 'x = \\dfrac{A_{\\text{大}} x_{\\text{大}} - A_{\\text{切}} x_{\\text{切}}}{A_0} \\qquad y = \\dfrac{A_{\\text{大}} y_{\\text{大}} - A_{\\text{切}} y_{\\text{切}}}{A_0}',
                 substitutions: {
-                    slots: ['W1', 'r1', 'r2'],
+                    slots: ['Abx', 'xbs', 'Acx', 'xcs', 'A0x', 'Aby', 'ybs', 'Acy', 'ycs', 'A0y'],
                     cards: [
-                        { role: 'W1', label: '左の重さ W₁',     value: 8,  unit: 'N' },
-                        { role: 'r1', label: '左端〜重心 r₁', value: 45, unit: 'cm' },
-                        { role: 'r2', label: '重心〜右端 r₂', value: 15, unit: 'cm' }
-                    ]
+                        { role: 'Abig', label: '大きい長方形の面積 A大', value: 9600, unit: 'mm²' },
+                        { role: 'xbig', label: '大の中心 x大',           value: 60,   unit: 'mm' },
+                        { role: 'Acut', label: '切り抜きの面積 A切',     value: 1600, unit: 'mm²' },
+                        { role: 'xcut', label: '切り抜きの中心 x切',     value: 100,  unit: 'mm' },
+                        { role: 'A0',   label: '残った面積 A₀',          value: 8000, unit: 'mm²' },
+                        { role: 'ybig', label: '大の中心 y大',           value: 40,   unit: 'mm' },
+                        { role: 'ycut', label: '切り抜きの中心 y切',     value: 60,   unit: 'mm' }
+                    ],
+                    slotToCardRoleMap: {
+                        Abx: 'Abig', xbs: 'xbig', Acx: 'Acut', xcs: 'xcut', A0x: 'A0',
+                        Aby: 'Abig', ybs: 'ybig', Acy: 'Acut', ycs: 'ycut', A0y: 'A0'
+                    }
                 }
             }
         ];
 
         // 1-12 のヒント（重心 — 3 段階 B→A→C）。
-        //   問のタイプが 2 種類あるため、問 id ごとに引く。問1・問2 は DIST、問3・問4 は WEIGHT 共通。
+        //   問のタイプが 3 種類あるため、問 id ごとに引く。
+        //   問1・問2 は DIST（棒の重心）、問3 は AREA_ADD（L字図心）、問4 は AREA_CUT（切り抜き図心）。
         //   Stage 2（使う式の導出）は derivationSteps アコーディオン方式。共通ヒントを 1 つ持つ。
         const HINTS_1_12_DIST = {
             stage0: {
@@ -4457,39 +4537,68 @@
                 c: '教科書36ページ 例題を確認してください。'
             }
         };
-        const HINTS_1_12_WEIGHT = {
+        // 問3（L 字の図心・足し算）のヒント。
+        const HINTS_1_12_AREA_ADD = {
             stage0: {
-                b: '問題文の最後の文に注目してください。求めるのは「右端の重りの重さ W」です。左の重さ・重心の位置は問題文にすでに数値が書かれています。',
-                a: '問題文の末尾に「右端の重りの重さ W を求めよ」とあります。求めるものは右端の重りの重さ W [N] です。',
-                c: '教科書35ページ「重心」の冒頭を確認してください。'
+                b: '問題文の最後の文に注目してください。「求めよ」と書かれている量が求めるものです。長方形①の面積や板全体の面積は、図心を求める途中で使う量です。',
+                a: '問題文の末尾に「図心 G の位置を、原点 O からの座標 (x, y) で求めよ」とあります。求めるものは図心 G の x 座標と y 座標です。',
+                c: '教科書35ページ「重心」、35〜36ページ「2 重心の求めかた」を確認してください。'
             },
             stage1: {
-                b: '棒全体の重さが 1 点に集まっていると考えられる点を、何といったか思い出してください。問題文の中にその言葉の説明があります。',
-                a: 'この問題は、棒の重心のまわりのモーメントのつり合いを使う問題です。重心を支点にすると棒は回らずにつり合います。',
-                c: '教科書35ページ「重心」を確認してください。'
+                b: 'この問題には、ひも・支点・てこは出てきません。出てくるのは 1 枚の平面の板です。板全体の重さが集まる点を求めようとしています。',
+                a: '平面図形の重心を図心といいます。この問題は、L 字の形をした平面図形の図心を求める問題です。1-10 の「1 点に働く力」、1-11 の「てこ」とは別の種類です。',
+                c: '教科書35ページ「重心」（平面図形の重心を図心という、の部分）を確認してください。'
             },
             stage2: {
-                b: '重心を支えると棒は回らずに静止してつり合います。回らない＝左回りのモーメントと右回りのモーメントがつり合っている、ということです（1-11 と同じ）。',
-                a: 'モーメントのつり合い W₁ × r₁ ＝ W₂ × r₂ を、求めたい W₂ について解くと W₂ ＝ (W₁ × r₁) ÷ r₂ です。',
-                c: '教科書35〜36ページ「重心」、1-11 のモーメントのつり合いを確認してください。'
+                b: 'L 字のままでは図心がわかりません。図心がわかる形は長方形です。L 字を 2 つの長方形に分け、面積を「重さ」とみなしてモーメントのつり合いを考えます（1-11 と同じ）。',
+                a: '長方形に分け、各面積 A₁・A₂ と各図心 (x₁,y₁)・(x₂,y₂) を使います。点 O のまわりのモーメントのつり合いから A × x ＝ A₁x₁ ＋ A₂x₂、A × y ＝ A₁y₁ ＋ A₂y₂。解くと x ＝ (A₁x₁＋A₂x₂)÷A、y ＝ (A₁y₁＋A₂y₂)÷A です。',
+                c: '教科書35〜36ページ「2 重心の求めかた」、式2-16〜2-18、図2-29 を確認してください。'
             },
             stage3: {
-                b: '式は W₂ ＝ (W₁ × r₁) ÷ r₂ です。W₁ には左の重さ、r₁ には左端から重心までの距離、r₂ には重心から右端までの距離を入れます。',
-                a: '式 W₂ ＝ (W₁ × r₁) ÷ r₂ の各空欄に、左の重さ・左端〜重心の距離・重心〜右端の距離の数値を入れてください。',
-                c: '教科書36ページ 重心の求め方を確認してください。'
+                b: 'まず各長方形の面積と図心を読み取ります。長方形の面積は「たて × よこ」、長方形の図心は中心（たて・よこそれぞれの真ん中）です。それを式の空欄に入れます。',
+                a: '式 x ＝ (A₁x₁＋A₂x₂)÷A の空欄に、長方形①の面積 A₁・図心の x 座標 x₁、長方形②の面積 A₂・図心の x 座標 x₂、全体の面積 A を入れます。y の式には y₁・y₂ を入れます。',
+                c: '教科書36ページ 例題7 の代入の流れを確認してください。'
             },
             stage4: {
-                b: 'まず W₁ × r₁ を計算します。次にその答えを r₂ で割ります。電卓を使って構いません。',
-                a: 'W₂ ＝ (W₁ × r₁) ÷ r₂。かけ算を先に計算し、その値を r₂ で割ってください。単位は N です。',
-                c: '教科書36ページ 例題を確認してください。'
+                b: 'まず x を計算します。分子の掛け算 2 つを先に計算してから足し算し、最後に A で割ります。次に同じ手順で y を計算します。電卓を使って構いません。',
+                a: 'x ＝ (A₁x₁＋A₂x₂)÷A、y ＝ (A₁y₁＋A₂y₂)÷A。掛け算 → 足し算 → 割り算 の順で、x と y を 1 つずつ計算してください。単位は mm です。',
+                c: '教科書36ページ 例題7 の計算過程を確認してください。'
+            }
+        };
+        // 問4（切り抜き型の図心・引き算）のヒント。
+        const HINTS_1_12_AREA_CUT = {
+            stage0: {
+                b: '問題文の最後の文に注目してください。「求めよ」と書かれている量が求めるものです。残った板の面積や切り抜いた正方形の面積は、図心を求める途中で使う量です。',
+                a: '問題文の末尾に「残った板の図心 G の位置を、原点 O からの座標 (x, y) で求めよ」とあります。求めるものは図心 G の x 座標と y 座標です。',
+                c: '教科書35ページ「重心」、35〜36ページ「2 重心の求めかた」を確認してください。'
+            },
+            stage1: {
+                b: 'この問題には、ひも・支点・てこは出てきません。出てくるのは 1 枚の平面の板です。すみを切り抜いた板の、重さが集まる点を求めようとしています。',
+                a: '平面図形の重心を図心といいます。この問題は、すみを切り抜いた平面図形の図心を求める問題です。1-10「1 点に働く力」、1-11「てこ」とは別の種類です。',
+                c: '教科書35ページ「重心」（平面図形の重心を図心という、の部分）を確認してください。'
+            },
+            stage2: {
+                b: '切り抜いた板は「残った板 ＋ 切り抜いた正方形 ＝ 切り抜く前の大きい長方形」という関係です。面積を「重さ」とみなすと、モーメントも同じ関係になります（1-11 と同じ）。',
+                a: 'A₀×x ＋ A切×x切 ＝ A大×x大。これを x について解くと x ＝ (A大×x大 − A切×x切)÷A₀。y も同じ形。残った面積は A₀ ＝ A大 − A切。切り抜き型は引き算になります。',
+                c: '教科書36ページ 例題8（切り抜き型）、式2-16〜2-18 を確認してください。'
+            },
+            stage3: {
+                b: 'まず大きい長方形と切り抜いた正方形の、面積と図心（中心）を読み取ります。面積は「たて × よこ」、図心は中心です。それを式の空欄に入れます。',
+                a: '式 x ＝ (A大×x大 − A切×x切)÷A₀ の空欄に、大きい長方形の面積 A大・中心の x 座標 x大、切り抜いた正方形の面積 A切・中心の x 座標 x切、残った面積 A₀ を入れます。y の式には y大・y切 を入れます。',
+                c: '教科書36ページ 例題8 の代入の流れを確認してください。'
+            },
+            stage4: {
+                b: 'まず x を計算します。分子の掛け算 2 つを先に計算してから引き算し、最後に A₀ で割ります。次に同じ手順で y を計算します。電卓を使って構いません。',
+                a: 'x ＝ (A大×x大−A切×x切)÷A₀、y ＝ (A大×y大−A切×y切)÷A₀。掛け算 → 引き算 → 割り算 の順で、x と y を 1 つずつ計算してください。単位は mm です。',
+                c: '教科書36ページ 例題8 の計算過程を確認してください。'
             }
         };
         // 問 id（1〜4）→ ヒント表。renderCalculationProblem / showHint から参照。
         const HINTS_1_12_BY_ID = {
             1: HINTS_1_12_DIST,
             2: HINTS_1_12_DIST,
-            3: HINTS_1_12_WEIGHT,
-            4: HINTS_1_12_WEIGHT
+            3: HINTS_1_12_AREA_ADD,
+            4: HINTS_1_12_AREA_CUT
         };
 
         // Problems for sub-unit 2-1: displacement and velocity (repetitive calculation)
@@ -8968,7 +9077,7 @@
                                       : is1_9 ? this.build1_9StaticCanvas(problem)
                                       : is1_10 ? this.build1_10StaticCanvas(problem)
                                       : is1_11 ? this.build1_11StaticCanvas(problem)
-                                      : is1_12 ? this.build1_12StaticCanvas(problem)
+                                      : is1_12 ? (problem.formulaType === 'centroid' ? this.build1_12StaticCanvas(problem) : this.build1_12PlateCanvas(problem))
                                       : '';
 
                 // 1-7（案B 7 ステージ）は専用ルートで処理し、early return する。
@@ -9251,7 +9360,9 @@
                         // 式の表示: 1-6 → F = √( [F₁]² + [F₂]² ) と tan α = [F₂num]/[F₁den] の 2 式
                         //         1-7 → Fx = [F] × [cos α] or Fy = [F] × [sin α]
                         //         1-8 → M = [F] × [r] / 1-9 → M = [F] × [d]
-                        const slotLabel = { F1: 'F₁', F2: 'F₂', F: 'F', Fx: 'Fx', r: 'r', r1: 'r₁', r2: 'r₂', d: 'd', cosAlpha: 'cos α', sinAlpha: 'sin α', F1tan: 'F₁', F2tan: 'F₂', W: 'W', 'sinθ': 'sin θ', W1: 'W₁', W2: 'W₂', L: 'L', W2num: 'W₂', W1den: 'W₁', W2den: 'W₂' };
+                        const slotLabel = { F1: 'F₁', F2: 'F₂', F: 'F', Fx: 'Fx', r: 'r', r1: 'r₁', r2: 'r₂', d: 'd', cosAlpha: 'cos α', sinAlpha: 'sin α', F1tan: 'F₁', F2tan: 'F₂', W: 'W', 'sinθ': 'sin θ', W1: 'W₁', W2: 'W₂', L: 'L', W2num: 'W₂', W1den: 'W₁', W2den: 'W₂',
+                            A1x: 'A₁', A1y: 'A₁', x1s: 'x₁', y1s: 'y₁', A2x: 'A₂', A2y: 'A₂', x2s: 'x₂', y2s: 'y₂', Ax: 'A', Ay: 'A',
+                            Abx: 'A大', Aby: 'A大', xbs: 'x大', ybs: 'y大', Acx: 'A切', Acy: 'A切', xcs: 'x切', ycs: 'y切', A0x: 'A₀', A0y: 'A₀' };
                         const makeSlotSpan = (role, text) =>
                             `<span class="calc-formula-input empty" data-slot="${role}" id="slot-${role}">${text || slotLabel[role] || role}</span>`;
                         const slotSpans = slots.map(role => makeSlotSpan(role));
@@ -9310,16 +9421,29 @@
                             }
                         } else if (is1_12) {
                             // 問のタイプで式の形が異なる:
-                            //   centroid       → x ＝ ([W₂] × [L]) ÷ ([W₁] ＋ [W₂])  ※W₂ が分子・分母の 2 箇所
-                            //                     slots=['W2num','L','W1den','W2den']、W₂ カードを 2 つの空欄に使う。
-                            //   centroidWeight → W₂ ＝ ([W₁] × [r₁]) ÷ [r₂]
+                            //   centroid        → x ＝ ([W₂] × [L]) ÷ ([W₁] ＋ [W₂])  ※W₂ が分子・分母の 2 箇所
+                            //                      slots=['W2num','L','W1den','W2den']、W₂ カードを 2 つの空欄に使う。
+                            //   centroidArea2   → x の式・y の式の 2 式（足し算）。10 スロット。
+                            //   centroidAreaCut → x の式・y の式の 2 式（引き算）。10 スロット。
                             if (problem.formulaType === 'centroid') {
                                 formulaHTML = `x ＝ (${slotSpans[0]} × ${slotSpans[1]}) ÷ (${slotSpans[2]} ＋ ${slotSpans[3]})`;
                                 // W₂ カードが分子・分母の 2 つの空欄に対応する。
                                 //   1-6 と同じ slotToCardRoleMap 方式で照合する。
                                 slotToCardRoleMap = { W2num: 'W2', L: 'L', W1den: 'W1', W2den: 'W2' };
                             } else {
-                                formulaHTML = `W₂ ＝ (${slotSpans[0]} × ${slotSpans[1]}) ÷ ${slotSpans[2]}`;
+                                // 図心（足し算 / 引き算）: x の式と y の式を縦 2 段で表示する。
+                                //   slots[0..4] が x の式、slots[5..9] が y の式に対応する。
+                                const op = (problem.formulaType === 'centroidAreaCut') ? '−' : '＋';
+                                const mkLine = (s) =>
+                                    `<div style="display:flex; align-items:center; gap:6px; flex-wrap:nowrap; justify-content:center;">`
+                                    + `<span>(</span>${s[0]}<span>×</span>${s[1]}<span>${op}</span>${s[2]}<span>×</span>${s[3]}<span>)</span><span>÷</span>${s[4]}</div>`;
+                                formulaHTML = `
+                                    <div style="display:flex; flex-direction:column; gap:24px; align-items:center; padding:8px 0;">
+                                        <div style="display:flex; align-items:center; gap:8px;"><span>x ＝</span>${mkLine(slotSpans.slice(0, 5))}</div>
+                                        <div style="display:flex; align-items:center; gap:8px;"><span>y ＝</span>${mkLine(slotSpans.slice(5, 10))}</div>
+                                    </div>`;
+                                // slotToCardRoleMap は problem.substitutions に定義済み。
+                                slotToCardRoleMap = problem.substitutions.slotToCardRoleMap;
                             }
                         } else {
                             formulaHTML = `M ＝ ${slotSpans[0]} × ${slotSpans[1]}`;
@@ -9328,9 +9452,9 @@
                             <div class="calc-stage-container">
                                 <div class="calc-question-text">それぞれの数値を、式の正しい場所に入れよう。</div>
                                 <div style="margin-bottom:14px; font-size:13px; color:#555;">
-                                    下の<strong>数値カード</strong>をタップしてから、式の中の<strong>空欄（黄色）</strong>をタップすると、そこに数値が入ります。${is1_6 ? '<br>1-6 は<strong>2 つの式</strong>に代入します（同じカードを 2 回タップして使えます）。' : ''}${(is1_12 && problem.formulaType === 'centroid') ? '<br>W₂ は<strong>分子と分母の 2 か所</strong>に入ります（同じカードを 2 回タップして使えます）。' : ''}
+                                    下の<strong>数値カード</strong>をタップしてから、式の中の<strong>空欄（黄色）</strong>をタップすると、そこに数値が入ります。${is1_6 ? '<br>1-6 は<strong>2 つの式</strong>に代入します（同じカードを 2 回タップして使えます）。' : ''}${(is1_12 && problem.formulaType === 'centroid') ? '<br>W₂ は<strong>分子と分母の 2 か所</strong>に入ります（同じカードを 2 回タップして使えます）。' : ''}${(is1_12 && problem.formulaType !== 'centroid') ? '<br>面積カード（A₁・A₂・A など）は x の式と y の式の<strong>両方</strong>に入ります。同じカードを何度もタップして使えます。' : ''}
                                 </div>
-                                <div class="calc-formula-display" style="font-size:22px; ${is1_6 ? 'flex-direction:column;' : ''}">
+                                <div class="calc-formula-display" style="font-size:22px; ${(is1_6 || (is1_12 && problem.formulaType !== 'centroid')) ? 'flex-direction:column;' : ''}">
                                     ${formulaHTML}
                                 </div>
                                 <div style="display:flex; gap:12px; margin-top:16px; flex-wrap:wrap;">
@@ -9511,25 +9635,52 @@
                             </div>
                         `;
                     } else if (is1_12) {
-                        const isCentroid_s4 = problem.formulaType === 'centroid';
-                        const subFormula1_12 = isCentroid_s4
-                            ? `x = \\dfrac{${problem.W2} \\times ${problem.length}}{${problem.W1} + ${problem.W2}}`
-                            : `W = \\dfrac{${problem.W1} \\times ${problem.r1}}{${problem.r2}}`;
-                        const answerLabel_s4 = isCentroid_s4 ? 'x ＝' : 'W ＝';
-                        const answerUnit_s4 = isCentroid_s4 ? '[cm]' : '[N]';
-                        content.innerHTML = header + staticCanvas1_6 + `
-                            <div class="calc-stage-container">
-                                <div class="calc-question-text">計算結果を入力してください（電卓を使って構いません）。</div>
-                                <div class="calc-formula-display">
-                                    $${subFormula1_12} = {\\color{#c62828}?}$
+                        if (problem.formulaType === 'centroid') {
+                            // 問1・問2: 単一入力（x のみ）
+                            const subFormula1_12 = `x = \\dfrac{${problem.W2} \\times ${problem.length}}{${problem.W1} + ${problem.W2}}`;
+                            content.innerHTML = header + staticCanvas1_6 + `
+                                <div class="calc-stage-container">
+                                    <div class="calc-question-text">計算結果を入力してください（電卓を使って構いません）。</div>
+                                    <div class="calc-formula-display">
+                                        $${subFormula1_12} = {\\color{#c62828}?}$
+                                    </div>
+                                    <div class="calc-input-row">
+                                        <span class="calc-input-label">答え：x ＝</span>
+                                        <input type="number" id="answerInput" class="calc-answer-input" placeholder="数値" style="width:120px;" step="0.1">
+                                        <span style="font-size:14px; color:#555; margin-left:6px;">[cm]</span>
+                                    </div>
                                 </div>
-                                <div class="calc-input-row">
-                                    <span class="calc-input-label">答え：${answerLabel_s4}</span>
-                                    <input type="number" id="answerInput" class="calc-answer-input" placeholder="数値" style="width:120px;" step="0.1">
-                                    <span style="font-size:14px; color:#555; margin-left:6px;">${answerUnit_s4}</span>
+                            `;
+                        } else {
+                            // 問3・問4（図心）: x の式・y の式の 2 欄を縦 2 段で受け取る。
+                            const isCut_s4 = problem.formulaType === 'centroidAreaCut';
+                            const xNumLatex_s4 = isCut_s4
+                                ? `${problem.Abig} \\times ${problem.xbig} - ${problem.Acut} \\times ${problem.xcut}`
+                                : `${problem.A1} \\times ${problem.x1} + ${problem.A2} \\times ${problem.x2}`;
+                            const yNumLatex_s4 = isCut_s4
+                                ? `${problem.Abig} \\times ${problem.ybig} - ${problem.Acut} \\times ${problem.ycut}`
+                                : `${problem.A1} \\times ${problem.y1} + ${problem.A2} \\times ${problem.y2}`;
+                            const denom_s4 = isCut_s4 ? problem.A0 : problem.A;
+                            content.innerHTML = header + staticCanvas1_6 + `
+                                <div class="calc-stage-container">
+                                    <div class="calc-question-text">図心の x 座標と y 座標を計算してください（電卓を使って構いません）。</div>
+                                    <div class="calc-formula-display" style="flex-direction:column; line-height:2.0;">
+                                        <div style="margin-bottom:8px;">$x = \\dfrac{${xNumLatex_s4}}{${denom_s4}} = {\\color{#c62828}?}$</div>
+                                        <div>$y = \\dfrac{${yNumLatex_s4}}{${denom_s4}} = {\\color{#c62828}?}$</div>
+                                    </div>
+                                    <div class="calc-input-row" style="margin-bottom:10px;">
+                                        <span class="calc-input-label">答え：x ＝</span>
+                                        <input type="number" id="answerInput" class="calc-answer-input" placeholder="数値" style="width:120px;" step="0.1">
+                                        <span style="font-size:14px; color:#555; margin-left:6px;">[mm]</span>
+                                    </div>
+                                    <div class="calc-input-row">
+                                        <span class="calc-input-label">　　　y ＝</span>
+                                        <input type="number" id="answerInputY" class="calc-answer-input" placeholder="数値" style="width:120px;" step="0.1">
+                                        <span style="font-size:14px; color:#555; margin-left:6px;">[mm]</span>
+                                    </div>
                                 </div>
-                            </div>
-                        `;
+                            `;
+                        }
                     } else {
                         content.innerHTML = header + `
                             <div class="calc-stage-container">
@@ -9682,25 +9833,33 @@
                             </div>
                         `;
                     } else if (is1_12) {
-                        const isCentroid_s5 = problem.formulaType === 'centroid';
-                        const ans = isCentroid_s5 ? problem.expectedDist : problem.expectedWeight;
-                        const reflFormula = isCentroid_s5
-                            ? `x = \\dfrac{W_2 \\times L}{W_1 + W_2} = \\dfrac{${problem.W2} \\times ${problem.length}}{${problem.W1} + ${problem.W2}} = ${ans}\\,\\mathrm{[cm]}`
-                            : `W_2 = \\dfrac{W_1 \\times r_1}{r_2} = \\dfrac{${problem.W1} \\times ${problem.r1}}{${problem.r2}} = ${ans}\\,\\mathrm{[N]}`;
-                        const reflText = isCentroid_s5
-                            ? `左端の重り（<strong>${problem.W1} N</strong>）と右端の重り（<strong>${problem.W2} N</strong>）を取り付けた長さ <strong>${problem.length} cm</strong> の棒の重心は、左端から <strong>${ans} cm</strong> の位置です。<br>重心を 1 本の指で支えると、左回りのモーメント W₁ × r₁ と右回りのモーメント W₂ × r₂ が等しくなり、棒は回らずに水平のまま静止します。`
-                            : `左端の重り（<strong>${problem.W1} N</strong>）を取り付けた棒の重心が、左端から <strong>${problem.r1} cm</strong>・右端から <strong>${problem.r2} cm</strong> の位置にあるとき、右端の重りの重さは <strong>${ans} N</strong> です。<br>重心のまわりで、左回りのモーメント W₁ × r₁ と右回りのモーメント W₂ × r₂ が等しいとき、棒は回らずにつり合います。`;
+                        let reflFormulaHTML, reflText;
+                        if (problem.formulaType === 'centroid') {
+                            const ans = problem.expectedDist;
+                            reflFormulaHTML = `$x = \\dfrac{W_2 \\times L}{W_1 + W_2} = \\dfrac{${problem.W2} \\times ${problem.length}}{${problem.W1} + ${problem.W2}} = ${ans}\\,\\mathrm{[cm]}$`;
+                            reflText = `左端の重り（<strong>${problem.W1} N</strong>）と右端の重り（<strong>${problem.W2} N</strong>）を取り付けた長さ <strong>${problem.length} cm</strong> の棒の重心は、左端から <strong>${ans} cm</strong> の位置です。<br>重心を 1 本の指で支えると、左回りのモーメント W₁ × r₁ と右回りのモーメント W₂ × r₂ が等しくなり、棒は回らずに水平のまま静止します。`;
+                        } else if (problem.formulaType === 'centroidArea2') {
+                            reflFormulaHTML = `<div style="display:flex; flex-direction:column; gap:8px; line-height:2.0;">`
+                                + `<div>$x = \\dfrac{A_1 x_1 + A_2 x_2}{A} = \\dfrac{${problem.A1}\\times${problem.x1} + ${problem.A2}\\times${problem.x2}}{${problem.A}} = ${problem.expectedX}\\,\\mathrm{[mm]}$</div>`
+                                + `<div>$y = \\dfrac{A_1 y_1 + A_2 y_2}{A} = \\dfrac{${problem.A1}\\times${problem.y1} + ${problem.A2}\\times${problem.y2}}{${problem.A}} = ${problem.expectedY}\\,\\mathrm{[mm]}$</div></div>`;
+                            reflText = `図心 G は x ＝ ${problem.expectedX} mm、y ＝ ${problem.expectedY} mm の位置と求まった。この点で板を 1 本の指で支えると、板はどの向きでも回らずにつり合う。L 字のままでは図心がわからないので、図心がわかる長方形 2 つに分け、厚さが一定で均質なことから「面積」を「重さ」のかわりに使い、原点 O のまわりのモーメントのつり合いから図心を導いた。図心の問題も、もとは 1-11 で学んだモーメントのつり合いと同じ考え方である。`;
+                        } else {
+                            reflFormulaHTML = `<div style="display:flex; flex-direction:column; gap:8px; line-height:2.0;">`
+                                + `<div>$x = \\dfrac{A_{\\text{大}} x_{\\text{大}} - A_{\\text{切}} x_{\\text{切}}}{A_0} = \\dfrac{${problem.Abig}\\times${problem.xbig} - ${problem.Acut}\\times${problem.xcut}}{${problem.A0}} = ${problem.expectedX}\\,\\mathrm{[mm]}$</div>`
+                                + `<div>$y = \\dfrac{A_{\\text{大}} y_{\\text{大}} - A_{\\text{切}} y_{\\text{切}}}{A_0} = \\dfrac{${problem.Abig}\\times${problem.ybig} - ${problem.Acut}\\times${problem.ycut}}{${problem.A0}} = ${problem.expectedY}\\,\\mathrm{[mm]}$</div></div>`;
+                            reflText = `残った板の図心 G は x ＝ ${problem.expectedX} mm、y ＝ ${problem.expectedY} mm の位置と求まった。この点で板を 1 本の指で支えると、板はどの向きでも回らずにつり合う。すみを切り抜いた形は図心がわからないので、「残った板 ＋ 切り抜いた正方形 ＝ 切り抜く前の大きい長方形」という関係を使い、面積を「重さ」とみなして原点 O のまわりのモーメントのつり合いから図心を導いた。切り抜き型では、全体から切り抜きを引く「引き算」になる。図心の問題も、もとは 1-11 で学んだモーメントのつり合いと同じ考え方である。`;
+                        }
                         content.innerHTML = header + staticCanvas1_6 + `
                             <div class="calc-stage-container">
                                 <div class="calc-question-text">答えの意味を確認しよう。</div>
-                                <div class="calc-formula-display">
-                                    $${reflFormula}$
+                                <div class="calc-formula-display" style="${problem.formulaType !== 'centroid' ? 'flex-direction:column;' : ''}">
+                                    ${reflFormulaHTML}
                                 </div>
                                 <div style="background:#eaf1fa; border-left:4px solid #1e5fa8; padding:14px 18px; border-radius:3px; margin-top:18px; font-size:15px; line-height:1.7;">
                                     ${reflText}
                                 </div>
                                 <div style="margin-top:14px; font-size:13px; color:#555;">
-                                    次の問題に進む前に、式と重心のつり合いの図を頭の中で思い浮かべてください。
+                                    次の問題に進む前に、式と${problem.formulaType === 'centroid' ? '重心のつり合い' : '図心のつり合い'}の図を頭の中で思い浮かべてください。
                                 </div>
                             </div>
                         `;
@@ -11407,12 +11566,11 @@
                 return svg;
             }
 
-            // 1-12（重心）の問題図を生成する。
+            // 1-12（重心）問1・問2 の問題図を生成する（formulaType 'centroid' 専用）。
             //   tool: 'centroidBar' — 水平な棒・両端に下向きの重さ矢印・棒の下に重心を支える上向き三角形。
             //   問1・問2（centroid）: 重心位置が未知。三角形は左右の重さで重み付けした代表位置に描き、
             //                          寸法線ラベルを「x = ? cm」、全長の寸法線を「length cm」とする。
-            //   問3・問4（centroidWeight）: 重心位置は既知（左端から r1）。三角形を左端+r1 に置き、
-            //                          寸法線「r1 cm」「r2 cm」、右端の重さは「W = ? N」とする。
+            //   問3・問4（図心）は build1_12PlateCanvas が描く（renderCalculationProblem で振り分け）。
             //   全ステージ（0〜5）で共通表示する。
             build1_12StaticCanvas(problem) {
                 const c = problem.canvas;
@@ -11491,6 +11649,124 @@
                     svg += drawDimLine(leftX, gX, `${problem.r1} cm`);
                     svg += drawDimLine(gX, rightX, `${problem.r2} cm`);
                 }
+
+                svg += `</svg></div>`;
+                return svg;
+            }
+
+            // 1-12 問3・問4（平面図形の図心）の問題図を生成する。
+            //   tool: 'centroidPlate'。座標系は板の左下すみが原点 O、X 軸右・Y 軸上。
+            //   図形座標 (gx,gy) → 画面座標: x_px = ox + gx*scale, y_px = oy - gy*scale。
+            //     ox/oy は原点 O の画面座標。Y は上向き正のため画面 y は反転する。
+            //   centroidArea2  : problem.rects の 2 長方形をグレー塗りで L 字に描く。
+            //   centroidAreaCut: problem.big をグレー塗り、problem.cut を白塗り＋破線で描く。
+            //   求める図心 G は答えなので具体位置に印は付けず「図心 G ＝ (?, ?)」表記にとどめる。
+            build1_12PlateCanvas(problem) {
+                const c = problem.canvas;
+                const W = c.width, H = c.height;
+                const isCut = problem.formulaType === 'centroidAreaCut';
+                // 図形全体の最大幅・高さ（図形座標 mm）
+                const maxW = isCut ? problem.big.w : Math.max(...problem.rects.map(r => r.x + r.w));
+                const maxH = isCut ? problem.big.h : Math.max(...problem.rects.map(r => r.y + r.h));
+                // 余白（px）: 左下に軸ラベル・寸法線、上右に余裕を確保
+                const mLeft = 80, mRight = 70, mTop = 46, mBottom = 50;
+                const scaleX = (W - mLeft - mRight) / maxW;
+                const scaleY = (H - mTop - mBottom) / maxH;
+                const scale = Math.min(scaleX, scaleY);
+                const ox = mLeft;                       // 原点 O の画面 x
+                const oy = H - mBottom;                 // 原点 O の画面 y（下端寄り）
+                const px = (gx) => ox + gx * scale;
+                const py = (gy) => oy - gy * scale;
+
+                let svg = `<div class="drawing-wrapper" style="pointer-events:none;">
+                <svg class="drawing-svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="cursor:default;">
+                <defs>
+                  <marker id="stc112p-axis" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><polygon points="0,0 9,3.5 0,7" fill="#3A434C"/></marker>
+                  <marker id="stc112p-dim" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto"><polygon points="0,0 8,3.5 0,7" fill="#777"/></marker>
+                  <marker id="stc112p-dimS" markerWidth="8" markerHeight="7" refX="1" refY="3.5" orient="auto"><polygon points="8,0 0,3.5 8,7" fill="#777"/></marker>
+                </defs>`;
+
+                // 図形の塗り（グレー長方形）
+                const drawRect = (r, fill, dashed) => {
+                    const x = px(r.x), y = py(r.y + r.h);
+                    const w = r.w * scale, h = r.h * scale;
+                    const dash = dashed ? ' stroke-dasharray="6,4"' : '';
+                    const stroke = dashed ? '#8a8a8a' : '#3A434C';
+                    return `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${fill}" stroke="${stroke}" stroke-width="2"${dash}/>`;
+                };
+                // 図形の中心に十字マーカー＋ラベル
+                const drawCenterCross = (gx, gy, label, labelDx, labelDy) => {
+                    const cx = px(gx), cy = py(gy), s = 6;
+                    let g = '';
+                    g += `<line x1="${cx - s}" y1="${cy}" x2="${cx + s}" y2="${cy}" stroke="#1e5fa8" stroke-width="1.5"/>`;
+                    g += `<line x1="${cx}" y1="${cy - s}" x2="${cx}" y2="${cy + s}" stroke="#1e5fa8" stroke-width="1.5"/>`;
+                    g += `<text x="${cx + (labelDx || 8)}" y="${cy + (labelDy || -6)}" font-size="12" fill="#1e5fa8" font-weight="600">${label}</text>`;
+                    return g;
+                };
+                // 水平寸法線: 図形座標 gx1〜gx2 の幅を、画面 y 位置 screenY に描く。
+                //   leaderFromY から screenY まで補助線を引く（図形の辺 → 寸法線）。
+                const drawDimH = (gx1, gx2, screenY, leaderFromY, label) => {
+                    const x1 = px(gx1), x2 = px(gx2);
+                    let s = '';
+                    s += `<line x1="${x1}" y1="${leaderFromY}" x2="${x1}" y2="${screenY}" stroke="#999" stroke-width="1"/>`;
+                    s += `<line x1="${x2}" y1="${leaderFromY}" x2="${x2}" y2="${screenY}" stroke="#999" stroke-width="1"/>`;
+                    s += `<line x1="${x1}" y1="${screenY}" x2="${x2}" y2="${screenY}" stroke="#777" stroke-width="1.5" marker-start="url(#stc112p-dimS)" marker-end="url(#stc112p-dim)"/>`;
+                    s += `<text x="${(x1 + x2) / 2}" y="${screenY - 5}" text-anchor="middle" font-size="11" fill="#555" font-weight="500">${label}</text>`;
+                    return s;
+                };
+                // 垂直寸法線: 図形座標 gy1〜gy2 の高さを、画面 x 位置 screenX に描く。
+                const drawDimV = (gy1, gy2, screenX, leaderFromX, label) => {
+                    const y1 = py(gy1), y2 = py(gy2);
+                    let s = '';
+                    s += `<line x1="${leaderFromX}" y1="${y1}" x2="${screenX}" y2="${y1}" stroke="#999" stroke-width="1"/>`;
+                    s += `<line x1="${leaderFromX}" y1="${y2}" x2="${screenX}" y2="${y2}" stroke="#999" stroke-width="1"/>`;
+                    s += `<line x1="${screenX}" y1="${y1}" x2="${screenX}" y2="${y2}" stroke="#777" stroke-width="1.5" marker-start="url(#stc112p-dimS)" marker-end="url(#stc112p-dim)"/>`;
+                    s += `<text x="${screenX - 5}" y="${(y1 + y2) / 2 + 4}" text-anchor="end" font-size="11" fill="#555" font-weight="500">${label}</text>`;
+                    return s;
+                };
+
+                // 図形を描く
+                if (isCut) {
+                    svg += drawRect(problem.big, '#dbe4ef', false);
+                    svg += drawRect(problem.cut, '#ffffff', true);
+                    svg += drawCenterCross(problem.xbig, problem.ybig, 'G大', 8, -6);
+                    svg += drawCenterCross(problem.xcut, problem.ycut, 'G切', 8, -6);
+                    // 切り抜きを示すラベル
+                    svg += `<text x="${px(problem.cut.x + problem.cut.w / 2)}" y="${py(problem.cut.y + problem.cut.h / 2) + 16}" text-anchor="middle" font-size="10" fill="#8a8a8a">切り抜き</text>`;
+                    // 寸法線: 横 120（図形上の余白）/ たて 80（左外側）/ 切り抜き一辺 40（図形上）
+                    const topY = py(problem.big.y + problem.big.h);
+                    svg += drawDimH(problem.big.x, problem.big.x + problem.big.w, topY - 24, topY, `${problem.big.w} mm`);
+                    svg += drawDimV(problem.big.y, problem.big.y + problem.big.h, ox - 26, ox, `${problem.big.h} mm`);
+                    svg += drawDimH(problem.cut.x, problem.cut.x + problem.cut.w, topY - 4, topY, `${problem.cut.w} mm`);
+                } else {
+                    const r1 = problem.rects[0], r2 = problem.rects[1];
+                    svg += drawRect(r1, '#dbe4ef', false);
+                    svg += drawRect(r2, '#dbe4ef', false);
+                    // ① ② のラベル
+                    svg += `<text x="${px(r1.x + r1.w / 2)}" y="${py(r1.y) - 6}" text-anchor="middle" font-size="12" fill="#555" font-weight="600">①</text>`;
+                    svg += `<text x="${px(r2.x + r2.w * 0.78)}" y="${py(r2.y + r2.h / 2) + 4}" text-anchor="middle" font-size="12" fill="#555" font-weight="600">②</text>`;
+                    svg += drawCenterCross(problem.x1, problem.y1, 'G₁', 8, -6);
+                    svg += drawCenterCross(problem.x2, problem.y2, 'G₂', 8, -6);
+                    // 寸法線: ① の高さ（左外側）・幅（上の余白）、② の幅（上の余白）・高さ（右外側）
+                    const topY = py(maxH);
+                    svg += drawDimV(r1.y, r1.y + r1.h, ox - 26, ox, `${r1.h} mm`);
+                    svg += drawDimH(r1.x, r1.x + r1.w, topY - 24, py(r1.y + r1.h), `${r1.w} mm`);
+                    svg += drawDimH(r2.x, r2.x + r2.w, topY - 4, py(r2.y + r2.h), `${r2.w} mm`);
+                    svg += drawDimV(r2.y, r2.y + r2.h, px(r2.x + r2.w) + 26, px(r2.x + r2.w), `${r2.h} mm`);
+                }
+
+                // X 軸・Y 軸（細い実線＋矢印）
+                const axisExtX = px(maxW) + 30;
+                const axisExtY = py(maxH) - 24;
+                svg += `<line x1="${ox}" y1="${oy}" x2="${axisExtX}" y2="${oy}" stroke="#3A434C" stroke-width="1.2" marker-end="url(#stc112p-axis)"/>`;
+                svg += `<line x1="${ox}" y1="${oy}" x2="${ox}" y2="${axisExtY}" stroke="#3A434C" stroke-width="1.2" marker-end="url(#stc112p-axis)"/>`;
+                svg += `<text x="${axisExtX + 6}" y="${oy + 4}" font-size="12" fill="#3A434C" font-style="italic">x</text>`;
+                svg += `<text x="${ox - 4}" y="${axisExtY - 6}" text-anchor="middle" font-size="12" fill="#3A434C" font-style="italic">y</text>`;
+                // 原点 O（黒丸＋ラベル）
+                svg += `<circle cx="${ox}" cy="${oy}" r="3.5" fill="#333"/>`;
+                svg += `<text x="${ox - 8}" y="${oy + 15}" text-anchor="middle" font-size="12" fill="#333" font-weight="600">O</text>`;
+                // 図心 G の表記（答えは見せない）
+                svg += `<text x="${W - mRight + 6}" y="${mTop - 18}" text-anchor="end" font-size="12" fill="#1e5fa8" font-weight="600">図心 G ＝ (?, ?)</text>`;
 
                 svg += `</svg></div>`;
                 return svg;
@@ -14330,7 +14606,7 @@
                         } else if (is1_12) {
                             msg = (problem.formulaType === 'centroid')
                                 ? '正解。指で支える位置の左端からの距離 x を求めます。'
-                                : '正解。右端の重りの重さ W を求めます。';
+                                : '正解。板の図心 G の位置（x 座標と y 座標）を求めます。';
                         }
                         feedback.textContent = msg;
                     }
@@ -14417,10 +14693,8 @@
                                     msg = '不正解。問題文の末尾「○○を求めよ」に注目してください。';
                                 }
                             } else {
-                                if (value === 'weightL') {
-                                    msg = '不正解。左の重りの重さは問題文に「重さ ○○ N の重り」で与えられています。求めるものは別の量です。';
-                                } else if (value === 'distG') {
-                                    msg = '不正解。重心の左端からの距離は問題文に数値で与えられています。求めるものは別の量です。';
+                                if (value === 'totalArea' || value === 'rectArea1' || value === 'remainArea' || value === 'cutArea') {
+                                    msg = '不正解。面積は図心を求める途中で使う量です。求めるものは図心 G の位置です。問題文の末尾「○○を求めよ」に注目してください。';
                                 } else {
                                     msg = '不正解。問題文の末尾「○○を求めよ」に注目してください。';
                                 }
@@ -14489,7 +14763,9 @@
                         } else if (is1_11) {
                             msg = '正解。2 つの重りは支点 O からはなれた別々の場所にあります。この場合は点 O のまわりのモーメントのつり合い F₁ × r₁ ＝ F₂ × r₂ で考えます。';
                         } else if (is1_12) {
-                            msg = '正解。棒全体の重さが集まる 1 点（重心）を求める問題です。重心のまわりで左回りのモーメント W₁ × r₁ ＝ 右回りのモーメント W₂ × r₂ が成り立ちます。';
+                            msg = (problem.formulaType === 'centroid')
+                                ? '正解。棒全体の重さが集まる 1 点（重心）を求める問題です。重心のまわりで左回りのモーメント W₁ × r₁ ＝ 右回りのモーメント W₂ × r₂ が成り立ちます。'
+                                : '正解。平面図形の図心（重心）を求める問題です。図心は、図形を長方形に分け、面積を「重さ」とみなして原点 O のまわりのモーメントのつり合いから求められます（1-11 と同じ考え方）。';
                         }
                         feedback.textContent = msg;
                     }
@@ -14514,7 +14790,9 @@
                         } else if (is1_11) {
                             msg = '不正解。2 つの重りは支点 O からはなれた別々の点につるされています。1 点に集まる力（1-10）でも偶力（1-9）でもありません。';
                         } else if (is1_12) {
-                            msg = '不正解。これは棒全体の重さが集まる 1 点（重心）を求める問題です。問題文に重心の説明があります。';
+                            msg = (problem.formulaType === 'centroid')
+                                ? '不正解。これは棒全体の重さが集まる 1 点（重心）を求める問題です。問題文に重心の説明があります。'
+                                : '不正解。これは平面図形の図心（重心）を求める問題です。ひも・支点・てこは出てきません。問題文に図心の説明があります。';
                         }
                         feedback.textContent = msg;
                     }
@@ -14588,7 +14866,9 @@
                     F1tan: 'F₁', F2tan: 'F₂',
                     W: 'W', 'sinθ': 'sin θ',
                     W1: 'W₁', W2: 'W₂', L: 'L',
-                    W2num: 'W₂', W1den: 'W₁', W2den: 'W₂'
+                    W2num: 'W₂', W1den: 'W₁', W2den: 'W₂',
+                    A1x: 'A₁', A1y: 'A₁', x1s: 'x₁', y1s: 'y₁', A2x: 'A₂', A2y: 'A₂', x2s: 'x₂', y2s: 'y₂', Ax: 'A', Ay: 'A',
+                    Abx: 'A大', Aby: 'A大', xbs: 'x大', ybs: 'y大', Acx: 'A切', Acy: 'A切', xcs: 'x切', ycs: 'y切', A0x: 'A₀', A0y: 'A₀'
                 };
                 slotRoles.forEach(r => { slotEls[r] = document.getElementById('slot-' + r); });
                 // Reset visual state
@@ -14628,7 +14908,14 @@
                         } else if (this.currentUnitId === '1-11') {
                             feedback.textContent = '不正解。F₁・r₁ には左の重りの重さ・距離、もう一方には右の重りの値を入れてください。単位（N・cm）にも注目してください。';
                         } else if (this.currentUnitId === '1-12') {
-                            feedback.textContent = '不正解。W₁ には左の重さ、W₂ には右の重さ、L には棒の長さを入れてください。W₂ は分子・分母の 2 か所に入ります。単位（N・cm）にも注目してください。';
+                            const ft1_12sub = (this.getCalcProblem() || {}).formulaType;
+                            if (ft1_12sub === 'centroidArea2') {
+                                feedback.textContent = '不正解。A₁・x₁・y₁ には長方形①の面積と図心、A₂・x₂・y₂ には長方形②の値、A には全体の面積を入れてください。面積カードは x の式・y の式の両方に入ります。';
+                            } else if (ft1_12sub === 'centroidAreaCut') {
+                                feedback.textContent = '不正解。A大・x大・y大 には大きい長方形の値、A切・x切・y切 には切り抜く正方形の値、A₀ には残った面積を入れてください。面積カードは x の式・y の式の両方に入ります。';
+                            } else {
+                                feedback.textContent = '不正解。W₁ には左の重さ、W₂ には右の重さ、L には棒の長さを入れてください。W₂ は分子・分母の 2 か所に入ります。単位（N・cm）にも注目してください。';
+                            }
                         } else {
                             feedback.textContent = '不正解。単位に注目して入れ直してください。「m/s」が速度 v、「s（秒）」が時間 t です。';
                         }
@@ -14668,7 +14955,7 @@
                                  : is1_9 ? problem.expectedCoupleMoment
                                  : is1_10 ? problem.expectedTension
                                  : is1_11 ? (problem.formulaType === 'leverForce' ? problem.expectedForce : problem.expectedDist)
-                                 : is1_12 ? (problem.formulaType === 'centroid' ? problem.expectedDist : problem.expectedWeight)
+                                 : is1_12 ? (problem.formulaType === 'centroid' ? problem.expectedDist : problem.expectedX)
                                  : problem.expectedDisplacement;
                 const tolerance  = isForceCalc ? (problem.tolerance || 1) : 0;
                 // 浮動小数点誤差対策: tolerance 境界（例 tolerance=0.1 で |userAnswer-expected|=0.10000...142）が
@@ -14686,6 +14973,19 @@
                     tanTol = problem.tanTolerance || 0.05;
                     isTanCorrect = !isNaN(userTanA) && Math.abs(userTanA - expectedTanA) <= tanTol + 1e-9;
                     isCorrect = isCorrect && isTanCorrect;
+                }
+
+                // 1-12 図心型（centroidArea2 / centroidAreaCut）は x に加えて y も検証する。
+                //   x・y の両方が tolerance 範囲内のとき正解。
+                const is1_12Area = is1_12 && problem.formulaType !== 'centroid';
+                let userY = NaN, expectedY = NaN, isYCorrect = false, isXCorrect = false;
+                if (is1_12Area) {
+                    const yInput = document.getElementById('answerInputY');
+                    userY = yInput ? parseFloat(yInput.value) : NaN;
+                    expectedY = problem.expectedY;
+                    isXCorrect = !isNaN(userAnswer) && Math.abs(userAnswer - expected) <= tolerance + 1e-9;
+                    isYCorrect = !isNaN(userY) && Math.abs(userY - expectedY) <= tolerance + 1e-9;
+                    isCorrect = isXCorrect && isYCorrect;
                 }
 
                 if (isCorrect) {
@@ -14758,9 +15058,16 @@
                             </div>
                         `;
                     } else if (is1_12) {
-                        const expl1_12 = (problem.formulaType === 'centroid')
-                            ? `x ＝ (W₂ × L) ÷ (W₁ ＋ W₂) ＝ (${problem.W2} × ${problem.length}) ÷ (${problem.W1} ＋ ${problem.W2}) ＝ ${expected} [cm]`
-                            : `W₂ ＝ (W₁ × r₁) ÷ r₂ ＝ (${problem.W1} × ${problem.r1}) ÷ ${problem.r2} ＝ ${expected} [N]`;
+                        let expl1_12;
+                        if (problem.formulaType === 'centroid') {
+                            expl1_12 = `x ＝ (W₂ × L) ÷ (W₁ ＋ W₂) ＝ (${problem.W2} × ${problem.length}) ÷ (${problem.W1} ＋ ${problem.W2}) ＝ ${expected} [cm]`;
+                        } else if (problem.formulaType === 'centroidArea2') {
+                            expl1_12 = `x ＝ (${problem.A1}×${problem.x1}＋${problem.A2}×${problem.x2})÷${problem.A} ＝ ${problem.expectedX} mm<br>`
+                                     + `y ＝ (${problem.A1}×${problem.y1}＋${problem.A2}×${problem.y2})÷${problem.A} ＝ ${problem.expectedY} mm`;
+                        } else {
+                            expl1_12 = `x ＝ (${problem.Abig}×${problem.xbig}−${problem.Acut}×${problem.xcut})÷${problem.A0} ＝ ${problem.expectedX} mm<br>`
+                                     + `y ＝ (${problem.Abig}×${problem.ybig}−${problem.Acut}×${problem.ycut})÷${problem.A0} ＝ ${problem.expectedY} mm`;
+                        }
                         feedback.innerHTML = `
                             <div style="margin-bottom: 10px;">正解です。</div>
                             <div class="answer-explanation">
@@ -14807,6 +15114,20 @@
                         if (reveal) {
                             feedback.innerHTML += `<div class="answer-explanation">正解は F ＝ ${expected} [N]、tan α ＝ ${expectedTanA} です。</div>`;
                         }
+                    } else if (is1_12Area) {
+                        // 1-12 図心型: x・y のどちらが違うか具体的にフィードバック
+                        let msg = '不正解です。';
+                        if (!isXCorrect && !isYCorrect) {
+                            msg += 'x 座標と y 座標の両方を計算し直してください。';
+                        } else if (!isXCorrect) {
+                            msg += 'x 座標を計算し直してください（y 座標は正解）。';
+                        } else if (!isYCorrect) {
+                            msg += 'y 座標を計算し直してください（x 座標は正解）。';
+                        }
+                        feedback.innerHTML = `<div style="margin-bottom: 10px;">${msg}</div>`;
+                        if (reveal) {
+                            feedback.innerHTML += `<div class="answer-explanation">正解は x ＝ ${problem.expectedX} mm、y ＝ ${problem.expectedY} mm です。計算の手順をもう一度確認してください。</div>`;
+                        }
                     } else {
                         feedback.innerHTML = `
                             <div style="margin-bottom: 10px;">不正解です。もう一度入力してみてください。</div>
@@ -14843,6 +15164,13 @@
                         if (!isTanCorrect && tanInputEl) { tanInputEl.value = ''; }
                         if (!fOk2) answerInput.focus();
                         else if (tanInputEl) tanInputEl.focus();
+                    } else if (is1_12Area) {
+                        // 図心型: 間違っている欄だけクリア。正解の欄は残しておく
+                        const yInputEl = document.getElementById('answerInputY');
+                        if (!isXCorrect) { answerInput.value = ''; }
+                        if (!isYCorrect && yInputEl) { yInputEl.value = ''; }
+                        if (!isXCorrect) answerInput.focus();
+                        else if (yInputEl) yInputEl.focus();
                     } else {
                         answerInput.value = '';
                         answerInput.focus();
