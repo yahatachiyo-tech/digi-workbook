@@ -5183,9 +5183,12 @@
             }
 
             // 匿名ログ送信: stage='logout' / 'leave' を GAS に送る
-            //   reason='logout' : 「ログアウト」ボタン押下
-            //   reason='unload' : ブラウザ／タブを閉じた、ページ遷移、PCスリープなど
-            //   sendBeacon を優先（unload 中も確実に送れる API）。失敗時は keepalive fetch にフォールバック。
+            //   reason='logout' : 「ログアウト」ボタン押下。ページは閉じず生きたまま
+            //                     ログイン画面に戻るだけ → 通常の fetch で確実に送る。
+            //                     （sendBeacon は「ページが閉じる瞬間」専用 API のため、
+            //                       生きたままのページからだと届かないことがある）
+            //   reason='unload' : ブラウザ／タブを閉じた、ページ遷移、PCスリープなど。
+            //                     この瞬間は fetch が中断されるため sendBeacon を優先。
             _sendLeaveLog(reason) {
                 if (this.isTeacherMode && this.isTeacherMode()) return;
                 if (!LOG_ENDPOINT || !this.currentUser) return;
@@ -5203,6 +5206,21 @@
                     answer: '',
                     note: reason === 'logout' ? 'logout button' : 'browser unload'
                 });
+                if (reason === 'logout') {
+                    // ログアウト: ページが残るので通常の fetch で送る（最も確実）。
+                    //   keepalive: true でログアウト直後にタブを閉じても送信が継続する。
+                    try {
+                        fetch(LOG_ENDPOINT, {
+                            method: 'POST',
+                            mode: 'no-cors',
+                            keepalive: true,
+                            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                            body: body
+                        }).catch(() => {});
+                    } catch (e) { /* 無視 */ }
+                    return;
+                }
+                // 離脱（unload）: ページが閉じる瞬間。sendBeacon を優先。
                 let beaconSent = false;
                 try {
                     if (typeof navigator !== 'undefined' && typeof navigator.sendBeacon === 'function') {
