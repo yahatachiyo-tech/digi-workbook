@@ -4012,7 +4012,11 @@
         };
 
         // Problems for sub-unit 1-12: 重心（2 つの重りの重心の位置・モーメントのつり合い）
-        //   1-11 と同じ 6 ステージ計算問題フロー（renderCalculationProblem）を共有する。
+        //   6 ステージ計算問題フロー（renderCalculationProblem）を共有する。
+        //   Stage 2 は derivationSteps アコーディオン方式（1-11 と同じ render1_10DerivAccordion
+        //   を再利用）。重心の問題も「モーメントのつり合い」で解けることを、重心の定義→
+        //   重心を支えると回らない→回らない＝モーメントが左右でつり合う→つり合いの式→
+        //   式変形、と生徒が一段ずつ自分で導く。
         //   問のタイプ（formulaType）:
         //     'centroid'       — 重心の左端からの距離 x を求める  x = (W₂×L) ÷ (W₁+W₂)（問1・問2）
         //     'centroidWeight' — 右端の重さ W を求める           W₂ = (W₁×r₁) ÷ r₂（問3・問4）
@@ -4044,7 +4048,88 @@
                     { value: 'rope',     label: '1 点につながれたひもの張力を求める問題である' }
                 ],
                 stage1Correct: 'centroid',
-                stage2Text: '重心とは、棒全体の重さが 1 点に集まっていると考えられる点です。<br>教科書 35 ページにあるように、<strong>重心を支点にすると、棒はどの向きでも静止します</strong>。指で重心を支えれば棒は回らずにつり合います。<br>1-11 で学んだように、棒が回らずにつり合うとき、<strong>左回りのモーメント ＝ 右回りのモーメント</strong>です。<br>支える点（重心）から左端までの距離を r₁、右端までの距離を r₂ とします。左の重り W₁ は棒を左回りに、右の重り W₂ は棒を右回りに回すので、W₁ × r₁ ＝ W₂ × r₂ です。<br>支える点が左端から x のところにあるとき、r₁ ＝ x、r₂ ＝ L − x です。これを入れると：<br>W₁ × x ＝ W₂ ×（L − x）<br>かっこを開くと W₁ × x ＝ W₂ × L − W₂ × x<br>x のついた部分を左にまとめると（W₁ ＋ W₂）× x ＝ W₂ × L<br>両辺を（W₁ ＋ W₂）で割ると、x ＝ (W₂ × L) ÷ (W₁ ＋ W₂) となります。',
+                derivationSteps: [
+                    {
+                        prompt: '「重心」とは、どんな点ですか？',
+                        choices: [
+                            { value: 'centroid', label: '棒全体の重さが 1 点に集まっていると考えられる点' },
+                            { value: 'middle',   label: '棒のちょうど真ん中の点' },
+                            { value: 'heavy',    label: '重い方の重りがついている点' }
+                        ],
+                        correct: 'centroid',
+                        onCorrectText: '重心は、棒全体の重さが 1 点に集まっていると考えられる点です。'
+                    },
+                    {
+                        prompt: '棒の重心を 1 本の指で支えると、棒はどうなりますか？',
+                        choices: [
+                            { value: 'balance', label: '回らずに静止してつり合う' },
+                            { value: 'heavy',   label: '重い方へかたむいて回る' },
+                            { value: 'light',   label: '軽い方へかたむいて回る' }
+                        ],
+                        correct: 'balance',
+                        onCorrectText: '重心を支点にすると、棒はどの向きでも回らずに静止してつり合います。'
+                    },
+                    {
+                        prompt: '棒が「回らずにつり合う」とき、何がつり合っていますか？（1-11 を思い出してください）',
+                        choices: [
+                            { value: 'moment', label: '支える点のまわりの、左回りのモーメントと右回りのモーメント' },
+                            { value: 'weight', label: '左の重りと右の重りの、重さそのもの' },
+                            { value: 'length', label: '棒の左半分と右半分の、長さ' }
+                        ],
+                        correct: 'moment',
+                        onCorrectText: '回らない＝左回りのモーメントと右回りのモーメントがつり合っている、ということです。重心の問題も、1-11 と同じモーメントのつり合いで解けます。'
+                    },
+                    {
+                        prompt: '重心から左端までの距離を r₁、右端までの距離を r₂ とします。左の重り W₁ と右の重り W₂ によるモーメントのつり合いの式はどれですか？',
+                        choices: [
+                            { value: 'eq',    label: 'W₁ × r₁ ＝ W₂ × r₂' },
+                            { value: 'add',   label: 'W₁ ＋ r₁ ＝ W₂ ＋ r₂' },
+                            { value: 'cross', label: 'W₁ × W₂ ＝ r₁ × r₂' }
+                        ],
+                        correct: 'eq',
+                        onCorrectText: 'モーメントのつり合いの式は W₁ × r₁ ＝ W₂ × r₂ です。'
+                    },
+                    {
+                        prompt: '重心が左端から x のところにあるとき、r₁（左端まで）と r₂（右端まで）は、棒の長さ L を使ってどう表せますか？',
+                        choices: [
+                            { value: 'ok',   label: 'r₁ ＝ x　／　r₂ ＝ L − x' },
+                            { value: 'swap', label: 'r₁ ＝ L − x　／　r₂ ＝ x' },
+                            { value: 'plus', label: 'r₁ ＝ x　／　r₂ ＝ L ＋ x' }
+                        ],
+                        correct: 'ok',
+                        onCorrectText: '重心は左端から x なので r₁ ＝ x。右端までは残りの長さなので r₂ ＝ L − x です。'
+                    },
+                    {
+                        prompt: 'r₁ ＝ x、r₂ ＝ L − x を、つり合いの式 W₁ × r₁ ＝ W₂ × r₂ に代入するとどうなりますか？',
+                        choices: [
+                            { value: 'ok',      label: 'W₁ × x ＝ W₂ ×（L − x）' },
+                            { value: 'noParen', label: 'W₁ × x ＝ W₂ × L' },
+                            { value: 'swap',    label: 'W₁ ×（L − x）＝ W₂ × x' }
+                        ],
+                        correct: 'ok',
+                        onCorrectText: '代入すると、つり合いの式は W₁ × x ＝ W₂ ×（L − x）になります。'
+                    },
+                    {
+                        prompt: 'W₁ × x ＝ W₂ ×（L − x）のかっこを開き、x のついた項を左辺にまとめるとどうなりますか？',
+                        choices: [
+                            { value: 'ok',    label: '（W₁ ＋ W₂）× x ＝ W₂ × L' },
+                            { value: 'minus', label: '（W₁ − W₂）× x ＝ W₂ × L' },
+                            { value: 'nox',   label: 'W₁ × x ＝ W₂ × L' }
+                        ],
+                        correct: 'ok',
+                        onCorrectText: 'かっこを開くと W₁ × x ＝ W₂ × L − W₂ × x。右辺の − W₂ × x を左辺へ移すと（W₁ ＋ W₂）× x ＝ W₂ × L です。'
+                    },
+                    {
+                        prompt: '（W₁ ＋ W₂）× x ＝ W₂ × L を、x について解くとどうなりますか？',
+                        choices: [
+                            { value: 'solved', label: 'x ＝ (W₂ × L) ÷ (W₁ ＋ W₂)' },
+                            { value: 'mul',    label: 'x ＝ (W₂ × L) × (W₁ ＋ W₂)' },
+                            { value: 'inv',    label: 'x ＝ (W₁ ＋ W₂) ÷ (W₂ × L)' }
+                        ],
+                        correct: 'solved',
+                        onCorrectText: '両辺を (W₁ ＋ W₂) で割って、x ＝ (W₂ × L) ÷ (W₁ ＋ W₂) と求まりました。次のステップでこの式に数値を代入します。'
+                    }
+                ],
                 formula: 'x = \\dfrac{W_2 \\times L}{W_1 + W_2}',
                 substitutions: {
                     slots: ['W2num', 'L', 'W1den', 'W2den'],
@@ -4078,7 +4163,88 @@
                     { value: 'rope',     label: '1 点につながれたひもの張力を求める問題である' }
                 ],
                 stage1Correct: 'centroid',
-                stage2Text: '重心とは、棒全体の重さが 1 点に集まっていると考えられる点です。<br>教科書 35 ページにあるように、<strong>重心を支点にすると、棒はどの向きでも静止します</strong>。指で重心を支えれば棒は回らずにつり合います。<br>1-11 で学んだように、棒が回らずにつり合うとき、<strong>左回りのモーメント ＝ 右回りのモーメント</strong>です。<br>支える点（重心）から左端までの距離を r₁、右端までの距離を r₂ とします。左の重り W₁ は棒を左回りに、右の重り W₂ は棒を右回りに回すので、W₁ × r₁ ＝ W₂ × r₂ です。<br>支える点が左端から x のところにあるとき、r₁ ＝ x、r₂ ＝ L − x です。これを入れると：<br>W₁ × x ＝ W₂ ×（L − x）<br>かっこを開くと W₁ × x ＝ W₂ × L − W₂ × x<br>x のついた部分を左にまとめると（W₁ ＋ W₂）× x ＝ W₂ × L<br>両辺を（W₁ ＋ W₂）で割ると、x ＝ (W₂ × L) ÷ (W₁ ＋ W₂) となります。',
+                derivationSteps: [
+                    {
+                        prompt: '「重心」とは、どんな点ですか？',
+                        choices: [
+                            { value: 'centroid', label: '棒全体の重さが 1 点に集まっていると考えられる点' },
+                            { value: 'middle',   label: '棒のちょうど真ん中の点' },
+                            { value: 'heavy',    label: '重い方の重りがついている点' }
+                        ],
+                        correct: 'centroid',
+                        onCorrectText: '重心は、棒全体の重さが 1 点に集まっていると考えられる点です。'
+                    },
+                    {
+                        prompt: '棒の重心を 1 本の指で支えると、棒はどうなりますか？',
+                        choices: [
+                            { value: 'balance', label: '回らずに静止してつり合う' },
+                            { value: 'heavy',   label: '重い方へかたむいて回る' },
+                            { value: 'light',   label: '軽い方へかたむいて回る' }
+                        ],
+                        correct: 'balance',
+                        onCorrectText: '重心を支点にすると、棒はどの向きでも回らずに静止してつり合います。'
+                    },
+                    {
+                        prompt: '棒が「回らずにつり合う」とき、何がつり合っていますか？（1-11 を思い出してください）',
+                        choices: [
+                            { value: 'moment', label: '支える点のまわりの、左回りのモーメントと右回りのモーメント' },
+                            { value: 'weight', label: '左の重りと右の重りの、重さそのもの' },
+                            { value: 'length', label: '棒の左半分と右半分の、長さ' }
+                        ],
+                        correct: 'moment',
+                        onCorrectText: '回らない＝左回りのモーメントと右回りのモーメントがつり合っている、ということです。重心の問題も、1-11 と同じモーメントのつり合いで解けます。'
+                    },
+                    {
+                        prompt: '重心から左端までの距離を r₁、右端までの距離を r₂ とします。左の重り W₁ と右の重り W₂ によるモーメントのつり合いの式はどれですか？',
+                        choices: [
+                            { value: 'eq',    label: 'W₁ × r₁ ＝ W₂ × r₂' },
+                            { value: 'add',   label: 'W₁ ＋ r₁ ＝ W₂ ＋ r₂' },
+                            { value: 'cross', label: 'W₁ × W₂ ＝ r₁ × r₂' }
+                        ],
+                        correct: 'eq',
+                        onCorrectText: 'モーメントのつり合いの式は W₁ × r₁ ＝ W₂ × r₂ です。'
+                    },
+                    {
+                        prompt: '重心が左端から x のところにあるとき、r₁（左端まで）と r₂（右端まで）は、棒の長さ L を使ってどう表せますか？',
+                        choices: [
+                            { value: 'ok',   label: 'r₁ ＝ x　／　r₂ ＝ L − x' },
+                            { value: 'swap', label: 'r₁ ＝ L − x　／　r₂ ＝ x' },
+                            { value: 'plus', label: 'r₁ ＝ x　／　r₂ ＝ L ＋ x' }
+                        ],
+                        correct: 'ok',
+                        onCorrectText: '重心は左端から x なので r₁ ＝ x。右端までは残りの長さなので r₂ ＝ L − x です。'
+                    },
+                    {
+                        prompt: 'r₁ ＝ x、r₂ ＝ L − x を、つり合いの式 W₁ × r₁ ＝ W₂ × r₂ に代入するとどうなりますか？',
+                        choices: [
+                            { value: 'ok',      label: 'W₁ × x ＝ W₂ ×（L − x）' },
+                            { value: 'noParen', label: 'W₁ × x ＝ W₂ × L' },
+                            { value: 'swap',    label: 'W₁ ×（L − x）＝ W₂ × x' }
+                        ],
+                        correct: 'ok',
+                        onCorrectText: '代入すると、つり合いの式は W₁ × x ＝ W₂ ×（L − x）になります。'
+                    },
+                    {
+                        prompt: 'W₁ × x ＝ W₂ ×（L − x）のかっこを開き、x のついた項を左辺にまとめるとどうなりますか？',
+                        choices: [
+                            { value: 'ok',    label: '（W₁ ＋ W₂）× x ＝ W₂ × L' },
+                            { value: 'minus', label: '（W₁ − W₂）× x ＝ W₂ × L' },
+                            { value: 'nox',   label: 'W₁ × x ＝ W₂ × L' }
+                        ],
+                        correct: 'ok',
+                        onCorrectText: 'かっこを開くと W₁ × x ＝ W₂ × L − W₂ × x。右辺の − W₂ × x を左辺へ移すと（W₁ ＋ W₂）× x ＝ W₂ × L です。'
+                    },
+                    {
+                        prompt: '（W₁ ＋ W₂）× x ＝ W₂ × L を、x について解くとどうなりますか？',
+                        choices: [
+                            { value: 'solved', label: 'x ＝ (W₂ × L) ÷ (W₁ ＋ W₂)' },
+                            { value: 'mul',    label: 'x ＝ (W₂ × L) × (W₁ ＋ W₂)' },
+                            { value: 'inv',    label: 'x ＝ (W₁ ＋ W₂) ÷ (W₂ × L)' }
+                        ],
+                        correct: 'solved',
+                        onCorrectText: '両辺を (W₁ ＋ W₂) で割って、x ＝ (W₂ × L) ÷ (W₁ ＋ W₂) と求まりました。次のステップでこの式に数値を代入します。'
+                    }
+                ],
                 formula: 'x = \\dfrac{W_2 \\times L}{W_1 + W_2}',
                 substitutions: {
                     slots: ['W2num', 'L', 'W1den', 'W2den'],
@@ -4112,7 +4278,58 @@
                     { value: 'rope',     label: '1 点につながれたひもの張力を求める問題である' }
                 ],
                 stage1Correct: 'centroid',
-                stage2Text: '重心とは、棒全体の重さが 1 点に集まっていると考えられる点です。<br>教科書 35 ページにあるように、<strong>重心を支点にすると、棒はどの向きでも静止します</strong>。重心で棒を支えれば棒は回らずにつり合います。<br>1-11 で学んだように、棒がつり合うとき <strong>左回りのモーメント ＝ 右回りのモーメント</strong>です。<br>重心から左端までの距離を r₁、右端までの距離を r₂ とします。左の重り W₁ は棒を左回りに、右の重り W₂ は棒を右回りに回すので、W₁ × r₁ ＝ W₂ × r₂ です。<br>これを W₂ について解くと、W₂ ＝ (W₁ × r₁) ÷ r₂ となります。',
+                derivationSteps: [
+                    {
+                        prompt: '「重心」とは、どんな点ですか？',
+                        choices: [
+                            { value: 'centroid', label: '棒全体の重さが 1 点に集まっていると考えられる点' },
+                            { value: 'middle',   label: '棒のちょうど真ん中の点' },
+                            { value: 'heavy',    label: '重い方の重りがついている点' }
+                        ],
+                        correct: 'centroid',
+                        onCorrectText: '重心は、棒全体の重さが 1 点に集まっていると考えられる点です。'
+                    },
+                    {
+                        prompt: '棒の重心を支えると、棒はどうなりますか？',
+                        choices: [
+                            { value: 'balance', label: '回らずに静止してつり合う' },
+                            { value: 'heavy',   label: '重い方へかたむいて回る' },
+                            { value: 'light',   label: '軽い方へかたむいて回る' }
+                        ],
+                        correct: 'balance',
+                        onCorrectText: '重心を支点にすると、棒はどの向きでも回らずに静止してつり合います。'
+                    },
+                    {
+                        prompt: '棒が「回らずにつり合う」とき、何がつり合っていますか？（1-11 を思い出してください）',
+                        choices: [
+                            { value: 'moment', label: '重心のまわりの、左回りのモーメントと右回りのモーメント' },
+                            { value: 'weight', label: '左の重りと右の重りの、重さそのもの' },
+                            { value: 'length', label: '棒の左半分と右半分の、長さ' }
+                        ],
+                        correct: 'moment',
+                        onCorrectText: '回らない＝左回りのモーメントと右回りのモーメントがつり合っている、ということです。重心の問題も、1-11 と同じモーメントのつり合いで解けます。'
+                    },
+                    {
+                        prompt: '重心から左端までの距離を r₁、右端までの距離を r₂ とします。左の重り W₁ と右の重り W₂ によるモーメントのつり合いの式はどれですか？',
+                        choices: [
+                            { value: 'eq',    label: 'W₁ × r₁ ＝ W₂ × r₂' },
+                            { value: 'add',   label: 'W₁ ＋ r₁ ＝ W₂ ＋ r₂' },
+                            { value: 'cross', label: 'W₁ × W₂ ＝ r₁ × r₂' }
+                        ],
+                        correct: 'eq',
+                        onCorrectText: 'モーメントのつり合いの式は W₁ × r₁ ＝ W₂ × r₂ です。'
+                    },
+                    {
+                        prompt: 'つり合いの式 W₁ × r₁ ＝ W₂ × r₂ を、求めたい右の重さ W₂ について解くとどうなりますか？',
+                        choices: [
+                            { value: 'solved', label: 'W₂ ＝ (W₁ × r₁) ÷ r₂' },
+                            { value: 'mul',    label: 'W₂ ＝ (W₁ × r₁) × r₂' },
+                            { value: 'inv',    label: 'W₂ ＝ r₂ ÷ (W₁ × r₁)' }
+                        ],
+                        correct: 'solved',
+                        onCorrectText: 'W₂ ＝ (W₁ × r₁) ÷ r₂ と求まりました。次のステップでこの式に数値を代入します。'
+                    }
+                ],
                 formula: 'W_2 = \\dfrac{W_1 \\times r_1}{r_2}',
                 substitutions: {
                     slots: ['W1', 'r1', 'r2'],
@@ -4146,7 +4363,58 @@
                     { value: 'rope',     label: '1 点につながれたひもの張力を求める問題である' }
                 ],
                 stage1Correct: 'centroid',
-                stage2Text: '重心とは、棒全体の重さが 1 点に集まっていると考えられる点です。<br>教科書 35 ページにあるように、<strong>重心を支点にすると、棒はどの向きでも静止します</strong>。重心で棒を支えれば棒は回らずにつり合います。<br>1-11 で学んだように、棒がつり合うとき <strong>左回りのモーメント ＝ 右回りのモーメント</strong>です。<br>重心から左端までの距離を r₁、右端までの距離を r₂ とします。左の重り W₁ は棒を左回りに、右の重り W₂ は棒を右回りに回すので、W₁ × r₁ ＝ W₂ × r₂ です。<br>これを W₂ について解くと、W₂ ＝ (W₁ × r₁) ÷ r₂ となります。',
+                derivationSteps: [
+                    {
+                        prompt: '「重心」とは、どんな点ですか？',
+                        choices: [
+                            { value: 'centroid', label: '棒全体の重さが 1 点に集まっていると考えられる点' },
+                            { value: 'middle',   label: '棒のちょうど真ん中の点' },
+                            { value: 'heavy',    label: '重い方の重りがついている点' }
+                        ],
+                        correct: 'centroid',
+                        onCorrectText: '重心は、棒全体の重さが 1 点に集まっていると考えられる点です。'
+                    },
+                    {
+                        prompt: '棒の重心を支えると、棒はどうなりますか？',
+                        choices: [
+                            { value: 'balance', label: '回らずに静止してつり合う' },
+                            { value: 'heavy',   label: '重い方へかたむいて回る' },
+                            { value: 'light',   label: '軽い方へかたむいて回る' }
+                        ],
+                        correct: 'balance',
+                        onCorrectText: '重心を支点にすると、棒はどの向きでも回らずに静止してつり合います。'
+                    },
+                    {
+                        prompt: '棒が「回らずにつり合う」とき、何がつり合っていますか？（1-11 を思い出してください）',
+                        choices: [
+                            { value: 'moment', label: '重心のまわりの、左回りのモーメントと右回りのモーメント' },
+                            { value: 'weight', label: '左の重りと右の重りの、重さそのもの' },
+                            { value: 'length', label: '棒の左半分と右半分の、長さ' }
+                        ],
+                        correct: 'moment',
+                        onCorrectText: '回らない＝左回りのモーメントと右回りのモーメントがつり合っている、ということです。重心の問題も、1-11 と同じモーメントのつり合いで解けます。'
+                    },
+                    {
+                        prompt: '重心から左端までの距離を r₁、右端までの距離を r₂ とします。左の重り W₁ と右の重り W₂ によるモーメントのつり合いの式はどれですか？',
+                        choices: [
+                            { value: 'eq',    label: 'W₁ × r₁ ＝ W₂ × r₂' },
+                            { value: 'add',   label: 'W₁ ＋ r₁ ＝ W₂ ＋ r₂' },
+                            { value: 'cross', label: 'W₁ × W₂ ＝ r₁ × r₂' }
+                        ],
+                        correct: 'eq',
+                        onCorrectText: 'モーメントのつり合いの式は W₁ × r₁ ＝ W₂ × r₂ です。'
+                    },
+                    {
+                        prompt: 'つり合いの式 W₁ × r₁ ＝ W₂ × r₂ を、求めたい右の重さ W₂ について解くとどうなりますか？',
+                        choices: [
+                            { value: 'solved', label: 'W₂ ＝ (W₁ × r₁) ÷ r₂' },
+                            { value: 'mul',    label: 'W₂ ＝ (W₁ × r₁) × r₂' },
+                            { value: 'inv',    label: 'W₂ ＝ r₂ ÷ (W₁ × r₁)' }
+                        ],
+                        correct: 'solved',
+                        onCorrectText: 'W₂ ＝ (W₁ × r₁) ÷ r₂ と求まりました。次のステップでこの式に数値を代入します。'
+                    }
+                ],
                 formula: 'W_2 = \\dfrac{W_1 \\times r_1}{r_2}',
                 substitutions: {
                     slots: ['W1', 'r1', 'r2'],
@@ -4161,7 +4429,7 @@
 
         // 1-12 のヒント（重心 — 3 段階 B→A→C）。
         //   問のタイプが 2 種類あるため、問 id ごとに引く。問1・問2 は DIST、問3・問4 は WEIGHT 共通。
-        //   Stage 2（必然の公式）は表示のみなのでヒントなし。
+        //   Stage 2（使う式の導出）は derivationSteps アコーディオン方式。共通ヒントを 1 つ持つ。
         const HINTS_1_12_DIST = {
             stage0: {
                 b: '問題文の最後の文に注目してください。「求めよ」と書かれている量が求めるものです。重りの重さや棒の長さは問題文にすでに数値が書かれているので、求めるものではありません。',
@@ -4172,6 +4440,11 @@
                 b: '棒全体の重さが 1 点に集まっていると考えられる点を、何といったか思い出してください。問題文の中にその言葉の説明があります。',
                 a: '棒を 1 本の指で支えて静止させる点は、棒全体の重さが集まる点、すなわち重心です。重心を支点にすると棒は回らずにつり合います。',
                 c: '教科書35ページ「重心」を確認してください。'
+            },
+            stage2: {
+                b: '重心を支えると棒は回らずに静止してつり合います。回らない＝左回りのモーメントと右回りのモーメントがつり合っている、ということです（1-11 と同じ）。',
+                a: 'モーメントのつり合い W₁ × r₁ ＝ W₂ × r₂ に、r₁ ＝ x、r₂ ＝ L − x を代入すると W₁ × x ＝ W₂ ×（L − x）。x について解くと x ＝ (W₂ × L) ÷ (W₁ ＋ W₂) です。',
+                c: '教科書35〜36ページ「重心」、1-11 のモーメントのつり合いを確認してください。'
             },
             stage3: {
                 b: '式は x ＝ (W₂ × L) ÷ (W₁ ＋ W₂) です。W₁ には左の重さ、W₂ には右の重さ、L には棒の長さを入れます。問題文の数値を読み取ってください。',
@@ -4194,6 +4467,11 @@
                 b: '棒全体の重さが 1 点に集まっていると考えられる点を、何といったか思い出してください。問題文の中にその言葉の説明があります。',
                 a: 'この問題は、棒の重心のまわりのモーメントのつり合いを使う問題です。重心を支点にすると棒は回らずにつり合います。',
                 c: '教科書35ページ「重心」を確認してください。'
+            },
+            stage2: {
+                b: '重心を支えると棒は回らずに静止してつり合います。回らない＝左回りのモーメントと右回りのモーメントがつり合っている、ということです（1-11 と同じ）。',
+                a: 'モーメントのつり合い W₁ × r₁ ＝ W₂ × r₂ を、求めたい W₂ について解くと W₂ ＝ (W₁ × r₁) ÷ r₂ です。',
+                c: '教科書35〜36ページ「重心」、1-11 のモーメントのつり合いを確認してください。'
             },
             stage3: {
                 b: '式は W₂ ＝ (W₁ × r₁) ÷ r₂ です。W₁ には左の重さ、r₁ には左端から重心までの距離、r₂ には重心から右端までの距離を入れます。',
@@ -8916,24 +9194,27 @@
                         this.render1_10DerivAccordion();
                         return;
                     } else if (is1_12) {
-                        // 1-12（重心）: 問題図 + stage2Text + 公式 + 補足
-                        const reasonHTML = (problem.formulaType === 'centroid')
-                            ? '棒は重心を支えると回らずに静止してつり合う<br>→ 左回りのモーメント W₁ × r₁ ＝ 右回りのモーメント W₂ × r₂<br>→ r₁ ＝ x、r₂ ＝ L − x を入れて x について解くと <strong>x ＝ (W₂ × L) ÷ (W₁ ＋ W₂)</strong>'
-                            : '棒は重心を支えると回らずに静止してつり合う<br>→ 左回りのモーメント W₁ × r₁ ＝ 右回りのモーメント W₂ × r₂<br>→ W₂ について解いて <strong>W₂ ＝ (W₁ × r₁) ÷ r₂</strong>';
+                        // 1-12（重心）: 重心の問題も「モーメントのつり合い」で解けることを、
+                        //   derivationSteps を 1 ステップずつアコーディオン表示して生徒自身に
+                        //   導かせる。重心の定義 → 重心を支えると回らない → 回らない＝
+                        //   モーメントが左右でつり合う → つり合いの式 → 式変形、の流れ。
+                        //   1-10 問3・問4 / 1-11 と同じ render1_10DerivAccordion を再利用する。
+                        if (this.calcInputs.derivStepIndex === undefined) {
+                            this.calcInputs.derivStepIndex = 0;
+                        }
                         content.innerHTML = header + staticCanvas1_6 + `
                             <div class="calc-stage-container">
-                                <div style="font-size:15px; margin-bottom:14px; line-height:1.7;">
-                                    ${problem.stage2Text}
-                                </div>
-                                <div class="calc-formula-display">
-                                    $${problem.formula}$
-                                </div>
-                                <div style="background:#eef3fa; border-left:3px solid #4a7cbe; padding:12px 16px; border-radius:3px; margin-top:16px; font-size:14px; line-height:1.7; color:#222;">
-                                    <strong>この式になる理由：</strong><br>
-                                    ${reasonHTML}
-                                </div>
+                                <div class="calc-question-text">使う式を、一段ずつ自分で導いてください。</div>
+                                <div id="derivAccordion"></div>
+                                <div id="stageFeedback" style="margin-top:12px; font-size:14px; min-height:20px;"></div>
                             </div>
                         `;
+                        document.getElementById('controlButtons').innerHTML = `
+                            <button class="btn hint-btn" onclick="app.showHint('calc_${this.currentProblemIndex}_stage2')">ヒント</button>
+                            <span id="stage2NextSlot"></span>
+                        `;
+                        this.render1_10DerivAccordion();
+                        return;
                     } else {
                         content.innerHTML = header + `
                             <div class="calc-stage-container">
