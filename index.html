@@ -3557,7 +3557,11 @@
         };
 
         // Problems for sub-unit 1-11: 作用点の異なる力のつり合い（モーメントのつり合い・てこ）
-        //   1-10 と同じ 6 ステージ計算問題フロー（renderCalculationProblem）を共有する。
+        //   6 ステージ計算問題フロー（renderCalculationProblem）を共有する。
+        //   Stage 2 は derivationSteps アコーディオン方式（1-10 問3・問4 と同じ仕組み。
+        //   render1_10DerivAccordion / confirm1_10DerivStep を再利用）。回転しない→
+        //   モーメントが左右でつり合う→左右のモーメントを求める→つり合いの式→式変形、
+        //   と生徒が一段ずつ自分で導く。
         //   問のタイプ（formulaType）:
         //     'leverForce' — 右の重さ F₂ を求める  F₂ = (F₁×r₁) ÷ r₂（問1・問2）
         //     'leverDist'  — 右の距離 r₂ を求める  r₂ = (F₁×r₁) ÷ F₂（問3・問4）
@@ -3586,7 +3590,68 @@
                     { value: 'couple',   label: '大きさが等しく逆向きで平行な 2 力（偶力）である' }
                 ],
                 stage1Correct: 'apart',
-                stage2Text: '重りはどちらも支点 O からはなれた場所につるされています。<br>作用点がはなれた力がつり合うには、点 O のまわりで棒を回そうとするモーメントがつり合っていなければなりません。<br>1-8 で学んだように、力のモーメントは M ＝ F × r（力 × 支点からの距離）で求めます。<br>左の重りを F₁・r₁、右の重りを F₂・r₂ とします。左の重りは棒を<strong>左回り</strong>に、右の重りは棒を<strong>右回り</strong>に回します。<br>棒が回らずに静止しているので、<strong>左回りのモーメント ＝ 右回りのモーメント</strong>、つまり F₁ × r₁ ＝ F₂ × r₂ です。<br>これを F₂ について解くと、F₂ ＝ (F₁ × r₁) ÷ r₂ となります。',
+                derivationSteps: [
+                    {
+                        prompt: '重りはどちらも支点 O からはなれた場所につるされています。棒がつり合って静止するためには、棒が動かないことに加えて、もう一つ何が必要ですか？',
+                        choices: [
+                            { value: 'norotate',  label: '支点 O のまわりで棒が「回転しない」ことも必要' },
+                            { value: 'noweight',  label: '棒の重さが 0 であることが必要' },
+                            { value: 'eqweight',  label: '左右の重りの重さが等しいことが必要' }
+                        ],
+                        correct: 'norotate',
+                        onCorrectText: '作用点がはなれた力では、棒が回転しないこともつり合いの条件になります。'
+                    },
+                    {
+                        prompt: '棒が「回転しない」とは、どのような状態のことですか？',
+                        choices: [
+                            { value: 'balance',   label: '棒を回そうとするはたらき（モーメント）が、左回りと右回りで等しい' },
+                            { value: 'zero',      label: '棒を回そうとするはたらき（モーメント）が、左右ともに 0 である' },
+                            { value: 'forcezero', label: '棒にはたらく力が、左右ともに 0 である' }
+                        ],
+                        correct: 'balance',
+                        onCorrectText: '回転しない＝左回りのモーメントと右回りのモーメントがつり合っている、ということです。'
+                    },
+                    {
+                        prompt: '1-8 で学んだように、支点 O のまわりのモーメント M は、どの式で求めますか？',
+                        choices: [
+                            { value: 'mul', label: 'M ＝ 力 × 支点からの距離' },
+                            { value: 'add', label: 'M ＝ 力 ＋ 支点からの距離' },
+                            { value: 'div', label: 'M ＝ 力 ÷ 支点からの距離' }
+                        ],
+                        correct: 'mul',
+                        onCorrectText: 'モーメントは M ＝ 力 × 支点からの距離 で求めます。'
+                    },
+                    {
+                        prompt: '左の重りを F₁・r₁、右の重りを F₂・r₂ とします。左回りのモーメントと右回りのモーメントは、それぞれどう表せますか？',
+                        choices: [
+                            { value: 'mul',   label: '左回り ＝ F₁ × r₁　／　右回り ＝ F₂ × r₂' },
+                            { value: 'add',   label: '左回り ＝ F₁ ＋ r₁　／　右回り ＝ F₂ ＋ r₂' },
+                            { value: 'cross', label: '左回り ＝ F₁ × F₂　／　右回り ＝ r₁ × r₂' }
+                        ],
+                        correct: 'mul',
+                        onCorrectText: '左回りのモーメントは F₁ × r₁、右回りのモーメントは F₂ × r₂ です。'
+                    },
+                    {
+                        prompt: '棒は回らずに静止しています。左回りのモーメントと右回りのモーメントの関係を式で表すと、つり合いの式はどれですか？',
+                        choices: [
+                            { value: 'eq',  label: 'F₁ × r₁ ＝ F₂ × r₂' },
+                            { value: 'sum', label: 'F₁ × r₁ ＋ F₂ × r₂ ＝ 0' },
+                            { value: 'gt',  label: 'F₁ × r₁ ＞ F₂ × r₂' }
+                        ],
+                        correct: 'eq',
+                        onCorrectText: 'つり合いの式は F₁ × r₁ ＝ F₂ × r₂ です。'
+                    },
+                    {
+                        prompt: 'つり合いの式 F₁ × r₁ ＝ F₂ × r₂ を、求めたい F₂ について解くとどうなりますか？',
+                        choices: [
+                            { value: 'solved', label: 'F₂ ＝ (F₁ × r₁) ÷ r₂' },
+                            { value: 'mul',    label: 'F₂ ＝ (F₁ × r₁) × r₂' },
+                            { value: 'inv',    label: 'F₂ ＝ r₂ ÷ (F₁ × r₁)' }
+                        ],
+                        correct: 'solved',
+                        onCorrectText: 'F₂ ＝ (F₁ × r₁) ÷ r₂ と求まりました。次のステップでこの式に数値を代入します。'
+                    }
+                ],
                 formula: 'F_2 = \\dfrac{F_1 \\times r_1}{r_2}',
                 substitutions: {
                     slots: ['F1', 'r1', 'r2'],
@@ -3619,7 +3684,68 @@
                     { value: 'couple',   label: '大きさが等しく逆向きで平行な 2 力（偶力）である' }
                 ],
                 stage1Correct: 'apart',
-                stage2Text: '重りはどちらも支点 O からはなれた場所につるされています。<br>作用点がはなれた力がつり合うには、点 O のまわりで棒を回そうとするモーメントがつり合っていなければなりません。<br>1-8 で学んだように、力のモーメントは M ＝ F × r（力 × 支点からの距離）で求めます。<br>左の重りを F₁・r₁、右の重りを F₂・r₂ とします。左の重りは棒を<strong>左回り</strong>に、右の重りは棒を<strong>右回り</strong>に回します。<br>棒が回らずに静止しているので、<strong>左回りのモーメント ＝ 右回りのモーメント</strong>、つまり F₁ × r₁ ＝ F₂ × r₂ です。<br>これを F₂ について解くと、F₂ ＝ (F₁ × r₁) ÷ r₂ となります。',
+                derivationSteps: [
+                    {
+                        prompt: '重りはどちらも支点 O からはなれた場所につるされています。棒がつり合って静止するためには、棒が動かないことに加えて、もう一つ何が必要ですか？',
+                        choices: [
+                            { value: 'norotate',  label: '支点 O のまわりで棒が「回転しない」ことも必要' },
+                            { value: 'noweight',  label: '棒の重さが 0 であることが必要' },
+                            { value: 'eqweight',  label: '左右の重りの重さが等しいことが必要' }
+                        ],
+                        correct: 'norotate',
+                        onCorrectText: '作用点がはなれた力では、棒が回転しないこともつり合いの条件になります。'
+                    },
+                    {
+                        prompt: '棒が「回転しない」とは、どのような状態のことですか？',
+                        choices: [
+                            { value: 'balance',   label: '棒を回そうとするはたらき（モーメント）が、左回りと右回りで等しい' },
+                            { value: 'zero',      label: '棒を回そうとするはたらき（モーメント）が、左右ともに 0 である' },
+                            { value: 'forcezero', label: '棒にはたらく力が、左右ともに 0 である' }
+                        ],
+                        correct: 'balance',
+                        onCorrectText: '回転しない＝左回りのモーメントと右回りのモーメントがつり合っている、ということです。'
+                    },
+                    {
+                        prompt: '1-8 で学んだように、支点 O のまわりのモーメント M は、どの式で求めますか？',
+                        choices: [
+                            { value: 'mul', label: 'M ＝ 力 × 支点からの距離' },
+                            { value: 'add', label: 'M ＝ 力 ＋ 支点からの距離' },
+                            { value: 'div', label: 'M ＝ 力 ÷ 支点からの距離' }
+                        ],
+                        correct: 'mul',
+                        onCorrectText: 'モーメントは M ＝ 力 × 支点からの距離 で求めます。'
+                    },
+                    {
+                        prompt: '左の重りを F₁・r₁、右の重りを F₂・r₂ とします。左回りのモーメントと右回りのモーメントは、それぞれどう表せますか？',
+                        choices: [
+                            { value: 'mul',   label: '左回り ＝ F₁ × r₁　／　右回り ＝ F₂ × r₂' },
+                            { value: 'add',   label: '左回り ＝ F₁ ＋ r₁　／　右回り ＝ F₂ ＋ r₂' },
+                            { value: 'cross', label: '左回り ＝ F₁ × F₂　／　右回り ＝ r₁ × r₂' }
+                        ],
+                        correct: 'mul',
+                        onCorrectText: '左回りのモーメントは F₁ × r₁、右回りのモーメントは F₂ × r₂ です。'
+                    },
+                    {
+                        prompt: '棒は回らずに静止しています。左回りのモーメントと右回りのモーメントの関係を式で表すと、つり合いの式はどれですか？',
+                        choices: [
+                            { value: 'eq',  label: 'F₁ × r₁ ＝ F₂ × r₂' },
+                            { value: 'sum', label: 'F₁ × r₁ ＋ F₂ × r₂ ＝ 0' },
+                            { value: 'gt',  label: 'F₁ × r₁ ＞ F₂ × r₂' }
+                        ],
+                        correct: 'eq',
+                        onCorrectText: 'つり合いの式は F₁ × r₁ ＝ F₂ × r₂ です。'
+                    },
+                    {
+                        prompt: 'つり合いの式 F₁ × r₁ ＝ F₂ × r₂ を、求めたい F₂ について解くとどうなりますか？',
+                        choices: [
+                            { value: 'solved', label: 'F₂ ＝ (F₁ × r₁) ÷ r₂' },
+                            { value: 'mul',    label: 'F₂ ＝ (F₁ × r₁) × r₂' },
+                            { value: 'inv',    label: 'F₂ ＝ r₂ ÷ (F₁ × r₁)' }
+                        ],
+                        correct: 'solved',
+                        onCorrectText: 'F₂ ＝ (F₁ × r₁) ÷ r₂ と求まりました。次のステップでこの式に数値を代入します。'
+                    }
+                ],
                 formula: 'F_2 = \\dfrac{F_1 \\times r_1}{r_2}',
                 substitutions: {
                     slots: ['F1', 'r1', 'r2'],
@@ -3652,7 +3778,68 @@
                     { value: 'couple',   label: '大きさが等しく逆向きで平行な 2 力（偶力）である' }
                 ],
                 stage1Correct: 'apart',
-                stage2Text: '重りはどちらも支点 O からはなれた場所につるされています。<br>作用点がはなれた力がつり合うには、点 O のまわりで棒を回そうとするモーメントがつり合っていなければなりません。<br>1-8 で学んだように、力のモーメントは M ＝ F × r（力 × 支点からの距離）で求めます。<br>左の重りを F₁・r₁、右の重りを F₂・r₂ とします。左の重りは棒を<strong>左回り</strong>に、右の重りは棒を<strong>右回り</strong>に回します。<br>棒が回らずに静止しているので、<strong>左回りのモーメント ＝ 右回りのモーメント</strong>、つまり F₁ × r₁ ＝ F₂ × r₂ です。<br>これを r₂ について解くと、r₂ ＝ (F₁ × r₁) ÷ F₂ となります。',
+                derivationSteps: [
+                    {
+                        prompt: '重りはどちらも支点 O からはなれた場所につるされています。棒がつり合って静止するためには、棒が動かないことに加えて、もう一つ何が必要ですか？',
+                        choices: [
+                            { value: 'norotate',  label: '支点 O のまわりで棒が「回転しない」ことも必要' },
+                            { value: 'noweight',  label: '棒の重さが 0 であることが必要' },
+                            { value: 'eqweight',  label: '左右の重りの重さが等しいことが必要' }
+                        ],
+                        correct: 'norotate',
+                        onCorrectText: '作用点がはなれた力では、棒が回転しないこともつり合いの条件になります。'
+                    },
+                    {
+                        prompt: '棒が「回転しない」とは、どのような状態のことですか？',
+                        choices: [
+                            { value: 'balance',   label: '棒を回そうとするはたらき（モーメント）が、左回りと右回りで等しい' },
+                            { value: 'zero',      label: '棒を回そうとするはたらき（モーメント）が、左右ともに 0 である' },
+                            { value: 'forcezero', label: '棒にはたらく力が、左右ともに 0 である' }
+                        ],
+                        correct: 'balance',
+                        onCorrectText: '回転しない＝左回りのモーメントと右回りのモーメントがつり合っている、ということです。'
+                    },
+                    {
+                        prompt: '1-8 で学んだように、支点 O のまわりのモーメント M は、どの式で求めますか？',
+                        choices: [
+                            { value: 'mul', label: 'M ＝ 力 × 支点からの距離' },
+                            { value: 'add', label: 'M ＝ 力 ＋ 支点からの距離' },
+                            { value: 'div', label: 'M ＝ 力 ÷ 支点からの距離' }
+                        ],
+                        correct: 'mul',
+                        onCorrectText: 'モーメントは M ＝ 力 × 支点からの距離 で求めます。'
+                    },
+                    {
+                        prompt: '左の重りを F₁・r₁、右の重りを F₂・r₂ とします。左回りのモーメントと右回りのモーメントは、それぞれどう表せますか？',
+                        choices: [
+                            { value: 'mul',   label: '左回り ＝ F₁ × r₁　／　右回り ＝ F₂ × r₂' },
+                            { value: 'add',   label: '左回り ＝ F₁ ＋ r₁　／　右回り ＝ F₂ ＋ r₂' },
+                            { value: 'cross', label: '左回り ＝ F₁ × F₂　／　右回り ＝ r₁ × r₂' }
+                        ],
+                        correct: 'mul',
+                        onCorrectText: '左回りのモーメントは F₁ × r₁、右回りのモーメントは F₂ × r₂ です。'
+                    },
+                    {
+                        prompt: '棒は回らずに静止しています。左回りのモーメントと右回りのモーメントの関係を式で表すと、つり合いの式はどれですか？',
+                        choices: [
+                            { value: 'eq',  label: 'F₁ × r₁ ＝ F₂ × r₂' },
+                            { value: 'sum', label: 'F₁ × r₁ ＋ F₂ × r₂ ＝ 0' },
+                            { value: 'gt',  label: 'F₁ × r₁ ＞ F₂ × r₂' }
+                        ],
+                        correct: 'eq',
+                        onCorrectText: 'つり合いの式は F₁ × r₁ ＝ F₂ × r₂ です。'
+                    },
+                    {
+                        prompt: 'つり合いの式 F₁ × r₁ ＝ F₂ × r₂ を、求めたい r₂ について解くとどうなりますか？',
+                        choices: [
+                            { value: 'solved', label: 'r₂ ＝ (F₁ × r₁) ÷ F₂' },
+                            { value: 'mul',    label: 'r₂ ＝ (F₁ × r₁) × F₂' },
+                            { value: 'inv',    label: 'r₂ ＝ F₂ ÷ (F₁ × r₁)' }
+                        ],
+                        correct: 'solved',
+                        onCorrectText: 'r₂ ＝ (F₁ × r₁) ÷ F₂ と求まりました。次のステップでこの式に数値を代入します。'
+                    }
+                ],
                 formula: 'r_2 = \\dfrac{F_1 \\times r_1}{F_2}',
                 substitutions: {
                     slots: ['F1', 'r1', 'F2'],
@@ -3685,7 +3872,68 @@
                     { value: 'couple',   label: '大きさが等しく逆向きで平行な 2 力（偶力）である' }
                 ],
                 stage1Correct: 'apart',
-                stage2Text: '重りはどちらも支点 O からはなれた場所につるされています。<br>作用点がはなれた力がつり合うには、点 O のまわりで棒を回そうとするモーメントがつり合っていなければなりません。<br>1-8 で学んだように、力のモーメントは M ＝ F × r（力 × 支点からの距離）で求めます。<br>左の重りを F₁・r₁、右の重りを F₂・r₂ とします。左の重りは棒を<strong>左回り</strong>に、右の重りは棒を<strong>右回り</strong>に回します。<br>棒が回らずに静止しているので、<strong>左回りのモーメント ＝ 右回りのモーメント</strong>、つまり F₁ × r₁ ＝ F₂ × r₂ です。<br>これを r₂ について解くと、r₂ ＝ (F₁ × r₁) ÷ F₂ となります。',
+                derivationSteps: [
+                    {
+                        prompt: '重りはどちらも支点 O からはなれた場所につるされています。棒がつり合って静止するためには、棒が動かないことに加えて、もう一つ何が必要ですか？',
+                        choices: [
+                            { value: 'norotate',  label: '支点 O のまわりで棒が「回転しない」ことも必要' },
+                            { value: 'noweight',  label: '棒の重さが 0 であることが必要' },
+                            { value: 'eqweight',  label: '左右の重りの重さが等しいことが必要' }
+                        ],
+                        correct: 'norotate',
+                        onCorrectText: '作用点がはなれた力では、棒が回転しないこともつり合いの条件になります。'
+                    },
+                    {
+                        prompt: '棒が「回転しない」とは、どのような状態のことですか？',
+                        choices: [
+                            { value: 'balance',   label: '棒を回そうとするはたらき（モーメント）が、左回りと右回りで等しい' },
+                            { value: 'zero',      label: '棒を回そうとするはたらき（モーメント）が、左右ともに 0 である' },
+                            { value: 'forcezero', label: '棒にはたらく力が、左右ともに 0 である' }
+                        ],
+                        correct: 'balance',
+                        onCorrectText: '回転しない＝左回りのモーメントと右回りのモーメントがつり合っている、ということです。'
+                    },
+                    {
+                        prompt: '1-8 で学んだように、支点 O のまわりのモーメント M は、どの式で求めますか？',
+                        choices: [
+                            { value: 'mul', label: 'M ＝ 力 × 支点からの距離' },
+                            { value: 'add', label: 'M ＝ 力 ＋ 支点からの距離' },
+                            { value: 'div', label: 'M ＝ 力 ÷ 支点からの距離' }
+                        ],
+                        correct: 'mul',
+                        onCorrectText: 'モーメントは M ＝ 力 × 支点からの距離 で求めます。'
+                    },
+                    {
+                        prompt: '左の重りを F₁・r₁、右の重りを F₂・r₂ とします。左回りのモーメントと右回りのモーメントは、それぞれどう表せますか？',
+                        choices: [
+                            { value: 'mul',   label: '左回り ＝ F₁ × r₁　／　右回り ＝ F₂ × r₂' },
+                            { value: 'add',   label: '左回り ＝ F₁ ＋ r₁　／　右回り ＝ F₂ ＋ r₂' },
+                            { value: 'cross', label: '左回り ＝ F₁ × F₂　／　右回り ＝ r₁ × r₂' }
+                        ],
+                        correct: 'mul',
+                        onCorrectText: '左回りのモーメントは F₁ × r₁、右回りのモーメントは F₂ × r₂ です。'
+                    },
+                    {
+                        prompt: '棒は回らずに静止しています。左回りのモーメントと右回りのモーメントの関係を式で表すと、つり合いの式はどれですか？',
+                        choices: [
+                            { value: 'eq',  label: 'F₁ × r₁ ＝ F₂ × r₂' },
+                            { value: 'sum', label: 'F₁ × r₁ ＋ F₂ × r₂ ＝ 0' },
+                            { value: 'gt',  label: 'F₁ × r₁ ＞ F₂ × r₂' }
+                        ],
+                        correct: 'eq',
+                        onCorrectText: 'つり合いの式は F₁ × r₁ ＝ F₂ × r₂ です。'
+                    },
+                    {
+                        prompt: 'つり合いの式 F₁ × r₁ ＝ F₂ × r₂ を、求めたい r₂ について解くとどうなりますか？',
+                        choices: [
+                            { value: 'solved', label: 'r₂ ＝ (F₁ × r₁) ÷ F₂' },
+                            { value: 'mul',    label: 'r₂ ＝ (F₁ × r₁) × F₂' },
+                            { value: 'inv',    label: 'r₂ ＝ F₂ ÷ (F₁ × r₁)' }
+                        ],
+                        correct: 'solved',
+                        onCorrectText: 'r₂ ＝ (F₁ × r₁) ÷ F₂ と求まりました。次のステップでこの式に数値を代入します。'
+                    }
+                ],
                 formula: 'r_2 = \\dfrac{F_1 \\times r_1}{F_2}',
                 substitutions: {
                     slots: ['F1', 'r1', 'F2'],
@@ -3700,7 +3948,7 @@
 
         // 1-11 のヒント（作用点の異なる力のつり合い — 3 段階 B→A→C）。
         //   問のタイプが 2 種類あるため、問 id ごとに引く。問1・問2 は FORCE、問3・問4 は DIST 共通。
-        //   Stage 2（必然の公式）は表示のみなのでヒントなし。
+        //   Stage 2（つり合いの式の導出）は derivationSteps アコーディオン方式。共通ヒントを 1 つ持つ。
         const HINTS_1_11_FORCE = {
             stage0: {
                 b: '問題文の最後の文に注目してください。「求めよ」と書かれている量が求めるものです。左の重りの重さや距離は問題文にすでに数値が書かれているので、求めるものではありません。',
@@ -3711,6 +3959,11 @@
                 b: '左の重りと右の重りは、支点 O からはなれた別々の場所につるされています。1-10 で学んだ「1 点に集まる力」とは違う状況です。',
                 a: 'この問題は、力の作用点が支点 O からはなれた別々の場所にあります。1 点に集まる力（1-10）でも、偶力（1-9）でもありません。',
                 c: '教科書33ページ「作用点の異なる力のつり合い」を確認してください。'
+            },
+            stage2: {
+                b: '棒は回らずに静止しています。回転しない＝左回りのモーメントと右回りのモーメントがつり合っている、ということです。モーメントは「力 × 支点からの距離」で求めます。',
+                a: '左回りのモーメント F₁ × r₁ と右回りのモーメント F₂ × r₂ がつり合うので、F₁ × r₁ ＝ F₂ × r₂。これを F₂ について解くと F₂ ＝ (F₁ × r₁) ÷ r₂ となります。',
+                c: '教科書33〜34ページ「作用点の異なる力のつり合い」と例題6、1-8 の力のモーメント M ＝ F × r を確認してください。'
             },
             stage3: {
                 b: '式は F₂ ＝ (F₁ × r₁) ÷ r₂ です。F₁ には左の重さ、r₁ には左の距離、r₂ には右の距離を入れます。問題文の数値を読み取ってください。',
@@ -3733,6 +3986,11 @@
                 b: '左の重りと右の重りは、支点 O からはなれた別々の場所につるされています。1-10 で学んだ「1 点に集まる力」とは違う状況です。',
                 a: 'この問題は、力の作用点が支点 O からはなれた別々の場所にあります。1 点に集まる力（1-10）でも、偶力（1-9）でもありません。',
                 c: '教科書33ページ「作用点の異なる力のつり合い」を確認してください。'
+            },
+            stage2: {
+                b: '棒は回らずに静止しています。回転しない＝左回りのモーメントと右回りのモーメントがつり合っている、ということです。モーメントは「力 × 支点からの距離」で求めます。',
+                a: '左回りのモーメント F₁ × r₁ と右回りのモーメント F₂ × r₂ がつり合うので、F₁ × r₁ ＝ F₂ × r₂。これを r₂ について解くと r₂ ＝ (F₁ × r₁) ÷ F₂ となります。',
+                c: '教科書33〜34ページ「作用点の異なる力のつり合い」と例題6、1-8 の力のモーメント M ＝ F × r を確認してください。'
             },
             stage3: {
                 b: '式は r₂ ＝ (F₁ × r₁) ÷ F₂ です。F₁ には左の重さ、r₁ には左の距離、F₂ には右の重さを入れます。問題文の数値を読み取ってください。',
@@ -8636,24 +8894,27 @@
                             </div>
                         `;
                     } else if (is1_11) {
-                        // 1-11（作用点の異なる力のつり合い）: 問題図 + stage2Text + 公式 + 補足
-                        const reasonHTML = (problem.formulaType === 'leverForce')
-                            ? '棒は回らずに静止してつり合っている<br>→ 左回りのモーメント F₁ × r₁ ＝ 右回りのモーメント F₂ × r₂<br>→ F₂ について解いて <strong>F₂ ＝ (F₁ × r₁) ÷ r₂</strong>'
-                            : '棒は回らずに静止してつり合っている<br>→ 左回りのモーメント F₁ × r₁ ＝ 右回りのモーメント F₂ × r₂<br>→ r₂ について解いて <strong>r₂ ＝ (F₁ × r₁) ÷ F₂</strong>';
+                        // 1-11（作用点の異なる力のつり合い）: つり合いの式を、derivationSteps を
+                        //   1 ステップずつアコーディオン表示して生徒自身に導かせる。
+                        //   回転しない→モーメントが左右でつり合う→左右のモーメントを求める→
+                        //   つり合いの式を立てる→式変形、の流れを一段ずつ確認する。
+                        //   1-10 問3・問4 と同じ render1_10DerivAccordion / confirm1_10DerivStep を再利用する。
+                        if (this.calcInputs.derivStepIndex === undefined) {
+                            this.calcInputs.derivStepIndex = 0;
+                        }
                         content.innerHTML = header + staticCanvas1_6 + `
                             <div class="calc-stage-container">
-                                <div style="font-size:15px; margin-bottom:14px; line-height:1.7;">
-                                    ${problem.stage2Text}
-                                </div>
-                                <div class="calc-formula-display">
-                                    $${problem.formula}$
-                                </div>
-                                <div style="background:#eef3fa; border-left:3px solid #4a7cbe; padding:12px 16px; border-radius:3px; margin-top:16px; font-size:14px; line-height:1.7; color:#222;">
-                                    <strong>この式になる理由：</strong><br>
-                                    ${reasonHTML}
-                                </div>
+                                <div class="calc-question-text">つり合いの式を、一段ずつ自分で導いてください。</div>
+                                <div id="derivAccordion"></div>
+                                <div id="stageFeedback" style="margin-top:12px; font-size:14px; min-height:20px;"></div>
                             </div>
                         `;
+                        document.getElementById('controlButtons').innerHTML = `
+                            <button class="btn hint-btn" onclick="app.showHint('calc_${this.currentProblemIndex}_stage2')">ヒント</button>
+                            <span id="stage2NextSlot"></span>
+                        `;
+                        this.render1_10DerivAccordion();
+                        return;
                     } else if (is1_12) {
                         // 1-12（重心）: 問題図 + stage2Text + 公式 + 補足
                         const reasonHTML = (problem.formulaType === 'centroid')
