@@ -8277,6 +8277,11 @@
                         '計算する',
                         '答えの意味を確認'
                     ];
+                // 1-10 問1・問2（T = W）は代入で答えが確定し計算が無いため、
+                //   Stage 4 の見出しを「計算する」→「答えを確認する」に置き換える。
+                if (is1_10 && problem.formulaType === 'TeqW' && stageLabels[4]) {
+                    stageLabels[4] = '答えを確認する';
+                }
                 // Always shown at the top: persistent problem statement + stage label
                 const header = `
                     <div class="calc-problem-persistent">${problemText}</div>
@@ -8776,16 +8781,27 @@
                             </div>
                         `;
                     } else if (is1_10) {
-                        const subFormula1_10 = (problem.formulaType === 'TeqW')
-                            ? `T = ${problem.w}`
-                            : (problem.formulaType === 'sym')
-                            ? `T = \\dfrac{${problem.w}}{2 \\times ${problem.sinTheta}}`
-                            : `T = \\dfrac{${problem.w}}{${problem.sinTheta}}`;
+                        // 問1・問2（T = W）は代入した時点で答えが確定し、計算は不要。
+                        //   「計算結果を入力」ではなく「答えを書いて確認」と正直に見せる。
+                        //   数式も T ＝ W ＝ 48 [N] と答えを明示（= ? を出さない）。
+                        // 問3・問4（割り算あり）は従来どおり計算ステージ。
+                        const isTeqW_s4 = problem.formulaType === 'TeqW';
+                        let formulaLine_s4, questionText_s4;
+                        if (isTeqW_s4) {
+                            formulaLine_s4 = `$T = W = ${problem.w}\\ \\mathrm{[N]}$`;
+                            questionText_s4 = '代入した時点で答えが決まっています。答えを下の欄に書いて確認してください。';
+                        } else {
+                            const subFormula1_10 = (problem.formulaType === 'sym')
+                                ? `T = \\dfrac{${problem.w}}{2 \\times ${problem.sinTheta}}`
+                                : `T = \\dfrac{${problem.w}}{${problem.sinTheta}}`;
+                            formulaLine_s4 = `$${subFormula1_10} = {\\color{#c62828}?}$`;
+                            questionText_s4 = '計算結果を入力してください（電卓を使って構いません）。';
+                        }
                         content.innerHTML = header + staticCanvas1_6 + `
                             <div class="calc-stage-container">
-                                <div class="calc-question-text">計算結果を入力してください（電卓を使って構いません）。</div>
+                                <div class="calc-question-text">${questionText_s4}</div>
                                 <div class="calc-formula-display">
-                                    $${subFormula1_10} = {\\color{#c62828}?}$
+                                    ${formulaLine_s4}
                                 </div>
                                 <div class="calc-input-row">
                                     <span class="calc-input-label">答え：T ＝</span>
