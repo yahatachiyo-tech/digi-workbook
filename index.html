@@ -2337,10 +2337,10 @@
         };
         // 単元ごとの問題数（ダッシュボード集計用）
         const DASHBOARD_UNIT_COUNTS = {
-            '1-1': 4, '1-2': 6, '1-3': 4, '1-4': 4, '1-5': 4, '1-10': 4, '2-1': 5
+            '1-1': 4, '1-2': 6, '1-3': 4, '1-4': 4, '1-5': 4, '1-10': 4, '1-11': 4, '2-1': 5
         };
         // 単元表示順
-        const DASHBOARD_UNIT_ORDER = ['1-1', '1-2', '1-3', '1-4', '1-5', '1-10', '2-1'];
+        const DASHBOARD_UNIT_ORDER = ['1-1', '1-2', '1-3', '1-4', '1-5', '1-10', '1-11', '2-1'];
 
         // 【校内版では実名ロスターを定義していたが、GitHub Pages 配信のため空に変更】
         // 将来、名簿照合に戻す場合は 1番〜36番 + 40番の形式で復活可能
@@ -2433,6 +2433,15 @@
                 id: '1-10',
                 title: '力のつり合い',
                 subtitle: '1 点に働く力のつり合い（2 力・3 力）',
+                level: '基礎',
+                completed: false,
+                score: 0,
+                total: 0
+            },
+            {
+                id: '1-11',
+                title: '作用点の異なる力のつり合い',
+                subtitle: 'モーメントのつり合い（てこ）',
                 level: '基礎',
                 completed: false,
                 score: 0,
@@ -3413,6 +3422,203 @@
             2: HINTS_1_10_TEQW,
             3: HINTS_1_10_SYM,
             4: HINTS_1_10_LSHAPE
+        };
+
+        // Problems for sub-unit 1-11: 作用点の異なる力のつり合い（モーメントのつり合い・てこ）
+        //   1-10 と同じ 6 ステージ計算問題フロー（renderCalculationProblem）を共有する。
+        //   問のタイプ（formulaType）:
+        //     'leverForce' — 右の重さ F₂ を求める  F₂ = (F₁×r₁) ÷ r₂（問1・問2）
+        //     'leverDist'  — 右の距離 r₂ を求める  r₂ = (F₁×r₁) ÷ F₂（問3・問4）
+        //   tool: 'lever' 固定（build1_11StaticCanvas が描画）。
+        //   F₁/r₁＝左の重り、F₂/r₂＝右の重り。距離は cm 単位。
+        const PROBLEMS_1_11 = [
+            {
+                id: 1,
+                fL: 20, rL: 30, fR: null, rR: 60,
+                expectedForce: 10, tolerance: 0.5, unit: 'N',
+                tool: 'lever', formulaType: 'leverForce',
+                sentence: '水平な棒の中央を支点 O で支える。支点 O から左に 30 cm はなれた点に、重さ 20 N の重りをつるした。支点 O から右に 60 cm はなれた点に、別の重りをつるしたところ、棒は水平のまま静止してつり合った。右の重りの重さ F の大きさを求めよ。',
+                condition: '基礎、モーメントのつり合い、fL=20 N, rL=30 cm, rR=60 cm → F=10 N',
+                baselineTime: 120,
+                canvasType: '2d-static',
+                canvas: { width: 360, height: 200 },
+                stage0Choices: [
+                    { value: 'forceR', label: '右の重りの重さ F の大きさ' },
+                    { value: 'forceL', label: '左の重りの重さの大きさ' },
+                    { value: 'distR',  label: '右の重りの支点からの距離' }
+                ],
+                stage0Correct: 'forceR',
+                stage1Choices: [
+                    { value: 'apart',    label: '作用点が支点 O からはなれた別々の場所にある' },
+                    { value: 'onepoint', label: '力がすべて同じ 1 点に集まってはたらいている' },
+                    { value: 'couple',   label: '大きさが等しく逆向きで平行な 2 力（偶力）である' }
+                ],
+                stage1Correct: 'apart',
+                stage2Text: '重りはどちらも支点 O からはなれた場所につるされています。<br>作用点がはなれた力がつり合うには、点 O のまわりで棒を回そうとするモーメントがつり合っていなければなりません。<br>1-8 で学んだように、力のモーメントは M ＝ F × r（力 × 支点からの距離）で求めます。<br>左の重りを F₁・r₁、右の重りを F₂・r₂ とします。左の重りは棒を<strong>左回り</strong>に、右の重りは棒を<strong>右回り</strong>に回します。<br>棒が回らずに静止しているので、<strong>左回りのモーメント ＝ 右回りのモーメント</strong>、つまり F₁ × r₁ ＝ F₂ × r₂ です。<br>これを F₂ について解くと、F₂ ＝ (F₁ × r₁) ÷ r₂ となります。',
+                formula: 'F_2 = \\dfrac{F_1 \\times r_1}{r_2}',
+                substitutions: {
+                    slots: ['F1', 'r1', 'r2'],
+                    cards: [
+                        { role: 'F1', label: '左の重さ F₁', value: 20, unit: 'N' },
+                        { role: 'r1', label: '左の距離 r₁', value: 30, unit: 'cm' },
+                        { role: 'r2', label: '右の距離 r₂', value: 60, unit: 'cm' }
+                    ]
+                }
+            },
+            {
+                id: 2,
+                fL: 12, rL: 50, fR: null, rR: 20,
+                expectedForce: 30, tolerance: 0.5, unit: 'N',
+                tool: 'lever', formulaType: 'leverForce',
+                sentence: '水平な棒の中央を支点 O で支える。支点 O から左に 50 cm はなれた点に、重さ 12 N の重りをつるした。支点 O から右に 20 cm はなれた点に、別の重りをつるしたところ、棒は水平のまま静止してつり合った。右の重りの重さ F の大きさを求めよ。',
+                condition: '基礎、モーメントのつり合い、fL=12 N, rL=50 cm, rR=20 cm → F=30 N',
+                baselineTime: 120,
+                canvasType: '2d-static',
+                canvas: { width: 360, height: 200 },
+                stage0Choices: [
+                    { value: 'forceR', label: '右の重りの重さ F の大きさ' },
+                    { value: 'forceL', label: '左の重りの重さの大きさ' },
+                    { value: 'distR',  label: '右の重りの支点からの距離' }
+                ],
+                stage0Correct: 'forceR',
+                stage1Choices: [
+                    { value: 'apart',    label: '作用点が支点 O からはなれた別々の場所にある' },
+                    { value: 'onepoint', label: '力がすべて同じ 1 点に集まってはたらいている' },
+                    { value: 'couple',   label: '大きさが等しく逆向きで平行な 2 力（偶力）である' }
+                ],
+                stage1Correct: 'apart',
+                stage2Text: '重りはどちらも支点 O からはなれた場所につるされています。<br>作用点がはなれた力がつり合うには、点 O のまわりで棒を回そうとするモーメントがつり合っていなければなりません。<br>1-8 で学んだように、力のモーメントは M ＝ F × r（力 × 支点からの距離）で求めます。<br>左の重りを F₁・r₁、右の重りを F₂・r₂ とします。左の重りは棒を<strong>左回り</strong>に、右の重りは棒を<strong>右回り</strong>に回します。<br>棒が回らずに静止しているので、<strong>左回りのモーメント ＝ 右回りのモーメント</strong>、つまり F₁ × r₁ ＝ F₂ × r₂ です。<br>これを F₂ について解くと、F₂ ＝ (F₁ × r₁) ÷ r₂ となります。',
+                formula: 'F_2 = \\dfrac{F_1 \\times r_1}{r_2}',
+                substitutions: {
+                    slots: ['F1', 'r1', 'r2'],
+                    cards: [
+                        { role: 'F1', label: '左の重さ F₁', value: 12, unit: 'N' },
+                        { role: 'r1', label: '左の距離 r₁', value: 50, unit: 'cm' },
+                        { role: 'r2', label: '右の距離 r₂', value: 20, unit: 'cm' }
+                    ]
+                }
+            },
+            {
+                id: 3,
+                fL: 15, rL: 40, fR: 30, rR: null,
+                expectedDist: 20, tolerance: 0.5, unit: 'cm',
+                tool: 'lever', formulaType: 'leverDist',
+                sentence: '水平な棒の中央を支点 O で支える。支点 O から左に 40 cm はなれた点に、重さ 15 N の重りをつるした。次に、重さ 30 N の重りを支点 O の右側につるしたところ、棒は水平のまま静止してつり合った。右の重りは支点 O から何 cm はなれた点につるされているか、その距離 r を求めよ。',
+                condition: '基礎、モーメントのつり合い、fL=15 N, rL=40 cm, fR=30 N → r=20 cm',
+                baselineTime: 120,
+                canvasType: '2d-static',
+                canvas: { width: 360, height: 200 },
+                stage0Choices: [
+                    { value: 'distR',  label: '右の重りの支点からの距離 r' },
+                    { value: 'distL',  label: '左の重りの支点からの距離' },
+                    { value: 'forceR', label: '右の重りの重さの大きさ' }
+                ],
+                stage0Correct: 'distR',
+                stage1Choices: [
+                    { value: 'apart',    label: '作用点が支点 O からはなれた別々の場所にある' },
+                    { value: 'onepoint', label: '力がすべて同じ 1 点に集まってはたらいている' },
+                    { value: 'couple',   label: '大きさが等しく逆向きで平行な 2 力（偶力）である' }
+                ],
+                stage1Correct: 'apart',
+                stage2Text: '重りはどちらも支点 O からはなれた場所につるされています。<br>作用点がはなれた力がつり合うには、点 O のまわりで棒を回そうとするモーメントがつり合っていなければなりません。<br>1-8 で学んだように、力のモーメントは M ＝ F × r（力 × 支点からの距離）で求めます。<br>左の重りを F₁・r₁、右の重りを F₂・r₂ とします。左の重りは棒を<strong>左回り</strong>に、右の重りは棒を<strong>右回り</strong>に回します。<br>棒が回らずに静止しているので、<strong>左回りのモーメント ＝ 右回りのモーメント</strong>、つまり F₁ × r₁ ＝ F₂ × r₂ です。<br>これを r₂ について解くと、r₂ ＝ (F₁ × r₁) ÷ F₂ となります。',
+                formula: 'r_2 = \\dfrac{F_1 \\times r_1}{F_2}',
+                substitutions: {
+                    slots: ['F1', 'r1', 'F2'],
+                    cards: [
+                        { role: 'F1', label: '左の重さ F₁', value: 15, unit: 'N' },
+                        { role: 'r1', label: '左の距離 r₁', value: 40, unit: 'cm' },
+                        { role: 'F2', label: '右の重さ F₂', value: 30, unit: 'N' }
+                    ]
+                }
+            },
+            {
+                id: 4,
+                fL: 40, rL: 30, fR: 24, rR: null,
+                expectedDist: 50, tolerance: 0.5, unit: 'cm',
+                tool: 'lever', formulaType: 'leverDist',
+                sentence: '水平な棒の中央を支点 O で支える。支点 O から左に 30 cm はなれた点に、重さ 40 N の重りをつるした。次に、重さ 24 N の重りを支点 O の右側につるしたところ、棒は水平のまま静止してつり合った。右の重りは支点 O から何 cm はなれた点につるされているか、その距離 r を求めよ。',
+                condition: '基礎、モーメントのつり合い、fL=40 N, rL=30 cm, fR=24 N → r=50 cm',
+                baselineTime: 120,
+                canvasType: '2d-static',
+                canvas: { width: 360, height: 200 },
+                stage0Choices: [
+                    { value: 'distR',  label: '右の重りの支点からの距離 r' },
+                    { value: 'distL',  label: '左の重りの支点からの距離' },
+                    { value: 'forceR', label: '右の重りの重さの大きさ' }
+                ],
+                stage0Correct: 'distR',
+                stage1Choices: [
+                    { value: 'apart',    label: '作用点が支点 O からはなれた別々の場所にある' },
+                    { value: 'onepoint', label: '力がすべて同じ 1 点に集まってはたらいている' },
+                    { value: 'couple',   label: '大きさが等しく逆向きで平行な 2 力（偶力）である' }
+                ],
+                stage1Correct: 'apart',
+                stage2Text: '重りはどちらも支点 O からはなれた場所につるされています。<br>作用点がはなれた力がつり合うには、点 O のまわりで棒を回そうとするモーメントがつり合っていなければなりません。<br>1-8 で学んだように、力のモーメントは M ＝ F × r（力 × 支点からの距離）で求めます。<br>左の重りを F₁・r₁、右の重りを F₂・r₂ とします。左の重りは棒を<strong>左回り</strong>に、右の重りは棒を<strong>右回り</strong>に回します。<br>棒が回らずに静止しているので、<strong>左回りのモーメント ＝ 右回りのモーメント</strong>、つまり F₁ × r₁ ＝ F₂ × r₂ です。<br>これを r₂ について解くと、r₂ ＝ (F₁ × r₁) ÷ F₂ となります。',
+                formula: 'r_2 = \\dfrac{F_1 \\times r_1}{F_2}',
+                substitutions: {
+                    slots: ['F1', 'r1', 'F2'],
+                    cards: [
+                        { role: 'F1', label: '左の重さ F₁', value: 40, unit: 'N' },
+                        { role: 'r1', label: '左の距離 r₁', value: 30, unit: 'cm' },
+                        { role: 'F2', label: '右の重さ F₂', value: 24, unit: 'N' }
+                    ]
+                }
+            }
+        ];
+
+        // 1-11 のヒント（作用点の異なる力のつり合い — 3 段階 B→A→C）。
+        //   問のタイプが 2 種類あるため、問 id ごとに引く。問1・問2 は FORCE、問3・問4 は DIST 共通。
+        //   Stage 2（必然の公式）は表示のみなのでヒントなし。
+        const HINTS_1_11_FORCE = {
+            stage0: {
+                b: '問題文の最後の文に注目してください。「求めよ」と書かれている量が求めるものです。左の重りの重さや距離は問題文にすでに数値が書かれているので、求めるものではありません。',
+                a: '問題文の末尾に「右の重りの重さ F の大きさを求めよ」とあります。求めるものは右の重りの重さ F [N] です。',
+                c: '教科書33〜34ページ「作用点の異なる力のつり合い」と例題6を確認してください。'
+            },
+            stage1: {
+                b: '左の重りと右の重りは、支点 O からはなれた別々の場所につるされています。1-10 で学んだ「1 点に集まる力」とは違う状況です。',
+                a: 'この問題は、力の作用点が支点 O からはなれた別々の場所にあります。1 点に集まる力（1-10）でも、偶力（1-9）でもありません。',
+                c: '教科書33ページ「作用点の異なる力のつり合い」を確認してください。'
+            },
+            stage3: {
+                b: '式は F₂ ＝ (F₁ × r₁) ÷ r₂ です。F₁ には左の重さ、r₁ には左の距離、r₂ には右の距離を入れます。問題文の数値を読み取ってください。',
+                a: '式 F₂ ＝ (F₁ × r₁) ÷ r₂ の各空欄に、左の重さ・左の距離・右の距離の数値を入れてください。',
+                c: '教科書34ページ 式(2-15) を確認してください。'
+            },
+            stage4: {
+                b: 'まず F₁ × r₁ を計算します。次にその答えを r₂ で割ります。電卓を使って構いません。',
+                a: 'F₂ ＝ (F₁ × r₁) ÷ r₂。かけ算を先に計算し、その値を r₂ で割ってください。単位は N です。',
+                c: '教科書34ページ 例題6 を確認してください。'
+            }
+        };
+        const HINTS_1_11_DIST = {
+            stage0: {
+                b: '問題文の最後の文に注目してください。求めるのは「右の重りの距離 r」です。重さや左の距離は問題文にすでに数値が書かれています。',
+                a: '問題文の末尾に「右の重りは支点 O から何 cm はなれた点につるされているか、その距離 r を求めよ」とあります。求めるものは右の重りの距離 r [cm] です。',
+                c: '教科書33〜34ページ「作用点の異なる力のつり合い」と例題6を確認してください。'
+            },
+            stage1: {
+                b: '左の重りと右の重りは、支点 O からはなれた別々の場所につるされています。1-10 で学んだ「1 点に集まる力」とは違う状況です。',
+                a: 'この問題は、力の作用点が支点 O からはなれた別々の場所にあります。1 点に集まる力（1-10）でも、偶力（1-9）でもありません。',
+                c: '教科書33ページ「作用点の異なる力のつり合い」を確認してください。'
+            },
+            stage3: {
+                b: '式は r₂ ＝ (F₁ × r₁) ÷ F₂ です。F₁ には左の重さ、r₁ には左の距離、F₂ には右の重さを入れます。問題文の数値を読み取ってください。',
+                a: '式 r₂ ＝ (F₁ × r₁) ÷ F₂ の各空欄に、左の重さ・左の距離・右の重さの数値を入れてください。',
+                c: '教科書34ページ 式(2-15) を確認してください。'
+            },
+            stage4: {
+                b: 'まず F₁ × r₁ を計算します。次にその答えを F₂ で割ります。電卓を使って構いません。',
+                a: 'r₂ ＝ (F₁ × r₁) ÷ F₂。かけ算を先に計算し、その値を F₂ で割ってください。単位は cm です。',
+                c: '教科書34ページ 例題6 を確認してください。'
+            }
+        };
+        // 問 id（1〜4）→ ヒント表。renderCalculationProblem / showHint から参照。
+        const HINTS_1_11_BY_ID = {
+            1: HINTS_1_11_FORCE,
+            2: HINTS_1_11_FORCE,
+            3: HINTS_1_11_DIST,
+            4: HINTS_1_11_DIST
         };
 
         // Problems for sub-unit 2-1: displacement and velocity (repetitive calculation)
@@ -5045,6 +5251,7 @@
                 if (unitId === '1-8') return PROBLEMS_1_8.length;
                 if (unitId === '1-9') return PROBLEMS_1_9.length;
                 if (unitId === '1-10') return PROBLEMS_1_10.length;
+                if (unitId === '1-11') return PROBLEMS_1_11.length;
                 if (unitId === '2-1') return PROBLEMS_2_1.length;
                 return 0;
             }
@@ -7512,6 +7719,7 @@
                 else if (this.currentUnitId === '1-8') problems = PROBLEMS_1_8;
                 else if (this.currentUnitId === '1-9') problems = PROBLEMS_1_9;
                 else if (this.currentUnitId === '1-10') problems = PROBLEMS_1_10;
+                else if (this.currentUnitId === '1-11') problems = PROBLEMS_1_11;
                 else if (this.currentUnitId === '2-1') problems = PROBLEMS_2_1;
 
                 if (this.currentProblemIndex >= problems.length) {
@@ -7620,6 +7828,7 @@
                     else if (this.currentUnitId === '1-8') problems = PROBLEMS_1_8;
                     else if (this.currentUnitId === '1-9') problems = PROBLEMS_1_9;
                     else if (this.currentUnitId === '1-10') problems = PROBLEMS_1_10;
+                    else if (this.currentUnitId === '1-11') problems = PROBLEMS_1_11;
                     else if (this.currentUnitId === '2-1') problems = PROBLEMS_2_1;
                     sidebarList.innerHTML = problems.map((p, i) =>
                         `<li class="${i === this.currentProblemIndex ? 'is-active' : ''}">問 ${p.id}</li>`
@@ -7648,7 +7857,7 @@
                 const content = document.getElementById('problemContent');
 
                 // Handle different problem types
-                if (this.currentUnitId === '2-1' || this.currentUnitId === '1-6' || this.currentUnitId === '1-7' || this.currentUnitId === '1-8' || this.currentUnitId === '1-9' || this.currentUnitId === '1-10') {
+                if (this.currentUnitId === '2-1' || this.currentUnitId === '1-6' || this.currentUnitId === '1-7' || this.currentUnitId === '1-8' || this.currentUnitId === '1-9' || this.currentUnitId === '1-10' || this.currentUnitId === '1-11') {
                     this.renderCalculationProblem(problem, content);
                 } else if (this.currentUnitId === '1-3' || this.currentUnitId === '1-4' || this.currentUnitId === '1-5') {
                     this.drawingStageIndex = 0;
@@ -7745,7 +7954,8 @@
                 const is1_8 = this.currentUnitId === '1-8';
                 const is1_9 = this.currentUnitId === '1-9';
                 const is1_10 = this.currentUnitId === '1-10';
-                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10;
+                const is1_11 = this.currentUnitId === '1-11';
+                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11;
                 // Persistent problem statement shown at the top of every stage
                 const problemText = isForceCalc
                     ? problem.sentence
@@ -7800,6 +8010,15 @@
                         '計算する',
                         '答えの意味を確認'
                     ]
+                    : is1_11
+                    ? [
+                        '求める量を確認する',
+                        '力のつり合いを確認する',
+                        '使う式を確認する',
+                        '数値を代入する',
+                        '計算する',
+                        '答えの意味を確認'
+                    ]
                     : [
                         '求める量を確認する',
                         '運動の種類を確認する',
@@ -7825,6 +8044,7 @@
                                       : is1_8 ? this.build1_8StaticCanvas(problem)
                                       : is1_9 ? this.build1_9StaticCanvas(problem)
                                       : is1_10 ? this.build1_10StaticCanvas(problem)
+                                      : is1_11 ? this.build1_11StaticCanvas(problem)
                                       : '';
 
                 // 1-7（案B 7 ステージ）は専用ルートで処理し、early return する。
@@ -7885,6 +8105,8 @@
                         ? '図の 2 力の関係はどれですか？'
                         : is1_10
                         ? '図の物体にはたらく力の関係はどれですか？'
+                        : is1_11
+                        ? '図の棒にはたらく力の関係はどれですか？'
                         : '問題文の「一定の速さで運動した」は、どのような運動ですか？';
                     content.innerHTML = header + staticCanvas1_6 + `
                         <div class="calc-stage-container">
@@ -8017,6 +8239,25 @@
                                 </div>
                             </div>
                         `;
+                    } else if (is1_11) {
+                        // 1-11（作用点の異なる力のつり合い）: 問題図 + stage2Text + 公式 + 補足
+                        const reasonHTML = (problem.formulaType === 'leverForce')
+                            ? '棒は回らずに静止してつり合っている<br>→ 左回りのモーメント F₁ × r₁ ＝ 右回りのモーメント F₂ × r₂<br>→ F₂ について解いて <strong>F₂ ＝ (F₁ × r₁) ÷ r₂</strong>'
+                            : '棒は回らずに静止してつり合っている<br>→ 左回りのモーメント F₁ × r₁ ＝ 右回りのモーメント F₂ × r₂<br>→ r₂ について解いて <strong>r₂ ＝ (F₁ × r₁) ÷ F₂</strong>';
+                        content.innerHTML = header + staticCanvas1_6 + `
+                            <div class="calc-stage-container">
+                                <div style="font-size:15px; margin-bottom:14px; line-height:1.7;">
+                                    ${problem.stage2Text}
+                                </div>
+                                <div class="calc-formula-display">
+                                    $${problem.formula}$
+                                </div>
+                                <div style="background:#eef3fa; border-left:3px solid #4a7cbe; padding:12px 16px; border-radius:3px; margin-top:16px; font-size:14px; line-height:1.7; color:#222;">
+                                    <strong>この式になる理由：</strong><br>
+                                    ${reasonHTML}
+                                </div>
+                            </div>
+                        `;
                     } else {
                         content.innerHTML = header + `
                             <div class="calc-stage-container">
@@ -8053,7 +8294,7 @@
                         // 式の表示: 1-6 → F = √( [F₁]² + [F₂]² ) と tan α = [F₂num]/[F₁den] の 2 式
                         //         1-7 → Fx = [F] × [cos α] or Fy = [F] × [sin α]
                         //         1-8 → M = [F] × [r] / 1-9 → M = [F] × [d]
-                        const slotLabel = { F1: 'F₁', F2: 'F₂', F: 'F', Fx: 'Fx', r: 'r', d: 'd', cosAlpha: 'cos α', sinAlpha: 'sin α', F1tan: 'F₁', F2tan: 'F₂', W: 'W', 'sinθ': 'sin θ' };
+                        const slotLabel = { F1: 'F₁', F2: 'F₂', F: 'F', Fx: 'Fx', r: 'r', r1: 'r₁', r2: 'r₂', d: 'd', cosAlpha: 'cos α', sinAlpha: 'sin α', F1tan: 'F₁', F2tan: 'F₂', W: 'W', 'sinθ': 'sin θ' };
                         const makeSlotSpan = (role, text) =>
                             `<span class="calc-formula-input empty" data-slot="${role}" id="slot-${role}">${text || slotLabel[role] || role}</span>`;
                         const slotSpans = slots.map(role => makeSlotSpan(role));
@@ -8100,6 +8341,15 @@
                                 formulaHTML = `T ＝ ${slotSpans[0]} ÷ (2 × ${slotSpans[1]})`;
                             } else {
                                 formulaHTML = `T ＝ ${slotSpans[0]} ÷ ${slotSpans[1]}`;
+                            }
+                        } else if (is1_11) {
+                            // 問のタイプで式の形が異なる:
+                            //   leverForce → F₂ ＝ ([F₁] × [r₁]) ÷ [r₂]
+                            //   leverDist  → r₂ ＝ ([F₁] × [r₁]) ÷ [F₂]
+                            if (problem.formulaType === 'leverForce') {
+                                formulaHTML = `F₂ ＝ (${slotSpans[0]} × ${slotSpans[1]}) ÷ ${slotSpans[2]}`;
+                            } else {
+                                formulaHTML = `r₂ ＝ (${slotSpans[0]} × ${slotSpans[1]}) ÷ ${slotSpans[2]}`;
                             }
                         } else {
                             formulaHTML = `M ＝ ${slotSpans[0]} × ${slotSpans[1]}`;
@@ -8259,6 +8509,26 @@
                                 </div>
                             </div>
                         `;
+                    } else if (is1_11) {
+                        const isLeverForce_s4 = problem.formulaType === 'leverForce';
+                        const subFormula1_11 = isLeverForce_s4
+                            ? `F = \\dfrac{${problem.fL} \\times ${problem.rL}}{${problem.rR}}`
+                            : `r = \\dfrac{${problem.fL} \\times ${problem.rL}}{${problem.fR}}`;
+                        const answerLabel_s4 = isLeverForce_s4 ? 'F ＝' : 'r ＝';
+                        const answerUnit_s4 = isLeverForce_s4 ? '[N]' : '[cm]';
+                        content.innerHTML = header + staticCanvas1_6 + `
+                            <div class="calc-stage-container">
+                                <div class="calc-question-text">計算結果を入力してください（電卓を使って構いません）。</div>
+                                <div class="calc-formula-display">
+                                    $${subFormula1_11} = {\\color{#c62828}?}$
+                                </div>
+                                <div class="calc-input-row">
+                                    <span class="calc-input-label">答え：${answerLabel_s4}</span>
+                                    <input type="number" id="answerInput" class="calc-answer-input" placeholder="数値" style="width:120px;" step="0.1">
+                                    <span style="font-size:14px; color:#555; margin-left:6px;">${answerUnit_s4}</span>
+                                </div>
+                            </div>
+                        `;
                     } else {
                         content.innerHTML = header + `
                             <div class="calc-stage-container">
@@ -8384,6 +8654,29 @@
                                 </div>
                                 <div style="margin-top:14px; font-size:13px; color:#555;">
                                     次の問題に進む前に、式とつり合いの図を頭の中で思い浮かべてください。
+                                </div>
+                            </div>
+                        `;
+                    } else if (is1_11) {
+                        const isLeverForce_s5 = problem.formulaType === 'leverForce';
+                        const ans = isLeverForce_s5 ? problem.expectedForce : problem.expectedDist;
+                        const reflFormula = isLeverForce_s5
+                            ? `F_2 = \\dfrac{F_1 \\times r_1}{r_2} = \\dfrac{${problem.fL} \\times ${problem.rL}}{${problem.rR}} = ${ans}\\,\\mathrm{[N]}`
+                            : `r_2 = \\dfrac{F_1 \\times r_1}{F_2} = \\dfrac{${problem.fL} \\times ${problem.rL}}{${problem.fR}} = ${ans}\\,\\mathrm{[cm]}`;
+                        const reflText = isLeverForce_s5
+                            ? `左の重り（<strong>${problem.fL} N</strong>・支点から <strong>${problem.rL} cm</strong>）とつり合うように、右の重りを支点から <strong>${problem.rR} cm</strong> の点につるすと、右の重りの重さは <strong>${ans} N</strong> になります。<br>左回りのモーメント F₁ × r₁ と右回りのモーメント F₂ × r₂ が等しいとき、棒は回らずにつり合います。`
+                            : `左の重り（<strong>${problem.fL} N</strong>・支点から <strong>${problem.rL} cm</strong>）とつり合うように、重さ <strong>${problem.fR} N</strong> の右の重りをつるす点は、支点から <strong>${ans} cm</strong> の位置です。<br>左回りのモーメント F₁ × r₁ と右回りのモーメント F₂ × r₂ が等しいとき、棒は回らずにつり合います。`;
+                        content.innerHTML = header + staticCanvas1_6 + `
+                            <div class="calc-stage-container">
+                                <div class="calc-question-text">答えの意味を確認しよう。</div>
+                                <div class="calc-formula-display">
+                                    $${reflFormula}$
+                                </div>
+                                <div style="background:#eaf1fa; border-left:4px solid #1e5fa8; padding:14px 18px; border-radius:3px; margin-top:18px; font-size:15px; line-height:1.7;">
+                                    ${reflText}
+                                </div>
+                                <div style="margin-top:14px; font-size:13px; color:#555;">
+                                    次の問題に進む前に、式とモーメントのつり合いの図を頭の中で思い浮かべてください。
                                 </div>
                             </div>
                         `;
@@ -9418,6 +9711,80 @@
                     svg += `<line x1="${oX}" y1="${oY - 12}" x2="${tx2}" y2="${ty2}" stroke="${BLUE}" stroke-width="2.5" marker-end="url(#stc110-blue)"/>`;
                     svg += `<text x="${tx2 + 8}" y="${ty2 + 2}" font-size="14" fill="${BLUE}" font-weight="600">T</text>`;
                 }
+                svg += `</svg></div>`;
+                return svg;
+            }
+
+            // 1-11（作用点の異なる力のつり合い）の問題図を生成する。
+            //   tool: 'lever' — 水平な棒・中央下に支点 O（上向き三角形）・左右に下向きの力矢印・寸法線。
+            //   左の重りは fL/rL（既知）、右の重りは fR/rR（一方が未知）。距離は cm。
+            //   未知の重さは「F = ? N」、未知の距離は寸法線ラベルを「r = ? cm」とする。
+            //   全ステージ（0〜5）で共通表示する。座標はメソッド内で設計。
+            build1_11StaticCanvas(problem) {
+                const c = problem.canvas;
+                const W = c.width, H = c.height;
+                const RED = '#d23a2a';
+                let svg = `<div class="drawing-wrapper" style="pointer-events:none;">
+                <svg class="drawing-svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="cursor:default;">
+                <defs>
+                  <marker id="stc111-red" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><polygon points="0,0 9,3.5 0,7" fill="${RED}"/></marker>
+                  <marker id="stc111-dim" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto"><polygon points="0,0 8,3.5 0,7" fill="#777"/></marker>
+                  <marker id="stc111-dimS" markerWidth="8" markerHeight="7" refX="1" refY="3.5" orient="auto"><polygon points="8,0 0,3.5 8,7" fill="#777"/></marker>
+                </defs>`;
+                // 棒の y、支点 O の x、左右の重りの x（cm → px は固定縮尺で配置）
+                const barY = 78;
+                const cx = W / 2;
+                // 右の距離が未知（問3・問4）の場合は、図では左腕と同じ長さの代表位置に描く。
+                const rRForLayout = (problem.rR == null) ? problem.rL : problem.rR;
+                // 左右で最大の距離を基準に縮尺を決め、両腕がキャンバスに収まるようにする。
+                const maxR = Math.max(problem.rL, rRForLayout);
+                const halfSpan = (W / 2) - 46;        // 支点から端までに使える px
+                const scale = halfSpan / maxR;        // px / cm
+                const lx = cx - problem.rL * scale;   // 左の重りの x
+                const rx = cx + rRForLayout * scale;  // 右の重りの x
+
+                // 水平な棒
+                svg += `<line x1="${cx - halfSpan - 6}" y1="${barY}" x2="${cx + halfSpan + 6}" y2="${barY}" stroke="#3A434C" stroke-width="5" stroke-linecap="round"/>`;
+                // 支点 O（上向き三角形、棒の下）
+                const triH = 26, triW = 30;
+                svg += `<polygon points="${cx},${barY + 3} ${cx - triW / 2},${barY + 3 + triH} ${cx + triW / 2},${barY + 3 + triH}" fill="#8a939c" stroke="#3A434C" stroke-width="2"/>`;
+                svg += `<text x="${cx}" y="${barY + 3 + triH + 16}" text-anchor="middle" font-size="13" fill="#333" font-weight="600">O</text>`;
+
+                // 重り（おもり）と下向きの力矢印を描く
+                const drawWeightArrow = (x, label) => {
+                    let s = '';
+                    const aY1 = barY + 4, aY2 = barY + 52;
+                    s += `<line x1="${x}" y1="${aY1}" x2="${x}" y2="${aY2}" stroke="${RED}" stroke-width="2.5" marker-end="url(#stc111-red)"/>`;
+                    // おもりの四角形（矢印の先）
+                    s += `<rect x="${x - 13}" y="${aY2 + 2}" width="26" height="20" rx="3" fill="#dbe4ef" stroke="#3A434C" stroke-width="2"/>`;
+                    // 作用点（棒の上の黒丸）
+                    s += `<circle cx="${x}" cy="${barY}" r="3.5" fill="#333"/>`;
+                    // 力のラベル（矢印の右）
+                    s += `<text x="${x + 9}" y="${(aY1 + aY2) / 2 + 4}" font-size="13" fill="${RED}" font-family="sans-serif" font-weight="600">${label}</text>`;
+                    return s;
+                };
+                // 寸法線（支点 O から重りまでの水平距離）
+                const drawDimLine = (x1, x2, label) => {
+                    const dimY = barY - 30;
+                    let s = '';
+                    // 補助線（棒側へ）
+                    s += `<line x1="${x1}" y1="${barY - 6}" x2="${x1}" y2="${dimY - 4}" stroke="#999" stroke-width="1"/>`;
+                    s += `<line x1="${x2}" y1="${barY - 6}" x2="${x2}" y2="${dimY - 4}" stroke="#999" stroke-width="1"/>`;
+                    // 両端矢印の寸法線
+                    s += `<line x1="${x1}" y1="${dimY}" x2="${x2}" y2="${dimY}" stroke="#777" stroke-width="1.5" marker-start="url(#stc111-dimS)" marker-end="url(#stc111-dim)"/>`;
+                    s += `<text x="${(x1 + x2) / 2}" y="${dimY - 6}" text-anchor="middle" font-size="12" fill="#555" font-weight="500">${label}</text>`;
+                    return s;
+                };
+
+                // 左の重り（常に既知）
+                svg += drawWeightArrow(lx, `${problem.fL} N`);
+                svg += drawDimLine(lx, cx, `${problem.rL} cm`);
+                // 右の重り（重さ未知 or 距離未知）
+                const rLabel = (problem.fR == null) ? 'F = ? N' : `${problem.fR} N`;
+                const rDim = (problem.rR == null) ? 'r = ? cm' : `${problem.rR} cm`;
+                svg += drawWeightArrow(rx, rLabel);
+                svg += drawDimLine(cx, rx, rDim);
+
                 svg += `</svg></div>`;
                 return svg;
             }
@@ -12049,13 +12416,15 @@
                     }
 
                     // 1-6 は HINTS_1_6、1-7 は HINTS_1_7、1-8 は HINTS_1_8、1-9 は HINTS_1_9、2-1 は HINTS_2_1。
-                    //   1-10 は問のタイプが 3 種類あるため、現在の問 id でヒント表を引く。
+                    //   1-10 / 1-11 は問のタイプが複数あるため、現在の問 id でヒント表を引く。
                     const hintsTable = (this.currentUnitId === '1-6') ? HINTS_1_6 :
                                        (this.currentUnitId === '1-7') ? HINTS_1_7 :
                                        (this.currentUnitId === '1-8') ? HINTS_1_8 :
                                        (this.currentUnitId === '1-9') ? HINTS_1_9 :
                                        (this.currentUnitId === '1-10')
                                            ? (HINTS_1_10_BY_ID[(this.getCalcProblem() || {}).id] || HINTS_1_10_TEQW)
+                                       : (this.currentUnitId === '1-11')
+                                           ? (HINTS_1_11_BY_ID[(this.getCalcProblem() || {}).id] || HINTS_1_11_FORCE)
                                        : HINTS_2_1;
                     const stageHints = hintsTable[stagePart];
                     const levelKeys = ['b', 'a', 'c'];
@@ -12173,6 +12542,9 @@
                 if (this.currentUnitId === '1-10') {
                     return PROBLEMS_1_10[this.currentProblemIndex];
                 }
+                if (this.currentUnitId === '1-11') {
+                    return PROBLEMS_1_11[this.currentProblemIndex];
+                }
                 if (this.currentUnitId === '2-1') {
                     return PROBLEMS_2_1[this.currentProblemIndex];
                 }
@@ -12211,8 +12583,9 @@
                 const is1_8 = this.currentUnitId === '1-8';
                 const is1_9 = this.currentUnitId === '1-9';
                 const is1_10 = this.currentUnitId === '1-10';
-                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10;
-                // 1-6/1-7/1-8/1-9/1-10 は problem.stage0Correct、2-1 は固定値 's'
+                const is1_11 = this.currentUnitId === '1-11';
+                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11;
+                // 1-6〜1-11 は problem.stage0Correct、2-1 は固定値 's'
                 const correct = isForceCalc ? problem.stage0Correct : 's';
                 const isCorrect = (value === correct);
                 if (isCorrect) {
@@ -12231,6 +12604,10 @@
                             msg = '正解。力のモーメント M の大きさを求めます。';
                         } else if (is1_9) {
                             msg = '正解。偶力のモーメント M の大きさを求めます。';
+                        } else if (is1_11) {
+                            msg = (problem.formulaType === 'leverForce')
+                                ? '正解。右の重りの重さ F の大きさを求めます。'
+                                : '正解。右の重りの支点からの距離 r を求めます。';
                         }
                         feedback.textContent = msg;
                     }
@@ -12277,6 +12654,24 @@
                             } else {
                                 msg = '不正解。問題文の末尾「○○を求めよ」に注目してください。';
                             }
+                        } else if (is1_11) {
+                            if (problem.formulaType === 'leverForce') {
+                                if (value === 'forceL') {
+                                    msg = '不正解。左の重りの重さは問題文に「重さ ○○ N の重り」で与えられています。求めるものは別の量です。';
+                                } else if (value === 'distR') {
+                                    msg = '不正解。右の重りの距離は問題文に「右に ○○ cm はなれた点」で与えられています。求めるものは別の量です。';
+                                } else {
+                                    msg = '不正解。問題文の末尾「○○を求めよ」に注目してください。';
+                                }
+                            } else {
+                                if (value === 'distL') {
+                                    msg = '不正解。左の重りの距離は問題文に「左に ○○ cm はなれた点」で与えられています。求めるものは別の量です。';
+                                } else if (value === 'forceR') {
+                                    msg = '不正解。右の重りの重さは問題文に「重さ ○○ N の重り」で与えられています。求めるものは別の量です。';
+                                } else {
+                                    msg = '不正解。問題文の末尾「○○を求めよ」に注目してください。';
+                                }
+                            }
                         } else {
                             msg = (value === 'v')
                                 ? '不正解。速度は問題文に「○○ m/s」の形で数値が与えられています。「求めよ」と書かれている量を探してください。'
@@ -12312,8 +12707,9 @@
                 const is1_8 = this.currentUnitId === '1-8';
                 const is1_9 = this.currentUnitId === '1-9';
                 const is1_10 = this.currentUnitId === '1-10';
-                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10;
-                // 1-6/1-7/1-8/1-9/1-10 は problem.stage1Correct、2-1 は固定値 'constant'
+                const is1_11 = this.currentUnitId === '1-11';
+                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11;
+                // 1-6〜1-11 は problem.stage1Correct、2-1 は固定値 'constant'
                 const correct = isForceCalc ? problem.stage1Correct : 'constant';
                 const isCorrect = (value === correct);
                 if (isCorrect) {
@@ -12330,6 +12726,8 @@
                             msg = '正解。力 F は腕 OA に対して直角にはたらいています。この場合 M ＝ F × r の式が使えます。';
                         } else if (is1_9) {
                             msg = '正解。図の 2 力は大きさが等しく、逆向きで平行な「偶力」です。この場合 M ＝ F × d の式で偶力のモーメントが求められます。';
+                        } else if (is1_11) {
+                            msg = '正解。2 つの重りは支点 O からはなれた別々の場所にあります。この場合は点 O のまわりのモーメントのつり合い F₁ × r₁ ＝ F₂ × r₂ で考えます。';
                         }
                         feedback.textContent = msg;
                     }
@@ -12349,6 +12747,8 @@
                             msg = '不正解。問題文に「腕 OA に垂直に」と書かれており、図でも力 F は腕 OA と直角にはたらいています。';
                         } else if (is1_9) {
                             msg = '不正解。図の 2 力は同じ大きさで反対向き、かつ作用線が平行に離れています。これを「偶力」といいます。';
+                        } else if (is1_11) {
+                            msg = '不正解。2 つの重りは支点 O からはなれた別々の点につるされています。1 点に集まる力（1-10）でも偶力（1-9）でもありません。';
                         }
                         feedback.textContent = msg;
                     }
@@ -12417,7 +12817,7 @@
                     v: 'v', t: 't',
                     F1: 'F₁', F2: 'F₂',
                     F: 'F', Fx: 'Fx',
-                    r: 'r', d: 'd',
+                    r: 'r', r1: 'r₁', r2: 'r₂', d: 'd',
                     cosAlpha: 'cos α', sinAlpha: 'sin α',
                     F1tan: 'F₁', F2tan: 'F₂',
                     W: 'W', 'sinθ': 'sin θ'
@@ -12457,6 +12857,8 @@
                             feedback.textContent = '不正解。単位に注目して入れ直してください。「N（ニュートン）」が力 F、「m（メートル）」が作用線間の距離 d です。';
                         } else if (this.currentUnitId === '1-10') {
                             feedback.textContent = '不正解。式の W の空欄には問題文の重さ W の値、sin θ の空欄には問題文の sin θ の値を入れてください。';
+                        } else if (this.currentUnitId === '1-11') {
+                            feedback.textContent = '不正解。F₁・r₁ には左の重りの重さ・距離、もう一方には右の重りの値を入れてください。単位（N・cm）にも注目してください。';
                         } else {
                             feedback.textContent = '不正解。単位に注目して入れ直してください。「m/s」が速度 v、「s（秒）」が時間 t です。';
                         }
@@ -12484,15 +12886,17 @@
                 const is1_8 = this.currentUnitId === '1-8';
                 const is1_9 = this.currentUnitId === '1-9';
                 const is1_10 = this.currentUnitId === '1-10';
-                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10;
+                const is1_11 = this.currentUnitId === '1-11';
+                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11;
 
-                // 1-6/1-7/1-8/1-9/1-10 は小数入力（step=0.1 を許容）し tolerance で判定。
+                // 1-6〜1-11 は小数入力（step=0.1 を許容）し tolerance で判定。
                 const userAnswer = isForceCalc ? parseFloat(answerInput.value) : parseInt(answerInput.value);
                 const expected   = is1_6 ? problem.expectedResultant
                                  : is1_7 ? problem.expectedAnswer
                                  : is1_8 ? problem.expectedMoment
                                  : is1_9 ? problem.expectedCoupleMoment
                                  : is1_10 ? problem.expectedTension
+                                 : is1_11 ? (problem.formulaType === 'leverForce' ? problem.expectedForce : problem.expectedDist)
                                  : problem.expectedDisplacement;
                 const tolerance  = isForceCalc ? (problem.tolerance || 1) : 0;
                 // 浮動小数点誤差対策: tolerance 境界（例 tolerance=0.1 で |userAnswer-expected|=0.10000...142）が
@@ -12562,6 +12966,16 @@
                             <div style="margin-bottom: 10px;">正解です。</div>
                             <div class="answer-explanation">
                                 ${expl1_10}
+                            </div>
+                        `;
+                    } else if (is1_11) {
+                        const expl1_11 = (problem.formulaType === 'leverForce')
+                            ? `F₂ ＝ (F₁ × r₁) ÷ r₂ ＝ (${problem.fL} × ${problem.rL}) ÷ ${problem.rR} ＝ ${expected} [N]`
+                            : `r₂ ＝ (F₁ × r₁) ÷ F₂ ＝ (${problem.fL} × ${problem.rL}) ÷ ${problem.fR} ＝ ${expected} [cm]`;
+                        feedback.innerHTML = `
+                            <div style="margin-bottom: 10px;">正解です。</div>
+                            <div class="answer-explanation">
+                                ${expl1_11}
                             </div>
                         `;
                     } else {
