@@ -3544,7 +3544,7 @@
             },
             stage5: {
                 b: 'W（40）を sin θ（＝0.5）で割ります。0.5 で割ることは 2 倍することと同じです。電卓を使って構いません。',
-                a: 'T ＝ 40 ÷ 0.5 ＝ 80。単位は N。',
+                a: 'T ＝ 40 ÷ 0.5 ＝ 80.0。単位は N。',
                 c: '教科書32ページ 例題5 の計算過程を確認してください。'
             }
         };
@@ -10008,6 +10008,9 @@
                             <div class="calc-formula-display">
                                 $${exprLatex}$
                             </div>
+                            <div style="background:#eef3fa; border-left:3px solid #4a7cbe; padding:9px 13px; border-radius:3px; margin:6px 0 14px; font-size:13px; line-height:1.6; color:#333;">
+                                答えは <strong>四捨五入して小数第 1 位まで</strong>求めてください（小数第 2 位を四捨五入）。
+                            </div>
                             <div class="calc-input-row">
                                 <span class="calc-input-label">答え：T ＝</span>
                                 <input type="number" id="answerInput" class="calc-answer-input" placeholder="数値" style="width:120px;" step="0.1">
@@ -10029,8 +10032,8 @@
                     // Stage 6: 振り返り。
                     const isSym = problem.formulaType === 'sym';
                     const reflectText = isSym
-                        ? 'T ＝ W ÷ (2 × sin θ) ＝ 90 ÷ (2 × 0.866) ＝ 52.0 [N]。重さ 90 N の半分は 45 N ですが、張力 T（約 52.0 N）はそれより大きくなります。ひもがななめになっているぶん、まっすぐつり下げるより 1 本にかかる力が大きくなります。'
-                        : 'T ＝ W ÷ sin θ ＝ 40 ÷ 0.5 ＝ 80 [N]。水平なひもは上向きの分力をもたないため、重さ W を支えるのはひも OB の縦の分力 T sin θ だけです。張力 T（80 N）が重さ W（40 N）の 2 倍になっていることに注目してください。ひもの角度 θ が小さい（水平に近い）ほど、張力は大きくなります。';
+                        ? 'T ＝ W ÷ (2 × sin θ) ＝ 90 ÷ (2 × 0.866) ≒ 52.0 [N]。重さ 90 N の半分は 45 N ですが、張力 T（約 52.0 N）はそれより大きくなります。ひもがななめになっているぶん、まっすぐつり下げるより 1 本にかかる力が大きくなります。'
+                        : 'T ＝ W ÷ sin θ ＝ 40 ÷ 0.5 ＝ 80.0 [N]。水平なひもは上向きの分力をもたないため、重さ W を支えるのはひも OB の縦の分力 T sin θ だけです。張力 T（80 N）が重さ W（40 N）の 2 倍になっていることに注目してください。ひもの角度 θ が小さい（水平に近い）ほど、張力は大きくなります。';
                     content.innerHTML = header + staticCanvas + `
                         <div class="calc-stage-container">
                             <div class="calc-question-text">答えの意味を確認してください。</div>
@@ -14449,11 +14452,14 @@
                         const sin1_10 = (this.calcInputs.enteredTrigValue !== undefined && this.calcInputs.enteredTrigValue !== null)
                             ? this.calcInputs.enteredTrigValue
                             : problem.sinValue;
+                        // 問3・問4 は「小数第 1 位まで」で解答させるため、解説の最終値も
+                        //   丸めた値で表示する（生徒の正答 52.0 と表記を揃える）。
+                        const tRounded1_10 = Number(expected).toFixed(1);
                         const expl1_10 = (problem.formulaType === 'TeqW')
                             ? `T ＝ W ＝ ${problem.w} ＝ ${expected} [N]`
                             : (problem.formulaType === 'sym')
-                            ? `T ＝ W ÷ (2 × sin θ) ＝ ${problem.w} ÷ (2 × ${sin1_10}) ＝ ${expected} [N]`
-                            : `T ＝ W ÷ sin θ ＝ ${problem.w} ÷ ${sin1_10} ＝ ${expected} [N]`;
+                            ? `T ＝ W ÷ (2 × sin θ) ＝ ${problem.w} ÷ (2 × ${sin1_10}) ≒ ${tRounded1_10} [N]`
+                            : `T ＝ W ÷ sin θ ＝ ${problem.w} ÷ ${sin1_10} ＝ ${tRounded1_10} [N]`;
                         feedback.innerHTML = `
                             <div style="margin-bottom: 10px;">正解です。</div>
                             <div class="answer-explanation">
