@@ -3296,11 +3296,12 @@
             },
             {
                 id: 3,
-                w: 120, sinTheta: 0.6, expectedTension: 100, tolerance: 0.5, unit: 'N',
+                w: 90, theta: 60, sinValue: 0.866, ropeCount: 2,
+                expectedTension: 51.96, tolerance: 0.5, unit: 'N',
                 tool: 'twoRopeSymmetric', formulaType: 'sym',
-                sentence: '重さ W ＝ 120 N の物体を、2 本のひも OA、OB で天井からつり下げて静止させた。2 本のひもは左右対称である。ひもが天井（水平な線）となす角を θ とし、sin θ ＝ 0.6 とする。このとき 1 本のひもにはたらく張力 T の大きさを求めよ。',
-                condition: '基礎、左右対称 3 力のつり合い、W=120 N, sinθ=0.6 → T=100 N',
-                baselineTime: 120,
+                sentence: '重さ W ＝ 90 N の物体を、2 本のひも OA、OB で天井からつり下げて静止させた。2 本のひもは左右対称である。ひもが天井（水平な線）となす角を θ ＝ 60° とする。このとき 1 本のひもにはたらく張力 T の大きさを求めよ。',
+                condition: '基礎、左右対称 3 力のつり合い、W=90 N, θ=60° → T≒52.0 N',
+                baselineTime: 150,
                 canvasType: '2d-static',
                 canvas: { width: 320, height: 240 },
                 stage0Choices: [
@@ -3310,28 +3311,78 @@
                 ],
                 stage0Correct: 'tension',
                 stage1Choices: [
-                    { value: 'balance3sym', label: '左右対称な 2 本のひもの張力と、下向きの重さの 3 力がつり合っている' },
+                    { value: 'balance3sym', label: '左右対称な 2 本のひもの張力 T と、下向きの重さ W の 3 力がつり合っている' },
                     { value: 'balance2',    label: '大きさが等しく逆向きの 2 力だけがつり合っている' },
                     { value: 'couple',      label: '平行で作用線がはなれた 2 力（偶力）がはたらいている' }
                 ],
                 stage1Correct: 'balance3sym',
-                stage2Text: '物体は 3 力（左右 2 本のひもの張力 T と、下向きの重さ W）でつり合っています。左右対称なので、2 本のひもの張力は同じ大きさ T です。<br>1-7 で学んだように、ななめの力は縦の分力と横の分力に分けられます。各ひもの張力 T のうち、上向き（縦）の分力は T × sin θ です（θ はひもが天井となす角）。<br>上向きの分力は<strong>ひも 2 本ぶん</strong>あるので、その合計 2 × T × sin θ が下向きの重さ W とつり合います。<br>2 × T × sin θ ＝ W。これを T について解くと、T ＝ W ÷ (2 × sin θ) です。',
+                derivationSteps: [
+                    {
+                        prompt: 'ひも 1 本の張力 T は天井に対してななめを向いています。1-7 で学んだように、この張力はどう考えますか？',
+                        choices: [
+                            { value: 'decompose', label: 'そのまま使わず、縦（上下）と横（左右）の分力に分ける' },
+                            { value: 'asis',      label: 'ななめのまま、分けずにそのまま使う' }
+                        ],
+                        correct: 'decompose',
+                        onCorrectText: '張力 T を、縦の分力と横の分力に分けます。'
+                    },
+                    {
+                        prompt: 'ひもが天井となす角を θ とします。張力 T のうち、上向き（縦）の分力はどの式で表せますか？',
+                        choices: [
+                            { value: 'Tsin', label: 'T × sin θ （縦の分力 ＝ 高さ ÷ 斜辺 → sin）' },
+                            { value: 'Tcos', label: 'T × cos θ （底辺 ÷ 斜辺 → cos）' },
+                            { value: 'Ttan', label: 'T × tan θ （高さ ÷ 底辺 → tan）' }
+                        ],
+                        correct: 'Tsin',
+                        onCorrectText: '縦の分力は T × sin θ です（sin θ ＝ 高さ ÷ 斜辺）。'
+                    },
+                    {
+                        prompt: '上向きの分力は何本ぶんありますか。上向きの分力の合計はどうなりますか？',
+                        choices: [
+                            { value: 'two', label: 'ひもは 2 本なので、上向きの分力の合計は 2 × T × sin θ' },
+                            { value: 'one', label: 'ひもは 1 本ぶんなので T × sin θ のまま' }
+                        ],
+                        correct: 'two',
+                        onCorrectText: '上向きの分力はひも 2 本ぶん。合計は 2 × T × sin θ です。'
+                    },
+                    {
+                        prompt: '上向きの分力の合計と、下向きの重さ W がつり合います。つり合いの式はどれですか？',
+                        choices: [
+                            { value: 'eq',     label: '2 × T × sin θ ＝ W' },
+                            { value: 'eqHalf', label: 'T × sin θ ＝ W' },
+                            { value: 'eqCos',  label: '2 × T × cos θ ＝ W' }
+                        ],
+                        correct: 'eq',
+                        onCorrectText: 'つり合いの式は 2 × T × sin θ ＝ W です。'
+                    },
+                    {
+                        prompt: 'つり合いの式 2 × T × sin θ ＝ W を、T について解くとどうなりますか？',
+                        choices: [
+                            { value: 'solved', label: 'T ＝ W ÷ (2 × sin θ)' },
+                            { value: 'noDiv2', label: 'T ＝ W ÷ sin θ' },
+                            { value: 'mul',    label: 'T ＝ W × (2 × sin θ)' }
+                        ],
+                        correct: 'solved',
+                        onCorrectText: 'T ＝ W ÷ (2 × sin θ) と求まりました。次のステップでこの式に数値を代入します。'
+                    }
+                ],
                 formula: 'T = \\dfrac{W}{2 \\times \\sin\\theta}',
                 substitutions: {
-                    slots: ['W', 'sinθ'],
+                    slots: ['W', 'theta'],
                     cards: [
-                        { role: 'W',    label: 'W',     value: 120, unit: 'N' },
-                        { role: 'sinθ', label: 'sin θ', value: 0.6, unit: '' }
+                        { role: 'W',     label: 'W', value: 90, unit: 'N' },
+                        { role: 'theta', label: 'θ', value: 60, unit: '°' }
                     ]
                 }
             },
             {
                 id: 4,
-                w: 40, sinTheta: 0.5, expectedTension: 80, tolerance: 0.5, unit: 'N',
+                w: 40, theta: 30, sinValue: 0.5, ropeCount: 1,
+                expectedTension: 80, tolerance: 0.5, unit: 'N',
                 tool: 'twoRopeLshape', formulaType: 'lshape',
-                sentence: '重さ W ＝ 40 N の物体を点 O につり下げた。点 O には、水平に張ったひも OA と、ななめ上にのびるひも OB がつながれており、物体は静止してつり合っている。ひも OB が水平な方向となす角を θ とし、sin θ ＝ 0.5 とする。ひも OB にはたらく張力 T の大きさを求めよ。',
-                condition: '基礎、水平+斜め 3 力のつり合い、W=40 N, sinθ=0.5 → T=80 N',
-                baselineTime: 120,
+                sentence: '重さ W ＝ 40 N の物体を点 O につり下げた。点 O には、水平に張ったひも OA と、ななめ上にのびるひも OB がつながれており、物体は静止してつり合っている。ひも OB が水平な方向となす角を θ ＝ 30° とする。ひも OB にはたらく張力 T の大きさを求めよ。',
+                condition: '基礎、水平+斜め 3 力のつり合い、W=40 N, θ=30° → T=80 N',
+                baselineTime: 150,
                 canvasType: '2d-static',
                 canvas: { width: 320, height: 240 },
                 stage0Choices: [
@@ -3341,18 +3392,68 @@
                 ],
                 stage0Correct: 'tensionOB',
                 stage1Choices: [
-                    { value: 'balance3lshape', label: '水平なひも・ななめのひも・下向きの重さの 3 力がつり合っている' },
+                    { value: 'balance3lshape', label: '水平なひもの張力・ななめのひも OB の張力 T・下向きの重さ W の 3 力がつり合っている' },
                     { value: 'balance3sym',    label: '左右対称な 2 本のひもの張力と重さの 3 力がつり合っている' },
                     { value: 'balance2',       label: '大きさが等しく逆向きの 2 力だけがつり合っている' }
                 ],
                 stage1Correct: 'balance3lshape',
-                stage2Text: '物体は 3 力（水平なひもの張力、ななめのひも OB の張力 T、下向きの重さ W）でつり合っています。<br>水平なひもは真横にまっすぐで、上下の向きにまったく傾いていません。だから上向き（縦）の分力はありません。下向きの重さ W を上向きに支えられるのは、ななめのひも OB だけです。<br>1-7 で学んだように、ななめのひも OB の張力 T を縦と横に分けると、上向き（縦）の分力は T × sin θ です（θ はひもが水平となす角）。<br>上向きの分力は<strong>ひも 1 本ぶん</strong>だけなので、T × sin θ ＝ W。これを T について解くと、T ＝ W ÷ sin θ です。',
+                derivationSteps: [
+                    {
+                        prompt: '下向きの重さ W を上向きに支えるのは、どのひもですか？',
+                        choices: [
+                            { value: 'obOnly', label: 'ななめのひも（OB）だけ' },
+                            { value: 'both',   label: '水平のひも（OA）とななめのひも（OB）の両方' },
+                            { value: 'oaOnly', label: '水平のひも（OA）だけ' }
+                        ],
+                        correct: 'obOnly',
+                        onCorrectText: '水平なひも OA は真横を向いていて上向きの分力をもちません。重さを上向きに支えるのはななめのひも OB だけです。'
+                    },
+                    {
+                        prompt: 'ななめのひも OB の張力 T は、どう考えますか？',
+                        choices: [
+                            { value: 'decompose', label: 'そのまま使わず、縦（上下）と横（左右）の分力に分ける' },
+                            { value: 'asis',      label: 'ななめのまま、分けずにそのまま使う' }
+                        ],
+                        correct: 'decompose',
+                        onCorrectText: '張力 T を、縦の分力と横の分力に分けます。'
+                    },
+                    {
+                        prompt: 'ひも OB が水平となす角を θ とします。張力 T のうち、上向き（縦）の分力はどの式で表せますか？',
+                        choices: [
+                            { value: 'Tsin', label: 'T × sin θ （縦の分力 ＝ 高さ ÷ 斜辺 → sin）' },
+                            { value: 'Tcos', label: 'T × cos θ （底辺 ÷ 斜辺 → cos）' },
+                            { value: 'Ttan', label: 'T × tan θ （高さ ÷ 底辺 → tan）' }
+                        ],
+                        correct: 'Tsin',
+                        onCorrectText: '縦の分力は T × sin θ です（sin θ ＝ 高さ ÷ 斜辺）。'
+                    },
+                    {
+                        prompt: '上向きの分力（ひも 1 本ぶん）と、下向きの重さ W がつり合います。つり合いの式はどれですか？',
+                        choices: [
+                            { value: 'eq',       label: 'T × sin θ ＝ W' },
+                            { value: 'eqDouble', label: '2 × T × sin θ ＝ W' },
+                            { value: 'eqCos',    label: 'T × cos θ ＝ W' }
+                        ],
+                        correct: 'eq',
+                        onCorrectText: 'つり合いの式は T × sin θ ＝ W です。'
+                    },
+                    {
+                        prompt: 'つり合いの式 T × sin θ ＝ W を、T について解くとどうなりますか？',
+                        choices: [
+                            { value: 'solved', label: 'T ＝ W ÷ sin θ' },
+                            { value: 'div2',   label: 'T ＝ W ÷ (2 × sin θ)' },
+                            { value: 'mul',    label: 'T ＝ W × sin θ' }
+                        ],
+                        correct: 'solved',
+                        onCorrectText: 'T ＝ W ÷ sin θ と求まりました。次のステップでこの式に数値を代入します。'
+                    }
+                ],
                 formula: 'T = \\dfrac{W}{\\sin\\theta}',
                 substitutions: {
-                    slots: ['W', 'sinθ'],
+                    slots: ['W', 'theta'],
                     cards: [
-                        { role: 'W',    label: 'W',     value: 40,  unit: 'N' },
-                        { role: 'sinθ', label: 'sin θ', value: 0.5, unit: '' }
+                        { role: 'W',     label: 'W', value: 40, unit: 'N' },
+                        { role: 'theta', label: 'θ', value: 30, unit: '°' }
                     ]
                 }
             }
@@ -3385,46 +3486,66 @@
         };
         const HINTS_1_10_SYM = {
             stage0: {
-                b: '問題文の最後の文に注目してください。求めるのは「1 本のひもの張力」です。2 本の和ではありません。重さ W は数値が与えられているので求めるものではありません。',
-                a: '問題文の末尾に「1 本のひもにはたらく張力 T の大きさを求めよ」とあります。求めるものは 1 本のひもの張力 T [N] です。重さ W [N] と sin θ は問題文に与えられています。',
-                c: '教科書31〜32ページ「1 点に働く力のつり合い」と図2-23 を確認してください。'
+                b: '問題文の最後の文に注目してください。求めるのは「1 本のひもの張力」です。2 本の和ではありません。',
+                a: '問題文の末尾に「1 本のひもにはたらく張力 T の大きさを求めよ」とあります。求めるものは 1 本のひもの張力 T [N] です。',
+                c: '教科書31〜32ページ「1 点に働く力のつり合い」と例題5を確認してください。'
             },
             stage1: {
-                b: '物体にはたらく力は 3 つです。左右 2 本のひもが引く力と、下向きの重さです。2 本のひもは左右対称なので、その張力の大きさは同じです。',
-                a: '1 点に 3 力がはたらいてつり合うとき、3 力の合力は 0 になります。この問題は左右対称なので、2 本のひもの張力は同じ大きさ T です。偶力（平行な 2 力）とは異なります。',
+                b: '物体を引いているひもは何本ですか。それと下向きの重さを合わせて、力はいくつになるか数えてください。',
+                a: '1 点に 3 力がはたらいてつり合うとき、3 力の合力は 0 になります。左右対称なので 2 本のひもの張力は同じ大きさ T です。',
                 c: '教科書32ページ 図2-23 と 3 力のつり合いの条件を確認してください。'
             },
+            stage2: {
+                b: '図をよく見てください。ひもは天井に対してななめに引いています。ななめの力をそのまま足し算することはできません。',
+                a: 'ななめの張力 T は縦の分力 T sin θ と横の分力に分けられます（sin θ ＝ 高さ ÷ 斜辺）。上向きの分力はひも 2 本ぶん。これが重さ W とつり合うので 2 × T × sin θ ＝ W。',
+                c: '教科書28ページ 図2-15（力の分解）と 32ページ 例題5 を確認してください。'
+            },
             stage3: {
-                b: '式は T ＝ W ÷ (2 × sin θ) です。W の空欄には重さの数値を、sin θ の空欄には 0.6 を入れます。',
-                a: '式 T ＝ W ÷ (2 × sin θ)。W の空欄に問題文の「W ＝ ○○ N」、sin θ の空欄に 0.6 を入れてください。',
-                c: '教科書32ページ 式(2-14) と例題5 を確認してください。'
+                b: '下の数値カードをタップしてから、式の空欄（黄色）をタップすると数値が入ります。',
+                a: '式 T ＝ W ÷ (2 × sin θ)。W の空欄に「W ＝ 90 N」、θ の空欄に「θ ＝ 60°」を入れてください。',
+                c: '教科書32ページ 例題5 の代入の流れを確認してください。'
             },
             stage4: {
-                b: 'まず分母を計算します。2 × 0.6 ＝ 1.2 です。次に W をその数で割ります。電卓を使って構いません。',
-                a: 'T ＝ W ÷ (2 × sin θ)。分母 2 × sin θ ＝ 2 × 0.6 ＝ 1.2 を先に計算し、W をその値で割ってください。単位は N です。',
-                c: '教科書32ページ 式(2-14) と例題5 を確認してください。'
+                b: '教科書 p.231 の付録三角関数表で「60°」の行を見て、sin の列の値を読み取ってください。または関数電卓で sin 60° を計算します。',
+                a: '代表角度の値は sin 30°＝0.500、sin 45°≒0.707、sin 60°≒0.866。この問題は θ ＝ 60° なので sin 60° ≒ 0.866 です。',
+                c: '教科書231ページ 付録三角関数表、または関数電卓で確認してください。'
+            },
+            stage5: {
+                b: '先に分母を計算します。2 × 0.866 ＝ 1.732 です。次に W（90）をその数で割ります。電卓を使って構いません。',
+                a: 'T ＝ 90 ÷ (2 × 0.866) ＝ 90 ÷ 1.732 ≒ 52.0。単位は N。',
+                c: '教科書32ページ 例題5 の計算過程を確認してください。'
             }
         };
         const HINTS_1_10_LSHAPE = {
             stage0: {
                 b: '問題文の最後の文に注目してください。求めるのは「ななめのひも OB の張力」です。水平なひも OA の張力ではありません。',
-                a: '問題文の末尾に「ひも OB にはたらく張力 T の大きさを求めよ」とあります。求めるものはななめのひも OB の張力 T [N] です。重さ W [N] と sin θ は問題文に与えられています。',
-                c: '教科書31〜32ページ「1 点に働く力のつり合い」と図2-23 を確認してください。'
+                a: '問題文の末尾に「ひも OB にはたらく張力 T の大きさを求めよ」とあります。求めるものはななめのひも OB の張力 T [N] です。',
+                c: '教科書31〜32ページ「1 点に働く力のつり合い」と例題5を確認してください。'
             },
             stage1: {
-                b: '物体にはたらく力は 3 つです。水平なひもの力、ななめのひもの力、下向きの重さです。水平なひもは真横を向いているので、下向きの重さを支えるのはななめのひもだけです。',
-                a: '1 点に 3 力がはたらいてつり合うとき、3 力の合力は 0 になります。水平なひもは縦の分力をもたないため、重さを上向きに支えるのはななめのひも OB の張力だけです。',
+                b: '物体を引いているひもは 2 本です。それと下向きの重さを合わせて力はいくつになるか数えてください。1 本は真横、1 本はななめ上を向いています。',
+                a: '1 点に 3 力がはたらいてつり合うとき、3 力の合力は 0 になります。左右対称ではないので 2 本のひもの張力は同じとは限りません。',
                 c: '教科書32ページ 図2-23 と 3 力のつり合いの条件を確認してください。'
             },
+            stage2: {
+                b: '図をよく見てください。水平なひもは真横を向いています。真横を向いた力は、上下方向にはまったくはたらきません。',
+                a: '重さを上向きに支えるのはななめのひも OB だけです。OB の張力 T を分けると上向きの分力は T sin θ。これが重さ W とつり合うので T × sin θ ＝ W。',
+                c: '教科書28ページ 図2-15（力の分解）と 32ページ 例題5 を確認してください。'
+            },
             stage3: {
-                b: '式は T ＝ W ÷ sin θ です。W の空欄には重さの数値を、sin θ の空欄には 0.5 を入れます。',
-                a: '式 T ＝ W ÷ sin θ。W の空欄に問題文の「W ＝ ○○ N」、sin θ の空欄に 0.5 を入れてください。',
-                c: '教科書32ページ 式(2-14) と例題5 を確認してください。'
+                b: '下の数値カードをタップしてから、式の空欄（黄色）をタップすると数値が入ります。',
+                a: '式 T ＝ W ÷ sin θ。W の空欄に「W ＝ 40 N」、θ の空欄に「θ ＝ 30°」を入れてください。',
+                c: '教科書32ページ 例題5 の代入の流れを確認してください。'
             },
             stage4: {
-                b: 'W を sin θ（＝0.5）で割ります。0.5 で割ることは 2 倍することと同じです。電卓を使って構いません。',
-                a: 'T ＝ W ÷ sin θ ＝ W ÷ 0.5。W の数値を 0.5 で割ってください。単位は N です。',
-                c: '教科書32ページ 式(2-14) と例題5 を確認してください。'
+                b: '教科書 p.231 の付録三角関数表で「30°」の行を見て、sin の列の値を読み取ってください。または関数電卓で sin 30° を計算します。',
+                a: '代表角度の値は sin 30°＝0.500、sin 45°≒0.707、sin 60°≒0.866。この問題は θ ＝ 30° なので sin 30° ＝ 0.500 です。',
+                c: '教科書231ページ 付録三角関数表、または関数電卓で確認してください。'
+            },
+            stage5: {
+                b: 'W（40）を sin θ（＝0.5）で割ります。0.5 で割ることは 2 倍することと同じです。電卓を使って構いません。',
+                a: 'T ＝ 40 ÷ 0.5 ＝ 80。単位は N。',
+                c: '教科書32ページ 例題5 の計算過程を確認してください。'
             }
         };
         // 問 id（1〜4）→ ヒント表。renderCalculationProblem / showHint から参照。
@@ -8243,14 +8364,25 @@
                         '答えの意味を確認'
                     ]
                     : is1_10
-                    ? [
-                        '求める量を確認する',
-                        '力のつり合いを確認する',
-                        '使う式を確認する',
-                        '数値を代入する',
-                        '計算する',
-                        '答えの意味を確認'
-                    ]
+                    ? ((problem.formulaType === 'sym' || problem.formulaType === 'lshape')
+                        ? [
+                            // 1-10 問3・問4（3 力のつり合い）案B 7 ステージ構成。
+                            '求める量を確認する',
+                            'つり合う力を確認する',
+                            'つり合いの式を導く',
+                            'W と θ を代入する',
+                            'sin θ の値を求める',
+                            '計算する',
+                            '答えの意味を確認'
+                        ]
+                        : [
+                            '求める量を確認する',
+                            '力のつり合いを確認する',
+                            '使う式を確認する',
+                            '数値を代入する',
+                            '計算する',
+                            '答えの意味を確認'
+                        ])
                     : is1_11
                     ? [
                         '求める量を確認する',
@@ -8307,6 +8439,12 @@
                 //   他ユニット（1-6/1-8/1-9/2-1）の 6 ステージ流れは下のコードで従来通り処理する。
                 if (is1_7) {
                     this.render1_7CalcStage(problem, content, stageIndex, header, staticCanvas1_6);
+                    return;
+                }
+                // 1-10 問3・問4（3 力のつり合い・三角比）は案B 7 ステージ専用ルートで処理する。
+                //   問1・問2（formulaType:'TeqW'）は従来の 6 ステージ汎用ルートを使う。
+                if (is1_10 && (problem.formulaType === 'sym' || problem.formulaType === 'lshape')) {
+                    this.render1_10TrigStage(problem, content, stageIndex, header, staticCanvas1_6);
                     return;
                 }
 
@@ -9438,6 +9576,414 @@
                         feedback.style.color = '#c62828';
                         feedback.textContent = '不正解。F の空欄には「F ＝ ○○ N」のカード、α の空欄には「α ＝ ○○°」のカードを入れてください（単位 N と ° に注目）。';
                     }
+                }
+            }
+
+            // 1-10 問3・問4（3 力のつり合い・三角比）案B 7 ステージ専用レンダラ。
+            //   Stage 0 求める量 / 1 つり合う力 / 2 つり合いの式を導く（5 ステップ・アコーディオン）
+            //   / 3 W・θ 代入 / 4 sin θ の値 / 5 計算 / 6 振り返り。
+            //   1-7 案B（render1_7CalcStage）と同じ構造で、生徒が一段ずつ式を導く。
+            render1_10TrigStage(problem, content, stageIndex, header, staticCanvas) {
+                const sinExpected = problem.sinValue;
+
+                if (stageIndex === 0) {
+                    // Stage 0: 求める量。共通の selectStage0Chip / confirmStage0 を流用する。
+                    const options = this.shuffleArray([...problem.stage0Choices]);
+                    const chipsHTML = options.map(o =>
+                        `<div class="calc-chip" data-value="${o.value}">${o.label}</div>`
+                    ).join('');
+                    content.innerHTML = header + staticCanvas + `
+                        <div class="calc-stage-container">
+                            <div class="calc-question-text">この問題で<strong>求める量</strong>はどれですか？</div>
+                            <div class="calc-chips" id="quantityChips0">${chipsHTML}</div>
+                            <div id="stageFeedback" style="margin-top:12px; font-size:14px; min-height:20px;"></div>
+                        </div>
+                    `;
+                    this.calcInputs.selectedQuantity0 = null;
+                    document.querySelectorAll('#quantityChips0 .calc-chip').forEach(chip => {
+                        chip.onclick = () => this.selectStage0Chip(chip.getAttribute('data-value'), chip);
+                    });
+                    document.getElementById('controlButtons').innerHTML = `
+                        <button class="btn hint-btn" onclick="app.showHint('calc_${this.currentProblemIndex}_stage0')">ヒント</button>
+                        <button class="check-btn" id="stage0ConfirmBtn" onclick="app.confirmStage0()" disabled style="opacity:0.4;">確認</button>
+                    `;
+                }
+                else if (stageIndex === 1) {
+                    // Stage 1: つり合う力を確認する。
+                    const options = this.shuffleArray([...problem.stage1Choices]);
+                    const chipsHTML = options.map(o =>
+                        `<div class="calc-chip" data-value="${o.value}">${o.label}</div>`
+                    ).join('');
+                    content.innerHTML = header + staticCanvas + `
+                        <div class="calc-stage-container">
+                            <div class="calc-question-text">物体には、どんな力がはたらいて<strong>つり合って</strong>いますか？</div>
+                            <div class="calc-chips" id="balanceChips1_10">${chipsHTML}</div>
+                            <div id="stageFeedback" style="margin-top:12px; font-size:14px; min-height:20px;"></div>
+                        </div>
+                    `;
+                    this.calcInputs.selected1_10Balance = null;
+                    document.querySelectorAll('#balanceChips1_10 .calc-chip').forEach(chip => {
+                        chip.onclick = () => this.select1_10BalanceChip(chip.getAttribute('data-value'), chip);
+                    });
+                    document.getElementById('controlButtons').innerHTML = `
+                        <button class="btn hint-btn" onclick="app.showHint('calc_${this.currentProblemIndex}_stage1')">ヒント</button>
+                        <button class="check-btn" id="stage1ConfirmBtn" onclick="app.confirm1_10Balance()" disabled style="opacity:0.4;">確認</button>
+                    `;
+                }
+                else if (stageIndex === 2) {
+                    // Stage 2: つり合いの式を導く（derivationSteps を 1 ステップずつアコーディオン表示）。
+                    if (this.calcInputs.derivStepIndex === undefined) {
+                        this.calcInputs.derivStepIndex = 0;
+                    }
+                    content.innerHTML = header + staticCanvas + `
+                        <div class="calc-stage-container">
+                            <div class="calc-question-text">つり合いの式を、一段ずつ自分で導いてください。</div>
+                            <div id="derivAccordion"></div>
+                            <div id="stageFeedback" style="margin-top:12px; font-size:14px; min-height:20px;"></div>
+                        </div>
+                    `;
+                    document.getElementById('controlButtons').innerHTML = `
+                        <button class="btn hint-btn" onclick="app.showHint('calc_${this.currentProblemIndex}_stage2')">ヒント</button>
+                        <span id="stage2NextSlot"></span>
+                    `;
+                    this.render1_10DerivAccordion();
+                }
+                else if (stageIndex === 3) {
+                    // Stage 3: W と θ を式に代入する（数値カード方式）。
+                    const isSym = problem.formulaType === 'sym';
+                    const cardsRaw = problem.substitutions.cards;
+                    const valueCards = this.shuffleArray([...cardsRaw]);
+                    const valuesHTML = valueCards.map(c =>
+                        `<div class="calc-value-card draggable-value" data-role="${c.role}" data-value="${c.value}">${c.label} ＝ ${c.value} ${c.unit}</div>`
+                    ).join('');
+                    const wSlot = `<span class="calc-formula-input empty" data-slot="W" id="slot-W">W</span>`;
+                    const tSlot = `<span class="calc-formula-input empty" data-slot="theta" id="slot-theta">θ</span>`;
+                    const formulaHTML = isSym
+                        ? `T ＝ ${wSlot} ÷ (2 × sin ${tSlot}°)`
+                        : `T ＝ ${wSlot} ÷ sin ${tSlot}°`;
+                    content.innerHTML = header + staticCanvas + `
+                        <div class="calc-stage-container">
+                            <div class="calc-question-text">それぞれの数値を、式の正しい場所に入れてください。</div>
+                            <div style="margin-bottom:14px; font-size:13px; color:#555;">
+                                下の<strong>数値カード</strong>をタップしてから、式の中の<strong>空欄（黄色）</strong>をタップすると、そこに数値が入ります。
+                            </div>
+                            <div class="calc-formula-display" style="font-size:22px;">
+                                ${formulaHTML}
+                            </div>
+                            <div style="display:flex; gap:12px; margin-top:16px; flex-wrap:wrap;">
+                                ${valuesHTML}
+                            </div>
+                            <div id="stageFeedback" style="margin-top:12px; font-size:14px; min-height:20px;"></div>
+                        </div>
+                    `;
+                    this.calcInputs.substitutions = { W: null, theta: null };
+                    this.calcInputs.selectedCard = null;
+                    document.querySelectorAll('.draggable-value').forEach(card => {
+                        card.onclick = () => this.selectValueCard(card);
+                    });
+                    document.querySelectorAll('.calc-formula-input[data-slot]').forEach(slot => {
+                        slot.onclick = () => this.fillSlotFromSelectedCard(slot);
+                    });
+                    document.getElementById('controlButtons').innerHTML = `
+                        <button class="btn hint-btn" onclick="app.showHint('calc_${this.currentProblemIndex}_stage3')">ヒント</button>
+                        <button class="check-btn" id="stage4ConfirmBtn" onclick="app.confirm1_10Subst()" disabled style="opacity:0.4;">確認</button>
+                    `;
+                }
+                else if (stageIndex === 4) {
+                    // Stage 4: sin θ の値を求めて入力する。
+                    const isSym = problem.formulaType === 'sym';
+                    const w = problem.w;
+                    const theta = problem.theta;
+                    const formulaHTML = isSym
+                        ? `T ＝ ${w} ÷ (2 × <span style="color:#1e5fa8;">sin ${theta}°</span>)`
+                        : `T ＝ ${w} ÷ <span style="color:#1e5fa8;">sin ${theta}°</span>`;
+                    content.innerHTML = header + staticCanvas + `
+                        <div class="calc-stage-container">
+                            <div class="calc-question-text">代入した式の <strong>sin ${theta}°</strong> の値を求めてください。</div>
+                            <div class="calc-formula-display" style="font-size:20px; line-height:2.0; margin:14px 0;">
+                                ${formulaHTML}
+                            </div>
+                            <div style="background:#eef3fa; border-left:3px solid #4a7cbe; padding:10px 14px; border-radius:3px; margin:10px 0 14px; font-size:13px; line-height:1.7; color:#333;">
+                                教科書 <strong>p.231 付録 三角関数表</strong> を参照するか、<strong>関数電卓</strong>で sin ${theta}° を計算してください。小数第 3 位までの値を入力します。
+                            </div>
+                            <div class="calc-input-row">
+                                <span class="calc-input-label">sin ${theta}° ＝</span>
+                                <input type="number" id="trigValueInput" class="calc-answer-input" placeholder="0.000" style="width:120px;" step="0.001">
+                            </div>
+                            <div id="stageFeedback" style="margin-top:12px; font-size:14px; min-height:20px;"></div>
+                        </div>
+                    `;
+                    setTimeout(() => {
+                        const inp = document.getElementById('trigValueInput');
+                        if (inp) inp.focus();
+                    }, 80);
+                    document.getElementById('controlButtons').innerHTML = `
+                        <button class="btn hint-btn" onclick="app.showHint('calc_${this.currentProblemIndex}_stage4')">ヒント</button>
+                        <button class="check-btn" id="stage4ConfirmBtn" onclick="app.submit1_10SinValue()">確認</button>
+                    `;
+                }
+                else if (stageIndex === 5) {
+                    // Stage 5: 計算（電卓使用可）。answerInput / checkCalcAnswers を流用する。
+                    const isSym = problem.formulaType === 'sym';
+                    const w = problem.w;
+                    const enteredSin = (this.calcInputs.enteredTrigValue !== undefined && this.calcInputs.enteredTrigValue !== null)
+                        ? this.calcInputs.enteredTrigValue
+                        : sinExpected;
+                    const exprLatex = isSym
+                        ? `T = ${w} \\div (2 \\times ${enteredSin}) = {\\color{#c62828}?}`
+                        : `T = ${w} \\div ${enteredSin} = {\\color{#c62828}?}`;
+                    content.innerHTML = header + staticCanvas + `
+                        <div class="calc-stage-container">
+                            <div class="calc-question-text">式の値を計算して、張力 T の大きさを求めてください（電卓を使って構いません）。</div>
+                            <div class="calc-formula-display">
+                                $${exprLatex}$
+                            </div>
+                            <div class="calc-input-row">
+                                <span class="calc-input-label">答え：T ＝</span>
+                                <input type="number" id="answerInput" class="calc-answer-input" placeholder="数値" style="width:120px;" step="0.1">
+                                <span style="font-size:14px; color:#555; margin-left:6px;">[N]</span>
+                            </div>
+                        </div>
+                    `;
+                    setTimeout(() => {
+                        const inp = document.getElementById('answerInput');
+                        if (inp) inp.focus();
+                    }, 80);
+                    document.getElementById('controlButtons').innerHTML = `
+                        <button class="btn hint-btn" onclick="app.showHint('calc_${this.currentProblemIndex}_stage5')">ヒント</button>
+                        <button class="check-btn" onclick="app.checkCalcAnswers()">確認</button>
+                    `;
+                    this.renderMathInProblemArea();
+                }
+                else if (stageIndex === 6) {
+                    // Stage 6: 振り返り。
+                    const isSym = problem.formulaType === 'sym';
+                    const reflectText = isSym
+                        ? 'T ＝ W ÷ (2 × sin θ) ＝ 90 ÷ (2 × 0.866) ＝ 52.0 [N]。重さ 90 N の半分は 45 N ですが、張力 T（約 52.0 N）はそれより大きくなります。ひもがななめになっているぶん、まっすぐつり下げるより 1 本にかかる力が大きくなります。'
+                        : 'T ＝ W ÷ sin θ ＝ 40 ÷ 0.5 ＝ 80 [N]。水平なひもは上向きの分力をもたないため、重さ W を支えるのはひも OB の縦の分力 T sin θ だけです。張力 T（80 N）が重さ W（40 N）の 2 倍になっていることに注目してください。ひもの角度 θ が小さい（水平に近い）ほど、張力は大きくなります。';
+                    content.innerHTML = header + staticCanvas + `
+                        <div class="calc-stage-container">
+                            <div class="calc-question-text">答えの意味を確認してください。</div>
+                            <div style="background:#eaf1fa; border-left:4px solid #1e5fa8; padding:14px 18px; border-radius:3px; margin-top:18px; font-size:15px; line-height:1.8;">
+                                ${reflectText}
+                            </div>
+                            <div style="margin-top:14px; font-size:13px; color:#555;">
+                                次の問題に進む前に、つり合いの式を導いた流れを頭の中で思い浮かべてください。
+                            </div>
+                        </div>
+                    `;
+                    document.getElementById('controlButtons').innerHTML = `
+                        <button class="next-btn" onclick="if(this.disabled)return; this.disabled=true; app.nextProblem();">次の問題へ</button>
+                    `;
+                }
+            }
+
+            // 1-10 Stage 1: つり合う力のチップを選ぶ。
+            select1_10BalanceChip(value, chipEl) {
+                document.querySelectorAll('#balanceChips1_10 .calc-chip').forEach(c => c.classList.remove('selected', 'correct', 'incorrect'));
+                chipEl.classList.add('selected');
+                this.calcInputs.selected1_10Balance = value;
+                const btn = document.getElementById('stage1ConfirmBtn');
+                if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
+                const fb = document.getElementById('stageFeedback');
+                if (fb) fb.textContent = '';
+            }
+
+            // 1-10 Stage 1: つり合う力の選択を判定する。
+            confirm1_10Balance() {
+                const value = this.calcInputs.selected1_10Balance;
+                if (!value) return;
+                const problem = this.getCalcProblem();
+                const feedback = document.getElementById('stageFeedback');
+                const chipEl = document.querySelector(`#balanceChips1_10 .calc-chip[data-value="${value}"]`);
+                const isSym = problem.formulaType === 'sym';
+                if (value === problem.stage1Correct) {
+                    if (chipEl) { chipEl.classList.remove('selected'); chipEl.classList.add('correct'); }
+                    if (feedback) {
+                        feedback.style.color = '#2e7d32';
+                        feedback.innerHTML = isSym
+                            ? '正解。左右 2 本のひもの張力 T と、下向きの重さ W の 3 力がつり合っています。'
+                            : '正解。水平なひもの張力・ななめのひも OB の張力 T・下向きの重さ W の 3 力がつり合っています。';
+                    }
+                    const btn = document.getElementById('stage1ConfirmBtn');
+                    if (btn) { btn.textContent = '次へ'; btn.onclick = () => this.nextCalcStage(); }
+                } else {
+                    if (chipEl) { chipEl.classList.remove('selected'); chipEl.classList.add('incorrect'); }
+                    if (feedback) {
+                        feedback.style.color = '#c62828';
+                        let msg = '不正解。もう一度考えてください。';
+                        if (value === 'balance2') {
+                            msg = '不正解。物体を引いているひもと下向きの重さを合わせて、力はいくつあるか数えてください。';
+                        } else if (value === 'couple') {
+                            msg = '不正解。偶力（平行で作用線がはなれた 2 力）ではありません。1 点にはたらく力のつり合いです。';
+                        } else if (value === 'balance3sym') {
+                            msg = '不正解。この問題のひもは左右対称ではありません。1 本は水平、1 本はななめ上を向いています。';
+                        }
+                        feedback.textContent = msg;
+                    }
+                    const btn = document.getElementById('stage1ConfirmBtn');
+                    if (btn) { btn.disabled = true; btn.style.opacity = '0.4'; }
+                    this.calcInputs.selected1_10Balance = null;
+                }
+            }
+
+            // 1-10 Stage 2: derivationSteps のアコーディオンを描画する。
+            //   完了済みステップは onCorrectText を 1 行に畳んで表示し、現在のステップだけ
+            //   prompt + チップ + 確認ボタンを出す。未到達ステップは表示しない。
+            render1_10DerivAccordion() {
+                const problem = this.getCalcProblem();
+                const steps = problem.derivationSteps || [];
+                const cur = this.calcInputs.derivStepIndex || 0;
+                const acc = document.getElementById('derivAccordion');
+                if (!acc) return;
+                let html = '';
+                for (let i = 0; i < steps.length; i++) {
+                    if (i < cur) {
+                        // 完了済み: 結論だけを 1 行で表示
+                        html += `
+                            <div style="display:flex; align-items:flex-start; gap:8px; padding:8px 12px; margin-bottom:6px; background:#eef6ee; border-left:3px solid #4CAF50; border-radius:3px; font-size:13px; line-height:1.6;">
+                                <span style="color:#2e7d32; font-weight:600; flex-shrink:0;">ステップ ${i + 1}</span>
+                                <span style="color:#2e7d32;">${steps[i].onCorrectText}</span>
+                            </div>
+                        `;
+                    } else if (i === cur) {
+                        // 現在のステップ: prompt + チップ + 確認ボタン
+                        const options = this.shuffleArray([...steps[i].choices]);
+                        const chipsHTML = options.map(o =>
+                            `<div class="calc-chip" data-value="${o.value}">${o.label}</div>`
+                        ).join('');
+                        html += `
+                            <div style="border:1px solid #2196F3; border-radius:4px; padding:14px; margin-bottom:6px; background:#fafdff;">
+                                <div style="font-size:13px; color:#1976D2; font-weight:600; margin-bottom:8px;">ステップ ${i + 1} / ${steps.length}</div>
+                                <div class="calc-question-text" style="font-size:15px; margin-bottom:10px;">${steps[i].prompt}</div>
+                                <div class="calc-chips" id="derivChips">${chipsHTML}</div>
+                                <div style="margin-top:12px;">
+                                    <button class="check-btn" id="derivConfirmBtn" onclick="app.confirm1_10DerivStep()" disabled style="opacity:0.4;">確認</button>
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+                acc.innerHTML = html;
+                this.calcInputs.derivStepSelected = null;
+                document.querySelectorAll('#derivChips .calc-chip').forEach(chip => {
+                    chip.onclick = () => this.select1_10DerivChip(chip.getAttribute('data-value'), chip);
+                });
+                // 全ステップ完了 → 「次へ」ボタンを表示
+                const nextSlot = document.getElementById('stage2NextSlot');
+                if (cur >= steps.length && nextSlot) {
+                    nextSlot.innerHTML = `<button class="next-btn" onclick="if(this.disabled)return; this.disabled=true; app.nextCalcStage();">確認して次へ</button>`;
+                } else if (nextSlot) {
+                    nextSlot.innerHTML = '';
+                }
+            }
+
+            // 1-10 Stage 2: derivationStep のチップ選択。
+            select1_10DerivChip(value, chipEl) {
+                document.querySelectorAll('#derivChips .calc-chip').forEach(c => c.classList.remove('selected', 'correct', 'incorrect'));
+                chipEl.classList.add('selected');
+                this.calcInputs.derivStepSelected = value;
+                const btn = document.getElementById('derivConfirmBtn');
+                if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
+                const fb = document.getElementById('stageFeedback');
+                if (fb) fb.textContent = '';
+            }
+
+            // 1-10 Stage 2: derivationStep の判定。正解 → 次ステップへ / 不正解 → 再挑戦。
+            confirm1_10DerivStep() {
+                const value = this.calcInputs.derivStepSelected;
+                if (!value) return;
+                const problem = this.getCalcProblem();
+                const steps = problem.derivationSteps || [];
+                const cur = this.calcInputs.derivStepIndex || 0;
+                const step = steps[cur];
+                if (!step) return;
+                const feedback = document.getElementById('stageFeedback');
+                const chipEl = document.querySelector(`#derivChips .calc-chip[data-value="${value}"]`);
+                if (value === step.correct) {
+                    if (chipEl) { chipEl.classList.remove('selected'); chipEl.classList.add('correct'); }
+                    // 枠外の「正解。」は消す（完了ステップ行に onCorrectText が緑表示されるため、
+                    // 古いフィードバックが残ると次ステップ出現時に視線が分散する）
+                    if (feedback) { feedback.textContent = ''; }
+                    this.calcInputs.derivStepIndex = cur + 1;
+                    this.render1_10DerivAccordion();
+                } else {
+                    if (chipEl) { chipEl.classList.remove('selected'); chipEl.classList.add('incorrect'); }
+                    if (feedback) {
+                        feedback.style.color = '#c62828';
+                        feedback.textContent = '不正解。もう一度考えてください。';
+                    }
+                    const btn = document.getElementById('derivConfirmBtn');
+                    if (btn) { btn.disabled = true; btn.style.opacity = '0.4'; }
+                    this.calcInputs.derivStepSelected = null;
+                }
+            }
+
+            // 1-10 Stage 3: W と θ の代入を判定する。
+            confirm1_10Subst() {
+                const problem = this.getCalcProblem();
+                const sub = this.calcInputs.substitutions || {};
+                const feedback = document.getElementById('stageFeedback');
+                const wSlot = document.getElementById('slot-W');
+                const tSlot = document.getElementById('slot-theta');
+                [wSlot, tSlot].forEach(el => { if (el) el.classList.remove('correct', 'incorrect'); });
+                const wOk = sub.W === 'W';
+                const tOk = sub.theta === 'theta';
+                const isSym = problem.formulaType === 'sym';
+                if (wOk && tOk) {
+                    if (wSlot) wSlot.classList.add('correct');
+                    if (tSlot) tSlot.classList.add('correct');
+                    if (feedback) {
+                        feedback.style.color = '#2e7d32';
+                        const eq = isSym
+                            ? `T ＝ ${problem.w} ÷ (2 × sin ${problem.theta}°)`
+                            : `T ＝ ${problem.w} ÷ sin ${problem.theta}°`;
+                        feedback.innerHTML = `正解。<strong>${eq}</strong> となりました。次のステップで sin ${problem.theta}° の値を求めます。`;
+                    }
+                    const btn = document.getElementById('stage4ConfirmBtn');
+                    if (btn) { btn.textContent = '次へ'; btn.onclick = () => this.nextCalcStage(); }
+                } else {
+                    if (!wOk && wSlot) wSlot.classList.add('incorrect');
+                    if (!tOk && tSlot) tSlot.classList.add('incorrect');
+                    if (feedback) {
+                        feedback.style.color = '#c62828';
+                        feedback.textContent = '不正解。W の空欄には「W ＝ ○○ N」のカード、θ の空欄には「θ ＝ ○○°」のカードを入れてください（単位 N と ° に注目）。';
+                    }
+                }
+            }
+
+            // 1-10 Stage 4: sin θ の値の入力を判定する。tolerance ±0.005。
+            submit1_10SinValue() {
+                const problem = this.getCalcProblem();
+                const inp = document.getElementById('trigValueInput');
+                const feedback = document.getElementById('stageFeedback');
+                if (!inp) return;
+                const userVal = parseFloat(inp.value);
+                if (isNaN(userVal)) {
+                    if (feedback) {
+                        feedback.style.color = '#c62828';
+                        feedback.textContent = '数値を入力してください。';
+                    }
+                    return;
+                }
+                const expected = problem.sinValue;
+                const isCorrect = Math.abs(userVal - expected) <= 0.005 + 1e-9;
+                if (isCorrect) {
+                    this.calcInputs.enteredTrigValue = userVal;
+                    if (feedback) {
+                        feedback.style.color = '#2e7d32';
+                        feedback.innerHTML = `正解。sin ${problem.theta}° ＝ <strong>${expected}</strong> です（教科書 p.231 付録 または 関数電卓で確認可）。`;
+                    }
+                    inp.disabled = true;
+                    const btn = document.getElementById('stage4ConfirmBtn');
+                    if (btn) { btn.textContent = '次へ'; btn.onclick = () => this.nextCalcStage(); }
+                } else {
+                    if (feedback) {
+                        feedback.style.color = '#c62828';
+                        feedback.textContent = `不正解。教科書 p.231 の付録三角関数表、または関数電卓で sin ${problem.theta}° の値を確認してください。`;
+                    }
+                    inp.value = '';
+                    inp.focus();
                 }
             }
 
@@ -13458,11 +14004,15 @@
                             </div>
                         `;
                     } else if (is1_10) {
+                        // 問3・問4 は生徒が Stage 4 で入力した sin θ の値で式を再現する。
+                        const sin1_10 = (this.calcInputs.enteredTrigValue !== undefined && this.calcInputs.enteredTrigValue !== null)
+                            ? this.calcInputs.enteredTrigValue
+                            : problem.sinValue;
                         const expl1_10 = (problem.formulaType === 'TeqW')
                             ? `T ＝ W ＝ ${problem.w} ＝ ${expected} [N]`
                             : (problem.formulaType === 'sym')
-                            ? `T ＝ W ÷ (2 × sin θ) ＝ ${problem.w} ÷ (2 × ${problem.sinTheta}) ＝ ${expected} [N]`
-                            : `T ＝ W ÷ sin θ ＝ ${problem.w} ÷ ${problem.sinTheta} ＝ ${expected} [N]`;
+                            ? `T ＝ W ÷ (2 × sin θ) ＝ ${problem.w} ÷ (2 × ${sin1_10}) ＝ ${expected} [N]`
+                            : `T ＝ W ÷ sin θ ＝ ${problem.w} ÷ ${sin1_10} ＝ ${expected} [N]`;
                         feedback.innerHTML = `
                             <div style="margin-bottom: 10px;">正解です。</div>
                             <div class="answer-explanation">
@@ -13576,12 +14126,15 @@
 
             // After a correct answer at the compute stage, decide whether to show 振り返り (reflection) stage.
             // 仕様: 振り返りは生徒の理解定着のため。レベル4（発展）では省略してテンポよく進める。
-            //   1-7 は 7 ステージ構成なので振り返りは Stage 6、その他は Stage 5。
+            //   1-7 と 1-10 問3・問4 は 7 ステージ構成なので振り返りは Stage 6、その他は Stage 5。
             advanceToReflectionOrNext() {
                 if (this.currentLevel === '発展') {
                     this.nextProblem();
                 } else {
-                    this.currentCalcStage = (this.currentUnitId === '1-7') ? 6 : 5;
+                    const cp = this.getCalcProblem();
+                    const is1_10Trig = this.currentUnitId === '1-10' && cp
+                        && (cp.formulaType === 'sym' || cp.formulaType === 'lshape');
+                    this.currentCalcStage = (this.currentUnitId === '1-7' || is1_10Trig) ? 6 : 5;
                     this.renderCalculationProblem(this.getCalcProblem(), document.getElementById('problemContent'));
                     this.renderMathInProblemArea();
                     document.getElementById('feedbackMessage').classList.remove('active');
