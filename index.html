@@ -2337,10 +2337,10 @@
         };
         // 単元ごとの問題数（ダッシュボード集計用）
         const DASHBOARD_UNIT_COUNTS = {
-            '1-1': 4, '1-2': 6, '1-3': 4, '1-4': 4, '1-5': 4, '2-1': 5
+            '1-1': 4, '1-2': 6, '1-3': 4, '1-4': 4, '1-5': 4, '1-10': 4, '2-1': 5
         };
         // 単元表示順
-        const DASHBOARD_UNIT_ORDER = ['1-1', '1-2', '1-3', '1-4', '1-5', '2-1'];
+        const DASHBOARD_UNIT_ORDER = ['1-1', '1-2', '1-3', '1-4', '1-5', '1-10', '2-1'];
 
         // 【校内版では実名ロスターを定義していたが、GitHub Pages 配信のため空に変更】
         // 将来、名簿照合に戻す場合は 1番〜36番 + 40番の形式で復活可能
@@ -2424,6 +2424,15 @@
                 id: '1-9',
                 title: '偶力',
                 subtitle: 'M ＝ F × d（偶力のモーメント）',
+                level: '基礎',
+                completed: false,
+                score: 0,
+                total: 0
+            },
+            {
+                id: '1-10',
+                title: '力のつり合い',
+                subtitle: '1 点に働く力のつり合い（2 力・3 力）',
                 level: '基礎',
                 completed: false,
                 score: 0,
@@ -3194,6 +3203,216 @@
                 a: 'M ＝ F × d。F の値と d の値を掛け算します。単位は N × m ＝ N·m（ニュートンメートル）です。',
                 c: '教科書30ページ 式(2-13) と問12を確認してください。'
             }
+        };
+
+        // Problems for sub-unit 1-10: 力のつり合い
+        // 教科書 p.31-32 「1 点に働く力のつり合い」
+        //   2-1 と同じ 6 ステージ計算問題フロー（renderCalculationProblem）を共有する。
+        //   問のタイプ（formulaType）:
+        //     'TeqW'   — 2 力のつり合い  T = W            （問1・問2）
+        //     'sym'    — 左右対称 3 力   T = W ÷ (2×sinθ) （問3）
+        //     'lshape' — 水平+斜め 3 力  T = W ÷ sinθ      （問4）
+        //   tool: 図の描画分岐（singleRope / twoRopeSymmetric / twoRopeLshape）
+        const PROBLEMS_1_10 = [
+            {
+                id: 1,
+                w: 30, expectedTension: 30, tolerance: 0.1, unit: 'N',
+                tool: 'singleRope', formulaType: 'TeqW',
+                sentence: '重さ W ＝ 30 N の物体を、1 本のひもで天井からつり下げて静止させた。物体は動かずにつり合っている。このひもにはたらく張力 T の大きさを求めよ。',
+                condition: '基礎、2 力のつり合い、W=30 N → T=30 N',
+                baselineTime: 90,
+                canvasType: '2d-static',
+                canvas: { width: 280, height: 240 },
+                stage0Choices: [
+                    { value: 'tension', label: 'ひもにはたらく張力 T の大きさ' },
+                    { value: 'weight',  label: '物体の重さ W の大きさ' },
+                    { value: 'sum',     label: '重さ W と張力 T の和' }
+                ],
+                stage0Correct: 'tension',
+                stage1Choices: [
+                    { value: 'balance2', label: '大きさが等しく逆向きの 2 力がつり合っている' },
+                    { value: 'same',     label: '同じ向きの 2 力がはたらいている' },
+                    { value: 'couple',   label: '平行で作用線がはなれた 2 力がはたらいている' }
+                ],
+                stage1Correct: 'balance2',
+                stage2Text: '物体は静止してつり合っています。1 点（物体）に 2 力がはたらいてつり合うとき、その 2 力は<strong>同一作用線上にあり、大きさが等しく、向きが逆</strong>です。下向きの重さ W と上向きの張力 T がつり合うので、T ＝ W となります。',
+                formula: 'T = W',
+                substitutions: {
+                    slots: ['W'],
+                    cards: [
+                        { role: 'W', label: 'W', value: 30, unit: 'N' }
+                    ]
+                }
+            },
+            {
+                id: 2,
+                w: 48, expectedTension: 48, tolerance: 0.1, unit: 'N',
+                tool: 'singleRope', formulaType: 'TeqW',
+                sentence: '重さ W ＝ 48 N の物体を、1 本のひもで天井からつり下げて静止させた。物体は動かずにつり合っている。このひもにはたらく張力 T の大きさを求めよ。',
+                condition: '基礎、2 力のつり合い、W=48 N → T=48 N',
+                baselineTime: 90,
+                canvasType: '2d-static',
+                canvas: { width: 280, height: 240 },
+                stage0Choices: [
+                    { value: 'tension', label: 'ひもにはたらく張力 T の大きさ' },
+                    { value: 'weight',  label: '物体の重さ W の大きさ' },
+                    { value: 'sum',     label: '重さ W と張力 T の和' }
+                ],
+                stage0Correct: 'tension',
+                stage1Choices: [
+                    { value: 'balance2', label: '大きさが等しく逆向きの 2 力がつり合っている' },
+                    { value: 'same',     label: '同じ向きの 2 力がはたらいている' },
+                    { value: 'couple',   label: '平行で作用線がはなれた 2 力がはたらいている' }
+                ],
+                stage1Correct: 'balance2',
+                stage2Text: '物体は静止してつり合っています。1 点（物体）に 2 力がはたらいてつり合うとき、その 2 力は<strong>同一作用線上にあり、大きさが等しく、向きが逆</strong>です。下向きの重さ W と上向きの張力 T がつり合うので、T ＝ W となります。',
+                formula: 'T = W',
+                substitutions: {
+                    slots: ['W'],
+                    cards: [
+                        { role: 'W', label: 'W', value: 48, unit: 'N' }
+                    ]
+                }
+            },
+            {
+                id: 3,
+                w: 120, sinTheta: 0.6, expectedTension: 100, tolerance: 0.5, unit: 'N',
+                tool: 'twoRopeSymmetric', formulaType: 'sym',
+                sentence: '重さ W ＝ 120 N の物体を、2 本のひも OA、OB で天井からつり下げて静止させた。2 本のひもは左右対称である。ひもが天井（水平な線）となす角を θ とし、sin θ ＝ 0.6 とする。このとき 1 本のひもにはたらく張力 T の大きさを求めよ。',
+                condition: '基礎、左右対称 3 力のつり合い、W=120 N, sinθ=0.6 → T=100 N',
+                baselineTime: 120,
+                canvasType: '2d-static',
+                canvas: { width: 320, height: 240 },
+                stage0Choices: [
+                    { value: 'tension', label: '1 本のひもにはたらく張力 T の大きさ' },
+                    { value: 'weight',  label: '物体の重さ W の大きさ' },
+                    { value: 'total',   label: '2 本のひもの張力の和' }
+                ],
+                stage0Correct: 'tension',
+                stage1Choices: [
+                    { value: 'balance3sym', label: '左右対称な 2 本のひもの張力と、下向きの重さの 3 力がつり合っている' },
+                    { value: 'balance2',    label: '大きさが等しく逆向きの 2 力だけがつり合っている' },
+                    { value: 'couple',      label: '平行で作用線がはなれた 2 力（偶力）がはたらいている' }
+                ],
+                stage1Correct: 'balance3sym',
+                stage2Text: '物体は 3 力（左右 2 本のひもの張力 T と、下向きの重さ W）でつり合っています。左右対称なので、2 本のひもの張力は同じ大きさ T です。<br>1-7 で学んだように、ななめの力は縦の分力と横の分力に分けられます。各ひもの張力 T のうち、上向き（縦）の分力は T × sin θ です（θ はひもが天井となす角）。<br>上向きの分力は<strong>ひも 2 本ぶん</strong>あるので、その合計 2 × T × sin θ が下向きの重さ W とつり合います。<br>2 × T × sin θ ＝ W。これを T について解くと、T ＝ W ÷ (2 × sin θ) です。',
+                formula: 'T = \\dfrac{W}{2 \\times \\sin\\theta}',
+                substitutions: {
+                    slots: ['W', 'sinθ'],
+                    cards: [
+                        { role: 'W',    label: 'W',     value: 120, unit: 'N' },
+                        { role: 'sinθ', label: 'sin θ', value: 0.6, unit: '' }
+                    ]
+                }
+            },
+            {
+                id: 4,
+                w: 40, sinTheta: 0.5, expectedTension: 80, tolerance: 0.5, unit: 'N',
+                tool: 'twoRopeLshape', formulaType: 'lshape',
+                sentence: '重さ W ＝ 40 N の物体を点 O につり下げた。点 O には、水平に張ったひも OA と、ななめ上にのびるひも OB がつながれており、物体は静止してつり合っている。ひも OB が水平な方向となす角を θ とし、sin θ ＝ 0.5 とする。ひも OB にはたらく張力 T の大きさを求めよ。',
+                condition: '基礎、水平+斜め 3 力のつり合い、W=40 N, sinθ=0.5 → T=80 N',
+                baselineTime: 120,
+                canvasType: '2d-static',
+                canvas: { width: 320, height: 240 },
+                stage0Choices: [
+                    { value: 'tensionOB', label: 'ななめのひも OB にはたらく張力 T の大きさ' },
+                    { value: 'tensionOA', label: '水平なひも OA にはたらく張力の大きさ' },
+                    { value: 'weight',    label: '物体の重さ W の大きさ' }
+                ],
+                stage0Correct: 'tensionOB',
+                stage1Choices: [
+                    { value: 'balance3lshape', label: '水平なひも・ななめのひも・下向きの重さの 3 力がつり合っている' },
+                    { value: 'balance3sym',    label: '左右対称な 2 本のひもの張力と重さの 3 力がつり合っている' },
+                    { value: 'balance2',       label: '大きさが等しく逆向きの 2 力だけがつり合っている' }
+                ],
+                stage1Correct: 'balance3lshape',
+                stage2Text: '物体は 3 力（水平なひもの張力、ななめのひも OB の張力 T、下向きの重さ W）でつり合っています。<br>水平なひもは真横にまっすぐで、上下の向きにまったく傾いていません。だから上向き（縦）の分力はありません。下向きの重さ W を上向きに支えられるのは、ななめのひも OB だけです。<br>1-7 で学んだように、ななめのひも OB の張力 T を縦と横に分けると、上向き（縦）の分力は T × sin θ です（θ はひもが水平となす角）。<br>上向きの分力は<strong>ひも 1 本ぶん</strong>だけなので、T × sin θ ＝ W。これを T について解くと、T ＝ W ÷ sin θ です。',
+                formula: 'T = \\dfrac{W}{\\sin\\theta}',
+                substitutions: {
+                    slots: ['W', 'sinθ'],
+                    cards: [
+                        { role: 'W',    label: 'W',     value: 40,  unit: 'N' },
+                        { role: 'sinθ', label: 'sin θ', value: 0.5, unit: '' }
+                    ]
+                }
+            }
+        ];
+
+        // 1-10 のヒント（力のつり合い — 3 段階 B→A→C）。
+        //   問のタイプが 3 種類あるため、問 id ごとに引く。問1・問2 は共通。
+        //   Stage 2（必然の公式）は表示のみなのでヒントなし。
+        const HINTS_1_10_TEQW = {
+            stage0: {
+                b: '問題文の最後の文に注目してください。「求めよ」と書かれている量が求めるものです。重さ W は問題文にすでに数値が書かれているので、求めるものではありません。',
+                a: '問題文の末尾に「張力 T の大きさを求めよ」とあります。求めるものはひもにはたらく張力 T [N] です。重さ W [N] は問題文に数値として与えられています。',
+                c: '教科書31ページ「力のつり合い」の冒頭を確認してください。'
+            },
+            stage1: {
+                b: '物体にはたらく力は 2 つです。下向きの重さと、上向きにひもが引く力です。物体は動かず静止しています。このとき 2 力の大きさはどうなっているか考えてください。',
+                a: '1 点に 2 力がはたらいて物体が静止（つり合い）するのは、2 力が同一作用線上にあり、大きさが等しく、向きが逆のときです。同じ向きの 2 力では物体は動き出します。',
+                c: '教科書31ページ「1 点に働く力のつり合い」の 2 力のつり合いを確認してください。'
+            },
+            stage3: {
+                b: '式は T ＝ W です。W の空欄には物体の重さの数値を入れます。問題文の「W ＝ ○○ N」を読み取ってください。',
+                a: '式 T ＝ W の W の空欄に、問題文の「W ＝ ○○ N」の数値を入れてください。',
+                c: '教科書31ページ 2 力のつり合いの条件を確認してください。'
+            },
+            stage4: {
+                b: 'T ＝ W なので、張力 T の大きさは重さ W と同じ数値になります。',
+                a: 'T ＝ W。張力 T の大きさは重さ W の数値とそのまま等しくなります。単位は N（ニュートン）です。',
+                c: '教科書31ページ 2 力のつり合いの条件を確認してください。'
+            }
+        };
+        const HINTS_1_10_SYM = {
+            stage0: {
+                b: '問題文の最後の文に注目してください。求めるのは「1 本のひもの張力」です。2 本の和ではありません。重さ W は数値が与えられているので求めるものではありません。',
+                a: '問題文の末尾に「1 本のひもにはたらく張力 T の大きさを求めよ」とあります。求めるものは 1 本のひもの張力 T [N] です。重さ W [N] と sin θ は問題文に与えられています。',
+                c: '教科書31〜32ページ「1 点に働く力のつり合い」と図2-23 を確認してください。'
+            },
+            stage1: {
+                b: '物体にはたらく力は 3 つです。左右 2 本のひもが引く力と、下向きの重さです。2 本のひもは左右対称なので、その張力の大きさは同じです。',
+                a: '1 点に 3 力がはたらいてつり合うとき、3 力の合力は 0 になります。この問題は左右対称なので、2 本のひもの張力は同じ大きさ T です。偶力（平行な 2 力）とは異なります。',
+                c: '教科書32ページ 図2-23 と 3 力のつり合いの条件を確認してください。'
+            },
+            stage3: {
+                b: '式は T ＝ W ÷ (2 × sin θ) です。W の空欄には重さの数値を、sin θ の空欄には 0.6 を入れます。',
+                a: '式 T ＝ W ÷ (2 × sin θ)。W の空欄に問題文の「W ＝ ○○ N」、sin θ の空欄に 0.6 を入れてください。',
+                c: '教科書32ページ 式(2-14) と例題5 を確認してください。'
+            },
+            stage4: {
+                b: 'まず分母を計算します。2 × 0.6 ＝ 1.2 です。次に W をその数で割ります。電卓を使って構いません。',
+                a: 'T ＝ W ÷ (2 × sin θ)。分母 2 × sin θ ＝ 2 × 0.6 ＝ 1.2 を先に計算し、W をその値で割ってください。単位は N です。',
+                c: '教科書32ページ 式(2-14) と例題5 を確認してください。'
+            }
+        };
+        const HINTS_1_10_LSHAPE = {
+            stage0: {
+                b: '問題文の最後の文に注目してください。求めるのは「ななめのひも OB の張力」です。水平なひも OA の張力ではありません。',
+                a: '問題文の末尾に「ひも OB にはたらく張力 T の大きさを求めよ」とあります。求めるものはななめのひも OB の張力 T [N] です。重さ W [N] と sin θ は問題文に与えられています。',
+                c: '教科書31〜32ページ「1 点に働く力のつり合い」と図2-23 を確認してください。'
+            },
+            stage1: {
+                b: '物体にはたらく力は 3 つです。水平なひもの力、ななめのひもの力、下向きの重さです。水平なひもは真横を向いているので、下向きの重さを支えるのはななめのひもだけです。',
+                a: '1 点に 3 力がはたらいてつり合うとき、3 力の合力は 0 になります。水平なひもは縦の分力をもたないため、重さを上向きに支えるのはななめのひも OB の張力だけです。',
+                c: '教科書32ページ 図2-23 と 3 力のつり合いの条件を確認してください。'
+            },
+            stage3: {
+                b: '式は T ＝ W ÷ sin θ です。W の空欄には重さの数値を、sin θ の空欄には 0.5 を入れます。',
+                a: '式 T ＝ W ÷ sin θ。W の空欄に問題文の「W ＝ ○○ N」、sin θ の空欄に 0.5 を入れてください。',
+                c: '教科書32ページ 式(2-14) と例題5 を確認してください。'
+            },
+            stage4: {
+                b: 'W を sin θ（＝0.5）で割ります。0.5 で割ることは 2 倍することと同じです。電卓を使って構いません。',
+                a: 'T ＝ W ÷ sin θ ＝ W ÷ 0.5。W の数値を 0.5 で割ってください。単位は N です。',
+                c: '教科書32ページ 式(2-14) と例題5 を確認してください。'
+            }
+        };
+        // 問 id（1〜4）→ ヒント表。renderCalculationProblem / showHint から参照。
+        const HINTS_1_10_BY_ID = {
+            1: HINTS_1_10_TEQW,
+            2: HINTS_1_10_TEQW,
+            3: HINTS_1_10_SYM,
+            4: HINTS_1_10_LSHAPE
         };
 
         // Problems for sub-unit 2-1: displacement and velocity (repetitive calculation)
@@ -4825,6 +5044,7 @@
                 if (unitId === '1-7') return PROBLEMS_1_7.length;
                 if (unitId === '1-8') return PROBLEMS_1_8.length;
                 if (unitId === '1-9') return PROBLEMS_1_9.length;
+                if (unitId === '1-10') return PROBLEMS_1_10.length;
                 if (unitId === '2-1') return PROBLEMS_2_1.length;
                 return 0;
             }
@@ -7291,6 +7511,7 @@
                 else if (this.currentUnitId === '1-7') problems = PROBLEMS_1_7;
                 else if (this.currentUnitId === '1-8') problems = PROBLEMS_1_8;
                 else if (this.currentUnitId === '1-9') problems = PROBLEMS_1_9;
+                else if (this.currentUnitId === '1-10') problems = PROBLEMS_1_10;
                 else if (this.currentUnitId === '2-1') problems = PROBLEMS_2_1;
 
                 if (this.currentProblemIndex >= problems.length) {
@@ -7398,6 +7619,7 @@
                     else if (this.currentUnitId === '1-7') problems = PROBLEMS_1_7;
                     else if (this.currentUnitId === '1-8') problems = PROBLEMS_1_8;
                     else if (this.currentUnitId === '1-9') problems = PROBLEMS_1_9;
+                    else if (this.currentUnitId === '1-10') problems = PROBLEMS_1_10;
                     else if (this.currentUnitId === '2-1') problems = PROBLEMS_2_1;
                     sidebarList.innerHTML = problems.map((p, i) =>
                         `<li class="${i === this.currentProblemIndex ? 'is-active' : ''}">問 ${p.id}</li>`
@@ -7426,7 +7648,7 @@
                 const content = document.getElementById('problemContent');
 
                 // Handle different problem types
-                if (this.currentUnitId === '2-1' || this.currentUnitId === '1-6' || this.currentUnitId === '1-7' || this.currentUnitId === '1-8' || this.currentUnitId === '1-9') {
+                if (this.currentUnitId === '2-1' || this.currentUnitId === '1-6' || this.currentUnitId === '1-7' || this.currentUnitId === '1-8' || this.currentUnitId === '1-9' || this.currentUnitId === '1-10') {
                     this.renderCalculationProblem(problem, content);
                 } else if (this.currentUnitId === '1-3' || this.currentUnitId === '1-4' || this.currentUnitId === '1-5') {
                     this.drawingStageIndex = 0;
@@ -7522,7 +7744,8 @@
                 const is1_7 = this.currentUnitId === '1-7';
                 const is1_8 = this.currentUnitId === '1-8';
                 const is1_9 = this.currentUnitId === '1-9';
-                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9;
+                const is1_10 = this.currentUnitId === '1-10';
+                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10;
                 // Persistent problem statement shown at the top of every stage
                 const problemText = isForceCalc
                     ? problem.sentence
@@ -7568,6 +7791,15 @@
                         '計算する',
                         '答えの意味を確認'
                     ]
+                    : is1_10
+                    ? [
+                        '求める量を確認する',
+                        '力のつり合いを確認する',
+                        '使う式を確認する',
+                        '数値を代入する',
+                        '計算する',
+                        '答えの意味を確認'
+                    ]
                     : [
                         '求める量を確認する',
                         '運動の種類を確認する',
@@ -7592,6 +7824,7 @@
                                       : is1_7 ? this.build1_7StaticCanvas(problem)
                                       : is1_8 ? this.build1_8StaticCanvas(problem)
                                       : is1_9 ? this.build1_9StaticCanvas(problem)
+                                      : is1_10 ? this.build1_10StaticCanvas(problem)
                                       : '';
 
                 // 1-7（案B 7 ステージ）は専用ルートで処理し、early return する。
@@ -7650,6 +7883,8 @@
                         ? '図の 力 F と 腕 OA の関係はどれですか？'
                         : is1_9
                         ? '図の 2 力の関係はどれですか？'
+                        : is1_10
+                        ? '図の物体にはたらく力の関係はどれですか？'
                         : '問題文の「一定の速さで運動した」は、どのような運動ですか？';
                     content.innerHTML = header + staticCanvas1_6 + `
                         <div class="calc-stage-container">
@@ -7761,6 +7996,27 @@
                                 </div>
                             </div>
                         `;
+                    } else if (is1_10) {
+                        // 1-10（力のつり合い）: 問題図 + stage2Text + 公式 + 補足
+                        const reasonHTML = (problem.formulaType === 'TeqW')
+                            ? '物体は静止してつり合っている<br>→ 下向きの重さ W と上向きの張力 T は、大きさが等しく向きが逆<br>→ 張力 <strong>T ＝ W</strong> と決まる'
+                            : (problem.formulaType === 'sym')
+                            ? '左右対称な 2 本のひもの張力は同じ大きさ T<br>→ 各ひもの上向き分力は T × sin θ、これが 2 本ぶん<br>→ 2 × T × sin θ ＝ W を T について解いて <strong>T ＝ W ÷ (2 × sin θ)</strong>'
+                            : '水平なひもは上向きの分力をもたない<br>→ 重さ W を支えるのはななめのひも OB の上向き分力 T × sin θ だけ<br>→ T × sin θ ＝ W を T について解いて <strong>T ＝ W ÷ sin θ</strong>';
+                        content.innerHTML = header + staticCanvas1_6 + `
+                            <div class="calc-stage-container">
+                                <div style="font-size:15px; margin-bottom:14px; line-height:1.7;">
+                                    ${problem.stage2Text}
+                                </div>
+                                <div class="calc-formula-display">
+                                    $${problem.formula}$
+                                </div>
+                                <div style="background:#eef3fa; border-left:3px solid #4a7cbe; padding:12px 16px; border-radius:3px; margin-top:16px; font-size:14px; line-height:1.7; color:#222;">
+                                    <strong>この式になる理由：</strong><br>
+                                    ${reasonHTML}
+                                </div>
+                            </div>
+                        `;
                     } else {
                         content.innerHTML = header + `
                             <div class="calc-stage-container">
@@ -7797,7 +8053,7 @@
                         // 式の表示: 1-6 → F = √( [F₁]² + [F₂]² ) と tan α = [F₂num]/[F₁den] の 2 式
                         //         1-7 → Fx = [F] × [cos α] or Fy = [F] × [sin α]
                         //         1-8 → M = [F] × [r] / 1-9 → M = [F] × [d]
-                        const slotLabel = { F1: 'F₁', F2: 'F₂', F: 'F', Fx: 'Fx', r: 'r', d: 'd', cosAlpha: 'cos α', sinAlpha: 'sin α', F1tan: 'F₁', F2tan: 'F₂' };
+                        const slotLabel = { F1: 'F₁', F2: 'F₂', F: 'F', Fx: 'Fx', r: 'r', d: 'd', cosAlpha: 'cos α', sinAlpha: 'sin α', F1tan: 'F₁', F2tan: 'F₂', W: 'W', 'sinθ': 'sin θ' };
                         const makeSlotSpan = (role, text) =>
                             `<span class="calc-formula-input empty" data-slot="${role}" id="slot-${role}">${text || slotLabel[role] || role}</span>`;
                         const slotSpans = slots.map(role => makeSlotSpan(role));
@@ -7833,6 +8089,18 @@
                             formulaHTML = `${problem.target} ＝ ${slotSpans[0]} × ${slotSpans[1]}`;
                         } else if (is1_9) {
                             formulaHTML = `M ＝ ${slotSpans[0]} × ${slotSpans[1]}`;
+                        } else if (is1_10) {
+                            // 問のタイプで式の形が異なる:
+                            //   TeqW   → T ＝ [W]
+                            //   sym    → T ＝ [W] ÷ (2 × [sin θ])
+                            //   lshape → T ＝ [W] ÷ [sin θ]
+                            if (problem.formulaType === 'TeqW') {
+                                formulaHTML = `T ＝ ${slotSpans[0]}`;
+                            } else if (problem.formulaType === 'sym') {
+                                formulaHTML = `T ＝ ${slotSpans[0]} ÷ (2 × ${slotSpans[1]})`;
+                            } else {
+                                formulaHTML = `T ＝ ${slotSpans[0]} ÷ ${slotSpans[1]}`;
+                            }
                         } else {
                             formulaHTML = `M ＝ ${slotSpans[0]} × ${slotSpans[1]}`;
                         }
@@ -7972,6 +8240,25 @@
                                 </div>
                             </div>
                         `;
+                    } else if (is1_10) {
+                        const subFormula1_10 = (problem.formulaType === 'TeqW')
+                            ? `T = ${problem.w}`
+                            : (problem.formulaType === 'sym')
+                            ? `T = \\dfrac{${problem.w}}{2 \\times ${problem.sinTheta}}`
+                            : `T = \\dfrac{${problem.w}}{${problem.sinTheta}}`;
+                        content.innerHTML = header + staticCanvas1_6 + `
+                            <div class="calc-stage-container">
+                                <div class="calc-question-text">計算結果を入力してください（電卓を使って構いません）。</div>
+                                <div class="calc-formula-display">
+                                    $${subFormula1_10} = {\\color{#c62828}?}$
+                                </div>
+                                <div class="calc-input-row">
+                                    <span class="calc-input-label">答え：T ＝</span>
+                                    <input type="number" id="answerInput" class="calc-answer-input" placeholder="数値" style="width:120px;" step="0.1">
+                                    <span style="font-size:14px; color:#555; margin-left:6px;">[N]</span>
+                                </div>
+                            </div>
+                        `;
                     } else {
                         content.innerHTML = header + `
                             <div class="calc-stage-container">
@@ -8071,6 +8358,32 @@
                                 </div>
                                 <div style="margin-top:14px; font-size:13px; color:#555;">
                                     次の問題に進む前に、式と偶力の図を頭の中で思い浮かべてください。
+                                </div>
+                            </div>
+                        `;
+                    } else if (is1_10) {
+                        const ans = problem.expectedTension;
+                        const reflFormula = (problem.formulaType === 'TeqW')
+                            ? `T = W = ${problem.w} = ${ans}\\,\\mathrm{[N]}`
+                            : (problem.formulaType === 'sym')
+                            ? `T = \\dfrac{W}{2 \\times \\sin\\theta} = \\dfrac{${problem.w}}{2 \\times ${problem.sinTheta}} = ${ans}\\,\\mathrm{[N]}`
+                            : `T = \\dfrac{W}{\\sin\\theta} = \\dfrac{${problem.w}}{${problem.sinTheta}} = ${ans}\\,\\mathrm{[N]}`;
+                        const reflText = (problem.formulaType === 'TeqW')
+                            ? `重さ <strong>W ＝ ${problem.w} N</strong> の物体を 1 本のひもでつり下げて静止させたとき、ひもの張力は <strong>${ans} N</strong> です。<br>1 点に 2 力がはたらいてつり合うとき、2 力は同一作用線上にあり、大きさが等しく向きが逆です。だから張力は重さと同じ大きさになります。`
+                            : (problem.formulaType === 'sym')
+                            ? `重さ <strong>W ＝ ${problem.w} N</strong> の物体を左右対称な 2 本のひもでつり下げたとき、1 本のひもの張力は <strong>${ans} N</strong> です。<br>各ひもの上向き分力 T × sin θ が 2 本ぶん集まって重さ W を支えます。式 2 × T × sin θ ＝ W から T が求まります。`
+                            : `重さ <strong>W ＝ ${problem.w} N</strong> の物体を、水平なひもとななめのひも OB で支えたとき、ひも OB の張力は <strong>${ans} N</strong> です。<br>水平なひもは上向きの分力をもたないので、重さ W を支えるのはひも OB の上向き分力 T × sin θ だけです。式 T × sin θ ＝ W から T が求まります。`;
+                        content.innerHTML = header + staticCanvas1_6 + `
+                            <div class="calc-stage-container">
+                                <div class="calc-question-text">答えの意味を確認しよう。</div>
+                                <div class="calc-formula-display">
+                                    $${reflFormula}$
+                                </div>
+                                <div style="background:#eaf1fa; border-left:4px solid #1e5fa8; padding:14px 18px; border-radius:3px; margin-top:18px; font-size:15px; line-height:1.7;">
+                                    ${reflText}
+                                </div>
+                                <div style="margin-top:14px; font-size:13px; color:#555;">
+                                    次の問題に進む前に、式とつり合いの図を頭の中で思い浮かべてください。
                                 </div>
                             </div>
                         `;
@@ -8978,6 +9291,132 @@
                 // 拡大表示の注釈（必要な問題のみ）
                 if (c.enlargedNote) {
                     svg += `<text x="${W - 10}" y="${H - 8}" text-anchor="end" font-size="10" fill="#888" font-family="sans-serif">${c.enlargedNote}</text>`;
+                }
+                svg += `</svg></div>`;
+                return svg;
+            }
+
+            // 1-10（力のつり合い）の問題図を生成する。
+            //   tool: 'singleRope'       — 天井から 1 本のひも・物体・W↓・T↑
+            //         'twoRopeSymmetric' — 天井から左右対称 2 本のひも・物体・W↓・T↑×2・θ
+            //         'twoRopeLshape'    — 水平ひも OA + ななめひも OB・物体・W↓・T₁←・T↗・θ
+            //   全ステージ（0/1/2/3/4/5）で共通表示する。座標はメソッド内で設計。
+            build1_10StaticCanvas(problem) {
+                const c = problem.canvas;
+                const W = c.width, H = c.height;
+                const RED = '#d23a2a', BLUE = '#1e5fa8';
+                let svg = `<div class="drawing-wrapper" style="pointer-events:none;">
+                <svg class="drawing-svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="cursor:default;">
+                <defs>
+                  <marker id="stc110-red" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><polygon points="0,0 9,3.5 0,7" fill="${RED}"/></marker>
+                  <marker id="stc110-blue" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><polygon points="0,0 9,3.5 0,7" fill="${BLUE}"/></marker>
+                </defs>`;
+                // 天井ハッチング（水平な構造材を斜線で表す）
+                const drawCeilingHatch = (x0, x1, y) => {
+                    let s = `<line x1="${x0}" y1="${y}" x2="${x1}" y2="${y}" stroke="#555" stroke-width="2.5"/>`;
+                    for (let x = x0; x <= x1 - 8; x += 11) {
+                        s += `<line x1="${x + 8}" y1="${y}" x2="${x}" y2="${y - 9}" stroke="#888" stroke-width="1.5"/>`;
+                    }
+                    return s;
+                };
+                // 壁ハッチング（鉛直な構造材を斜線で表す）
+                const drawWallHatch = (x, y0, y1) => {
+                    let s = `<line x1="${x}" y1="${y0}" x2="${x}" y2="${y1}" stroke="#555" stroke-width="2.5"/>`;
+                    for (let y = y0; y <= y1 - 8; y += 11) {
+                        s += `<line x1="${x}" y1="${y + 8}" x2="${x - 9}" y2="${y}" stroke="#888" stroke-width="1.5"/>`;
+                    }
+                    return s;
+                };
+                // 物体（おもり）の四角形
+                const drawWeight = (cx, cy) => {
+                    const bw = 30, bh = 24;
+                    return `<rect x="${cx - bw / 2}" y="${cy - bh / 2}" width="${bw}" height="${bh}" rx="3" fill="#dbe4ef" stroke="#3A434C" stroke-width="2"/>`;
+                };
+
+                if (problem.tool === 'singleRope') {
+                    // 天井 (y=30)、ひもは鉛直、物体は下方。W↓ と T↑ は同一鉛直線。
+                    const cx = W / 2;
+                    const ceilY = 30, objY = 165;
+                    svg += drawCeilingHatch(cx - 55, cx + 55, ceilY);
+                    // ひも（天井 → 物体上端）
+                    svg += `<line x1="${cx}" y1="${ceilY}" x2="${cx}" y2="${objY - 12}" stroke="#3A434C" stroke-width="2"/>`;
+                    svg += drawWeight(cx, objY);
+                    // W↓（物体中心から下向き）
+                    const wY1 = objY + 12, wY2 = objY + 70;
+                    svg += `<line x1="${cx}" y1="${wY1}" x2="${cx}" y2="${wY2}" stroke="${RED}" stroke-width="2.5" marker-end="url(#stc110-red)"/>`;
+                    svg += `<text x="${cx + 8}" y="${wY2 - 14}" font-size="13" fill="${RED}" font-family="sans-serif" font-weight="600">W = ${problem.w} N</text>`;
+                    // T↑（ひもに沿って上向き、物体上端から）
+                    const tY1 = objY - 14, tY2 = ceilY + 18;
+                    svg += `<line x1="${cx}" y1="${tY1}" x2="${cx}" y2="${tY2}" stroke="${BLUE}" stroke-width="2.5" marker-end="url(#stc110-blue)"/>`;
+                    svg += `<text x="${cx + 9}" y="${(tY1 + tY2) / 2 + 4}" font-size="14" fill="${BLUE}" font-family="sans-serif" font-weight="600">T</text>`;
+                } else if (problem.tool === 'twoRopeSymmetric') {
+                    // 天井 (y=30)、左点 A・右点 B から V 字に下りて交点 O（物体）。
+                    const ceilY = 30, objY = 175;
+                    const cx = W / 2;
+                    const ax = cx - 80, bx = cx + 80;   // 天井側の取付点
+                    svg += drawCeilingHatch(ax - 22, bx + 22, ceilY);
+                    // ひも OA / OB
+                    svg += `<line x1="${ax}" y1="${ceilY}" x2="${cx}" y2="${objY - 12}" stroke="#3A434C" stroke-width="2"/>`;
+                    svg += `<line x1="${bx}" y1="${ceilY}" x2="${cx}" y2="${objY - 12}" stroke="#3A434C" stroke-width="2"/>`;
+                    // 取付点 A / B のラベル
+                    svg += `<circle cx="${ax}" cy="${ceilY}" r="3" fill="#333"/><text x="${ax - 6}" y="${ceilY + 16}" text-anchor="end" font-size="12" fill="#333" font-weight="600">A</text>`;
+                    svg += `<circle cx="${bx}" cy="${ceilY}" r="3" fill="#333"/><text x="${bx + 6}" y="${ceilY + 16}" font-size="12" fill="#333" font-weight="600">B</text>`;
+                    // 角 θ の弧（天井の水平線とひもがなす角、左右両方）
+                    svg += `<path d="M ${ax + 22} ${ceilY} A 22 22 0 0 1 ${ax + 22 * Math.cos(Math.atan2(objY - 12 - ceilY, cx - ax))} ${ceilY + 22 * Math.sin(Math.atan2(objY - 12 - ceilY, cx - ax))}" stroke="#888" stroke-width="1.5" fill="none"/>`;
+                    svg += `<text x="${ax + 30}" y="${ceilY + 20}" font-size="12" fill="#555" font-style="italic">θ</text>`;
+                    svg += `<path d="M ${bx - 22 * Math.cos(Math.atan2(objY - 12 - ceilY, bx - cx))} ${ceilY + 22 * Math.sin(Math.atan2(objY - 12 - ceilY, bx - cx))} A 22 22 0 0 1 ${bx - 22} ${ceilY}" stroke="#888" stroke-width="1.5" fill="none"/>`;
+                    svg += `<text x="${bx - 38}" y="${ceilY + 20}" font-size="12" fill="#555" font-style="italic">θ</text>`;
+                    // 物体
+                    svg += drawWeight(cx, objY);
+                    svg += `<circle cx="${cx}" cy="${objY - 12}" r="3" fill="#333"/><text x="${cx + 8}" y="${objY - 18}" font-size="12" fill="#333" font-weight="600">O</text>`;
+                    // W↓
+                    const wY1 = objY + 12, wY2 = objY + 50;
+                    svg += `<line x1="${cx}" y1="${wY1}" x2="${cx}" y2="${wY2}" stroke="${RED}" stroke-width="2.5" marker-end="url(#stc110-red)"/>`;
+                    svg += `<text x="${cx + 8}" y="${wY2 - 8}" font-size="13" fill="${RED}" font-family="sans-serif" font-weight="600">W = ${problem.w} N</text>`;
+                    // 各ひもの張力 T（O から取付点方向へ外向き上向き、ひもの途中まで）
+                    const drawTension = (tx, ty, dirX, dirY, labelOnRight) => {
+                        const len = Math.hypot(dirX, dirY) || 1;
+                        const ux = dirX / len, uy = dirY / len;
+                        const x2 = tx + ux * 58, y2 = ty + uy * 58;
+                        let s = `<line x1="${tx}" y1="${ty}" x2="${x2}" y2="${y2}" stroke="${BLUE}" stroke-width="2.5" marker-end="url(#stc110-blue)"/>`;
+                        s += `<text x="${x2 + (labelOnRight ? 8 : -8)}" y="${y2 + 4}" text-anchor="${labelOnRight ? 'start' : 'end'}" font-size="14" fill="${BLUE}" font-weight="600">T</text>`;
+                        return s;
+                    };
+                    const oY = objY - 12;
+                    svg += drawTension(cx, oY, ax - cx, ceilY - oY, false);
+                    svg += drawTension(cx, oY, bx - cx, ceilY - oY, true);
+                } else {
+                    // twoRopeLshape: 左の壁から水平ひも OA、右上の点 B から O へななめのひも OB。
+                    const wallX = 40;
+                    const oX = W / 2 + 10, oY = 150;
+                    const bX = W - 35, bY = 40;
+                    svg += drawWallHatch(wallX, 30, H - 40);
+                    // 水平ひも OA（壁 → O）
+                    svg += `<line x1="${wallX}" y1="${oY - 12}" x2="${oX}" y2="${oY - 12}" stroke="#3A434C" stroke-width="2"/>`;
+                    svg += `<circle cx="${wallX}" cy="${oY - 12}" r="3" fill="#333"/><text x="${wallX + 6}" y="${oY - 18}" font-size="12" fill="#333" font-weight="600">A</text>`;
+                    // ななめのひも OB（O → B）
+                    svg += `<line x1="${oX}" y1="${oY - 12}" x2="${bX}" y2="${bY}" stroke="#3A434C" stroke-width="2"/>`;
+                    svg += `<circle cx="${bX}" cy="${bY}" r="3" fill="#333"/><text x="${bX + 5}" y="${bY - 4}" font-size="12" fill="#333" font-weight="600">B</text>`;
+                    // 角 θ（水平線とひも OB のなす角）
+                    const angOB = Math.atan2(oY - 12 - bY, bX - oX);
+                    svg += `<path d="M ${oX + 26} ${oY - 12} A 26 26 0 0 1 ${oX + 26 * Math.cos(angOB)} ${oY - 12 - 26 * Math.sin(angOB)}" stroke="#888" stroke-width="1.5" fill="none"/>`;
+                    svg += `<text x="${oX + 32}" y="${oY - 22}" font-size="12" fill="#555" font-style="italic">θ</text>`;
+                    // 物体
+                    svg += drawWeight(oX, oY);
+                    svg += `<circle cx="${oX}" cy="${oY - 12}" r="3" fill="#333"/><text x="${oX - 8}" y="${oY - 18}" text-anchor="end" font-size="12" fill="#333" font-weight="600">O</text>`;
+                    // W↓
+                    const wY1 = oY + 12, wY2 = oY + 60;
+                    svg += `<line x1="${oX}" y1="${wY1}" x2="${oX}" y2="${wY2}" stroke="${RED}" stroke-width="2.5" marker-end="url(#stc110-red)"/>`;
+                    svg += `<text x="${oX + 8}" y="${wY2 - 12}" font-size="13" fill="${RED}" font-family="sans-serif" font-weight="600">W = ${problem.w} N</text>`;
+                    // T₁ ←（水平ひも OA に沿って、O から壁方向へ）
+                    const t1x2 = oX - 60;
+                    svg += `<line x1="${oX}" y1="${oY - 12}" x2="${t1x2}" y2="${oY - 12}" stroke="${BLUE}" stroke-width="2.5" marker-end="url(#stc110-blue)"/>`;
+                    svg += `<text x="${(oX + t1x2) / 2}" y="${oY - 18}" text-anchor="middle" font-size="13" fill="${BLUE}" font-weight="600">T₁</text>`;
+                    // T ↗（ななめのひも OB に沿って、O から B 方向へ＝求める張力）
+                    const tLen = 64;
+                    const tx2 = oX + tLen * Math.cos(angOB), ty2 = (oY - 12) - tLen * Math.sin(angOB);
+                    svg += `<line x1="${oX}" y1="${oY - 12}" x2="${tx2}" y2="${ty2}" stroke="${BLUE}" stroke-width="2.5" marker-end="url(#stc110-blue)"/>`;
+                    svg += `<text x="${tx2 + 8}" y="${ty2 + 2}" font-size="14" fill="${BLUE}" font-weight="600">T</text>`;
                 }
                 svg += `</svg></div>`;
                 return svg;
@@ -11609,11 +12048,15 @@
                         return;
                     }
 
-                    // 1-6 は HINTS_1_6、1-7 は HINTS_1_7、1-8 は HINTS_1_8、1-9 は HINTS_1_9、2-1 は HINTS_2_1。他ユニットは将来追加時にここを拡張する。
+                    // 1-6 は HINTS_1_6、1-7 は HINTS_1_7、1-8 は HINTS_1_8、1-9 は HINTS_1_9、2-1 は HINTS_2_1。
+                    //   1-10 は問のタイプが 3 種類あるため、現在の問 id でヒント表を引く。
                     const hintsTable = (this.currentUnitId === '1-6') ? HINTS_1_6 :
                                        (this.currentUnitId === '1-7') ? HINTS_1_7 :
                                        (this.currentUnitId === '1-8') ? HINTS_1_8 :
-                                       (this.currentUnitId === '1-9') ? HINTS_1_9 : HINTS_2_1;
+                                       (this.currentUnitId === '1-9') ? HINTS_1_9 :
+                                       (this.currentUnitId === '1-10')
+                                           ? (HINTS_1_10_BY_ID[(this.getCalcProblem() || {}).id] || HINTS_1_10_TEQW)
+                                       : HINTS_2_1;
                     const stageHints = hintsTable[stagePart];
                     const levelKeys = ['b', 'a', 'c'];
                     hintText = stageHints ? stageHints[levelKeys[level]] : '';
@@ -11727,6 +12170,9 @@
                 if (this.currentUnitId === '1-9') {
                     return PROBLEMS_1_9[this.currentProblemIndex];
                 }
+                if (this.currentUnitId === '1-10') {
+                    return PROBLEMS_1_10[this.currentProblemIndex];
+                }
                 if (this.currentUnitId === '2-1') {
                     return PROBLEMS_2_1[this.currentProblemIndex];
                 }
@@ -11764,8 +12210,9 @@
                 const is1_7 = this.currentUnitId === '1-7';
                 const is1_8 = this.currentUnitId === '1-8';
                 const is1_9 = this.currentUnitId === '1-9';
-                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9;
-                // 1-6/1-7/1-8/1-9 は problem.stage0Correct、2-1 は固定値 's'
+                const is1_10 = this.currentUnitId === '1-10';
+                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10;
+                // 1-6/1-7/1-8/1-9/1-10 は problem.stage0Correct、2-1 は固定値 's'
                 const correct = isForceCalc ? problem.stage0Correct : 's';
                 const isCorrect = (value === correct);
                 if (isCorrect) {
@@ -11864,8 +12311,9 @@
                 const is1_7 = this.currentUnitId === '1-7';
                 const is1_8 = this.currentUnitId === '1-8';
                 const is1_9 = this.currentUnitId === '1-9';
-                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9;
-                // 1-6/1-7/1-8/1-9 は problem.stage1Correct、2-1 は固定値 'constant'
+                const is1_10 = this.currentUnitId === '1-10';
+                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10;
+                // 1-6/1-7/1-8/1-9/1-10 は problem.stage1Correct、2-1 は固定値 'constant'
                 const correct = isForceCalc ? problem.stage1Correct : 'constant';
                 const isCorrect = (value === correct);
                 if (isCorrect) {
@@ -11971,7 +12419,8 @@
                     F: 'F', Fx: 'Fx',
                     r: 'r', d: 'd',
                     cosAlpha: 'cos α', sinAlpha: 'sin α',
-                    F1tan: 'F₁', F2tan: 'F₂'
+                    F1tan: 'F₁', F2tan: 'F₂',
+                    W: 'W', 'sinθ': 'sin θ'
                 };
                 slotRoles.forEach(r => { slotEls[r] = document.getElementById('slot-' + r); });
                 // Reset visual state
@@ -12006,6 +12455,8 @@
                             feedback.textContent = '不正解。単位に注目して入れ直してください。「N（ニュートン）」が力 F、「m（メートル）」が腕の長さ r です。';
                         } else if (this.currentUnitId === '1-9') {
                             feedback.textContent = '不正解。単位に注目して入れ直してください。「N（ニュートン）」が力 F、「m（メートル）」が作用線間の距離 d です。';
+                        } else if (this.currentUnitId === '1-10') {
+                            feedback.textContent = '不正解。式の W の空欄には問題文の重さ W の値、sin θ の空欄には問題文の sin θ の値を入れてください。';
                         } else {
                             feedback.textContent = '不正解。単位に注目して入れ直してください。「m/s」が速度 v、「s（秒）」が時間 t です。';
                         }
@@ -12032,14 +12483,16 @@
                 const is1_7 = this.currentUnitId === '1-7';
                 const is1_8 = this.currentUnitId === '1-8';
                 const is1_9 = this.currentUnitId === '1-9';
-                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9;
+                const is1_10 = this.currentUnitId === '1-10';
+                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10;
 
-                // 1-6/1-7/1-8/1-9 は小数入力（step=0.1 を許容）し tolerance で判定。
+                // 1-6/1-7/1-8/1-9/1-10 は小数入力（step=0.1 を許容）し tolerance で判定。
                 const userAnswer = isForceCalc ? parseFloat(answerInput.value) : parseInt(answerInput.value);
                 const expected   = is1_6 ? problem.expectedResultant
                                  : is1_7 ? problem.expectedAnswer
                                  : is1_8 ? problem.expectedMoment
                                  : is1_9 ? problem.expectedCoupleMoment
+                                 : is1_10 ? problem.expectedTension
                                  : problem.expectedDisplacement;
                 const tolerance  = isForceCalc ? (problem.tolerance || 1) : 0;
                 // 浮動小数点誤差対策: tolerance 境界（例 tolerance=0.1 で |userAnswer-expected|=0.10000...142）が
@@ -12097,6 +12550,18 @@
                             <div style="margin-bottom: 10px;">正解です。</div>
                             <div class="answer-explanation">
                                 M ＝ F × d ＝ ${problem.f} × ${problem.d} ＝ ${expected} [N·m]
+                            </div>
+                        `;
+                    } else if (is1_10) {
+                        const expl1_10 = (problem.formulaType === 'TeqW')
+                            ? `T ＝ W ＝ ${problem.w} ＝ ${expected} [N]`
+                            : (problem.formulaType === 'sym')
+                            ? `T ＝ W ÷ (2 × sin θ) ＝ ${problem.w} ÷ (2 × ${problem.sinTheta}) ＝ ${expected} [N]`
+                            : `T ＝ W ÷ sin θ ＝ ${problem.w} ÷ ${problem.sinTheta} ＝ ${expected} [N]`;
+                        feedback.innerHTML = `
+                            <div style="margin-bottom: 10px;">正解です。</div>
+                            <div class="answer-explanation">
+                                ${expl1_10}
                             </div>
                         `;
                     } else {
