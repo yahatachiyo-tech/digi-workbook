@@ -9839,14 +9839,14 @@
                             reflFormulaHTML = `$x = \\dfrac{W_2 \\times L}{W_1 + W_2} = \\dfrac{${problem.W2} \\times ${problem.length}}{${problem.W1} + ${problem.W2}} = ${ans}\\,\\mathrm{[cm]}$`;
                             reflText = `左端の重り（<strong>${problem.W1} N</strong>）と右端の重り（<strong>${problem.W2} N</strong>）を取り付けた長さ <strong>${problem.length} cm</strong> の棒の重心は、左端から <strong>${ans} cm</strong> の位置です。<br>重心を 1 本の指で支えると、左回りのモーメント W₁ × r₁ と右回りのモーメント W₂ × r₂ が等しくなり、棒は回らずに水平のまま静止します。`;
                         } else if (problem.formulaType === 'centroidArea2') {
-                            reflFormulaHTML = `<div style="display:flex; flex-direction:column; gap:8px; line-height:2.0;">`
-                                + `<div>$x = \\dfrac{A_1 x_1 + A_2 x_2}{A} = \\dfrac{${problem.A1}\\times${problem.x1} + ${problem.A2}\\times${problem.x2}}{${problem.A}} = ${problem.expectedX}\\,\\mathrm{[mm]}$</div>`
-                                + `<div>$y = \\dfrac{A_1 y_1 + A_2 y_2}{A} = \\dfrac{${problem.A1}\\times${problem.y1} + ${problem.A2}\\times${problem.y2}}{${problem.A}} = ${problem.expectedY}\\,\\mathrm{[mm]}$</div></div>`;
+                            reflFormulaHTML = `<div style="display:flex; flex-direction:column; gap:18px; align-items:center;">`
+                                + `<div>$\\begin{aligned} x &= \\dfrac{A_1 x_1 + A_2 x_2}{A} \\\\[6pt] &= \\dfrac{${problem.A1} \\times ${problem.x1} + ${problem.A2} \\times ${problem.x2}}{${problem.A}} \\\\[6pt] &= ${problem.expectedX}\\ \\mathrm{mm} \\end{aligned}$</div>`
+                                + `<div>$\\begin{aligned} y &= \\dfrac{A_1 y_1 + A_2 y_2}{A} \\\\[6pt] &= \\dfrac{${problem.A1} \\times ${problem.y1} + ${problem.A2} \\times ${problem.y2}}{${problem.A}} \\\\[6pt] &= ${problem.expectedY}\\ \\mathrm{mm} \\end{aligned}$</div></div>`;
                             reflText = `図心 G は x ＝ ${problem.expectedX} mm、y ＝ ${problem.expectedY} mm の位置と求まった。この点で板を 1 本の指で支えると、板はどの向きでも回らずにつり合う。L 字のままでは図心がわからないので、図心がわかる長方形 2 つに分け、厚さが一定で均質なことから「面積」を「重さ」のかわりに使い、原点 O のまわりのモーメントのつり合いから図心を導いた。図心の問題も、もとは 1-11 で学んだモーメントのつり合いと同じ考え方である。`;
                         } else {
-                            reflFormulaHTML = `<div style="display:flex; flex-direction:column; gap:8px; line-height:2.0;">`
-                                + `<div>$x = \\dfrac{A_{\\text{大}} x_{\\text{大}} - A_{\\text{切}} x_{\\text{切}}}{A_0} = \\dfrac{${problem.Abig}\\times${problem.xbig} - ${problem.Acut}\\times${problem.xcut}}{${problem.A0}} = ${problem.expectedX}\\,\\mathrm{[mm]}$</div>`
-                                + `<div>$y = \\dfrac{A_{\\text{大}} y_{\\text{大}} - A_{\\text{切}} y_{\\text{切}}}{A_0} = \\dfrac{${problem.Abig}\\times${problem.ybig} - ${problem.Acut}\\times${problem.ycut}}{${problem.A0}} = ${problem.expectedY}\\,\\mathrm{[mm]}$</div></div>`;
+                            reflFormulaHTML = `<div style="display:flex; flex-direction:column; gap:18px; align-items:center;">`
+                                + `<div>$\\begin{aligned} x &= \\dfrac{A_{\\text{大}} x_{\\text{大}} - A_{\\text{切}} x_{\\text{切}}}{A_0} \\\\[6pt] &= \\dfrac{${problem.Abig} \\times ${problem.xbig} - ${problem.Acut} \\times ${problem.xcut}}{${problem.A0}} \\\\[6pt] &= ${problem.expectedX}\\ \\mathrm{mm} \\end{aligned}$</div>`
+                                + `<div>$\\begin{aligned} y &= \\dfrac{A_{\\text{大}} y_{\\text{大}} - A_{\\text{切}} y_{\\text{切}}}{A_0} \\\\[6pt] &= \\dfrac{${problem.Abig} \\times ${problem.ybig} - ${problem.Acut} \\times ${problem.ycut}}{${problem.A0}} \\\\[6pt] &= ${problem.expectedY}\\ \\mathrm{mm} \\end{aligned}$</div></div>`;
                             reflText = `残った板の図心 G は x ＝ ${problem.expectedX} mm、y ＝ ${problem.expectedY} mm の位置と求まった。この点で板を 1 本の指で支えると、板はどの向きでも回らずにつり合う。すみを切り抜いた形は図心がわからないので、「残った板 ＋ 切り抜いた正方形 ＝ 切り抜く前の大きい長方形」という関係を使い、面積を「重さ」とみなして原点 O のまわりのモーメントのつり合いから図心を導いた。切り抜き型では、全体から切り抜きを引く「引き算」になる。図心の問題も、もとは 1-11 で学んだモーメントのつり合いと同じ考え方である。`;
                         }
                         content.innerHTML = header + staticCanvas1_6 + `
