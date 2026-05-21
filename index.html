@@ -7474,10 +7474,14 @@
                 const progress = JSON.parse(localStorage.getItem('progress') || '{}');
 
                 UNITS.forEach(unit => {
-                    const unitProgress = progress[unit.id] || { completed: false, score: 0, total: 0, level: '基礎' };
-                    const percentage = unitProgress.total > 0 ? Math.round((unitProgress.score / unitProgress.total) * 100) : 0;
-                    // Use the dynamic level from progress, falling back to the unit's default
-                    const currentLevel = unitProgress.level || unit.level || '基礎';
+                    // 進捗に保存された値より、現時点の PROBLEMS_X_X.length を分母として優先表示。
+                    //   未プレイ単元でも初回から「0/4」のように正しい問題数が見える。
+                    //   問題数が後から増減した単元でも、現在値で表示される。
+                    const stored = progress[unit.id] || {};
+                    const total = this.getProblemCount(unit.id);
+                    const score = stored.score || 0;
+                    const percentage = total > 0 ? Math.round((score / total) * 100) : 0;
+                    const currentLevel = stored.level || unit.level || '基礎';
 
                     const card = document.createElement('div');
                     card.className = 'unit-card';
@@ -7489,7 +7493,7 @@
                         <div class="progress-bar">
                             <div class="progress-fill" style="width: ${percentage}%"></div>
                         </div>
-                        <div class="completion-text">${unitProgress.score}/${unitProgress.total}</div>
+                        <div class="completion-text">${score}/${total}</div>
                     `;
 
                     unitList.appendChild(card);
