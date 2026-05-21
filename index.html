@@ -13720,9 +13720,9 @@
                     const pX = cx + R * Math.cos(pAng);
                     const pY = cy + R * Math.sin(pAng);
                     svg += `<line x1="${cx}" y1="${cy}" x2="${pX}" y2="${pY}" stroke="#777" stroke-width="1.2" stroke-dasharray="4,3"/>`;
-                    // r ラベル
-                    const rLabX = (cx + pX) / 2;
-                    const rLabY = (cy + pY) / 2 - 8;
+                    // r ラベル — r 線の下側に配置（ω 弧・ω ラベルが上側にあるので重なり回避）
+                    const rLabX = (cx + pX) / 2 + 6;
+                    const rLabY = (cy + pY) / 2 + 16;
                     svg += `<text x="${rLabX}" y="${rLabY}" text-anchor="middle" font-size="13" fill="#555" font-weight="600">r ＝ ${problem.r} m</text>`;
                     // 点 P
                     svg += `<circle cx="${pX}" cy="${pY}" r="4" fill="${BLUE}"/>`;
@@ -13757,11 +13757,11 @@
                     const rodH = problem.d * rodScale;  // 50 px
                     const rodCY = H / 2;
                     const rodX1 = chuckX + chuckW;
-                    const rodX2 = W - 30;
+                    const rodX2 = W - 90;   // 右側に寸法線＋ラベル「d ＝ 50 mm」(~70px) を収めるための余白
                     svg += `<rect x="${rodX1}" y="${rodCY - rodH / 2}" width="${rodX2 - rodX1}" height="${rodH}" fill="#e8e2d5" stroke="#666" stroke-width="1.2"/>`;
                     // 中心軸（破線、回転軸）
                     svg += `<line x1="${chuckX - 10}" y1="${rodCY}" x2="${rodX2 + 16}" y2="${rodCY}" stroke="#888" stroke-width="0.8" stroke-dasharray="6,3"/>`;
-                    // 直径 d の寸法線（丸棒の右側、外側）
+                    // 直径 d の寸法線（丸棒の右側、外側）— 寸法線とラベルを canvas 幅内に収める
                     const dimX = rodX2 + 14;
                     svg += `<line x1="${rodX2 + 2}" y1="${rodCY - rodH / 2}" x2="${dimX + 4}" y2="${rodCY - rodH / 2}" stroke="#888" stroke-width="0.8" stroke-dasharray="3,3"/>`;
                     svg += `<line x1="${rodX2 + 2}" y1="${rodCY + rodH / 2}" x2="${dimX + 4}" y2="${rodCY + rodH / 2}" stroke="#888" stroke-width="0.8" stroke-dasharray="3,3"/>`;
