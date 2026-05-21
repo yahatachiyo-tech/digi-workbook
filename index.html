@@ -2162,7 +2162,7 @@
                 </div>
                 <div class="menu-meta-row">
                     <span>小単元を選んで学習をはじめましょう。</span>
-                    <span><strong>全5単元</strong></span>
+                    <span><strong id="menuUnitCount">全14単元</strong></span>
                 </div>
                 <div class="unit-list" id="unitList"></div>
             </div>
@@ -6684,6 +6684,9 @@
                     }
                     examPrepBtn.style.display = visibleForUser ? 'inline-block' : 'none';
                 }
+
+                const unitCountEl = document.getElementById('menuUnitCount');
+                if (unitCountEl) unitCountEl.textContent = `全${UNITS.length}単元`;
 
                 const unitList = document.getElementById('unitList');
                 unitList.innerHTML = '';
