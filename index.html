@@ -2339,10 +2339,10 @@
         const DASHBOARD_UNIT_COUNTS = {
             '1-1': 4, '1-2': 6, '1-3': 4, '1-4': 4, '1-5': 4,
             '1-6': 4, '1-7': 4, '1-8': 4, '1-9': 4,
-            '1-10': 4, '1-11': 4, '1-12': 4, '2-1': 5, '2-2': 4
+            '1-10': 4, '1-11': 4, '1-12': 4, '2-1': 5, '2-2': 4, '2-3': 4, '2-4': 4
         };
         // 単元表示順
-        const DASHBOARD_UNIT_ORDER = ['1-1', '1-2', '1-3', '1-4', '1-5', '1-6', '1-7', '1-8', '1-9', '1-10', '1-11', '1-12', '2-1', '2-2'];
+        const DASHBOARD_UNIT_ORDER = ['1-1', '1-2', '1-3', '1-4', '1-5', '1-6', '1-7', '1-8', '1-9', '1-10', '1-11', '1-12', '2-1', '2-2', '2-3', '2-4'];
 
         // 【校内版では実名ロスターを定義していたが、GitHub Pages 配信のため空に変更】
         // 将来、名簿照合に戻す場合は 1番〜36番 + 40番の形式で復活可能
@@ -2471,6 +2471,24 @@
                 id: '2-2',
                 title: '等加速度運動',
                 subtitle: 'v=v₀+at / s=v₀t+½at² / v²−v₀²=2as',
+                level: '基礎',
+                completed: false,
+                score: 0,
+                total: 0
+            },
+            {
+                id: '2-3',
+                title: '重力加速度',
+                subtitle: '自由落下 v=gt / h=½gt² / 投げおろし v=v₀+gt',
+                level: '基礎',
+                completed: false,
+                score: 0,
+                total: 0
+            },
+            {
+                id: '2-4',
+                title: '回転運動',
+                subtitle: '周速度 v=l/t / 角速度 ω=θ/t / v=rω / 旋盤 v=πdn/1000',
                 level: '基礎',
                 completed: false,
                 score: 0,
@@ -5034,6 +5052,766 @@
             4: HINTS_2_2_VS
         };
 
+        // Problems for sub-unit 2-3: 重力加速度（自由落下・鉛直下方投げおろし）
+        //   教科書 p.42-43、式 2-24〜2-27、例題10 に基づく。Stage 2 は derivationSteps
+        //   アコーディオン（1-10/1-11/1-12/2-2/2-4 と同じ render1_10DerivAccordion を再利用）。
+        //   問のタイプ（formulaType）：
+        //     'freeFallV'      — 自由落下 v = g × t（問1、基礎）
+        //     'freeFallH'      — 自由落下 h = (1/2) × g × t²（問2、基礎）
+        //     'freeFallTime'   — 自由落下 t = √(2h/g)（問3、基礎、平方根計算）
+        //     'verticalDownV'  — 鉛直下方への投げおろし v = v₀ + g × t（問4、応用、2 ステップ）
+        //   canvasType: '2d-static'。問題図は build2_3FreeFallCanvas(problem) が描く（canvas.kind で分岐）。
+        const PROBLEMS_2_3 = [
+            {
+                id: 1,
+                formulaType: 'freeFallV',
+                g: 9.8, t: 3,
+                expectedV: 29.4, tolerance: 0.1, unit: 'm/s', decimals: 1, baselineTime: 150,
+                sentence: '高い場所で支えていた物体から、そっと手をはなして自由落下させた。空気の抵抗はないものとする。重力加速度は g ＝ 9.8 m/s² とする。手をはなしてから 3 秒後の物体の速度 v [m/s] を求めよ。',
+                condition: '基礎、自由落下、v=gt、g=9.8 t=3 → v=29.4 m/s',
+                canvasType: '2d-static',
+                canvas: { width: 280, height: 280, kind: 'fallV' },
+                stage0Choices: [
+                    { value: 'velocity', label: 't 秒後の物体の速度 v [m/s] の大きさ' },
+                    { value: 'distance', label: 't 秒間に落下した距離 h [m] の大きさ' },
+                    { value: 'time',     label: '物体が地面に達するまでの時間 t [s]' }
+                ],
+                stage0Correct: 'velocity',
+                stage1Choices: [
+                    { value: 'freeFall',      label: '物体が静かに落下する、自由落下である' },
+                    { value: 'uniformLinear', label: '速度が一定で変わらない、等速直線運動である' },
+                    { value: 'rotation',      label: '同じ場所のまわりを回る、回転運動である' }
+                ],
+                stage1Correct: 'freeFall',
+                derivationSteps: [
+                    {
+                        prompt: '自由落下では、物体にどんな加速度が働いていますか？',
+                        choices: [
+                            { value: 'gravity',  label: '一定の重力加速度 g ＝ 9.8 m/s² が、鉛直下方に働く' },
+                            { value: 'zero',     label: '加速度は働いていない（速度は変わらない）' },
+                            { value: 'changing', label: '時間とともに変わる、ばらばらの加速度が働く' }
+                        ],
+                        correct: 'gravity',
+                        onCorrectText: '自由落下では、地球の引力によって一定の重力加速度 g ＝ 9.8 m/s² が鉛直下方に働きます。加速度が一定なので、自由落下は等加速度運動の特殊な場合です。'
+                    },
+                    {
+                        prompt: '自由落下は等加速度運動の特殊な場合です。等加速度運動の速度の式 v ＝ v₀ ＋ a × t を、自由落下にあてはめるとどうなりますか？',
+                        choices: [
+                            { value: 'aToG',  label: 'a を g に置きかえる（v ＝ v₀ ＋ g × t）' },
+                            { value: 'tToG',  label: 't を g に置きかえる（v ＝ v₀ ＋ a × g）' },
+                            { value: 'noChg', label: '式 v ＝ v₀ ＋ a × t はそのままで、文字も変えない' }
+                        ],
+                        correct: 'aToG',
+                        onCorrectText: '自由落下では加速度が a ＝ g ＝ 9.8 m/s² と決まっています。だから a の場所に g を入れて v ＝ v₀ ＋ g × t（式 2-24）となります。'
+                    },
+                    {
+                        prompt: '今回は「そっと手をはなした」ので、はじめの速度 v₀ は何 m/s ですか？それをふまえると、t 秒後の速度 v はどう表せますか？',
+                        choices: [
+                            { value: 'vEqGt',  label: 'v₀ ＝ 0 m/s なので、v ＝ g × t（式 2-26）' },
+                            { value: 'keepV0', label: 'v₀ は問題にあると考えて、v ＝ v₀ ＋ g × t のまま使う' },
+                            { value: 'sq',     label: 'v ＝ g × t²（時間を 2 乗してしまう）' }
+                        ],
+                        correct: 'vEqGt',
+                        onCorrectText: '「そっと手をはなす」とははじめの速度 v₀ ＝ 0 m/s ということです。v ＝ v₀ ＋ g × t に v₀ ＝ 0 を入れて、v ＝ g × t（式 2-26）になります。時間は 2 乗しません。'
+                    }
+                ],
+                formula: 'v = g\\,t',
+                substitutions: {
+                    slots: ['g', 't'],
+                    cards: [
+                        { role: 'g', label: 'g', value: 9.8, unit: 'm/s²' },
+                        { role: 't', label: 't', value: 3,   unit: 's' }
+                    ]
+                }
+            },
+            {
+                id: 2,
+                formulaType: 'freeFallH',
+                g: 9.8, t: 2,
+                expectedH: 19.6, tolerance: 0.1, unit: 'm', decimals: 1, baselineTime: 180,
+                sentence: '高い場所で支えていた物体から、そっと手をはなして自由落下させた。空気の抵抗はないものとする。重力加速度は g ＝ 9.8 m/s² とする。手をはなしてから 2 秒間に物体が落下する距離 h [m] を求めよ。',
+                condition: '基礎、自由落下、h=½gt²、g=9.8 t=2 → h=19.6 m',
+                canvasType: '2d-static',
+                canvas: { width: 280, height: 300, kind: 'fallH' },
+                stage0Choices: [
+                    { value: 'distance', label: 't 秒間に落下した距離 h [m] の大きさ' },
+                    { value: 'velocity', label: 't 秒後の物体の速度 v [m/s] の大きさ' },
+                    { value: 'accel',    label: '物体に働く加速度 g [m/s²] の大きさ' }
+                ],
+                stage0Correct: 'distance',
+                stage1Choices: [
+                    { value: 'freeFall',      label: '物体が静かに落下する、自由落下である' },
+                    { value: 'uniformLinear', label: '速度が一定で変わらない、等速直線運動である' },
+                    { value: 'rotation',      label: '同じ場所のまわりを回る、回転運動である' }
+                ],
+                stage1Correct: 'freeFall',
+                derivationSteps: [
+                    {
+                        prompt: '自由落下では、物体にどんな加速度が働いていますか？',
+                        choices: [
+                            { value: 'gravity',  label: '一定の重力加速度 g ＝ 9.8 m/s² が、鉛直下方に働く' },
+                            { value: 'zero',     label: '加速度は働いていない（速度は変わらない）' },
+                            { value: 'changing', label: '時間とともに変わる、ばらばらの加速度が働く' }
+                        ],
+                        correct: 'gravity',
+                        onCorrectText: '自由落下では一定の重力加速度 g ＝ 9.8 m/s² が鉛直下方に働きます（問1 と同じ）。'
+                    },
+                    {
+                        prompt: '速度が一定でないので h ＝ 速度 × 時間 だけでは求められません。等加速度運動の距離の式 s ＝ v₀ × t ＋ (1/2) × a × t² を、自由落下にあてはめるとどうなりますか？',
+                        choices: [
+                            { value: 'aToG',   label: 'a を g に、s を h に置きかえる（h ＝ v₀ × t ＋ (1/2) × g × t²）' },
+                            { value: 'noHalf', label: '½ を忘れて h ＝ v₀ × t ＋ g × t² にする' },
+                            { value: 'keepA',  label: '式はそのまま、a も s も変えない' }
+                        ],
+                        correct: 'aToG',
+                        onCorrectText: '自由落下では a ＝ g、進む距離は鉛直下方の落下距離 h です。だから a を g に、s を h に置きかえて h ＝ v₀ × t ＋ (1/2) × g × t²（式 2-25）になります。'
+                    },
+                    {
+                        prompt: '今回は「そっと手をはなした」ので、はじめの速度 v₀ は何 m/s ですか？それをふまえると、落下距離 h はどう表せますか？',
+                        choices: [
+                            { value: 'hHalfGt2', label: 'v₀ ＝ 0 m/s なので、h ＝ (1/2) × g × t²（式 2-27）' },
+                            { value: 'keepV0',   label: 'v₀ は問題にあると考えて、h ＝ v₀ × t ＋ (1/2) × g × t² のまま使う' },
+                            { value: 'noSq',     label: 'h ＝ (1/2) × g × t（時間を 2 乗しない）' }
+                        ],
+                        correct: 'hHalfGt2',
+                        onCorrectText: 'v₀ ＝ 0 を入れて h ＝ (1/2) × g × t²（式 2-27）になります。時間は 2 乗するので注意してください。'
+                    }
+                ],
+                formula: 'h = \\dfrac{1}{2}\\,g\\,t^{2}',
+                substitutions: {
+                    slots: ['g', 't'],
+                    cards: [
+                        { role: 'g', label: 'g', value: 9.8, unit: 'm/s²' },
+                        { role: 't', label: 't', value: 2,   unit: 's' }
+                    ]
+                }
+            },
+            {
+                id: 3,
+                formulaType: 'freeFallTime',
+                g: 9.8, h: 78.4,
+                expectedT: 4.0, tolerance: 0.1, unit: 's', decimals: 1, baselineTime: 200,
+                sentence: '高さ 78.4 m の場所から、物体をそっと手をはなして自由落下させた。空気の抵抗はないものとする。重力加速度は g ＝ 9.8 m/s² とする。物体が地面に達するまでの時間 t [s] を求めよ。',
+                condition: '基礎、自由落下、t=√(2h/g)、g=9.8 h=78.4 → 2h/g=16 t=4.0 s',
+                canvasType: '2d-static',
+                canvas: { width: 280, height: 320, kind: 'fallTime' },
+                stage0Choices: [
+                    { value: 'time',     label: '物体が地面に達するまでの時間 t [s]' },
+                    { value: 'velocity', label: '地面に達したときの速度 v [m/s] の大きさ' },
+                    { value: 'distance', label: '物体が落下する距離 h [m] の大きさ' }
+                ],
+                stage0Correct: 'time',
+                stage1Choices: [
+                    { value: 'freeFall',      label: '物体が静かに落下する、自由落下である' },
+                    { value: 'uniformLinear', label: '速度が一定で変わらない、等速直線運動である' },
+                    { value: 'rotation',      label: '同じ場所のまわりを回る、回転運動である' }
+                ],
+                stage1Correct: 'freeFall',
+                derivationSteps: [
+                    {
+                        prompt: '自由落下では、物体にどんな加速度が働いていますか？',
+                        choices: [
+                            { value: 'gravity',  label: '一定の重力加速度 g ＝ 9.8 m/s² が、鉛直下方に働く' },
+                            { value: 'zero',     label: '加速度は働いていない（速度は変わらない）' },
+                            { value: 'changing', label: '時間とともに変わる、ばらばらの加速度が働く' }
+                        ],
+                        correct: 'gravity',
+                        onCorrectText: '自由落下では一定の重力加速度 g ＝ 9.8 m/s² が鉛直下方に働きます（問1 と同じ）。'
+                    },
+                    {
+                        prompt: '「そっと手をはなした自由落下」で、落下距離 h と時間 t の関係を表す式はどれですか？',
+                        choices: [
+                            { value: 'eq27',   label: 'h ＝ (1/2) × g × t²（式 2-27）' },
+                            { value: 'vEqGt',  label: 'v ＝ g × t（速度の式。距離 h は出てこない）' },
+                            { value: 'noHalf', label: 'h ＝ g × t²（½ を忘れる）' }
+                        ],
+                        correct: 'eq27',
+                        onCorrectText: '「そっと手をはなした」のではじめの速度 v₀ ＝ 0 m/s。だから落下距離は h ＝ (1/2) × g × t²（式 2-27）で表されます。'
+                    },
+                    {
+                        prompt: 'h ＝ (1/2) × g × t² を t について解くと、どうなりますか？',
+                        choices: [
+                            { value: 'sqrt2hg', label: 't ＝ √(2 × h ÷ g)（両辺に 2 を掛けて g で割り、√ をとる）' },
+                            { value: 'noSqrt',  label: 't ＝ 2 × h ÷ g（√ をとり忘れる）' },
+                            { value: 'wrongDiv', label: 't ＝ √(h ÷ (2 × g))（2 を掛けるところを割ってしまう）' }
+                        ],
+                        correct: 'sqrt2hg',
+                        onCorrectText: '両辺に 2 を掛けて 2h ＝ g × t²。両辺を g で割って t² ＝ 2 × h ÷ g。最後に √ をとって（2 乗するまえの数にもどして）t ＝ √(2 × h ÷ g) になります。'
+                    }
+                ],
+                formula: 't = \\sqrt{\\,\\dfrac{2\\,h}{g}\\,}',
+                substitutions: {
+                    slots: ['h', 'g'],
+                    cards: [
+                        { role: 'h', label: 'h', value: 78.4, unit: 'm' },
+                        { role: 'g', label: 'g', value: 9.8,  unit: 'm/s²' }
+                    ]
+                }
+            },
+            {
+                id: 4,
+                formulaType: 'verticalDownV',
+                v0: 4, g: 9.8, t: 2,
+                expectedV: 23.6, tolerance: 0.1, unit: 'm/s', decimals: 1, baselineTime: 200,
+                sentence: '高い場所から、物体を鉛直下方（真下）に向けて、初速度 v₀ ＝ 4 m/s で投げた。空気の抵抗はないものとする。重力加速度は g ＝ 9.8 m/s² とする。投げてから 2 秒後の物体の速度 v [m/s] を求めよ。',
+                condition: '応用、鉛直下方投げおろし、v=v₀+gt、v₀=4 g=9.8 t=2 → v=23.6 m/s',
+                canvasType: '2d-static',
+                canvas: { width: 280, height: 300, kind: 'verticalDown' },
+                stage0Choices: [
+                    { value: 'velocity', label: 't 秒後の物体の速度 v [m/s] の大きさ' },
+                    { value: 'distance', label: 't 秒間に落下した距離 h [m] の大きさ' },
+                    { value: 'time',     label: '物体が地面に達するまでの時間 t [s]' }
+                ],
+                stage0Correct: 'velocity',
+                stage1Choices: [
+                    { value: 'verticalDown',  label: 'はじめの速度をもって鉛直下方に投げる運動（自由落下と区別）' },
+                    { value: 'pureFreeFall',  label: 'はじめの速度がない、自由落下である' },
+                    { value: 'uniformLinear', label: '速度が一定で変わらない、等速直線運動である' }
+                ],
+                stage1Correct: 'verticalDown',
+                derivationSteps: [
+                    {
+                        prompt: '今回は「そっと手をはなした」のではなく、鉛直下方に向けて初速度 v₀ ＝ 4 m/s で投げています。物体に働く加速度はどうなりますか？',
+                        choices: [
+                            { value: 'sameG',     label: '投げ方に関係なく、一定の重力加速度 g ＝ 9.8 m/s² が鉛直下方に働く' },
+                            { value: 'upward',    label: '重力加速度 g は働くが、向きは鉛直上向き' },
+                            { value: 'firstOnly', label: 'はじめの 2 秒だけ重力加速度 g が働き、そのあとは等速になる' }
+                        ],
+                        correct: 'sameG',
+                        onCorrectText: '投げ方や時間に関係なく、地球の引力による重力加速度 g ＝ 9.8 m/s² は鉛直下方に一定にはたらきます。だから加速度は一定（等加速度運動の特殊な場合）のままです。'
+                    },
+                    {
+                        prompt: '等加速度運動の速度の式 v ＝ v₀ ＋ a × t を、鉛直下方への投げおろしにあてはめるとどうなりますか？',
+                        choices: [
+                            { value: 'aToG',    label: 'a を g に置きかえる（v ＝ v₀ ＋ g × t、式 2-24）' },
+                            { value: 'dropV0',  label: 'v₀ ＝ 0 として、v ＝ g × t を使う' },
+                            { value: 'tToG',    label: 't を g に置きかえる' }
+                        ],
+                        correct: 'aToG',
+                        onCorrectText: '加速度 a を重力加速度 g に置きかえて v ＝ v₀ ＋ g × t（式 2-24）になります。今回は v₀ ＝ 4 m/s と決まった値があるので、v₀ を 0 にはしません。'
+                    }
+                ],
+                formula: 'v = v_0 + g\\,t',
+                substitutions: {
+                    slots: ['v0', 'g', 't'],
+                    cards: [
+                        { role: 'v0', label: 'v₀', value: 4,   unit: 'm/s' },
+                        { role: 'g',  label: 'g',  value: 9.8, unit: 'm/s²' },
+                        { role: 't',  label: 't',  value: 2,   unit: 's' }
+                    ]
+                }
+            }
+        ];
+
+        // 問1（自由落下 v=gt）
+        const HINTS_2_3_V = {
+            stage0: {
+                b: '問題文の最後の文に注目してください。「求めよ」と書かれている量が求めるものです。重力加速度 9.8 m/s²、時間 3 秒は、すでに数値が書かれています。',
+                a: '問題文の末尾に「3 秒後の物体の速度 v [m/s] を求めよ」とあります。求めるものは 3 秒後の速度 v で、単位は m/s です。',
+                c: '教科書42ページ「3 重力加速度」の本文を確認してください。'
+            },
+            stage1: {
+                b: '問題文に「そっと手をはなして自由落下させた」「重力加速度は g ＝ 9.8 m/s²」とあります。物体には地球の引力による一定の加速度が働いています。',
+                a: '物体が一定の重力加速度 g で落下する運動を「自由落下」といいます。加速度が一定なので、自由落下は等加速度運動の特殊な場合(a を g に置きかえる)です。',
+                c: '教科書42ページ「3 重力加速度」、式(2-24)〜(2-27) を確認してください。'
+            },
+            stage2: {
+                b: 'まず「自由落下では加速度が g ＝ 9.8 m/s² で一定」だと押さえます。次に「そっと手をはなした」のではじめの速度 v₀ は 0 m/s。等加速度運動の速度の式 v ＝ v₀ ＋ a × t に、a ＝ g と v₀ ＝ 0 を入れたらどうなりますか。',
+                a: '「そっと手をはなした」自由落下の速度の式は v ＝ g × t（式 2-26）。等加速度運動の v ＝ v₀ ＋ a × t で、a を g に置きかえ、v₀ ＝ 0 m/s を入れた形です。',
+                c: '教科書42ページ 式(2-26)「v ＝ g × t」を確認してください。'
+            },
+            stage3: {
+                b: '式は v ＝ g × t です。g には重力加速度、t には時間を入れます。問題文の数値を読み取ってください。',
+                a: '式 v ＝ g × t の空欄に、g ＝ 9.8 m/s²、t ＝ 3 s を入れてください。',
+                c: '教科書42ページ 式(2-26) と 43ページ 例題10 を確認してください。'
+            },
+            stage4: {
+                b: '掛け算 g × t を計算します。電卓を使って構いません。答えは小数第 1 位までで答えてください。',
+                a: 'v ＝ 9.8 × 3 ＝ 29.4 [m/s]。単位は m/s です。',
+                c: '教科書43ページ 例題10 を確認してください。'
+            }
+        };
+
+        // 問2（自由落下 h=½gt²）
+        const HINTS_2_3_H = {
+            stage0: {
+                b: '問題文の最後の文に注目してください。「求めよ」と書かれている量が求めるものです。重力加速度 9.8 m/s²、時間 2 秒は、すでに数値が書かれています。',
+                a: '問題文の末尾に「2 秒間に物体が落下する距離 h [m] を求めよ」とあります。求めるものは落下距離 h で、単位は m です。',
+                c: '教科書42ページ「3 重力加速度」、式(2-27) を確認してください。'
+            },
+            stage1: {
+                b: '問題文に「そっと手をはなして自由落下させた」「重力加速度は g ＝ 9.8 m/s²」とあります。物体には地球の引力による一定の加速度が働いています。',
+                a: '物体が一定の重力加速度 g で落下する運動を「自由落下」といいます。加速度が一定なので、自由落下は等加速度運動の特殊な場合(a を g に、s を h に置きかえる)です。',
+                c: '教科書42ページ「3 重力加速度」を確認してください。'
+            },
+            stage2: {
+                b: '速度が変わるので h ＝ 速度 × 時間 は使えません。等加速度運動の距離の式 s ＝ v₀ × t ＋ (1/2) × a × t² で、a を g に、s を h に置きかえます。さらに「そっと手をはなした」ので v₀ ＝ 0 m/s を入れたらどうなりますか。',
+                a: '「そっと手をはなした」自由落下の落下距離の式は h ＝ (1/2) × g × t²（式 2-27）。等加速度運動の s ＝ v₀ × t ＋ (1/2) × a × t² で、a を g に、s を h に置きかえ、v₀ ＝ 0 を入れた形です。時間 t は 2 乗します。',
+                c: '教科書42ページ 式(2-27)「h ＝ (1/2) × g × t²」を確認してください。'
+            },
+            stage3: {
+                b: '式は h ＝ (1/2) × g × t² です。g には重力加速度、t には時間を入れます。t は 2 乗します。',
+                a: '式 h ＝ (1/2) × g × t² の空欄に、g ＝ 9.8 m/s²、t ＝ 2 s を入れてください。',
+                c: '教科書43ページ 例題10 を確認してください。'
+            },
+            stage4: {
+                b: 'まず t² ＝ t × t を先に計算します。次にその答えに g を掛け、最後に 2 で割ります（または 0.5 を掛ける）。電卓を使って構いません。答えは小数第 1 位までで答えてください。',
+                a: 'h ＝ (1/2) × 9.8 × 2² ＝ (1/2) × 9.8 × 4 ＝ (1/2) × 39.2 ＝ 19.6 [m]。t² を先に計算してから掛けると間違えにくいです。単位は m です。',
+                c: '教科書43ページ 例題10 を確認してください。'
+            }
+        };
+
+        // 問3（自由落下 t=√(2h/g)）
+        const HINTS_2_3_T = {
+            stage0: {
+                b: '問題文の最後の文に注目してください。「求めよ」と書かれている量が求めるものです。落下距離 78.4 m、重力加速度 9.8 m/s² は、すでに数値が書かれています。',
+                a: '問題文の末尾に「地面に達するまでの時間 t [s] を求めよ」とあります。求めるものは地面に達する時間 t で、単位は s（秒）です。',
+                c: '教科書43ページ 例題10 を確認してください。'
+            },
+            stage1: {
+                b: '問題文に「そっと手をはなして自由落下させた」「重力加速度は g ＝ 9.8 m/s²」とあります。物体には地球の引力による一定の加速度が働いています。',
+                a: '物体が一定の重力加速度 g で落下する運動を「自由落下」といいます。',
+                c: '教科書42ページ「3 重力加速度」を確認してください。'
+            },
+            stage2: {
+                b: 'はじめの速度 v₀ ＝ 0 m/s の自由落下で、落下距離 h と時間 t の関係は h ＝ (1/2) × g × t² です。求めたいのは t なので、この式を t について解く必要があります。',
+                a: 'h ＝ (1/2) × g × t² を t について解きます。両辺に 2 を掛けて 2h ＝ g × t²、両辺を g で割って t² ＝ 2 × h ÷ g、最後に √ をとって t ＝ √(2 × h ÷ g) になります。教科書 例題10 と同じやり方です。',
+                c: '教科書43ページ 例題10「t ＝ √(2h/g)」を確認してください。'
+            },
+            stage3: {
+                b: '式は t ＝ √(2 × h ÷ g) です。h には落下距離、g には重力加速度を入れます。問題文の数値を読み取ってください。',
+                a: '式 t ＝ √(2 × h ÷ g) の空欄に、h ＝ 78.4 m、g ＝ 9.8 m/s² を入れてください。',
+                c: '教科書43ページ 例題10 を確認してください。'
+            },
+            stage4: {
+                b: 'まず分子 2 × h を計算します。次にそれを g で割ります。最後に √ をとって（2 乗するまえの数にもどして）答えを出します。電卓の √ ボタンを使って構いません。答えは小数第 1 位までで答えてください。',
+                a: 't ＝ √(2 × 78.4 ÷ 9.8) ＝ √(156.8 ÷ 9.8) ＝ √16 ＝ 4.0 [s]。中の数が 16 になるので √16 ＝ 4 です。単位は s（秒）です。',
+                c: '教科書43ページ 例題10 を確認してください。'
+            }
+        };
+
+        // 問4（鉛直下方投げおろし v=v₀+gt）
+        const HINTS_2_3_VV = {
+            stage0: {
+                b: '問題文の最後の文に注目してください。「求めよ」と書かれている量が求めるものです。初速度 4 m/s、重力加速度 9.8 m/s²、時間 2 秒は、すでに数値が書かれています。',
+                a: '問題文の末尾に「2 秒後の物体の速度 v [m/s] を求めよ」とあります。求めるものは 2 秒後の速度 v で、単位は m/s です。',
+                c: '教科書42ページ 式(2-24) を確認してください。'
+            },
+            stage1: {
+                b: '問題文に「鉛直下方に向けて、初速度 v₀ ＝ 4 m/s で投げた」とあります。はじめの速度があるので、ただの「自由落下」とは違います。物体に働く加速度は一定（g）のままです。',
+                a: 'はじめの速度 v₀ をもって鉛直下方に投げる運動も、加速度は g で一定なので等加速度運動の特殊な場合です。「自由落下」は v₀ ＝ 0 の特別な場合で、今回は v₀ ＝ 4 m/s と決まった値があります。',
+                c: '教科書42ページ 式(2-24)「v ＝ v₀ ＋ g × t」を確認してください。'
+            },
+            stage2: {
+                b: '加速度が一定（g）なので、等加速度運動の速度の式 v ＝ v₀ ＋ a × t が使えます。a を g に置きかえたらどうなりますか。',
+                a: '鉛直下方への投げおろしの速度の式は v ＝ v₀ ＋ g × t（式 2-24）。等加速度運動の v ＝ v₀ ＋ a × t で、a を g に置きかえた形です。今回は v₀ ＝ 4 m/s なので v₀ ＝ 0 にはしません。',
+                c: '教科書42ページ 式(2-24)「v ＝ v₀ ＋ g × t」を確認してください。'
+            },
+            stage3: {
+                b: '式は v ＝ v₀ ＋ g × t です。v₀ にははじめの速度、g には重力加速度、t には時間を入れます。',
+                a: '式 v ＝ v₀ ＋ g × t の空欄に、v₀ ＝ 4 m/s、g ＝ 9.8 m/s²、t ＝ 2 s を入れてください。',
+                c: '教科書42ページ 式(2-24) を確認してください。'
+            },
+            stage4: {
+                b: '<strong>まず掛け算 g × t を先に計算します。次にその答えを v₀ に足します</strong>（足し算より掛け算が先のルール）。電卓を使って構いません。答えは小数第 1 位までで答えてください。',
+                a: 'v ＝ 4 ＋ 9.8 × 2 ＝ 4 ＋ 19.6 ＝ 23.6 [m/s]。掛け算を先にしてから足し算してください。単位は m/s です。',
+                c: '教科書42ページ 式(2-24) を確認してください。'
+            }
+        };
+
+        // 問 id（1〜4）→ ヒント表。renderCalculationProblem / showHint から参照。
+        const HINTS_2_3_BY_ID = {
+            1: HINTS_2_3_V,
+            2: HINTS_2_3_H,
+            3: HINTS_2_3_T,
+            4: HINTS_2_3_VV
+        };
+
+        // Problems for sub-unit 2-4: 回転運動（周速度・角速度・回転速度）
+        //   教科書 p.43-44、式 2-28〜2-31、例題 11 に基づく。Stage 2 は derivationSteps
+        //   アコーディオン（1-10/1-11/1-12/2-2 と同じ render1_10DerivAccordion を再利用）。
+        //   問のタイプ（formulaType）：
+        //     'peripheralVFromLT'   — 周速度 v = l/t              （問1、基礎）
+        //     'angularVFromThetaT'  — 角速度 ω = θ/t              （問2、基礎）
+        //     'peripheralVFromROmega' — 周速度 v = r×ω           （問3、応用、4 ステップ）
+        //     'peripheralVFromDN'   — 旋盤 v = πdn/1000 [m/min]   （問4、応用、4 ステップ・単位換算）
+        //   canvasType: '2d-static'。問題図は build2_4RotationCanvas(problem) が描く（canvas.kind で分岐）。
+        const PROBLEMS_2_4 = [
+            {
+                id: 1,
+                formulaType: 'peripheralVFromLT',
+                l: 6, t: 2,
+                expectedV: 3.0, tolerance: 0.05, unit: 'm/s', decimals: 1, baselineTime: 150,
+                sentence: '円筒の外側に糸を巻きつけ、糸を一定の速さで引いて円筒を回した。図のように、2 秒間で l ＝ 6 m の長さの糸がほどけた。このとき、円筒上の点 P の周速度 v [m/s] を求めよ。',
+                condition: '基礎、周速度、v = l ÷ t、l=6 t=2 → v=3.0 m/s',
+                canvasType: '2d-static',
+                canvas: { width: 360, height: 240, kind: 'rotationCylinder' },
+                stage0Choices: [
+                    { value: 'peripheralV', label: '点 P の周速度 v [m/s] の大きさ' },
+                    { value: 'angularV',    label: '円筒の角速度 ω [rad/s] の大きさ' },
+                    { value: 'radius',      label: '円筒の半径 r [m] の大きさ' }
+                ],
+                stage0Correct: 'peripheralV',
+                stage1Choices: [
+                    { value: 'rotation',     label: '円筒が回転する、回転運動である' },
+                    { value: 'uniformAccel', label: '一定の加速度で速度が増える、等加速度直線運動である' },
+                    { value: 'freeFall',     label: '物体が静かに落下する、自由落下である' }
+                ],
+                stage1Correct: 'rotation',
+                derivationSteps: [
+                    {
+                        prompt: '円筒の表面上にある点 P は、回転とともに円周にそって動きます。点 P が動いた長さは、ほどけた糸の長さ l とどんな関係になりますか？',
+                        choices: [
+                            { value: 'equal',  label: '点 P が動いた長さは、ほどけた糸の長さ l と同じ' },
+                            { value: 'radius', label: '点 P が動いた長さは、円筒の半径 r と同じ' },
+                            { value: 'circ',   label: '点 P が動いた長さは、円筒の円周（1 回転ぶんの長さ）と同じ' }
+                        ],
+                        correct: 'equal',
+                        onCorrectText: '糸は円周にぴったり巻きついているので、糸がほどけた長さ l と、点 P が円周上を動いた長さは等しくなります。'
+                    },
+                    {
+                        prompt: '「周速度」とは、円周上の点が動く速さです。t 秒間に l [m] 動いたとき、1 秒あたりに動いた長さはどう求めますか？',
+                        choices: [
+                            { value: 'div', label: 'l を t で割る（l ÷ t）' },
+                            { value: 'mul', label: 'l に t を掛ける（l × t）' },
+                            { value: 'sub', label: 'l から t を引く（l − t）' }
+                        ],
+                        correct: 'div',
+                        onCorrectText: '1 秒あたりの長さは「動いた長さ ÷ かかった時間」。これが周速度 v ＝ l ÷ t（式 2-28）です。'
+                    }
+                ],
+                formula: 'v = \\dfrac{l}{t}',
+                substitutions: {
+                    slots: ['l', 't'],
+                    cards: [
+                        { role: 'l', label: 'l', value: 6, unit: 'm' },
+                        { role: 't', label: 't', value: 2, unit: 's' }
+                    ]
+                }
+            },
+            {
+                id: 2,
+                formulaType: 'angularVFromThetaT',
+                theta: 8, t: 4,
+                expectedOmega: 2.0, tolerance: 0.05, unit: 'rad/s', decimals: 1, baselineTime: 150,
+                sentence: '円筒が一定の速さで回転している。4 秒間に θ ＝ 8 rad だけ回転した。このときの角速度 ω [rad/s] を求めよ。',
+                condition: '基礎、角速度、ω = θ ÷ t、θ=8 t=4 → ω=2.0 rad/s',
+                canvasType: '2d-static',
+                canvas: { width: 320, height: 240, kind: 'rotationAngle' },
+                stage0Choices: [
+                    { value: 'angularV',    label: '円筒の角速度 ω [rad/s] の大きさ' },
+                    { value: 'peripheralV', label: '円周上の点の周速度 v [m/s] の大きさ' },
+                    { value: 'angle',       label: '回転した角度 θ [rad] の大きさ' }
+                ],
+                stage0Correct: 'angularV',
+                stage1Choices: [
+                    { value: 'rotation',      label: '円筒が回転する、回転運動である' },
+                    { value: 'uniformAccel',  label: '一定の加速度で速度が増える、等加速度直線運動である' },
+                    { value: 'uniformLinear', label: '速度が一定で変わらない、等速直線運動である' }
+                ],
+                stage1Correct: 'rotation',
+                derivationSteps: [
+                    {
+                        prompt: '回転の速さを表すとき、「動いた長さ」ではなく「回った角度」で表すことがあります。1 秒あたりに何 rad 回ったかを表す量を何といいますか？',
+                        choices: [
+                            { value: 'angularV',    label: '角速度（記号 ω、単位 rad/s）' },
+                            { value: 'peripheralV', label: '周速度（記号 v、単位 m/s）' },
+                            { value: 'rotationalV', label: '回転速度（記号 n、単位 min⁻¹）' }
+                        ],
+                        correct: 'angularV',
+                        onCorrectText: '1 秒あたりに回った角度を表す量を「角速度」といいます。記号は ω、単位は rad/s。'
+                    },
+                    {
+                        prompt: 't 秒間に θ [rad] 回ったとき、1 秒あたりに回った角度（角速度）はどう求めますか？',
+                        choices: [
+                            { value: 'div', label: 'θ を t で割る（θ ÷ t）' },
+                            { value: 'mul', label: 'θ に t を掛ける（θ × t）' },
+                            { value: 'sub', label: 'θ から t を引く（θ − t）' }
+                        ],
+                        correct: 'div',
+                        onCorrectText: '1 秒あたりの角度は「回った角度 ÷ かかった時間」。これが角速度 ω ＝ θ ÷ t（式 2-29）です。'
+                    }
+                ],
+                formula: '\\omega = \\dfrac{\\theta}{t}',
+                substitutions: {
+                    slots: ['theta', 't'],
+                    cards: [
+                        { role: 'theta', label: 'θ', value: 8, unit: 'rad' },
+                        { role: 't',     label: 't', value: 4, unit: 's' }
+                    ]
+                }
+            },
+            {
+                id: 3,
+                formulaType: 'peripheralVFromROmega',
+                r: 0.5, omega: 4,
+                expectedV: 2.0, tolerance: 0.05, unit: 'm/s', decimals: 1, baselineTime: 200,
+                sentence: '円筒の半径が r ＝ 0.5 m である。この円筒が、一定の角速度 ω ＝ 4 rad/s で回転している。円筒の外側にある点 P の周速度 v [m/s] を求めよ。',
+                condition: '応用、回転運動、v = r × ω、r=0.5 ω=4 → v=2.0 m/s',
+                canvasType: '2d-static',
+                canvas: { width: 340, height: 240, kind: 'rotationDisk' },
+                stage0Choices: [
+                    { value: 'peripheralV', label: '点 P の周速度 v [m/s] の大きさ' },
+                    { value: 'angularV',    label: '円筒の角速度 ω [rad/s] の大きさ' },
+                    { value: 'radius',      label: '円筒の半径 r [m] の大きさ' }
+                ],
+                stage0Correct: 'peripheralV',
+                stage1Choices: [
+                    { value: 'rotation',      label: '円筒が回転する、回転運動である' },
+                    { value: 'uniformLinear', label: '速度が一定で変わらない、等速直線運動である' },
+                    { value: 'freeFall',      label: '物体が静かに落下する、自由落下である' }
+                ],
+                stage1Correct: 'rotation',
+                derivationSteps: [
+                    {
+                        prompt: 'この問題は時間 t も糸の長さ l も与えられていません。半径 r と角速度 ω から周速度 v を求める式を、4 段階で導きます。まず、この問題で「与えられていない量」はどれですか？',
+                        choices: [
+                            { value: 'noLT',    label: '糸の長さ l と時間 t は、どちらも与えられていない' },
+                            { value: 'noR',     label: '半径 r が与えられていない' },
+                            { value: 'noOmega', label: '角速度 ω が与えられていない' }
+                        ],
+                        correct: 'noLT',
+                        onCorrectText: 'l と t がどちらもありません。だから v ＝ l ÷ t（式 2-28）はそのままでは使えません。'
+                    },
+                    {
+                        prompt: '半径 r の円で、中心角 θ [rad] に対する円弧の長さ l はどう表せますか？（教科書 p.43 ラジアンの説明）',
+                        choices: [
+                            { value: 'rTheta', label: 'l ＝ r × θ' },
+                            { value: 'rPlus',  label: 'l ＝ r ＋ θ' },
+                            { value: 'divR',   label: 'l ＝ θ ÷ r' }
+                        ],
+                        correct: 'rTheta',
+                        onCorrectText: 'ラジアンの定義から、円弧の長さは l ＝ r × θ で表せます。半径と角度を掛ければ長さになります。'
+                    },
+                    {
+                        prompt: 'v ＝ l ÷ t に l ＝ r × θ を代入すると v ＝ (r × θ) ÷ t になります。θ ÷ t は何にあたりますか？',
+                        choices: [
+                            { value: 'omega', label: '角速度 ω（式 2-29 より ω ＝ θ ÷ t）' },
+                            { value: 'v',     label: '周速度 v' },
+                            { value: 'a',     label: '加速度 a' }
+                        ],
+                        correct: 'omega',
+                        onCorrectText: 'θ ÷ t は角速度 ω そのものです。だから v ＝ r × θ ÷ t ＝ r × ω と書けます。'
+                    },
+                    {
+                        prompt: '以上から、周速度 v、半径 r、角速度 ω の関係はどうなりますか？',
+                        choices: [
+                            { value: 'eq30', label: 'v ＝ r × ω（式 2-30）' },
+                            { value: 'div',  label: 'v ＝ r ÷ ω' },
+                            { value: 'add',  label: 'v ＝ r ＋ ω' }
+                        ],
+                        correct: 'eq30',
+                        onCorrectText: '周速度は v ＝ r × ω（式 2-30）。半径が大きいほど、また角速度が大きいほど、周上の点は速く動きます。'
+                    }
+                ],
+                formula: 'v = r\\,\\omega',
+                substitutions: {
+                    slots: ['r', 'omega'],
+                    cards: [
+                        { role: 'r',     label: 'r', value: 0.5, unit: 'm' },
+                        { role: 'omega', label: 'ω', value: 4,   unit: 'rad/s' }
+                    ]
+                }
+            },
+            {
+                id: 4,
+                formulaType: 'peripheralVFromDN',
+                d: 50, n: 600, piApprox: 3.14,
+                expectedV: 94.2, tolerance: 0.1, unit: 'm/min', decimals: 1, baselineTime: 240,
+                sentence: '直径 d ＝ 50 mm の丸棒を旋盤に取りつけ、回転速度 n ＝ 600 min⁻¹ で回している。このときの周速度（切削速度）v [m/min] を求めよ。π は 3.14 とする。',
+                condition: '応用、回転速度→周速度、v = πdn/1000、d=50 n=600 → v=94.2 m/min（教科書例題11 と整合）',
+                canvasType: '2d-static',
+                canvas: { width: 360, height: 240, kind: 'lathe' },
+                stage0Choices: [
+                    { value: 'peripheralV', label: '丸棒の外周での周速度 v [m/min] の大きさ' },
+                    { value: 'angularV',    label: '丸棒の角速度 ω [rad/s] の大きさ' },
+                    { value: 'diameter',    label: '丸棒の直径 d [mm] の大きさ' }
+                ],
+                stage0Correct: 'peripheralV',
+                stage1Choices: [
+                    { value: 'rotation',      label: '丸棒が軸のまわりを回る、回転運動である' },
+                    { value: 'uniformAccel',  label: '一定の加速度で速度が増える、等加速度直線運動である' },
+                    { value: 'uniformLinear', label: '速度が一定で変わらない、等速直線運動である' }
+                ],
+                stage1Correct: 'rotation',
+                derivationSteps: [
+                    {
+                        prompt: '「回転速度 n ＝ 600 min⁻¹」が表す意味はどれですか？',
+                        choices: [
+                            { value: 'perMin',   label: '1 分間に 600 回まわる' },
+                            { value: 'perSec',   label: '1 秒間に 600 回まわる' },
+                            { value: 'totalRev', label: '全部で 600 回まわって止まる' }
+                        ],
+                        correct: 'perMin',
+                        onCorrectText: '単位 min⁻¹ は「1 分あたりの回転数」を表します。n ＝ 600 min⁻¹ は「1 分間に 600 回まわる」という意味です。'
+                    },
+                    {
+                        prompt: '丸棒が 1 回まわると、外周上の点は円周の長さだけ動きます。直径 d の円の円周の長さはどう表しますか？',
+                        choices: [
+                            { value: 'piD',   label: 'π × d（円周率 × 直径）' },
+                            { value: 'piD2',  label: 'π × d²（円周率 × 直径の 2 乗）' },
+                            { value: 'twoD',  label: '2 × d（直径の 2 倍）' }
+                        ],
+                        correct: 'piD',
+                        onCorrectText: '円周の長さは π × d。1 回まわるごとに、外周上の点はこの長さだけ動きます。'
+                    },
+                    {
+                        prompt: '1 回まわるごとに π × d だけ動きます。1 分間に n 回まわるとき、1 分間に動く長さはどう表せますか？（単位は mm/min）',
+                        choices: [
+                            { value: 'piDN',      label: 'π × d × n [mm/min]' },
+                            { value: 'piDdivN',   label: 'π × d ÷ n（1 回の長さを n で割る）' },
+                            { value: 'piDplusN',  label: 'π × d ＋ n（足し算してしまう）' }
+                        ],
+                        correct: 'piDN',
+                        onCorrectText: '「1 回ぶん π × d」を「n 回ぶん」だけ掛ければ、1 分間に動いた長さになります。π × d × n [mm/min]。'
+                    },
+                    {
+                        prompt: '答えを mm/min から m/min に換算するには、どうしますか？（1 m ＝ 1000 mm）',
+                        choices: [
+                            { value: 'div1000',  label: '1000 で割る' },
+                            { value: 'mul1000',  label: '1000 を掛ける' },
+                            { value: 'div100',   label: '100 で割る' }
+                        ],
+                        correct: 'div1000',
+                        onCorrectText: '1 m ＝ 1000 mm なので、mm/min の値を 1000 で割れば m/min になります。式は v ＝ π × d × n ÷ 1000 [m/min]。'
+                    }
+                ],
+                formula: 'v = \\dfrac{\\pi\\,d\\,n}{1000}\\ \\mathrm{[m/min]}',
+                substitutions: {
+                    slots: ['pi', 'd', 'n'],
+                    cards: [
+                        { role: 'pi', label: 'π', value: 3.14, unit: '' },
+                        { role: 'd',  label: 'd', value: 50,   unit: 'mm' },
+                        { role: 'n',  label: 'n', value: 600,  unit: 'min⁻¹' }
+                    ]
+                }
+            }
+        ];
+
+        // 問1（周速度 v=l/t）
+        const HINTS_2_4_PV = {
+            stage0: {
+                b: '問題文の最後の文に注目してください。「求めよ」と書かれているものが答えるべき量です。糸の長さ 6 m、時間 2 秒は、すでに数値が書かれています。',
+                a: '問題文の末尾に「周速度 v [m/s] を求めよ」とあります。求めるものは点 P の周速度 v、単位は m/s です。',
+                c: '教科書43ページ「1 周速度」を確認してください。'
+            },
+            stage1: {
+                b: '円筒が回る運動と、直線を進む運動は性質が異なります。問題文の「円筒を回した」という言葉に注目してください。',
+                a: '物体が軸のまわりを回る運動を「回転運動」といいます。直線上を一定の加速度で進む等加速度直線運動とは別の運動です。',
+                c: '教科書43ページ「2 回転運動」と図2-45 を確認してください。'
+            },
+            stage2: {
+                b: '糸がほどけた長さは、点 P が円周上を動いた長さと同じです。動いた長さと時間がわかれば、1 秒あたりの速さが計算できます。',
+                a: '周速度の式は v ＝ l ÷ t（式 2-28）。l は円周上を動いた長さ [m]、t はかかった時間 [s]。',
+                c: '教科書43ページ 式(2-28)「v ＝ l ÷ t」を確認してください。'
+            },
+            stage3: {
+                b: '式は v ＝ l ÷ t です。l にはほどけた糸の長さ、t にはかかった時間を入れます。問題文の数値を読み取ってください。',
+                a: '式 v ＝ l ÷ t の空欄に、l ＝ 6 m、t ＝ 2 s を入れてください。',
+                c: '教科書43ページ 式(2-28) を確認してください。'
+            },
+            stage4: {
+                b: '6 を 2 で割るだけの計算です。電卓を使ってかまいません。答えは小数第 1 位までで答えてください。',
+                a: 'v ＝ 6 ÷ 2 ＝ 3.0 [m/s]。単位は m/s です。',
+                c: '教科書43ページ「1 周速度」を確認してください。'
+            }
+        };
+
+        // 問2（角速度 ω=θ/t）
+        const HINTS_2_4_AV = {
+            stage0: {
+                b: '問題文の最後の文に注目してください。「求めよ」と書かれているものが答えるべき量です。回転した角度 8 rad、時間 4 秒は、すでに数値が書かれています。',
+                a: '問題文の末尾に「角速度 ω [rad/s] を求めよ」とあります。求めるものは角速度 ω、単位は rad/s です。',
+                c: '教科書43ページ「2 角速度」を確認してください。'
+            },
+            stage1: {
+                b: '問題文に「θ ＝ 8 rad だけ回転した」とあります。rad（ラジアン）は角度の単位で、教科書 p.43 の注に「1 rad ≒ 57.3°」とあります。軸のまわりを回る運動を何といったか思い出してください。',
+                a: '軸のまわりを回る運動を「回転運動」といいます。直線運動とは別ものです。',
+                c: '教科書43ページ「2 回転運動」を確認してください。'
+            },
+            stage2: {
+                b: '「1 秒あたりにどれだけ動いたか」を求めるのは、周速度のときと同じ考え方です。今度は「長さ」ではなく「角度」で考えます。',
+                a: '角速度の式は ω ＝ θ ÷ t（式 2-29）。θ は回った角度 [rad]、t はかかった時間 [s]。',
+                c: '教科書43ページ 式(2-29)「ω ＝ θ ÷ t」を確認してください。'
+            },
+            stage3: {
+                b: '式は ω ＝ θ ÷ t です。θ には回った角度、t には時間を入れます。問題文の数値を読み取ってください。',
+                a: '式 ω ＝ θ ÷ t の空欄に、θ ＝ 8 rad、t ＝ 4 s を入れてください。',
+                c: '教科書43ページ 式(2-29) を確認してください。'
+            },
+            stage4: {
+                b: '8 を 4 で割るだけの計算です。電卓を使ってかまいません。答えは小数第 1 位までで答えてください。',
+                a: 'ω ＝ 8 ÷ 4 ＝ 2.0 [rad/s]。単位は rad/s です。',
+                c: '教科書43ページ「2 角速度」を確認してください。'
+            }
+        };
+
+        // 問3（v=rω）
+        const HINTS_2_4_RV = {
+            stage0: {
+                b: '問題文の最後の文に注目してください。「求めよ」と書かれているものが答えるべき量です。半径 0.5 m、角速度 4 rad/s は、すでに数値が書かれています。',
+                a: '問題文の末尾に「周速度 v [m/s] を求めよ」とあります。求めるものは点 P の周速度 v、単位は m/s です。',
+                c: '教科書43ページ 式(2-30) を確認してください。'
+            },
+            stage1: {
+                b: '問題文に「角速度 ω ＝ 4 rad/s で回転している」とあります。rad/s（ラジアン毎秒）は「1 秒あたりに何 rad 回るか」を表す角速度の単位です。軸のまわりを回る運動です。',
+                a: '軸のまわりを回る運動を「回転運動」といいます。',
+                c: '教科書43ページ「2 回転運動」を確認してください。'
+            },
+            stage2: {
+                b: '問題文には糸の長さ l も時間 t も書かれていません。半径 r と角速度 ω だけから周速度を出せる式があります。',
+                a: '周速度・半径・角速度の関係式は v ＝ r × ω（式 2-30）。これは l ＝ r × θ と ω ＝ θ ÷ t を組み合わせて導かれます。',
+                c: '教科書43ページ 式(2-30)「v ＝ r ω」を確認してください。'
+            },
+            stage3: {
+                b: '式は v ＝ r × ω です。r には半径、ω には角速度を入れます。問題文の数値を読み取ってください。',
+                a: '式 v ＝ r × ω の空欄に、r ＝ 0.5 m、ω ＝ 4 rad/s を入れてください。',
+                c: '教科書43ページ 式(2-30) を確認してください。'
+            },
+            stage4: {
+                b: '0.5 と 4 を掛けるだけです。電卓を使ってかまいません。答えは小数第 1 位までで答えてください。',
+                a: 'v ＝ 0.5 × 4 ＝ 2.0 [m/s]。単位は m/s です。',
+                c: '教科書43ページ 式(2-30) を確認してください。'
+            }
+        };
+
+        // 問4（v=πdn/1000 [m/min]）
+        const HINTS_2_4_DN = {
+            stage0: {
+                b: '問題文の最後の文に注目してください。「求めよ」と書かれているものが答えるべき量です。直径 50 mm、回転速度 600 min⁻¹ は、すでに数値が書かれています。',
+                a: '問題文の末尾に「周速度 v [m/min] を求めよ」とあります。求めるものは外周の周速度 v、単位は m/min です。',
+                c: '教科書44ページ「3 回転速度」と例題11 を確認してください。'
+            },
+            stage1: {
+                b: '丸棒は旋盤の軸のまわりを回っています。直線運動ではありません。',
+                a: '軸のまわりを回る運動を「回転運動」といいます。',
+                c: '教科書44ページ「3 回転速度」を確認してください。'
+            },
+            stage2: {
+                b: '1 回まわると、外周上の点は円周の長さ π × d だけ動きます。1 分間に n 回まわるなら、1 分間に動く長さは π × d × n [mm/min]。それを m/min に換算します。',
+                a: '周速度の式は v ＝ π × d × n / 1000 [m/min]。1 回まわって動く長さ（π × d）を、1 分あたりの回転数 n で掛けると mm/min。それを 1000 で割って m/min に換算します。',
+                c: '教科書44ページ 例題11 の解答（v ＝ π × d × n ÷ 1000）を確認してください。'
+            },
+            stage3: {
+                b: '式は v ＝ π × d × n / 1000 です。π には 3.14、d には直径、n には回転速度を入れます。問題文の数値を読み取ってください。',
+                a: '式 v ＝ π × d × n / 1000 の空欄に、π ＝ 3.14、d ＝ 50 mm、n ＝ 600 min⁻¹ を入れてください。',
+                c: '教科書44ページ 例題11 を確認してください。'
+            },
+            stage4: {
+                b: 'まず π × d × n ＝ 3.14 × 50 × 600 を計算します（＝ 94200）。次にその答えを 1000 で割ります。電卓を使ってかまいません。答えは小数第 1 位までで答えてください。',
+                a: 'v ＝ 3.14 × 50 × 600 ÷ 1000 ＝ 94200 ÷ 1000 ＝ 94.2 [m/min]。単位は m/min です。',
+                c: '教科書44ページ 例題11 を確認してください。'
+            }
+        };
+
+        // 問 id（1〜4）→ ヒント表。renderCalculationProblem / showHint から参照。
+        const HINTS_2_4_BY_ID = {
+            1: HINTS_2_4_PV,
+            2: HINTS_2_4_AV,
+            3: HINTS_2_4_RV,
+            4: HINTS_2_4_DN
+        };
+
         // ==================================================================
         // 考査対策・考査問題マスターデータ（仕様書 §10〜§12）
         // ==================================================================
@@ -6653,6 +7431,8 @@
                 if (unitId === '1-12') return PROBLEMS_1_12.length;
                 if (unitId === '2-1') return PROBLEMS_2_1.length;
                 if (unitId === '2-2') return PROBLEMS_2_2.length;
+                if (unitId === '2-3') return PROBLEMS_2_3.length;
+                if (unitId === '2-4') return PROBLEMS_2_4.length;
                 return 0;
             }
 
@@ -9126,6 +9906,8 @@
                 else if (this.currentUnitId === '1-12') problems = PROBLEMS_1_12;
                 else if (this.currentUnitId === '2-1') problems = PROBLEMS_2_1;
                 else if (this.currentUnitId === '2-2') problems = PROBLEMS_2_2;
+                else if (this.currentUnitId === '2-3') problems = PROBLEMS_2_3;
+                else if (this.currentUnitId === '2-4') problems = PROBLEMS_2_4;
 
                 if (this.currentProblemIndex >= problems.length) {
                     this.showSummary();
@@ -9237,6 +10019,8 @@
                     else if (this.currentUnitId === '1-12') problems = PROBLEMS_1_12;
                     else if (this.currentUnitId === '2-1') problems = PROBLEMS_2_1;
                     else if (this.currentUnitId === '2-2') problems = PROBLEMS_2_2;
+                    else if (this.currentUnitId === '2-3') problems = PROBLEMS_2_3;
+                    else if (this.currentUnitId === '2-4') problems = PROBLEMS_2_4;
                     sidebarList.innerHTML = problems.map((p, i) =>
                         `<li class="${i === this.currentProblemIndex ? 'is-active' : ''}">問 ${p.id}</li>`
                     ).join('');
@@ -9264,7 +10048,7 @@
                 const content = document.getElementById('problemContent');
 
                 // Handle different problem types
-                if (this.currentUnitId === '2-1' || this.currentUnitId === '2-2' || this.currentUnitId === '1-6' || this.currentUnitId === '1-7' || this.currentUnitId === '1-8' || this.currentUnitId === '1-9' || this.currentUnitId === '1-10' || this.currentUnitId === '1-11' || this.currentUnitId === '1-12') {
+                if (this.currentUnitId === '2-1' || this.currentUnitId === '2-2' || this.currentUnitId === '2-3' || this.currentUnitId === '2-4' || this.currentUnitId === '1-6' || this.currentUnitId === '1-7' || this.currentUnitId === '1-8' || this.currentUnitId === '1-9' || this.currentUnitId === '1-10' || this.currentUnitId === '1-11' || this.currentUnitId === '1-12') {
                     this.renderCalculationProblem(problem, content);
                 } else if (this.currentUnitId === '1-3' || this.currentUnitId === '1-4' || this.currentUnitId === '1-5') {
                     this.drawingStageIndex = 0;
@@ -9364,9 +10148,11 @@
                 const is1_11 = this.currentUnitId === '1-11';
                 const is1_12 = this.currentUnitId === '1-12';
                 const is2_2 = this.currentUnitId === '2-2';
+                const is2_3 = this.currentUnitId === '2-3';
+                const is2_4 = this.currentUnitId === '2-4';
                 // isForceCalc は「6 ステージ汎用フロー（problem.stage0Choices 等を持つ）」を意味する。
-                //   2-2 も同じデータ schema（sentence / stage0Choices / stage1Choices / substitutions）を採るので含める。
-                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2;
+                //   2-2 / 2-3 / 2-4 も同じデータ schema（sentence / stage0Choices / stage1Choices / substitutions）を採るので含める。
+                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4;
                 // Persistent problem statement shown at the top of every stage
                 const problemText = isForceCalc
                     ? problem.sentence
@@ -9459,6 +10245,15 @@
                         '計算する',
                         '答えの意味を確認'
                     ]
+                    : is2_3
+                    ? [
+                        '求める量を確認する',
+                        '運動の種類を確認する',
+                        '使う式を導く',
+                        '数値を代入する',
+                        '計算する',
+                        '答えの意味を確認'
+                    ]
                     : [
                         '求める量を確認する',
                         '運動の種類を確認する',
@@ -9492,6 +10287,8 @@
                                       : is1_11 ? this.build1_11StaticCanvas(problem)
                                       : is1_12 ? (problem.formulaType === 'centroid' ? this.build1_12StaticCanvas(problem) : this.build1_12PlateCanvas(problem))
                                       : is2_2 ? this.build2_2VTGraph(problem)
+                                      : is2_3 ? this.build2_3FreeFallCanvas(problem)
+                                      : is2_4 ? this.build2_4RotationCanvas(problem)
                                       : '';
 
                 // 1-7（案B 7 ステージ）は専用ルートで処理し、early return する。
@@ -9564,6 +10361,8 @@
                         ? 'この問題はどのような問題ですか？'
                         : is2_2
                         ? '問題文の「一定の加速度で速度を増している」は、どのような運動ですか？'
+                        : is2_3
+                        ? 'この問題はどのような運動ですか？'
                         : '問題文の「一定の速さで運動した」は、どのような運動ですか？';
                     content.innerHTML = header + staticCanvas1_6 + `
                         <div class="calc-stage-container">
@@ -9760,6 +10559,46 @@
                         `;
                         this.render1_10DerivAccordion();
                         return;
+                    } else if (is2_4) {
+                        // 2-4（回転運動）: 式 2-28〜2-31 を、derivationSteps を 1 ステップずつ
+                        //   アコーディオン表示して生徒自身に導かせる。
+                        //   1-10 問3・問4 / 1-11 / 1-12 / 2-2 と同じ render1_10DerivAccordion を再利用する。
+                        if (this.calcInputs.derivStepIndex === undefined) {
+                            this.calcInputs.derivStepIndex = 0;
+                        }
+                        content.innerHTML = header + staticCanvas1_6 + `
+                            <div class="calc-stage-container">
+                                <div class="calc-question-text">使う式を、一段ずつ自分で導いてください。</div>
+                                <div id="derivAccordion"></div>
+                                <div id="stageFeedback" style="margin-top:12px; font-size:14px; min-height:20px;"></div>
+                            </div>
+                        `;
+                        document.getElementById('controlButtons').innerHTML = `
+                            <button class="btn hint-btn" onclick="app.showHint('calc_${this.currentProblemIndex}_stage2')">ヒント</button>
+                            <span id="stage2NextSlot"></span>
+                        `;
+                        this.render1_10DerivAccordion();
+                        return;
+                    } else if (is2_3) {
+                        // 2-3（重力加速度）: 式 2-24〜2-27 を、derivationSteps を 1 ステップずつ
+                        //   アコーディオン表示して生徒自身に導かせる。
+                        //   1-10 問3・問4 / 1-11 / 1-12 / 2-2 / 2-4 と同じ render1_10DerivAccordion を再利用する。
+                        if (this.calcInputs.derivStepIndex === undefined) {
+                            this.calcInputs.derivStepIndex = 0;
+                        }
+                        content.innerHTML = header + staticCanvas1_6 + `
+                            <div class="calc-stage-container">
+                                <div class="calc-question-text">使う式を、一段ずつ自分で導いてください。</div>
+                                <div id="derivAccordion"></div>
+                                <div id="stageFeedback" style="margin-top:12px; font-size:14px; min-height:20px;"></div>
+                            </div>
+                        `;
+                        document.getElementById('controlButtons').innerHTML = `
+                            <button class="btn hint-btn" onclick="app.showHint('calc_${this.currentProblemIndex}_stage2')">ヒント</button>
+                            <span id="stage2NextSlot"></span>
+                        `;
+                        this.render1_10DerivAccordion();
+                        return;
                     } else {
                         content.innerHTML = header + `
                             <div class="calc-stage-container">
@@ -9799,7 +10638,9 @@
                         const slotLabel = { F1: 'F₁', F2: 'F₂', F: 'F', Fx: 'Fx', r: 'r', r1: 'r₁', r2: 'r₂', d: 'd', cosAlpha: 'cos α', sinAlpha: 'sin α', F1tan: 'F₁', F2tan: 'F₂', W: 'W', 'sinθ': 'sin θ', W1: 'W₁', W2: 'W₂', L: 'L', W2num: 'W₂', W1den: 'W₁', W2den: 'W₂',
                             A1x: 'A₁', A1y: 'A₁', x1s: 'x₁', y1s: 'y₁', A2x: 'A₂', A2y: 'A₂', x2s: 'x₂', y2s: 'y₂', Ax: 'A', Ay: 'A',
                             Abx: 'A大', Aby: 'A大', xbs: 'x大', ybs: 'y大', Acx: 'A切', Acy: 'A切', xcs: 'x切', ycs: 'y切', A0x: 'A₀', A0y: 'A₀',
-                            v: 'v', v0: 'v₀', t: 't', t1: 't', t2: 't', a: 'a', s: 's' };
+                            v: 'v', v0: 'v₀', t: 't', t1: 't', t2: 't', a: 'a', s: 's',
+                            l: 'l', theta: 'θ', omega: 'ω', pi: 'π', n: 'n',
+                            g: 'g', h: 'h' };
                         const makeSlotSpan = (role, text) =>
                             `<span class="calc-formula-input empty" data-slot="${role}" id="slot-${role}">${text || slotLabel[role] || role}</span>`;
                         const slotSpans = slots.map(role => makeSlotSpan(role));
@@ -9903,6 +10744,38 @@
                                 // vFromV0AS
                                 formulaHTML =
                                     `v ＝ √( ${slotSpans[0]}<sup style="font-size:0.6em; vertical-align:super;">2</sup> ＋ 2 × ${slotSpans[1]} × ${slotSpans[2]} )`;
+                            }
+                        } else if (is2_4) {
+                            // 2-4（回転運動）: formulaType ごとに式の形が異なる
+                            //   peripheralVFromLT     → v ＝ [l] ÷ [t]                    （slots: l, t）
+                            //   angularVFromThetaT    → ω ＝ [θ] ÷ [t]                    （slots: theta, t）
+                            //   peripheralVFromROmega → v ＝ [r] × [ω]                    （slots: r, omega）
+                            //   peripheralVFromDN     → v ＝ ( [π] × [d] × [n] ) ÷ 1000    （slots: pi, d, n）
+                            if (problem.formulaType === 'peripheralVFromLT') {
+                                formulaHTML = `v ＝ ${slotSpans[0]} ÷ ${slotSpans[1]}`;
+                            } else if (problem.formulaType === 'angularVFromThetaT') {
+                                formulaHTML = `ω ＝ ${slotSpans[0]} ÷ ${slotSpans[1]}`;
+                            } else if (problem.formulaType === 'peripheralVFromROmega') {
+                                formulaHTML = `v ＝ ${slotSpans[0]} × ${slotSpans[1]}`;
+                            } else {
+                                // peripheralVFromDN
+                                formulaHTML = `v ＝ ( ${slotSpans[0]} × ${slotSpans[1]} × ${slotSpans[2]} ) ÷ 1000`;
+                            }
+                        } else if (is2_3) {
+                            // 2-3（重力加速度）: formulaType ごとに式の形が異なる
+                            //   freeFallV     → v ＝ [g] × [t]                            （slots: g, t）
+                            //   freeFallH     → h ＝ (1／2) × [g] × [t]²                   （slots: g, t）
+                            //   freeFallTime  → t ＝ √( 2 × [h] ÷ [g] )                    （slots: h, g）
+                            //   verticalDownV → v ＝ [v₀] ＋ [g] × [t]                     （slots: v0, g, t）
+                            if (problem.formulaType === 'freeFallV') {
+                                formulaHTML = `v ＝ ${slotSpans[0]} × ${slotSpans[1]}`;
+                            } else if (problem.formulaType === 'freeFallH') {
+                                formulaHTML = `h ＝ (1／2) × ${slotSpans[0]} × ${slotSpans[1]}<sup style="font-size:0.6em; vertical-align:super;">2</sup>`;
+                            } else if (problem.formulaType === 'freeFallTime') {
+                                formulaHTML = `t ＝ √( 2 × ${slotSpans[0]} ÷ ${slotSpans[1]} )`;
+                            } else {
+                                // verticalDownV
+                                formulaHTML = `v ＝ ${slotSpans[0]} ＋ ${slotSpans[1]} × ${slotSpans[2]}`;
                             }
                         } else {
                             formulaHTML = `M ＝ ${slotSpans[0]} × ${slotSpans[1]}`;
@@ -10177,6 +11050,82 @@
                                 </div>
                             </div>
                         `;
+                    } else if (is2_3) {
+                        // 2-3（重力加速度）: formulaType ごとに数値入りの式と単位を切り替える。
+                        //   答えは小数第 1 位まで（注記ボックス併設、1-10/2-2/2-4 と同じ）。
+                        let formulaLine_2_3, answerLabel_2_3, unitLabel_2_3;
+                        if (problem.formulaType === 'freeFallV') {
+                            formulaLine_2_3 = `$v = ${problem.g} \\times ${problem.t} = {\\color{#c62828}?}\\ \\mathrm{[m/s]}$`;
+                            answerLabel_2_3 = 'v ＝';
+                            unitLabel_2_3 = '[m/s]';
+                        } else if (problem.formulaType === 'freeFallH') {
+                            formulaLine_2_3 = `$h = \\dfrac{1}{2} \\times ${problem.g} \\times ${problem.t}^{\\,2} = {\\color{#c62828}?}\\ \\mathrm{[m]}$`;
+                            answerLabel_2_3 = 'h ＝';
+                            unitLabel_2_3 = '[m]';
+                        } else if (problem.formulaType === 'freeFallTime') {
+                            formulaLine_2_3 = `$t = \\sqrt{\\,\\dfrac{2 \\times ${problem.h}}{${problem.g}}\\,} = {\\color{#c62828}?}\\ \\mathrm{[s]}$`;
+                            answerLabel_2_3 = 't ＝';
+                            unitLabel_2_3 = '[s]';
+                        } else {
+                            // verticalDownV
+                            formulaLine_2_3 = `$v = ${problem.v0} + ${problem.g} \\times ${problem.t} = {\\color{#c62828}?}\\ \\mathrm{[m/s]}$`;
+                            answerLabel_2_3 = 'v ＝';
+                            unitLabel_2_3 = '[m/s]';
+                        }
+                        content.innerHTML = header + staticCanvas1_6 + `
+                            <div class="calc-stage-container">
+                                <div class="calc-question-text">計算結果を入力してください（電卓を使って構いません）。</div>
+                                <div class="calc-formula-display">
+                                    ${formulaLine_2_3}
+                                </div>
+                                <div style="background:#eef3fa; border-left:3px solid #4a7cbe; padding:8px 12px; border-radius:3px; margin:8px 0 10px; font-size:12px; line-height:1.6; color:#333;">
+                                    <strong>有効数字</strong>：計算結果が小数点以下第 2 位以上になる場合、第 2 位を四捨五入して<strong>小数第 1 位まで</strong>で答えてください。
+                                </div>
+                                <div class="calc-input-row">
+                                    <span class="calc-input-label">答え：${answerLabel_2_3}</span>
+                                    <input type="number" id="answerInput" class="calc-answer-input" placeholder="数値" style="width:120px;" step="0.1">
+                                    <span style="font-size:14px; color:#555; margin-left:6px;">${unitLabel_2_3}</span>
+                                </div>
+                            </div>
+                        `;
+                    } else if (is2_4) {
+                        // 2-4（回転運動）: formulaType ごとに数値入りの式と単位を切り替える。
+                        //   答えは小数第 1 位まで（注記ボックス併設、1-10/2-2 と同じ）。
+                        let formulaLine_2_4, answerLabel_2_4, unitLabel_2_4;
+                        if (problem.formulaType === 'peripheralVFromLT') {
+                            formulaLine_2_4 = `$v = \\dfrac{${problem.l}}{${problem.t}} = {\\color{#c62828}?}\\ \\mathrm{[m/s]}$`;
+                            answerLabel_2_4 = 'v ＝';
+                            unitLabel_2_4 = '[m/s]';
+                        } else if (problem.formulaType === 'angularVFromThetaT') {
+                            formulaLine_2_4 = `$\\omega = \\dfrac{${problem.theta}}{${problem.t}} = {\\color{#c62828}?}\\ \\mathrm{[rad/s]}$`;
+                            answerLabel_2_4 = 'ω ＝';
+                            unitLabel_2_4 = '[rad/s]';
+                        } else if (problem.formulaType === 'peripheralVFromROmega') {
+                            formulaLine_2_4 = `$v = ${problem.r} \\times ${problem.omega} = {\\color{#c62828}?}\\ \\mathrm{[m/s]}$`;
+                            answerLabel_2_4 = 'v ＝';
+                            unitLabel_2_4 = '[m/s]';
+                        } else {
+                            // peripheralVFromDN
+                            formulaLine_2_4 = `$v = \\dfrac{${problem.piApprox} \\times ${problem.d} \\times ${problem.n}}{1000} = {\\color{#c62828}?}\\ \\mathrm{[m/min]}$`;
+                            answerLabel_2_4 = 'v ＝';
+                            unitLabel_2_4 = '[m/min]';
+                        }
+                        content.innerHTML = header + staticCanvas1_6 + `
+                            <div class="calc-stage-container">
+                                <div class="calc-question-text">計算結果を入力してください（電卓を使って構いません）。</div>
+                                <div class="calc-formula-display">
+                                    ${formulaLine_2_4}
+                                </div>
+                                <div style="background:#eef3fa; border-left:3px solid #4a7cbe; padding:8px 12px; border-radius:3px; margin:8px 0 10px; font-size:12px; line-height:1.6; color:#333;">
+                                    <strong>有効数字</strong>：計算結果が小数点以下第 2 位以上になる場合、第 2 位を四捨五入して<strong>小数第 1 位まで</strong>で答えてください。
+                                </div>
+                                <div class="calc-input-row">
+                                    <span class="calc-input-label">答え：${answerLabel_2_4}</span>
+                                    <input type="number" id="answerInput" class="calc-answer-input" placeholder="数値" style="width:120px;" step="0.1">
+                                    <span style="font-size:14px; color:#555; margin-left:6px;">${unitLabel_2_4}</span>
+                                </div>
+                            </div>
+                        `;
                     } else {
                         content.innerHTML = header + `
                             <div class="calc-stage-container">
@@ -10396,6 +11345,76 @@
                                 </div>
                                 <div style="margin-top:14px; font-size:13px; color:#555;">
                                     次の問題に進む前に、式と v-t グラフを頭の中で思い浮かべてください。
+                                </div>
+                            </div>
+                        `;
+                    } else if (is2_3) {
+                        // 2-3（重力加速度）: 1-12 図心 / 2-2 / 2-4 と同じ 3 行段組み KaTeX（aligned）で
+                        //   「記号式／数値式／答え」を表示し、その下に formulaType ごとの振り返り文を載せる。
+                        let reflFormulaLatex_2_3, reflText_2_3;
+                        if (problem.formulaType === 'freeFallV') {
+                            reflFormulaLatex_2_3 = `\\begin{aligned} v &= g\\,t \\\\[6pt] &= ${problem.g} \\times ${problem.t} \\\\[6pt] &= ${problem.expectedV}\\ \\mathrm{m/s} \\end{aligned}`;
+                            reflText_2_3 = '3 秒後の落下速度は 29.4 m/s。時速になおすと約 106 km/h で、高速道路を走る自動車くらいの速さです。自由落下では、わずかな時間で物体がとても速くなることが分かります。';
+                        } else if (problem.formulaType === 'freeFallH') {
+                            const tsq2_3 = problem.t * problem.t;
+                            const gtsq2_3 = problem.g * tsq2_3;
+                            reflFormulaLatex_2_3 = `\\begin{aligned} h &= \\dfrac{1}{2}\\,g\\,t^{2} \\\\[6pt] &= \\dfrac{1}{2} \\times ${problem.g} \\times ${problem.t}^{\\,2} = \\dfrac{1}{2} \\times ${gtsq2_3} \\\\[6pt] &= ${problem.expectedH}\\ \\mathrm{m} \\end{aligned}`;
+                            reflText_2_3 = '2 秒間で約 19.6 m 落下します。これはビルの 5〜6 階くらいの高さに当たります。自由落下では、はじめゆっくりでも時間の 2 乗で距離が大きくなるため、短い時間で大きく落下することが分かります。';
+                        } else if (problem.formulaType === 'freeFallTime') {
+                            const twoH2_3 = 2 * problem.h;
+                            const inside2_3 = twoH2_3 / problem.g;
+                            reflFormulaLatex_2_3 = `\\begin{aligned} t &= \\sqrt{\\,\\dfrac{2\\,h}{g}\\,} \\\\[6pt] &= \\sqrt{\\,\\dfrac{2 \\times ${problem.h}}{${problem.g}}\\,} = \\sqrt{\\,\\dfrac{${twoH2_3}}{${problem.g}}\\,} = \\sqrt{${inside2_3}} \\\\[6pt] &= ${problem.expectedT}\\ \\mathrm{s} \\end{aligned}`;
+                            reflText_2_3 = '78.4 m から地面に達するまでにかかる時間はちょうど 4 秒。78.4 m はおよそ 25 階建てビル相当の高さです。h が 4 倍になっても t は 2 倍にしかなりません（√ の関係）。';
+                        } else {
+                            // verticalDownV
+                            const inc2_3 = problem.g * problem.t;
+                            reflFormulaLatex_2_3 = `\\begin{aligned} v &= v_0 + g\\,t \\\\[6pt] &= ${problem.v0} + ${problem.g} \\times ${problem.t} \\\\[6pt] &= ${problem.v0} + ${inc2_3} = ${problem.expectedV}\\ \\mathrm{m/s} \\end{aligned}`;
+                            reflText_2_3 = '初速度 4 m/s で投げおろした 2 秒後の速度は 23.6 m/s。同じ 2 秒後でも、そっと手をはなした自由落下なら 9.8 × 2 ＝ 19.6 m/s なので、自由落下より 4.0 m/s 大きい（＝初速のぶん）ことが分かります。';
+                        }
+                        content.innerHTML = header + staticCanvas1_6 + `
+                            <div class="calc-stage-container">
+                                <div class="calc-question-text">答えの意味を確認しよう。</div>
+                                <div class="calc-formula-display">
+                                    $${reflFormulaLatex_2_3}$
+                                </div>
+                                <div style="background:#eaf1fa; border-left:4px solid #1e5fa8; padding:14px 18px; border-radius:3px; margin-top:18px; font-size:15px; line-height:1.7;">
+                                    ${reflText_2_3}
+                                </div>
+                                <div style="margin-top:14px; font-size:13px; color:#555;">
+                                    次の問題に進む前に、式と自由落下の図を頭の中で思い浮かべてください。
+                                </div>
+                            </div>
+                        `;
+                    } else if (is2_4) {
+                        // 2-4（回転運動）: 1-12 図心 / 2-2 と同じ 3 行段組み KaTeX（aligned）で
+                        //   「記号式／数値式／答え」を表示し、その下に formulaType ごとの振り返り文を載せる。
+                        let reflFormulaLatex_2_4, reflText_2_4;
+                        if (problem.formulaType === 'peripheralVFromLT') {
+                            reflFormulaLatex_2_4 = `\\begin{aligned} v &= \\dfrac{l}{t} \\\\[6pt] &= \\dfrac{${problem.l}}{${problem.t}} \\\\[6pt] &= ${problem.expectedV}\\ \\mathrm{m/s} \\end{aligned}`;
+                            reflText_2_4 = '周速度は「円周上の点が 1 秒あたりに動く長さ」です。動いた長さ l を時間 t で割れば求められ、向きは円周の接線方向になります（教科書 p.43 式 2-28）。';
+                        } else if (problem.formulaType === 'angularVFromThetaT') {
+                            reflFormulaLatex_2_4 = `\\begin{aligned} \\omega &= \\dfrac{\\theta}{t} \\\\[6pt] &= \\dfrac{${problem.theta}}{${problem.t}} \\\\[6pt] &= ${problem.expectedOmega}\\ \\mathrm{rad/s} \\end{aligned}`;
+                            reflText_2_4 = '角速度は「1 秒あたりに回った角度」で、単位は rad/s です。周速度 v が「1 秒あたりに動いた長さ」だったのと、形がよく似ています。回った角度 θ を時間 t で割れば求められます（教科書 p.43 式 2-29）。';
+                        } else if (problem.formulaType === 'peripheralVFromROmega') {
+                            reflFormulaLatex_2_4 = `\\begin{aligned} v &= r\\,\\omega \\\\[6pt] &= ${problem.r} \\times ${problem.omega} \\\\[6pt] &= ${problem.expectedV}\\ \\mathrm{m/s} \\end{aligned}`;
+                            reflText_2_4 = '周速度と角速度は v ＝ r × ω でつながります（教科書 p.43 式 2-30）。同じ角速度でも、半径が大きいほど周上の点は速く動きます。<strong>半径が 2 倍になれば周速度も 2 倍</strong>になります。旋盤で同じ回転数でも、太い棒と細い棒で切削速度が異なる理由です。';
+                        } else {
+                            // peripheralVFromDN
+                            const mid2_4 = problem.piApprox * problem.d * problem.n;
+                            reflFormulaLatex_2_4 = `\\begin{aligned} v &= \\dfrac{\\pi\\,d\\,n}{1000} \\\\[6pt] &= \\dfrac{${problem.piApprox} \\times ${problem.d} \\times ${problem.n}}{1000} = \\dfrac{${mid2_4}}{1000} \\\\[6pt] &= ${problem.expectedV}\\ \\mathrm{m/min} \\end{aligned}`;
+                            reflText_2_4 = '旋盤の周速度（切削速度）は、直径と回転速度から v ＝ π × d × n / 1000 [m/min] で求められます（教科書 p.44 例題 11）。同じ回転速度でも太い棒ほど周速度が大きくなり、刃物にかかる速度が変わります。<strong>現場では mm/min 表記の場合もあります</strong>（その場合は 1000 で割らずに π × d × n のまま）。';
+                        }
+                        content.innerHTML = header + staticCanvas1_6 + `
+                            <div class="calc-stage-container">
+                                <div class="calc-question-text">答えの意味を確認しよう。</div>
+                                <div class="calc-formula-display">
+                                    $${reflFormulaLatex_2_4}$
+                                </div>
+                                <div style="background:#eaf1fa; border-left:4px solid #1e5fa8; padding:14px 18px; border-radius:3px; margin-top:18px; font-size:15px; line-height:1.7;">
+                                    ${reflText_2_4}
+                                </div>
+                                <div style="margin-top:14px; font-size:13px; color:#555;">
+                                    次の問題に進む前に、式と回転の図を頭の中で思い浮かべてください。
                                 </div>
                             </div>
                         `;
@@ -12449,6 +13468,325 @@
                     svg += `<text x="${cxA}" y="${cyA + 4}" text-anchor="middle" font-size="14" fill="${BLUE}" font-weight="700">s ＝ ${problem.s} m</text>`;
                     // 傾き a
                     svg += `<text x="${(x1 + x2) / 2 + 8}" y="${(y1 + y2) / 2 - 8}" font-size="11" fill="${BLUE}" font-weight="600">a ＝ ${problem.a}</text>`;
+                }
+
+                svg += `</svg></div>`;
+                return svg;
+            }
+
+            // 2-4（回転運動）の問題図を生成する。
+            //   problem.canvas.kind で 4 パターンに分岐：
+            //     'rotationCylinder' (問1): 横向き円筒 + 接線方向の v 矢印 + ほどけた糸の長さ l
+            //     'rotationAngle'    (問2): 正面視の円 + 中心 O・基準半径・回転後半径 + 角度 θ の弧
+            //     'rotationDisk'     (問3): 正面視の円 + 半径 r・接線方向 v + 中心まわりの角速度 ω 弧
+            //     'lathe'            (問4): 旋盤チャック + 丸棒（直径 d） + 外周のバイトと接線 v + ω/n 弧
+            //   教科書 p.43 図 2-45・p.44 図 2-46 のイメージで模式図として描く。
+            // 2-3（重力加速度）の問題図を描く。
+            //   canvas.kind で 4 種類を分岐：
+            //     'fallV'         (問1) 自由落下 v=gt
+            //     'fallH'         (問2) 自由落下 h=½gt²
+            //     'fallTime'      (問3) 自由落下 t=√(2h/g) — 地面付き
+            //     'verticalDown'  (問4) 鉛直下方投げおろし v=v₀+gt
+            //   配色は build2_4RotationCanvas と同じ（青=主役・赤=加速度/向き・グレー=寸法）。
+            build2_3FreeFallCanvas(problem) {
+                const c = problem.canvas || { width: 280, height: 280, kind: 'fallV' };
+                const W = c.width, H = c.height;
+                const kind = c.kind || 'fallV';
+                const BLUE = '#1e5fa8';
+                const RED = '#c62828';
+
+                let svg = `<div class="drawing-wrapper" style="pointer-events:none;">
+                <svg class="drawing-svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="cursor:default;">
+                <defs>
+                  <marker id="stc23-blue" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><polygon points="0,0 9,3.5 0,7" fill="${BLUE}"/></marker>
+                  <marker id="stc23-red" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><polygon points="0,0 9,3.5 0,7" fill="${RED}"/></marker>
+                  <marker id="stc23-gray" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto"><polygon points="0,0 8,3.5 0,7" fill="#777"/></marker>
+                  <marker id="stc23-grayS" markerWidth="8" markerHeight="7" refX="1" refY="3.5" orient="auto"><polygon points="8,0 0,3.5 8,7" fill="#777"/></marker>
+                </defs>`;
+
+                if (kind === 'fallV') {
+                    // 問1: 上方に物体（青の小さな丸）、下向きの大きな赤矢印で g、右側に「v=?」。
+                    //   地面は描かない。手をはなした瞬間の v₀=0 注記を物体の右に。
+                    const cx = W / 2;
+                    const topY = 50;             // 物体の位置
+                    const gArrowY1 = topY + 30;  // g 矢印の始点
+                    const gArrowY2 = topY + 160; // g 矢印の終点（下方）
+                    // 物体
+                    svg += `<circle cx="${cx}" cy="${topY}" r="9" fill="${BLUE}" stroke="#0a3c70" stroke-width="1.5"/>`;
+                    // 手をはなしたことを示す小さな破線（物体の上）
+                    svg += `<line x1="${cx - 14}" y1="${topY - 16}" x2="${cx + 14}" y2="${topY - 16}" stroke="#999" stroke-width="1" stroke-dasharray="3,3"/>`;
+                    svg += `<text x="${cx + 18}" y="${topY - 12}" font-size="11" fill="#666">手をはなす</text>`;
+                    // v₀ = 0 注記（物体の右）
+                    svg += `<text x="${cx + 16}" y="${topY + 4}" font-size="12" fill="${BLUE}">v₀ ＝ 0</text>`;
+                    // g 矢印（大きく下向き、赤）
+                    svg += `<line x1="${cx}" y1="${gArrowY1}" x2="${cx}" y2="${gArrowY2}" stroke="${RED}" stroke-width="3" marker-end="url(#stc23-red)"/>`;
+                    svg += `<text x="${cx + 12}" y="${(gArrowY1 + gArrowY2) / 2}" font-size="14" fill="${RED}" font-weight="700">g ＝ 9.8 m/s²</text>`;
+                    // t 秒後の v 表示（下方）
+                    svg += `<text x="${cx}" y="${gArrowY2 + 28}" text-anchor="middle" font-size="13" fill="${BLUE}" font-weight="700">t ＝ ${problem.t} s 後の v ＝ ？</text>`;
+                } else if (kind === 'fallH') {
+                    // 問2: 物体の始点（上方）から下方向に破線、右側に縦寸法線で「h=?」。
+                    //   地面は描かない。物体の右に v₀=0、g 矢印は左側に小さく。
+                    const cx = W / 2 - 30;
+                    const topY = 50;
+                    const botY = H - 50;
+                    // 始点物体（青）
+                    svg += `<circle cx="${cx}" cy="${topY}" r="9" fill="${BLUE}" stroke="#0a3c70" stroke-width="1.5"/>`;
+                    // 手をはなした破線
+                    svg += `<line x1="${cx - 14}" y1="${topY - 16}" x2="${cx + 14}" y2="${topY - 16}" stroke="#999" stroke-width="1" stroke-dasharray="3,3"/>`;
+                    svg += `<text x="${cx + 18}" y="${topY - 12}" font-size="11" fill="#666">手をはなす</text>`;
+                    // v₀ = 0
+                    svg += `<text x="${cx + 16}" y="${topY + 4}" font-size="12" fill="${BLUE}">v₀ ＝ 0</text>`;
+                    // 落下経路（破線、青）
+                    svg += `<line x1="${cx}" y1="${topY + 10}" x2="${cx}" y2="${botY}" stroke="${BLUE}" stroke-width="1.5" stroke-dasharray="5,4"/>`;
+                    // 終点（点線扱い、薄い丸）
+                    svg += `<circle cx="${cx}" cy="${botY}" r="6" fill="none" stroke="${BLUE}" stroke-width="1.5" stroke-dasharray="3,2"/>`;
+                    svg += `<text x="${cx - 14}" y="${botY + 4}" text-anchor="end" font-size="11" fill="${BLUE}">t ＝ ${problem.t} s 後</text>`;
+                    // h 寸法線（右側、縦・双方向矢印）
+                    const dimX = cx + 60;
+                    svg += `<line x1="${cx + 10}" y1="${topY}" x2="${dimX + 4}" y2="${topY}" stroke="#888" stroke-width="0.8" stroke-dasharray="3,3"/>`;
+                    svg += `<line x1="${cx + 10}" y1="${botY}" x2="${dimX + 4}" y2="${botY}" stroke="#888" stroke-width="0.8" stroke-dasharray="3,3"/>`;
+                    svg += `<line x1="${dimX}" y1="${topY}" x2="${dimX}" y2="${botY}" stroke="#777" stroke-width="1" marker-start="url(#stc23-grayS)" marker-end="url(#stc23-gray)"/>`;
+                    svg += `<text x="${dimX + 8}" y="${(topY + botY) / 2 + 4}" font-size="13" fill="#555" font-weight="600">h ＝ ？ m</text>`;
+                    // g 矢印（左側、下向き、小さめ）
+                    const gx = cx - 60;
+                    svg += `<line x1="${gx}" y1="${topY + 20}" x2="${gx}" y2="${topY + 90}" stroke="${RED}" stroke-width="2.5" marker-end="url(#stc23-red)"/>`;
+                    svg += `<text x="${gx - 4}" y="${topY + 60}" text-anchor="end" font-size="12" fill="${RED}" font-weight="700">g ＝ 9.8 m/s²</text>`;
+                } else if (kind === 'fallTime') {
+                    // 問3: 上方に物体（始点）、下方に地面（横線＋ハッチング）。
+                    //   右側縦寸法線で h = 78.4 m、左に g 矢印、地面右下に「t = ? s」。
+                    const cx = W / 2 - 30;
+                    const topY = 50;
+                    const groundY = H - 40;
+                    // 始点物体
+                    svg += `<circle cx="${cx}" cy="${topY}" r="9" fill="${BLUE}" stroke="#0a3c70" stroke-width="1.5"/>`;
+                    svg += `<line x1="${cx - 14}" y1="${topY - 16}" x2="${cx + 14}" y2="${topY - 16}" stroke="#999" stroke-width="1" stroke-dasharray="3,3"/>`;
+                    svg += `<text x="${cx + 18}" y="${topY - 12}" font-size="11" fill="#666">手をはなす</text>`;
+                    svg += `<text x="${cx + 16}" y="${topY + 4}" font-size="12" fill="${BLUE}">v₀ ＝ 0</text>`;
+                    // 落下経路（破線）
+                    svg += `<line x1="${cx}" y1="${topY + 10}" x2="${cx}" y2="${groundY}" stroke="${BLUE}" stroke-width="1.5" stroke-dasharray="5,4"/>`;
+                    // 地面（横線）
+                    svg += `<line x1="20" y1="${groundY}" x2="${W - 20}" y2="${groundY}" stroke="#444" stroke-width="2"/>`;
+                    // 地面ハッチング（斜線）
+                    for (let i = 0; i < 10; i++) {
+                        const hx = 24 + i * ((W - 48) / 10);
+                        svg += `<line x1="${hx}" y1="${groundY}" x2="${hx - 8}" y2="${groundY + 10}" stroke="#888" stroke-width="0.8"/>`;
+                    }
+                    // h 寸法線
+                    const dimX = cx + 60;
+                    svg += `<line x1="${cx + 10}" y1="${topY}" x2="${dimX + 4}" y2="${topY}" stroke="#888" stroke-width="0.8" stroke-dasharray="3,3"/>`;
+                    svg += `<line x1="${cx + 10}" y1="${groundY}" x2="${dimX + 4}" y2="${groundY}" stroke="#888" stroke-width="0.8" stroke-dasharray="3,3"/>`;
+                    svg += `<line x1="${dimX}" y1="${topY}" x2="${dimX}" y2="${groundY}" stroke="#777" stroke-width="1" marker-start="url(#stc23-grayS)" marker-end="url(#stc23-gray)"/>`;
+                    svg += `<text x="${dimX + 8}" y="${(topY + groundY) / 2 + 4}" font-size="13" fill="#555" font-weight="600">h ＝ ${problem.h} m</text>`;
+                    // g 矢印（左側、下向き）
+                    const gx = cx - 60;
+                    svg += `<line x1="${gx}" y1="${topY + 20}" x2="${gx}" y2="${topY + 110}" stroke="${RED}" stroke-width="2.5" marker-end="url(#stc23-red)"/>`;
+                    svg += `<text x="${gx - 4}" y="${topY + 70}" text-anchor="end" font-size="12" fill="${RED}" font-weight="700">g ＝ 9.8 m/s²</text>`;
+                    // 地面右下に t = ?
+                    svg += `<text x="${W - 24}" y="${groundY - 6}" text-anchor="end" font-size="13" fill="${BLUE}" font-weight="700">t ＝ ？ s</text>`;
+                } else if (kind === 'verticalDown') {
+                    // 問4: 上方に物体、物体の脇に小さな下向き矢印で v₀（青）、下に大きな下向き矢印で g（赤）。
+                    //   その右に「t=2s 後の v=?」。地面は描かない。
+                    const cx = W / 2;
+                    const topY = 50;
+                    // 物体
+                    svg += `<circle cx="${cx}" cy="${topY}" r="9" fill="${BLUE}" stroke="#0a3c70" stroke-width="1.5"/>`;
+                    // 手から投げた注記
+                    svg += `<line x1="${cx - 14}" y1="${topY - 16}" x2="${cx + 14}" y2="${topY - 16}" stroke="#999" stroke-width="1" stroke-dasharray="3,3"/>`;
+                    svg += `<text x="${cx + 18}" y="${topY - 12}" font-size="11" fill="#666">投げる（鉛直下方）</text>`;
+                    // v₀ 矢印（青、物体の左下に小さく）
+                    const v0x = cx - 30;
+                    svg += `<line x1="${v0x}" y1="${topY + 10}" x2="${v0x}" y2="${topY + 50}" stroke="${BLUE}" stroke-width="2.5" marker-end="url(#stc23-blue)"/>`;
+                    svg += `<text x="${v0x - 4}" y="${topY + 36}" text-anchor="end" font-size="12" fill="${BLUE}" font-weight="700">v₀ ＝ ${problem.v0} m/s</text>`;
+                    // g 矢印（中央、下向き・大きく赤）
+                    const gY1 = topY + 70;
+                    const gY2 = topY + 200;
+                    svg += `<line x1="${cx}" y1="${gY1}" x2="${cx}" y2="${gY2}" stroke="${RED}" stroke-width="3" marker-end="url(#stc23-red)"/>`;
+                    svg += `<text x="${cx + 12}" y="${(gY1 + gY2) / 2}" font-size="14" fill="${RED}" font-weight="700">g ＝ 9.8 m/s²</text>`;
+                    // t 秒後の v 表示
+                    svg += `<text x="${cx}" y="${gY2 + 26}" text-anchor="middle" font-size="13" fill="${BLUE}" font-weight="700">t ＝ ${problem.t} s 後の v ＝ ？</text>`;
+                }
+
+                svg += `</svg></div>`;
+                return svg;
+            }
+
+            build2_4RotationCanvas(problem) {
+                const c = problem.canvas || { width: 320, height: 240, kind: 'rotationCylinder' };
+                const W = c.width, H = c.height;
+                const kind = c.kind || 'rotationCylinder';
+                const BLUE = '#1e5fa8';
+                const RED = '#c62828';
+                const GRAY_AXIS = '#3A434C';
+                const GRAY_LIGHT = '#bbb';
+
+                let svg = `<div class="drawing-wrapper" style="pointer-events:none;">
+                <svg class="drawing-svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="cursor:default;">
+                <defs>
+                  <marker id="stc24-blue" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><polygon points="0,0 9,3.5 0,7" fill="${BLUE}"/></marker>
+                  <marker id="stc24-red" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><polygon points="0,0 9,3.5 0,7" fill="${RED}"/></marker>
+                  <marker id="stc24-gray" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto"><polygon points="0,0 8,3.5 0,7" fill="#777"/></marker>
+                  <marker id="stc24-grayS" markerWidth="8" markerHeight="7" refX="1" refY="3.5" orient="auto"><polygon points="8,0 0,3.5 8,7" fill="#777"/></marker>
+                </defs>`;
+
+                if (kind === 'rotationCylinder') {
+                    // 問1: 円筒を斜視で描き、外周に点 P と接線方向の v 矢印、ほどけた糸の長さ l。
+                    //   円筒の正面円（左側）と背面円（右側、楕円で）を描く。
+                    const cx1 = 110, cy1 = 130;  // 正面円の中心
+                    const R = 56;                 // 円筒の半径（描画スケール）
+                    const rxEll = 18;             // 背面の楕円水平半径
+                    const cylLen = 90;            // 円筒の奥行き
+                    const cx2 = cx1 + cylLen;     // 背面円の中心
+                    // 円筒側面（上下の線）
+                    svg += `<line x1="${cx1}" y1="${cy1 - R}" x2="${cx2}" y2="${cy1 - R}" stroke="#777" stroke-width="1.2"/>`;
+                    svg += `<line x1="${cx1}" y1="${cy1 + R}" x2="${cx2}" y2="${cy1 + R}" stroke="#777" stroke-width="1.2"/>`;
+                    // 背面円（楕円、薄め）
+                    svg += `<ellipse cx="${cx2}" cy="${cy1}" rx="${rxEll}" ry="${R}" fill="#f3f6fb" stroke="#999" stroke-width="1"/>`;
+                    // 正面円（前面）
+                    svg += `<circle cx="${cx1}" cy="${cy1}" r="${R}" fill="#fbfcfe" stroke="#444" stroke-width="1.5"/>`;
+                    // 中心 O
+                    svg += `<circle cx="${cx1}" cy="${cy1}" r="3" fill="#333"/>`;
+                    svg += `<text x="${cx1 - 12}" y="${cy1 + 4}" font-size="12" fill="#333">O</text>`;
+                    // 点 P（円周の上、角度 60°）
+                    const pAng = -Math.PI / 3;  // 上ななめ右
+                    const pX = cx1 + R * Math.cos(pAng);
+                    const pY = cy1 + R * Math.sin(pAng);
+                    svg += `<circle cx="${pX}" cy="${pY}" r="4" fill="${BLUE}"/>`;
+                    svg += `<text x="${pX + 6}" y="${pY - 6}" font-size="13" fill="${BLUE}" font-weight="600">P</text>`;
+                    // 接線方向 v 矢印（点 P から接線方向、回転は反時計まわりとする）
+                    //   接線方向ベクトル = (-sin a, cos a)
+                    const tx = -Math.sin(pAng), ty = Math.cos(pAng);
+                    const vLen = 36;
+                    const vx2 = pX + tx * vLen, vy2 = pY + ty * vLen;
+                    svg += `<line x1="${pX}" y1="${pY}" x2="${vx2}" y2="${vy2}" stroke="${BLUE}" stroke-width="2.5" marker-end="url(#stc24-blue)"/>`;
+                    svg += `<text x="${vx2 + 4}" y="${vy2 + 4}" font-size="13" fill="${BLUE}" font-weight="700">v</text>`;
+                    // 回転矢印（中心まわり、反時計まわり）
+                    const rotR = 24;
+                    svg += `<path d="M ${cx1 + rotR} ${cy1} A ${rotR} ${rotR} 0 0 0 ${cx1} ${cy1 - rotR}" fill="none" stroke="#555" stroke-width="1.5"/>`;
+                    svg += `<path d="M ${cx1 - 4} ${cy1 - rotR + 4} L ${cx1 + 6} ${cy1 - rotR + 1} L ${cx1 + 1} ${cy1 - rotR - 7} Z" fill="#555"/>`;
+                    // 糸（円周の下を回って、右下にほどける）
+                    //   円周の最下点 (cx1, cy1 + R) から接線方向に下方向 → 右へほどけて伸びる。
+                    const sx0 = cx1, sy0 = cy1 + R;
+                    const sxEnd = W - 22, syEnd = sy0;
+                    svg += `<line x1="${sx0}" y1="${sy0}" x2="${sxEnd}" y2="${syEnd}" stroke="${RED}" stroke-width="2.2"/>`;
+                    // 糸の長さ l の寸法線（双方向矢印・下方向）
+                    const dimY = sy0 + 22;
+                    svg += `<line x1="${sx0}" y1="${sy0 + 6}" x2="${sx0}" y2="${dimY + 4}" stroke="#888" stroke-width="0.8" stroke-dasharray="3,3"/>`;
+                    svg += `<line x1="${sxEnd}" y1="${syEnd + 6}" x2="${sxEnd}" y2="${dimY + 4}" stroke="#888" stroke-width="0.8" stroke-dasharray="3,3"/>`;
+                    svg += `<line x1="${sx0}" y1="${dimY}" x2="${sxEnd}" y2="${dimY}" stroke="#777" stroke-width="1" marker-start="url(#stc24-grayS)" marker-end="url(#stc24-gray)"/>`;
+                    svg += `<text x="${(sx0 + sxEnd) / 2}" y="${dimY + 16}" text-anchor="middle" font-size="13" fill="#555" font-weight="600">l ＝ ${problem.l} m</text>`;
+                    // t 表示
+                    svg += `<text x="${W - 12}" y="20" text-anchor="end" font-size="12" fill="#555">t ＝ ${problem.t} s</text>`;
+                } else if (kind === 'rotationAngle') {
+                    // 問2: 正面視の円。中心 O・基準半径（右、点線）・回転後半径（上ななめ）・角度 θ の弧。
+                    const cx = W / 2, cy = H / 2 + 6;
+                    const R = 78;
+                    svg += `<circle cx="${cx}" cy="${cy}" r="${R}" fill="#fbfcfe" stroke="#444" stroke-width="1.5"/>`;
+                    svg += `<circle cx="${cx}" cy="${cy}" r="3" fill="#333"/>`;
+                    svg += `<text x="${cx - 12}" y="${cy + 14}" font-size="12" fill="#333">O</text>`;
+                    // 基準（水平右）→ 破線
+                    svg += `<line x1="${cx}" y1="${cy}" x2="${cx + R}" y2="${cy}" stroke="${GRAY_LIGHT}" stroke-width="1.2" stroke-dasharray="4,3"/>`;
+                    svg += `<circle cx="${cx + R}" cy="${cy}" r="3" fill="#888"/>`;
+                    // 回転後の半径（角度 70° = 上ななめ右）
+                    const ang2 = -70 * Math.PI / 180;  // 反時計まわり（y 軸下向き SVG だが、上方向が負）
+                    const ex = cx + R * Math.cos(ang2);
+                    const ey = cy + R * Math.sin(ang2);
+                    svg += `<line x1="${cx}" y1="${cy}" x2="${ex}" y2="${ey}" stroke="${BLUE}" stroke-width="2"/>`;
+                    svg += `<circle cx="${ex}" cy="${ey}" r="4" fill="${BLUE}"/>`;
+                    // 角度 θ の弧（小さい半径）
+                    const arcR = 30;
+                    const a0 = 0, a1 = ang2;
+                    const arcEndX = cx + arcR * Math.cos(a1);
+                    const arcEndY = cy + arcR * Math.sin(a1);
+                    svg += `<path d="M ${cx + arcR} ${cy} A ${arcR} ${arcR} 0 0 0 ${arcEndX} ${arcEndY}" fill="none" stroke="${RED}" stroke-width="2"/>`;
+                    // θ ラベル（弧の途中、平均角度）
+                    const labA = (a0 + a1) / 2;
+                    const labR = arcR + 14;
+                    const labX = cx + labR * Math.cos(labA);
+                    const labY = cy + labR * Math.sin(labA);
+                    svg += `<text x="${labX}" y="${labY + 4}" text-anchor="middle" font-size="14" fill="${RED}" font-weight="700">θ ＝ ${problem.theta} rad</text>`;
+                    // 回転矢印（中心まわり、反時計）
+                    svg += `<text x="${cx + R - 10}" y="${cy + 18}" font-size="11" fill="#888">基準</text>`;
+                    // t 表示
+                    svg += `<text x="${W - 12}" y="20" text-anchor="end" font-size="12" fill="#555">t ＝ ${problem.t} s で θ ＝ ${problem.theta} rad 回転</text>`;
+                } else if (kind === 'rotationDisk') {
+                    // 問3: 正面視の円。中心 O・半径 r の補助線・円周上の点 P に接線 v・中心まわりに ω 弧。
+                    const cx = W / 2 - 20, cy = H / 2 + 6;
+                    const R = 78;
+                    svg += `<circle cx="${cx}" cy="${cy}" r="${R}" fill="#fbfcfe" stroke="#444" stroke-width="1.5"/>`;
+                    svg += `<circle cx="${cx}" cy="${cy}" r="3" fill="#333"/>`;
+                    svg += `<text x="${cx - 12}" y="${cy + 14}" font-size="12" fill="#333">O</text>`;
+                    // 半径 r の補助線（中心から右へ）
+                    const pAng = -25 * Math.PI / 180;
+                    const pX = cx + R * Math.cos(pAng);
+                    const pY = cy + R * Math.sin(pAng);
+                    svg += `<line x1="${cx}" y1="${cy}" x2="${pX}" y2="${pY}" stroke="#777" stroke-width="1.2" stroke-dasharray="4,3"/>`;
+                    // r ラベル
+                    const rLabX = (cx + pX) / 2;
+                    const rLabY = (cy + pY) / 2 - 8;
+                    svg += `<text x="${rLabX}" y="${rLabY}" text-anchor="middle" font-size="13" fill="#555" font-weight="600">r ＝ ${problem.r} m</text>`;
+                    // 点 P
+                    svg += `<circle cx="${pX}" cy="${pY}" r="4" fill="${BLUE}"/>`;
+                    svg += `<text x="${pX + 7}" y="${pY + 4}" font-size="13" fill="${BLUE}" font-weight="600">P</text>`;
+                    // 接線方向 v 矢印（反時計回り → 接線は (-sin, cos)）
+                    const tx = -Math.sin(pAng), ty = Math.cos(pAng);
+                    const vLen = 42;
+                    const vx2 = pX + tx * vLen, vy2 = pY + ty * vLen;
+                    svg += `<line x1="${pX}" y1="${pY}" x2="${vx2}" y2="${vy2}" stroke="${BLUE}" stroke-width="2.5" marker-end="url(#stc24-blue)"/>`;
+                    svg += `<text x="${vx2 + 4}" y="${vy2 + 5}" font-size="14" fill="${BLUE}" font-weight="700">v ＝ ?</text>`;
+                    // 中心まわりの ω 弧（反時計）
+                    const rotR = 30;
+                    svg += `<path d="M ${cx + rotR} ${cy} A ${rotR} ${rotR} 0 0 0 ${cx} ${cy - rotR}" fill="none" stroke="${RED}" stroke-width="2"/>`;
+                    svg += `<path d="M ${cx - 5} ${cy - rotR + 3} L ${cx + 5} ${cy - rotR - 1} L ${cx + 1} ${cy - rotR - 9} Z" fill="${RED}"/>`;
+                    svg += `<text x="${cx + rotR + 6}" y="${cy - rotR + 4}" font-size="13" fill="${RED}" font-weight="700">ω ＝ ${problem.omega} rad/s</text>`;
+                } else if (kind === 'lathe') {
+                    // 問4: 旋盤チャック + 丸棒（直径 d）+ 外周のバイトと接線 v + ω/n 弧。
+                    //   左側にチャック（縦長台形 + 縦の溝 3 本）、その右に丸棒（中央水平の長方形）。
+                    //   丸棒の右端正面（円）に外周バイトと接線方向 v を描く。
+                    const chuckX = 24, chuckY = H / 2 - 60, chuckW = 56, chuckH = 120;
+                    // チャック本体
+                    svg += `<rect x="${chuckX}" y="${chuckY}" width="${chuckW}" height="${chuckH}" fill="#dfe5ee" stroke="#555" stroke-width="1.2"/>`;
+                    // チャックの掴み爪（3 本の溝）
+                    for (let i = 1; i <= 3; i++) {
+                        const sy = chuckY + (chuckH * i) / 4;
+                        svg += `<line x1="${chuckX + chuckW - 8}" y1="${sy}" x2="${chuckX + chuckW}" y2="${sy}" stroke="#555" stroke-width="1.2"/>`;
+                    }
+                    svg += `<text x="${chuckX + chuckW / 2}" y="${chuckY - 6}" text-anchor="middle" font-size="11" fill="#666">チャック</text>`;
+                    // 丸棒（水平長方形、直径 d をスケールで反映）
+                    //   描画スケール: 1 mm = 1.0 px（最大限）。問題の d=50 → 50 px。
+                    const rodScale = 1.0;
+                    const rodH = problem.d * rodScale;  // 50 px
+                    const rodCY = H / 2;
+                    const rodX1 = chuckX + chuckW;
+                    const rodX2 = W - 30;
+                    svg += `<rect x="${rodX1}" y="${rodCY - rodH / 2}" width="${rodX2 - rodX1}" height="${rodH}" fill="#e8e2d5" stroke="#666" stroke-width="1.2"/>`;
+                    // 中心軸（破線、回転軸）
+                    svg += `<line x1="${chuckX - 10}" y1="${rodCY}" x2="${rodX2 + 16}" y2="${rodCY}" stroke="#888" stroke-width="0.8" stroke-dasharray="6,3"/>`;
+                    // 直径 d の寸法線（丸棒の右側、外側）
+                    const dimX = rodX2 + 14;
+                    svg += `<line x1="${rodX2 + 2}" y1="${rodCY - rodH / 2}" x2="${dimX + 4}" y2="${rodCY - rodH / 2}" stroke="#888" stroke-width="0.8" stroke-dasharray="3,3"/>`;
+                    svg += `<line x1="${rodX2 + 2}" y1="${rodCY + rodH / 2}" x2="${dimX + 4}" y2="${rodCY + rodH / 2}" stroke="#888" stroke-width="0.8" stroke-dasharray="3,3"/>`;
+                    svg += `<line x1="${dimX}" y1="${rodCY - rodH / 2}" x2="${dimX}" y2="${rodCY + rodH / 2}" stroke="#777" stroke-width="1" marker-start="url(#stc24-grayS)" marker-end="url(#stc24-gray)"/>`;
+                    svg += `<text x="${dimX + 6}" y="${rodCY + 4}" font-size="12" fill="#555" font-weight="600">d ＝ ${problem.d} mm</text>`;
+                    // 回転矢印（チャック上端付近に小さい弧）→ ω/n を表す
+                    const arcCX = chuckX + chuckW / 2;
+                    const arcCY = chuckY + chuckH / 2;
+                    const arcR = 22;
+                    svg += `<path d="M ${arcCX + arcR} ${arcCY} A ${arcR} ${arcR} 0 0 0 ${arcCX} ${arcCY - arcR}" fill="none" stroke="${RED}" stroke-width="2"/>`;
+                    svg += `<path d="M ${arcCX - 4} ${arcCY - arcR + 3} L ${arcCX + 6} ${arcCY - arcR} L ${arcCX + 1} ${arcCY - arcR - 8} Z" fill="${RED}"/>`;
+                    svg += `<text x="${arcCX}" y="${arcCY + 4}" text-anchor="middle" font-size="11" fill="${RED}" font-weight="600">n ＝ ${problem.n}</text>`;
+                    svg += `<text x="${arcCX}" y="${arcCY + 18}" text-anchor="middle" font-size="11" fill="${RED}" font-weight="600">min⁻¹</text>`;
+                    // バイト（外周の上に三角の刃物）と接線 v 矢印
+                    const cutX = rodX1 + (rodX2 - rodX1) * 0.55;
+                    const cutTopY = rodCY - rodH / 2;
+                    // バイト本体（三角）
+                    svg += `<polygon points="${cutX - 8},${cutTopY - 18} ${cutX + 8},${cutTopY - 18} ${cutX},${cutTopY - 2}" fill="#777" stroke="#333" stroke-width="1"/>`;
+                    svg += `<text x="${cutX}" y="${cutTopY - 24}" text-anchor="middle" font-size="11" fill="#444">バイト</text>`;
+                    // 外周点 P（バイトの直下、円筒の上端）。回転で奥から手前に動く → 紙面上は左向きの矢印で表す。
+                    svg += `<circle cx="${cutX}" cy="${cutTopY}" r="3.5" fill="${BLUE}"/>`;
+                    // 接線方向 v 矢印（左向き、長さ 50）
+                    const vTipX = cutX - 50;
+                    svg += `<line x1="${cutX}" y1="${cutTopY}" x2="${vTipX}" y2="${cutTopY}" stroke="${BLUE}" stroke-width="2.5" marker-end="url(#stc24-blue)"/>`;
+                    svg += `<text x="${vTipX - 4}" y="${cutTopY - 6}" text-anchor="end" font-size="13" fill="${BLUE}" font-weight="700">v ＝ ?</text>`;
                 }
 
                 svg += `</svg></div>`;
@@ -15095,6 +16433,10 @@
                                            ? (HINTS_1_12_BY_ID[(this.getCalcProblem() || {}).id] || HINTS_1_12_DIST)
                                        : (this.currentUnitId === '2-2')
                                            ? (HINTS_2_2_BY_ID[(this.getCalcProblem() || {}).id] || HINTS_2_2_A)
+                                       : (this.currentUnitId === '2-3')
+                                           ? (HINTS_2_3_BY_ID[(this.getCalcProblem() || {}).id] || HINTS_2_3_V)
+                                       : (this.currentUnitId === '2-4')
+                                           ? (HINTS_2_4_BY_ID[(this.getCalcProblem() || {}).id] || HINTS_2_4_PV)
                                        : HINTS_2_1;
                     const stageHints = hintsTable[stagePart];
                     const levelKeys = ['b', 'a', 'c'];
@@ -15224,6 +16566,12 @@
                 if (this.currentUnitId === '2-2') {
                     return PROBLEMS_2_2[this.currentProblemIndex];
                 }
+                if (this.currentUnitId === '2-3') {
+                    return PROBLEMS_2_3[this.currentProblemIndex];
+                }
+                if (this.currentUnitId === '2-4') {
+                    return PROBLEMS_2_4[this.currentProblemIndex];
+                }
                 return null;
             }
 
@@ -15262,8 +16610,10 @@
                 const is1_11 = this.currentUnitId === '1-11';
                 const is1_12 = this.currentUnitId === '1-12';
                 const is2_2 = this.currentUnitId === '2-2';
-                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2;
-                // 1-6〜1-12 / 2-2 は problem.stage0Correct、2-1 は固定値 's'
+                const is2_3 = this.currentUnitId === '2-3';
+                const is2_4 = this.currentUnitId === '2-4';
+                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4;
+                // 1-6〜1-12 / 2-2 / 2-3 / 2-4 は problem.stage0Correct、2-1 は固定値 's'
                 const correct = isForceCalc ? problem.stage0Correct : 's';
                 const isCorrect = (value === correct);
                 if (isCorrect) {
@@ -15303,6 +16653,20 @@
                                 : (problem.formulaType === 'sFromV0AT')
                                 ? '正解。t 秒間に進む距離 s [m] の大きさを求めます。'
                                 : '正解。速度 v [m/s] の大きさを求めます。';
+                        } else if (is2_4) {
+                            // 2-4: formulaType で求める量が異なる（v / ω）
+                            msg = (problem.formulaType === 'angularVFromThetaT')
+                                ? '正解。角速度 ω [rad/s] の大きさを求めます。'
+                                : (problem.formulaType === 'peripheralVFromDN')
+                                ? '正解。旋盤の周速度（切削速度）v [m/min] の大きさを求めます。'
+                                : '正解。点 P の周速度 v [m/s] の大きさを求めます。';
+                        } else if (is2_3) {
+                            // 2-3: formulaType で求める量が異なる（v / h / t）
+                            msg = (problem.formulaType === 'freeFallH')
+                                ? '正解。t 秒間に落下した距離 h [m] の大きさを求めます。'
+                                : (problem.formulaType === 'freeFallTime')
+                                ? '正解。物体が地面に達するまでの時間 t [s] を求めます。'
+                                : '正解。t 秒後の物体の速度 v [m/s] の大きさを求めます。';
                         }
                         feedback.textContent = msg;
                     }
@@ -15408,6 +16772,34 @@
                             } else {
                                 msg = '不正解。問題文の末尾「○○を求めよ」に注目してください。';
                             }
+                        } else if (is2_4) {
+                            // 2-4: 与えられている量を選んだ場合の説明
+                            if (value === 'angularV' && problem.formulaType !== 'angularVFromThetaT') {
+                                msg = '不正解。角速度 ω は問題文に「ω ＝ ○○ rad/s」で与えられています。求めるものは別の量です。';
+                            } else if (value === 'peripheralV' && problem.formulaType === 'angularVFromThetaT') {
+                                msg = '不正解。問題文の末尾は「角速度 ω を求めよ」です。周速度ではありません。';
+                            } else if (value === 'radius') {
+                                msg = '不正解。半径 r は問題文に「r ＝ ○○ m」で与えられています。求めるものは別の量です。';
+                            } else if (value === 'angle') {
+                                msg = '不正解。回った角度 θ は問題文に「θ ＝ ○○ rad」で与えられています。求めるものは別の量です。';
+                            } else if (value === 'diameter') {
+                                msg = '不正解。直径 d は問題文に「d ＝ ○○ mm」で与えられています。求めるものは別の量です。';
+                            } else {
+                                msg = '不正解。問題文の末尾「○○を求めよ」に注目してください。';
+                            }
+                        } else if (is2_3) {
+                            // 2-3: 与えられている量を選んだ場合の説明
+                            if (value === 'velocity' && problem.formulaType !== 'freeFallV' && problem.formulaType !== 'verticalDownV') {
+                                msg = '不正解。問題文の末尾「○○を求めよ」に注目してください。速度を求める問題ではありません。';
+                            } else if (value === 'distance' && problem.formulaType !== 'freeFallH') {
+                                msg = '不正解。問題文の末尾「○○を求めよ」に注目してください。落下距離を求める問題ではありません。';
+                            } else if (value === 'time' && problem.formulaType !== 'freeFallTime') {
+                                msg = '不正解。時間 t は問題文に「○○ 秒後」「○○ 秒間」で与えられています。求めるものは別の量です。';
+                            } else if (value === 'accel') {
+                                msg = '不正解。重力加速度 g は問題文に「g ＝ 9.8 m/s²」で与えられています。求めるものは別の量です。';
+                            } else {
+                                msg = '不正解。問題文の末尾「○○を求めよ」に注目してください。';
+                            }
                         } else {
                             msg = (value === 'v')
                                 ? '不正解。速度は問題文に「○○ m/s」の形で数値が与えられています。「求めよ」と書かれている量を探してください。'
@@ -15446,8 +16838,10 @@
                 const is1_11 = this.currentUnitId === '1-11';
                 const is1_12 = this.currentUnitId === '1-12';
                 const is2_2 = this.currentUnitId === '2-2';
-                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2;
-                // 1-6〜1-12 / 2-2 は problem.stage1Correct、2-1 は固定値 'constant'
+                const is2_3 = this.currentUnitId === '2-3';
+                const is2_4 = this.currentUnitId === '2-4';
+                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4;
+                // 1-6〜1-12 / 2-2 / 2-3 / 2-4 は problem.stage1Correct、2-1 は固定値 'constant'
                 const correct = isForceCalc ? problem.stage1Correct : 'constant';
                 const isCorrect = (value === correct);
                 if (isCorrect) {
@@ -15478,6 +16872,12 @@
                                 : '正解。平面図形の図心（重心）を求める問題です。図心は、図形を長方形に分け、面積を「重さ」とみなして原点 O のまわりのモーメントのつり合いから求められます（1-11 と同じ考え方）。';
                         } else if (is2_2) {
                             msg = '正解。一定の加速度で速度が変わる「等加速度直線運動」です。教科書 41〜42 ページの式 2-20〜2-23 が使えます。';
+                        } else if (is2_4) {
+                            msg = '正解。物体が軸のまわりを回る「回転運動」です。教科書 43〜44 ページの式 2-28〜2-31 が使えます。';
+                        } else if (is2_3) {
+                            msg = (problem.formulaType === 'verticalDownV')
+                                ? '正解。鉛直下方への投げおろしは、はじめの速度 v₀ ≠ 0 で重力加速度 g が一定にはたらく等加速度運動です。式 2-24 が使えます。'
+                                : '正解。「そっと手をはなした自由落下」は、はじめの速度 v₀ ＝ 0 で重力加速度 g が一定にはたらく等加速度運動の特殊な場合です。式 2-26 / 式 2-27 が使えます。';
                         }
                         feedback.textContent = msg;
                     }
@@ -15511,6 +16911,28 @@
                                 : (value === 'freeFall')
                                 ? '不正解。自由落下は地球の重力だけで落ちる運動です。問題文は一直線上の運動で、自由落下ではありません。'
                                 : '不正解。問題文に「一定の加速度で速度を増している」とあります。これは「等加速度直線運動」です。';
+                        } else if (is2_4) {
+                            msg = (value === 'uniformLinear')
+                                ? '不正解。物体は直線運動ではなく、軸のまわりを回っています。'
+                                : (value === 'uniformAccel')
+                                ? '不正解。速度が一定の加速度で変わる運動ではなく、軸のまわりを回る運動です。'
+                                : (value === 'freeFall')
+                                ? '不正解。自由落下は地球の重力で落ちる運動です。この問題は回転運動です。'
+                                : '不正解。物体が軸のまわりを回る運動を「回転運動」といいます。';
+                        } else if (is2_3) {
+                            if (problem.formulaType === 'verticalDownV') {
+                                msg = (value === 'pureFreeFall')
+                                    ? '不正解。問題文には「鉛直下方に向けて、初速度 v₀ ＝ 4 m/s で投げた」とあります。はじめの速度があるので、ただの「自由落下」ではありません。'
+                                    : (value === 'uniformLinear')
+                                    ? '不正解。問題文には「重力加速度は g ＝ 9.8 m/s²」とあり、速度は時間とともに増えていきます。等速直線運動ではありません。'
+                                    : '不正解。はじめの速度をもって鉛直下方に投げる運動です（自由落下と区別）。';
+                            } else {
+                                msg = (value === 'uniformLinear')
+                                    ? '不正解。問題文に「重力加速度は g ＝ 9.8 m/s²」とあり、速度は一定ではなく時間とともに増えていきます。'
+                                    : (value === 'rotation')
+                                    ? '不正解。問題文には「自由落下させた」とあります。回転ではなく、鉛直下方への落下運動です。'
+                                    : '不正解。物体が一定の重力加速度 g で落下する運動を「自由落下」といいます。';
+                            }
                         }
                         feedback.textContent = msg;
                     }
@@ -15586,7 +17008,9 @@
                     W1: 'W₁', W2: 'W₂', L: 'L',
                     W2num: 'W₂', W1den: 'W₁', W2den: 'W₂',
                     A1x: 'A₁', A1y: 'A₁', x1s: 'x₁', y1s: 'y₁', A2x: 'A₂', A2y: 'A₂', x2s: 'x₂', y2s: 'y₂', Ax: 'A', Ay: 'A',
-                    Abx: 'A大', Aby: 'A大', xbs: 'x大', ybs: 'y大', Acx: 'A切', Acy: 'A切', xcs: 'x切', ycs: 'y切', A0x: 'A₀', A0y: 'A₀'
+                    Abx: 'A大', Aby: 'A大', xbs: 'x大', ybs: 'y大', Acx: 'A切', Acy: 'A切', xcs: 'x切', ycs: 'y切', A0x: 'A₀', A0y: 'A₀',
+                    v0: 'v₀', t1: 't', t2: 't', a: 'a', s: 's',
+                    l: 'l', theta: 'θ', omega: 'ω', pi: 'π', n: 'n'
                 };
                 slotRoles.forEach(r => { slotEls[r] = document.getElementById('slot-' + r); });
                 // Reset visual state
@@ -15641,6 +17065,26 @@
                             } else {
                                 feedback.textContent = '不正解。単位に注目して入れ直してください。「m/s」が速度（v₀ や v）、「m/s²」が加速度 a、「s（秒）」が時間 t、「m」が距離 s です。';
                             }
+                        } else if (this.currentUnitId === '2-4') {
+                            const ft2_4sub = (this.getCalcProblem() || {}).formulaType;
+                            if (ft2_4sub === 'peripheralVFromLT') {
+                                feedback.textContent = '不正解。単位に注目して入れ直してください。「m」が糸の長さ l、「s（秒）」が時間 t です。';
+                            } else if (ft2_4sub === 'angularVFromThetaT') {
+                                feedback.textContent = '不正解。単位に注目して入れ直してください。「rad」が回った角度 θ、「s（秒）」が時間 t です。';
+                            } else if (ft2_4sub === 'peripheralVFromROmega') {
+                                feedback.textContent = '不正解。単位に注目して入れ直してください。「m」が半径 r、「rad/s」が角速度 ω です。';
+                            } else {
+                                feedback.textContent = '不正解。単位に注目して入れ直してください。π には 3.14（無単位）、d には直径（mm）、n には回転速度（min⁻¹）を入れてください。';
+                            }
+                        } else if (this.currentUnitId === '2-3') {
+                            const ft2_3sub = (this.getCalcProblem() || {}).formulaType;
+                            if (ft2_3sub === 'freeFallTime') {
+                                feedback.textContent = '不正解。単位に注目して入れ直してください。「m」が落下距離 h、「m/s²」が重力加速度 g です。';
+                            } else if (ft2_3sub === 'verticalDownV') {
+                                feedback.textContent = '不正解。単位に注目して入れ直してください。「m/s」が初速度 v₀、「m/s²」が重力加速度 g、「s（秒）」が時間 t です。';
+                            } else {
+                                feedback.textContent = '不正解。単位に注目して入れ直してください。「m/s²」が重力加速度 g、「s（秒）」が時間 t です。';
+                            }
                         } else {
                             feedback.textContent = '不正解。単位に注目して入れ直してください。「m/s」が速度 v、「s（秒）」が時間 t です。';
                         }
@@ -15671,15 +17115,30 @@
                 const is1_11 = this.currentUnitId === '1-11';
                 const is1_12 = this.currentUnitId === '1-12';
                 const is2_2 = this.currentUnitId === '2-2';
-                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2;
+                const is2_3 = this.currentUnitId === '2-3';
+                const is2_4 = this.currentUnitId === '2-4';
+                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4;
 
-                // 1-6〜1-12 / 2-2 は小数入力（step=0.1 を許容）し tolerance で判定。
+                // 1-6〜1-12 / 2-2 / 2-3 / 2-4 は小数入力（step=0.1 を許容）し tolerance で判定。
                 const userAnswer = isForceCalc ? parseFloat(answerInput.value) : parseInt(answerInput.value);
                 // 2-2: formulaType ごとに expected を取り出す。
                 //   aFromV → expectedA、sFromV0AT → expectedS、それ以外（vFromAT / vFromV0AS）→ expectedV
                 const expected2_2 = is2_2
                     ? (problem.formulaType === 'aFromV' ? problem.expectedA
                        : problem.formulaType === 'sFromV0AT' ? problem.expectedS
+                       : problem.expectedV)
+                    : null;
+                // 2-4: formulaType ごとに expected を取り出す。
+                //   angularVFromThetaT → expectedOmega、それ以外（peripheralVFromLT / peripheralVFromROmega / peripheralVFromDN）→ expectedV
+                const expected2_4 = is2_4
+                    ? (problem.formulaType === 'angularVFromThetaT' ? problem.expectedOmega
+                       : problem.expectedV)
+                    : null;
+                // 2-3: formulaType ごとに expected を取り出す。
+                //   freeFallH → expectedH、freeFallTime → expectedT、それ以外（freeFallV / verticalDownV）→ expectedV
+                const expected2_3 = is2_3
+                    ? (problem.formulaType === 'freeFallH' ? problem.expectedH
+                       : problem.formulaType === 'freeFallTime' ? problem.expectedT
                        : problem.expectedV)
                     : null;
                 const expected   = is1_6 ? problem.expectedResultant
@@ -15690,6 +17149,8 @@
                                  : is1_11 ? (problem.formulaType === 'leverForce' ? problem.expectedForce : problem.expectedDist)
                                  : is1_12 ? (problem.formulaType === 'centroid' ? problem.expectedDist : problem.expectedX)
                                  : is2_2 ? expected2_2
+                                 : is2_3 ? expected2_3
+                                 : is2_4 ? expected2_4
                                  : problem.expectedDisplacement;
                 const tolerance  = isForceCalc ? (problem.tolerance || 1) : 0;
                 // 浮動小数点誤差対策: tolerance 境界（例 tolerance=0.1 で |userAnswer-expected|=0.10000...142）が
@@ -15831,6 +17292,48 @@
                                 ${expl2_2}
                             </div>
                         `;
+                    } else if (is2_4) {
+                        let expl2_4;
+                        if (problem.formulaType === 'peripheralVFromLT') {
+                            expl2_4 = `v ＝ l ÷ t ＝ ${problem.l} ÷ ${problem.t} ＝ ${expected} [m/s]`;
+                        } else if (problem.formulaType === 'angularVFromThetaT') {
+                            expl2_4 = `ω ＝ θ ÷ t ＝ ${problem.theta} ÷ ${problem.t} ＝ ${expected} [rad/s]`;
+                        } else if (problem.formulaType === 'peripheralVFromROmega') {
+                            expl2_4 = `v ＝ r × ω ＝ ${problem.r} × ${problem.omega} ＝ ${expected} [m/s]`;
+                        } else {
+                            // peripheralVFromDN
+                            const mid2_4 = problem.piApprox * problem.d * problem.n;
+                            expl2_4 = `v ＝ π × d × n ÷ 1000 ＝ ${problem.piApprox} × ${problem.d} × ${problem.n} ÷ 1000 ＝ ${mid2_4} ÷ 1000 ＝ ${expected} [m/min]`;
+                        }
+                        feedback.innerHTML = `
+                            <div style="margin-bottom: 10px;">正解です。</div>
+                            <div class="answer-explanation">
+                                ${expl2_4}
+                            </div>
+                        `;
+                    } else if (is2_3) {
+                        let expl2_3;
+                        if (problem.formulaType === 'freeFallV') {
+                            expl2_3 = `v ＝ g × t ＝ ${problem.g} × ${problem.t} ＝ ${expected} [m/s]`;
+                        } else if (problem.formulaType === 'freeFallH') {
+                            const tsq2_3e = problem.t * problem.t;
+                            const gt2_3e = problem.g * tsq2_3e;
+                            expl2_3 = `h ＝ (1/2) × g × t² ＝ (1/2) × ${problem.g} × ${problem.t}² ＝ (1/2) × ${gt2_3e} ＝ ${expected} [m]`;
+                        } else if (problem.formulaType === 'freeFallTime') {
+                            const twoH2_3e = 2 * problem.h;
+                            const inside2_3e = twoH2_3e / problem.g;
+                            expl2_3 = `t ＝ √(2 × h ÷ g) ＝ √(2 × ${problem.h} ÷ ${problem.g}) ＝ √(${twoH2_3e} ÷ ${problem.g}) ＝ √${inside2_3e} ＝ ${expected} [s]`;
+                        } else {
+                            // verticalDownV
+                            const inc2_3e = problem.g * problem.t;
+                            expl2_3 = `v ＝ v₀ ＋ g × t ＝ ${problem.v0} ＋ ${problem.g} × ${problem.t} ＝ ${problem.v0} ＋ ${inc2_3e} ＝ ${expected} [m/s]`;
+                        }
+                        feedback.innerHTML = `
+                            <div style="margin-bottom: 10px;">正解です。</div>
+                            <div class="answer-explanation">
+                                ${expl2_3}
+                            </div>
+                        `;
                     } else {
                         feedback.innerHTML = `
                             <div style="margin-bottom: 10px;">正解です。</div>
@@ -15894,6 +17397,8 @@
                                             : (is1_11 && problem.formulaType !== 'leverForce') ? 'cm'
                                             : (is1_12 && problem.formulaType === 'centroid') ? 'cm'
                                             : is2_2 ? (problem.unit || 'm/s')
+                                            : is2_3 ? (problem.unit || 'm/s')
+                                            : is2_4 ? (problem.unit || 'm/s')
                                             : 'N';
                             feedback.innerHTML += `<div class="answer-explanation">正解は ${expected} [${unitLabel}] です。計算の手順をもう一度確認してください。</div>`;
                         }
