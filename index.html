@@ -2339,10 +2339,10 @@
         const DASHBOARD_UNIT_COUNTS = {
             '1-1': 4, '1-2': 6, '1-3': 4, '1-4': 4, '1-5': 4,
             '1-6': 4, '1-7': 4, '1-8': 4, '1-9': 4,
-            '1-10': 4, '1-11': 4, '1-12': 4, '2-1': 5, '2-2': 4, '2-3': 4, '2-4': 4
+            '1-10': 4, '1-11': 4, '1-12': 4, '2-1': 5, '2-2': 4, '2-3': 4, '2-4': 4, '2-5': 4
         };
         // 単元表示順
-        const DASHBOARD_UNIT_ORDER = ['1-1', '1-2', '1-3', '1-4', '1-5', '1-6', '1-7', '1-8', '1-9', '1-10', '1-11', '1-12', '2-1', '2-2', '2-3', '2-4'];
+        const DASHBOARD_UNIT_ORDER = ['1-1', '1-2', '1-3', '1-4', '1-5', '1-6', '1-7', '1-8', '1-9', '1-10', '1-11', '1-12', '2-1', '2-2', '2-3', '2-4', '2-5'];
 
         // 【校内版では実名ロスターを定義していたが、GitHub Pages 配信のため空に変更】
         // 将来、名簿照合に戻す場合は 1番〜36番 + 40番の形式で復活可能
@@ -2489,6 +2489,15 @@
                 id: '2-4',
                 title: '回転運動',
                 subtitle: '周速度 v=l/t / 角速度 ω=θ/t / v=rω / 旋盤 v=πdn/1000',
+                level: '基礎',
+                completed: false,
+                score: 0,
+                total: 0
+            },
+            {
+                id: '2-5',
+                title: '向心加速度・向心力',
+                subtitle: '円運動 a=v²/r=rω² / 向心力 F=mv²/r=mrω²',
                 level: '基礎',
                 completed: false,
                 score: 0,
@@ -5812,6 +5821,352 @@
             4: HINTS_2_4_DN
         };
 
+        // Problems for sub-unit 2-5: 向心加速度・向心力（円運動）
+        //   教科書 p.45、式 2-32〜2-34 に基づく。Stage 2 は derivationSteps アコーディオン
+        //   （2-4 と同じ render1_10DerivAccordion を再利用）。
+        //   問のタイプ（formulaType）：
+        //     'centripAccelVR'      — 向心加速度 a = v² ÷ r        （問1）
+        //     'centripAccelROmega'  — 向心加速度 a = r × ω²        （問2）
+        //     'centripForceMVR'     — 向心力 F = m × v² ÷ r        （問3）
+        //     'centripForceMROmega' — 向心力 F = m × r × ω²        （問4）
+        //   canvasType: '2d-static'。問題図は build2_5CircularCanvas(problem) が描く（canvas.kind で分岐）。
+        const PROBLEMS_2_5 = [
+            {
+                id: 1,
+                formulaType: 'centripAccelVR',
+                v: 4, r: 2,
+                expectedA: 8.0, tolerance: 0.05, unit: 'm/s²', decimals: 1, baselineTime: 220,
+                sentence: '物体が、半径 r ＝ 2 m の円周上を一定の速さで回っている。このときの周速度は v ＝ 4 m/s である。この物体の向心加速度 a [m/s²] を求めよ。',
+                condition: '応用、向心加速度、a = v² ÷ r、v=4 r=2 → a=8.0 m/s²',
+                canvasType: '2d-static',
+                canvas: { width: 340, height: 240, kind: 'centripAccel' },
+                stage0Choices: [
+                    { value: 'centripAccel', label: '物体の向心加速度 a [m/s²] の大きさ' },
+                    { value: 'peripheralV',  label: '物体の周速度 v [m/s] の大きさ' },
+                    { value: 'radius',       label: '円の半径 r [m] の大きさ' }
+                ],
+                stage0Correct: 'centripAccel',
+                stage1Choices: [
+                    { value: 'circular',      label: '物体が円周上を回る、円運動である' },
+                    { value: 'uniformLinear', label: '速度が一定で変わらない、等速直線運動である' },
+                    { value: 'freeFall',      label: '物体が静かに落下する、自由落下である' }
+                ],
+                stage1Correct: 'circular',
+                derivationSteps: [
+                    {
+                        prompt: '円周上を回る物体は、何もしなければ円の接線方向にまっすぐ飛び出してしまいます。物体が円運動を続けるには、どの向きに引っぱる力が必要ですか？',
+                        choices: [
+                            { value: 'toCenter', label: '円の中心 O に向かう向き' },
+                            { value: 'outward',  label: '円の外側へ遠ざかる向き' },
+                            { value: 'tangent',  label: '円の接線方向（飛び出そうとする向き）' }
+                        ],
+                        correct: 'toCenter',
+                        onCorrectText: '円運動を続けるには、たえず中心 O に向かって引っぱる力（向心力）が必要です。この向心力を生じさせる加速度を向心加速度といいます。'
+                    },
+                    {
+                        prompt: '向心加速度を求める式には a ＝ v² ÷ r、a ＝ r × ω²、a ＝ v × ω の 3 つがあります。この問題で与えられた量（周速度 v と半径 r）だけで計算できるのはどれですか？',
+                        choices: [
+                            { value: 'v2r',     label: 'a ＝ v² ÷ r' },
+                            { value: 'romega2', label: 'a ＝ r × ω²' },
+                            { value: 'vomega',  label: 'a ＝ v × ω' }
+                        ],
+                        correct: 'v2r',
+                        onCorrectText: '与えられているのは v と r です。a ＝ v² ÷ r ならこの 2 つだけで計算できます（式 2-33）。ほかの式は角速度 ω が必要です。'
+                    }
+                ],
+                formula: 'a = \\dfrac{v^2}{r}',
+                substitutions: {
+                    slots: ['v', 'r'],
+                    cards: [
+                        { role: 'v', label: 'v', value: 4, unit: 'm/s' },
+                        { role: 'r', label: 'r', value: 2, unit: 'm' }
+                    ]
+                }
+            },
+            {
+                id: 2,
+                formulaType: 'centripAccelROmega',
+                r: 0.5, omega: 6,
+                expectedA: 18.0, tolerance: 0.05, unit: 'm/s²', decimals: 1, baselineTime: 220,
+                sentence: '物体が、半径 r ＝ 0.5 m の円周上を一定の速さで回っている。このときの角速度は ω ＝ 6 rad/s である。この物体の向心加速度 a [m/s²] を求めよ。',
+                condition: '応用、向心加速度、a = r × ω²、r=0.5 ω=6 → a=18.0 m/s²',
+                canvasType: '2d-static',
+                canvas: { width: 340, height: 240, kind: 'centripAccelOmega' },
+                stage0Choices: [
+                    { value: 'centripAccel', label: '物体の向心加速度 a [m/s²] の大きさ' },
+                    { value: 'angularV',     label: '物体の角速度 ω [rad/s] の大きさ' },
+                    { value: 'radius',       label: '円の半径 r [m] の大きさ' }
+                ],
+                stage0Correct: 'centripAccel',
+                stage1Choices: [
+                    { value: 'circular',      label: '物体が円周上を回る、円運動である' },
+                    { value: 'rotationOnly',  label: '円板が回るだけで、向きを変える力は何もいらない' },
+                    { value: 'uniformLinear', label: '速度が一定で変わらない、等速直線運動である' }
+                ],
+                stage1Correct: 'circular',
+                derivationSteps: [
+                    {
+                        prompt: '円周上を回る物体は、何もしなければ円の接線方向にまっすぐ飛び出してしまいます。物体が円運動を続けるには、どの向きに引っぱる力が必要ですか？',
+                        choices: [
+                            { value: 'toCenter', label: '円の中心 O に向かう向き' },
+                            { value: 'outward',  label: '円の外側へ遠ざかる向き' },
+                            { value: 'tangent',  label: '円の接線方向（飛び出そうとする向き）' }
+                        ],
+                        correct: 'toCenter',
+                        onCorrectText: '円運動を続けるには、たえず中心 O に向かって引っぱる力（向心力）が必要です。この向心力を生じさせる加速度を向心加速度といいます。'
+                    },
+                    {
+                        prompt: '向心加速度を求める式 a ＝ v² ÷ r、a ＝ r × ω²、a ＝ v × ω のうち、この問題で与えられた量（半径 r と角速度 ω）だけで計算できるのはどれですか？',
+                        choices: [
+                            { value: 'romega2', label: 'a ＝ r × ω²' },
+                            { value: 'v2r',     label: 'a ＝ v² ÷ r' },
+                            { value: 'vomega',  label: 'a ＝ v × ω' }
+                        ],
+                        correct: 'romega2',
+                        onCorrectText: '与えられているのは r と ω です。a ＝ r × ω² ならこの 2 つだけで計算できます（式 2-33）。これは a ＝ v² ÷ r に v ＝ r × ω を入れても導けます。'
+                    }
+                ],
+                formula: 'a = r\\,\\omega^2',
+                substitutions: {
+                    slots: ['r', 'omega'],
+                    cards: [
+                        { role: 'r',     label: 'r', value: 0.5, unit: 'm' },
+                        { role: 'omega', label: 'ω', value: 6,   unit: 'rad/s' }
+                    ]
+                }
+            },
+            {
+                id: 3,
+                formulaType: 'centripForceMVR',
+                m: 2, v: 3, r: 1.5,
+                expectedF: 12.0, tolerance: 0.05, unit: 'N', decimals: 1, baselineTime: 260,
+                sentence: '質量 m ＝ 2 kg の物体が、半径 r ＝ 1.5 m の円周上を一定の速さで回っている。このときの周速度は v ＝ 3 m/s である。この物体にはたらく向心力 F [N] を求めよ。',
+                condition: '応用、向心力、F = m × v² ÷ r、m=2 v=3 r=1.5 → F=12.0 N',
+                canvasType: '2d-static',
+                canvas: { width: 340, height: 240, kind: 'centripForce' },
+                stage0Choices: [
+                    { value: 'centripForce', label: '物体にはたらく向心力 F [N] の大きさ' },
+                    { value: 'centripAccel', label: '物体の向心加速度 a [m/s²] の大きさ' },
+                    { value: 'mass',         label: '物体の質量 m [kg] の大きさ' }
+                ],
+                stage0Correct: 'centripForce',
+                stage1Choices: [
+                    { value: 'circular',      label: '物体が円周上を回る、円運動である' },
+                    { value: 'uniformLinear', label: '速度が一定で変わらない、等速直線運動である' },
+                    { value: 'freeFall',      label: '物体が静かに落下する、自由落下である' }
+                ],
+                stage1Correct: 'circular',
+                derivationSteps: [
+                    {
+                        prompt: '円周上を回る物体は、何もしなければ円の接線方向にまっすぐ飛び出してしまいます。物体が円運動を続けるには、どの向きに引っぱる力が必要ですか？',
+                        choices: [
+                            { value: 'toCenter', label: '円の中心 O に向かう向き' },
+                            { value: 'outward',  label: '円の外側へ遠ざかる向き' },
+                            { value: 'tangent',  label: '円の接線方向（飛び出そうとする向き）' }
+                        ],
+                        correct: 'toCenter',
+                        onCorrectText: '円運動を続けるには、たえず中心 O に向かって引っぱる力が必要です。この力を向心力といいます。向心力は F ＝ 質量 m × 向心加速度 a で求められます。'
+                    },
+                    {
+                        prompt: '向心力 F ＝ m × a の a を式で表すと、向心力の式は F ＝ m × v² ÷ r、F ＝ m × r × ω²、F ＝ m × v × ω の 3 つになります。この問題で与えられた量（質量 m・周速度 v・半径 r）だけで計算できるのはどれですか？',
+                        choices: [
+                            { value: 'mv2r',     label: 'F ＝ m × v² ÷ r' },
+                            { value: 'mromega2', label: 'F ＝ m × r × ω²' },
+                            { value: 'mvomega',  label: 'F ＝ m × v × ω' }
+                        ],
+                        correct: 'mv2r',
+                        onCorrectText: '与えられているのは m, v, r です。F ＝ m × v² ÷ r ならこの 3 つで計算できます（式 2-34、F ＝ m × a に a ＝ v² ÷ r を入れた形）。'
+                    }
+                ],
+                formula: 'F = m\\,\\dfrac{v^2}{r}',
+                substitutions: {
+                    slots: ['m', 'v', 'r'],
+                    cards: [
+                        { role: 'm', label: 'm', value: 2,   unit: 'kg' },
+                        { role: 'v', label: 'v', value: 3,   unit: 'm/s' },
+                        { role: 'r', label: 'r', value: 1.5, unit: 'm' }
+                    ]
+                }
+            },
+            {
+                id: 4,
+                formulaType: 'centripForceMROmega',
+                m: 0.5, r: 2, omega: 4,
+                expectedF: 16.0, tolerance: 0.05, unit: 'N', decimals: 1, baselineTime: 260,
+                sentence: '質量 m ＝ 0.5 kg の物体が、半径 r ＝ 2 m の円周上を一定の速さで回っている。このときの角速度は ω ＝ 4 rad/s である。この物体にはたらく向心力 F [N] を求めよ。',
+                condition: '応用、向心力、F = m × r × ω²、m=0.5 r=2 ω=4 → F=16.0 N',
+                canvasType: '2d-static',
+                canvas: { width: 340, height: 240, kind: 'centripForceOmega' },
+                stage0Choices: [
+                    { value: 'centripForce', label: '物体にはたらく向心力 F [N] の大きさ' },
+                    { value: 'angularV',     label: '物体の角速度 ω [rad/s] の大きさ' },
+                    { value: 'mass',         label: '物体の質量 m [kg] の大きさ' }
+                ],
+                stage0Correct: 'centripForce',
+                stage1Choices: [
+                    { value: 'circular',      label: '物体が円周上を回る、円運動である' },
+                    { value: 'rotationOnly',  label: '円板が回るだけで、向きを変える力は何もいらない' },
+                    { value: 'uniformLinear', label: '速度が一定で変わらない、等速直線運動である' }
+                ],
+                stage1Correct: 'circular',
+                derivationSteps: [
+                    {
+                        prompt: '円周上を回る物体は、何もしなければ円の接線方向にまっすぐ飛び出してしまいます。物体が円運動を続けるには、どの向きに引っぱる力が必要ですか？',
+                        choices: [
+                            { value: 'toCenter', label: '円の中心 O に向かう向き' },
+                            { value: 'outward',  label: '円の外側へ遠ざかる向き' },
+                            { value: 'tangent',  label: '円の接線方向（飛び出そうとする向き）' }
+                        ],
+                        correct: 'toCenter',
+                        onCorrectText: '円運動を続けるには、たえず中心 O に向かって引っぱる力が必要です。この力を向心力といいます。向心力は F ＝ 質量 m × 向心加速度 a で求められます。'
+                    },
+                    {
+                        prompt: '向心力の式 F ＝ m × v² ÷ r、F ＝ m × r × ω²、F ＝ m × v × ω のうち、この問題で与えられた量（質量 m・半径 r・角速度 ω）だけで計算できるのはどれですか？',
+                        choices: [
+                            { value: 'mromega2', label: 'F ＝ m × r × ω²' },
+                            { value: 'mv2r',     label: 'F ＝ m × v² ÷ r' },
+                            { value: 'mvomega',  label: 'F ＝ m × v × ω' }
+                        ],
+                        correct: 'mromega2',
+                        onCorrectText: '与えられているのは m, r, ω です。F ＝ m × r × ω² ならこの 3 つで計算できます（式 2-34、F ＝ m × a に a ＝ r × ω² を入れた形）。'
+                    }
+                ],
+                formula: 'F = m\\,r\\,\\omega^2',
+                substitutions: {
+                    slots: ['m', 'r', 'omega'],
+                    cards: [
+                        { role: 'm',     label: 'm', value: 0.5, unit: 'kg' },
+                        { role: 'r',     label: 'r', value: 2,   unit: 'm' },
+                        { role: 'omega', label: 'ω', value: 4,   unit: 'rad/s' }
+                    ]
+                }
+            }
+        ];
+
+        // 問1（向心加速度 a=v²/r）
+        const HINTS_2_5_AVR = {
+            stage0: {
+                b: '問題文の最後の文に注目してください。「求めよ」と書かれているものが答えるべき量です。周速度 4 m/s、半径 2 m は、すでに数値が書かれています。',
+                a: '問題文の末尾に「向心加速度 a [m/s²] を求めよ」とあります。求めるものは向心加速度 a、単位は m/s² です。',
+                c: '教科書45ページ「4 向心加速度」を確認してください。'
+            },
+            stage1: {
+                b: '物体は円周上を回っています。まっすぐ進む運動とはちがい、向きがたえず変わります。',
+                a: '物体が円周上を回る運動を「円運動」といいます。円運動を続けるには、中心 O に向かう力（向心力）がたえず必要です。',
+                c: '教科書45ページ「4 向心加速度」と図2-48 を確認してください。'
+            },
+            stage2: {
+                b: '何の力もはたらかなければ、物体は接線方向にまっすぐ飛び出します。円運動を続けるには中心に引きもどす力が必要で、その力を生む加速度が向心加速度です。周速度 v と半径 r から求められます。',
+                a: '向心加速度の式は a ＝ v² ÷ r（式 2-33）。手順は ①周速度 v を 2 乗、②それを半径 r で割る。',
+                c: '教科書45ページ 式(2-33)「a ＝ v² ÷ r」を確認してください。'
+            },
+            stage3: {
+                b: '式は a ＝ v² ÷ r です。v には周速度、r には半径を入れます。問題文の数値を読み取ってください。',
+                a: '式 a ＝ v² ÷ r の空欄に、v ＝ 4 m/s、r ＝ 2 m を入れてください。',
+                c: '教科書45ページ 式(2-33) を確認してください。'
+            },
+            stage4: {
+                b: 'まず 4 を 2 乗します（4 × 4 ＝ 16）。次にその答えを 2 で割ります。電卓を使ってかまいません。答えは小数第 1 位までで答えてください。',
+                a: 'a ＝ 4² ÷ 2 ＝ 16 ÷ 2 ＝ 8.0 [m/s²]。単位は m/s² です。',
+                c: '教科書45ページ「4 向心加速度」を確認してください。'
+            }
+        };
+
+        // 問2（向心加速度 a=rω²）
+        const HINTS_2_5_AROMEGA = {
+            stage0: {
+                b: '問題文の最後の文に注目してください。半径 0.5 m、角速度 6 rad/s は、すでに数値が書かれています。',
+                a: '問題文の末尾に「向心加速度 a [m/s²] を求めよ」とあります。求めるものは向心加速度 a、単位は m/s² です。',
+                c: '教科書45ページ「4 向心加速度」を確認してください。'
+            },
+            stage1: {
+                b: '物体は円周上を回っています。向きがたえず変わるので、中心に向かう力が必要です。',
+                a: '物体が円周上を回る運動を「円運動」といいます。円運動を続けるには中心 O に向かう力（向心力）がたえず必要です。',
+                c: '教科書45ページ「4 向心加速度」と図2-48 を確認してください。'
+            },
+            stage2: {
+                b: 'この問題には周速度 v が書かれていません。半径 r と角速度 ω だけから向心加速度を出せる式があります。',
+                a: '向心加速度の式は a ＝ r × ω²（式 2-33）。手順は ①角速度 ω を 2 乗、②それに半径 r を掛ける。これは a ＝ v² ÷ r に v ＝ r × ω を入れて導かれます。',
+                c: '教科書45ページ 式(2-33)「a ＝ r ω²」を確認してください。'
+            },
+            stage3: {
+                b: '式は a ＝ r × ω² です。r には半径、ω には角速度を入れます。',
+                a: '式 a ＝ r × ω² の空欄に、r ＝ 0.5 m、ω ＝ 6 rad/s を入れてください。',
+                c: '教科書45ページ 式(2-33) を確認してください。'
+            },
+            stage4: {
+                b: 'まず 6 を 2 乗します（6 × 6 ＝ 36）。次にその答えに 0.5 を掛けます。電卓を使ってかまいません。答えは小数第 1 位までで答えてください。',
+                a: 'a ＝ 0.5 × 6² ＝ 0.5 × 36 ＝ 18.0 [m/s²]。単位は m/s² です。',
+                c: '教科書45ページ「4 向心加速度」を確認してください。'
+            }
+        };
+
+        // 問3（向心力 F=mv²/r）
+        const HINTS_2_5_FMVR = {
+            stage0: {
+                b: '問題文の最後の文に注目してください。質量 2 kg、周速度 3 m/s、半径 1.5 m は、すでに数値が書かれています。',
+                a: '問題文の末尾に「向心力 F [N] を求めよ」とあります。求めるものは向心力 F、単位は N（ニュートン）です。',
+                c: '教科書45ページ「5 向心力と遠心力」を確認してください。'
+            },
+            stage1: {
+                b: '物体は円周上を回っています。向きを変え続けるには、中心に向かって引っぱる力が必要です。',
+                a: '物体が円周上を回る運動を「円運動」といいます。円運動を続けるには中心 O に向かう力（向心力）がたえず必要です。',
+                c: '教科書45ページ「5 向心力と遠心力」と図2-49 を確認してください。'
+            },
+            stage2: {
+                b: '中心に向かって引っぱる力が向心力です。向心力は「質量 × 向心加速度」で求められ、向心加速度は a ＝ v² ÷ r でした。',
+                a: '向心力の式は F ＝ m × v² ÷ r（式 2-34）。F ＝ m × a の a に a ＝ v² ÷ r を入れた形です。',
+                c: '教科書45ページ 式(2-34)「F ＝ m v² ÷ r」を確認してください。'
+            },
+            stage3: {
+                b: '式は F ＝ m × v² ÷ r です。m には質量、v には周速度、r には半径を入れます。',
+                a: '式 F ＝ m × v² ÷ r の空欄に、m ＝ 2 kg、v ＝ 3 m/s、r ＝ 1.5 m を入れてください。',
+                c: '教科書45ページ 式(2-34) を確認してください。'
+            },
+            stage4: {
+                b: 'まず 3 を 2 乗します（3 × 3 ＝ 9）。次に 2 を掛けて、最後に 1.5 で割ります。電卓を使ってかまいません。答えは小数第 1 位までで答えてください。',
+                a: 'F ＝ 2 × 3² ÷ 1.5 ＝ 2 × 9 ÷ 1.5 ＝ 18 ÷ 1.5 ＝ 12.0 [N]。単位は N です。',
+                c: '教科書45ページ「5 向心力と遠心力」を確認してください。'
+            }
+        };
+
+        // 問4（向心力 F=mrω²）
+        const HINTS_2_5_FMROMEGA = {
+            stage0: {
+                b: '問題文の最後の文に注目してください。質量 0.5 kg、半径 2 m、角速度 4 rad/s は、すでに数値が書かれています。',
+                a: '問題文の末尾に「向心力 F [N] を求めよ」とあります。求めるものは向心力 F、単位は N です。',
+                c: '教科書45ページ「5 向心力と遠心力」を確認してください。'
+            },
+            stage1: {
+                b: '物体は円周上を回っています。回るだけで力がいらないわけではなく、中心に向かう力が必要です。',
+                a: '物体が円周上を回る運動を「円運動」といいます。円運動を続けるには中心 O に向かう力（向心力）がたえず必要です。',
+                c: '教科書45ページ「5 向心力と遠心力」と図2-49 を確認してください。'
+            },
+            stage2: {
+                b: 'この問題には周速度 v が書かれていません。向心力は「質量 × 向心加速度」で、向心加速度は半径 r と角速度 ω から a ＝ r × ω² で出せます。',
+                a: '向心力の式は F ＝ m × r × ω²（式 2-34）。F ＝ m × a の a に a ＝ r × ω² を入れた形です。',
+                c: '教科書45ページ 式(2-34)「F ＝ m r ω²」を確認してください。'
+            },
+            stage3: {
+                b: '式は F ＝ m × r × ω² です。m には質量、r には半径、ω には角速度を入れます。',
+                a: '式 F ＝ m × r × ω² の空欄に、m ＝ 0.5 kg、r ＝ 2 m、ω ＝ 4 rad/s を入れてください。',
+                c: '教科書45ページ 式(2-34) を確認してください。'
+            },
+            stage4: {
+                b: 'まず 4 を 2 乗します（4 × 4 ＝ 16）。次に 0.5 と 2 を掛け合わせます。電卓を使ってかまいません。答えは小数第 1 位までで答えてください。',
+                a: 'F ＝ 0.5 × 2 × 4² ＝ 0.5 × 2 × 16 ＝ 16.0 [N]。単位は N です。',
+                c: '教科書45ページ「5 向心力と遠心力」を確認してください。'
+            }
+        };
+
+        // 問 id（1〜4）→ ヒント表。renderCalculationProblem / showHint から参照。
+        const HINTS_2_5_BY_ID = {
+            1: HINTS_2_5_AVR,
+            2: HINTS_2_5_AROMEGA,
+            3: HINTS_2_5_FMVR,
+            4: HINTS_2_5_FMROMEGA
+        };
+
         // ==================================================================
         // 考査対策・考査問題マスターデータ（仕様書 §10〜§12）
         // ==================================================================
@@ -7433,6 +7788,7 @@
                 if (unitId === '2-2') return PROBLEMS_2_2.length;
                 if (unitId === '2-3') return PROBLEMS_2_3.length;
                 if (unitId === '2-4') return PROBLEMS_2_4.length;
+                if (unitId === '2-5') return PROBLEMS_2_5.length;
                 return 0;
             }
 
@@ -9912,6 +10268,7 @@
                 else if (this.currentUnitId === '2-2') problems = PROBLEMS_2_2;
                 else if (this.currentUnitId === '2-3') problems = PROBLEMS_2_3;
                 else if (this.currentUnitId === '2-4') problems = PROBLEMS_2_4;
+                else if (this.currentUnitId === '2-5') problems = PROBLEMS_2_5;
 
                 if (this.currentProblemIndex >= problems.length) {
                     this.showSummary();
@@ -10025,6 +10382,7 @@
                     else if (this.currentUnitId === '2-2') problems = PROBLEMS_2_2;
                     else if (this.currentUnitId === '2-3') problems = PROBLEMS_2_3;
                     else if (this.currentUnitId === '2-4') problems = PROBLEMS_2_4;
+                    else if (this.currentUnitId === '2-5') problems = PROBLEMS_2_5;
                     sidebarList.innerHTML = problems.map((p, i) =>
                         `<li class="${i === this.currentProblemIndex ? 'is-active' : ''}">問 ${p.id}</li>`
                     ).join('');
@@ -10052,7 +10410,7 @@
                 const content = document.getElementById('problemContent');
 
                 // Handle different problem types
-                if (this.currentUnitId === '2-1' || this.currentUnitId === '2-2' || this.currentUnitId === '2-3' || this.currentUnitId === '2-4' || this.currentUnitId === '1-6' || this.currentUnitId === '1-7' || this.currentUnitId === '1-8' || this.currentUnitId === '1-9' || this.currentUnitId === '1-10' || this.currentUnitId === '1-11' || this.currentUnitId === '1-12') {
+                if (this.currentUnitId === '2-1' || this.currentUnitId === '2-2' || this.currentUnitId === '2-3' || this.currentUnitId === '2-4' || this.currentUnitId === '2-5' || this.currentUnitId === '1-6' || this.currentUnitId === '1-7' || this.currentUnitId === '1-8' || this.currentUnitId === '1-9' || this.currentUnitId === '1-10' || this.currentUnitId === '1-11' || this.currentUnitId === '1-12') {
                     this.renderCalculationProblem(problem, content);
                 } else if (this.currentUnitId === '1-3' || this.currentUnitId === '1-4' || this.currentUnitId === '1-5') {
                     this.drawingStageIndex = 0;
@@ -10154,9 +10512,10 @@
                 const is2_2 = this.currentUnitId === '2-2';
                 const is2_3 = this.currentUnitId === '2-3';
                 const is2_4 = this.currentUnitId === '2-4';
+                const is2_5 = this.currentUnitId === '2-5';
                 // isForceCalc は「6 ステージ汎用フロー（problem.stage0Choices 等を持つ）」を意味する。
-                //   2-2 / 2-3 / 2-4 も同じデータ schema（sentence / stage0Choices / stage1Choices / substitutions）を採るので含める。
-                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4;
+                //   2-2 / 2-3 / 2-4 / 2-5 も同じデータ schema（sentence / stage0Choices / stage1Choices / substitutions）を採るので含める。
+                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5;
                 // Persistent problem statement shown at the top of every stage
                 const problemText = isForceCalc
                     ? problem.sentence
@@ -10293,6 +10652,7 @@
                                       : is2_2 ? this.build2_2VTGraph(problem)
                                       : is2_3 ? this.build2_3FreeFallCanvas(problem)
                                       : is2_4 ? this.build2_4RotationCanvas(problem)
+                                      : is2_5 ? this.build2_5CircularCanvas(problem)
                                       : '';
 
                 // 1-7（案B 7 ステージ）は専用ルートで処理し、early return する。
@@ -10366,6 +10726,8 @@
                         : is2_2
                         ? '問題文の「一定の加速度で速度を増している」は、どのような運動ですか？'
                         : is2_3
+                        ? 'この問題はどのような運動ですか？'
+                        : is2_5
                         ? 'この問題はどのような運動ですか？'
                         : '問題文の「一定の速さで運動した」は、どのような運動ですか？';
                     content.innerHTML = header + staticCanvas1_6 + `
@@ -10603,6 +10965,26 @@
                         `;
                         this.render1_10DerivAccordion();
                         return;
+                    } else if (is2_5) {
+                        // 2-5（向心加速度・向心力）: 式 2-32〜2-34 を、derivationSteps を 1 ステップずつ
+                        //   アコーディオン表示して生徒自身に導かせる。
+                        //   1-10 問3・問4 / 1-11 / 1-12 / 2-2 / 2-3 / 2-4 と同じ render1_10DerivAccordion を再利用する。
+                        if (this.calcInputs.derivStepIndex === undefined) {
+                            this.calcInputs.derivStepIndex = 0;
+                        }
+                        content.innerHTML = header + staticCanvas1_6 + `
+                            <div class="calc-stage-container">
+                                <div class="calc-question-text">使う式を、一段ずつ自分で導いてください。</div>
+                                <div id="derivAccordion"></div>
+                                <div id="stageFeedback" style="margin-top:12px; font-size:14px; min-height:20px;"></div>
+                            </div>
+                        `;
+                        document.getElementById('controlButtons').innerHTML = `
+                            <button class="btn hint-btn" onclick="app.showHint('calc_${this.currentProblemIndex}_stage2')">ヒント</button>
+                            <span id="stage2NextSlot"></span>
+                        `;
+                        this.render1_10DerivAccordion();
+                        return;
                     } else {
                         content.innerHTML = header + `
                             <div class="calc-stage-container">
@@ -10644,7 +11026,7 @@
                             Abx: 'A大', Aby: 'A大', xbs: 'x大', ybs: 'y大', Acx: 'A切', Acy: 'A切', xcs: 'x切', ycs: 'y切', A0x: 'A₀', A0y: 'A₀',
                             v: 'v', v0: 'v₀', t: 't', t1: 't', t2: 't', a: 'a', s: 's',
                             l: 'l', theta: 'θ', omega: 'ω', pi: 'π', n: 'n',
-                            g: 'g', h: 'h' };
+                            g: 'g', h: 'h', m: 'm' };
                         const makeSlotSpan = (role, text) =>
                             `<span class="calc-formula-input empty" data-slot="${role}" id="slot-${role}">${text || slotLabel[role] || role}</span>`;
                         const slotSpans = slots.map(role => makeSlotSpan(role));
@@ -10764,6 +11146,24 @@
                             } else {
                                 // peripheralVFromDN
                                 formulaHTML = `v ＝ ( ${slotSpans[0]} × ${slotSpans[1]} × ${slotSpans[2]} ) ÷ 1000`;
+                            }
+                        } else if (is2_5) {
+                            // 2-5（向心加速度・向心力）: formulaType ごとに式の形が異なる。
+                            //   2 乗は固定文字 sup（slotToCardRoleMap 不要、各量は 1 スロットのみ）。
+                            //   centripAccelVR      → a ＝ [v]² ÷ [r]              （slots: v, r）
+                            //   centripAccelROmega  → a ＝ [r] × [ω]²              （slots: r, omega）
+                            //   centripForceMVR     → F ＝ [m] × [v]² ÷ [r]        （slots: m, v, r）
+                            //   centripForceMROmega → F ＝ [m] × [r] × [ω]²        （slots: m, r, omega）
+                            const sup2_2_5 = `<sup style="font-size:0.6em; vertical-align:super;">2</sup>`;
+                            if (problem.formulaType === 'centripAccelVR') {
+                                formulaHTML = `a ＝ ${slotSpans[0]}${sup2_2_5} ÷ ${slotSpans[1]}`;
+                            } else if (problem.formulaType === 'centripAccelROmega') {
+                                formulaHTML = `a ＝ ${slotSpans[0]} × ${slotSpans[1]}${sup2_2_5}`;
+                            } else if (problem.formulaType === 'centripForceMVR') {
+                                formulaHTML = `F ＝ ${slotSpans[0]} × ${slotSpans[1]}${sup2_2_5} ÷ ${slotSpans[2]}`;
+                            } else {
+                                // centripForceMROmega
+                                formulaHTML = `F ＝ ${slotSpans[0]} × ${slotSpans[1]} × ${slotSpans[2]}${sup2_2_5}`;
                             }
                         } else if (is2_3) {
                             // 2-3（重力加速度）: formulaType ごとに式の形が異なる
@@ -11130,6 +11530,44 @@
                                 </div>
                             </div>
                         `;
+                    } else if (is2_5) {
+                        // 2-5（向心加速度・向心力）: formulaType ごとに数値入りの式と単位を切り替える。
+                        //   答えは小数第 1 位まで（注記ボックス併設、2-4 と同じ）。
+                        let formulaLine_2_5, answerLabel_2_5, unitLabel_2_5;
+                        if (problem.formulaType === 'centripAccelVR') {
+                            formulaLine_2_5 = `$a = \\dfrac{${problem.v}^{\\,2}}{${problem.r}} = {\\color{#c62828}?}\\ \\mathrm{[m/s^2]}$`;
+                            answerLabel_2_5 = 'a ＝';
+                            unitLabel_2_5 = '[m/s²]';
+                        } else if (problem.formulaType === 'centripAccelROmega') {
+                            formulaLine_2_5 = `$a = ${problem.r} \\times ${problem.omega}^{\\,2} = {\\color{#c62828}?}\\ \\mathrm{[m/s^2]}$`;
+                            answerLabel_2_5 = 'a ＝';
+                            unitLabel_2_5 = '[m/s²]';
+                        } else if (problem.formulaType === 'centripForceMVR') {
+                            formulaLine_2_5 = `$F = ${problem.m} \\times \\dfrac{${problem.v}^{\\,2}}{${problem.r}} = {\\color{#c62828}?}\\ \\mathrm{[N]}$`;
+                            answerLabel_2_5 = 'F ＝';
+                            unitLabel_2_5 = '[N]';
+                        } else {
+                            // centripForceMROmega
+                            formulaLine_2_5 = `$F = ${problem.m} \\times ${problem.r} \\times ${problem.omega}^{\\,2} = {\\color{#c62828}?}\\ \\mathrm{[N]}$`;
+                            answerLabel_2_5 = 'F ＝';
+                            unitLabel_2_5 = '[N]';
+                        }
+                        content.innerHTML = header + staticCanvas1_6 + `
+                            <div class="calc-stage-container">
+                                <div class="calc-question-text">計算結果を入力してください（電卓を使って構いません）。</div>
+                                <div class="calc-formula-display">
+                                    ${formulaLine_2_5}
+                                </div>
+                                <div style="background:#eef3fa; border-left:3px solid #4a7cbe; padding:8px 12px; border-radius:3px; margin:8px 0 10px; font-size:12px; line-height:1.6; color:#333;">
+                                    <strong>有効数字</strong>：計算結果が小数点以下第 2 位以上になる場合、第 2 位を四捨五入して<strong>小数第 1 位まで</strong>で答えてください。
+                                </div>
+                                <div class="calc-input-row">
+                                    <span class="calc-input-label">答え：${answerLabel_2_5}</span>
+                                    <input type="number" id="answerInput" class="calc-answer-input" placeholder="数値" style="width:120px;" step="0.1">
+                                    <span style="font-size:14px; color:#555; margin-left:6px;">${unitLabel_2_5}</span>
+                                </div>
+                            </div>
+                        `;
                     } else {
                         content.innerHTML = header + `
                             <div class="calc-stage-container">
@@ -11419,6 +11857,45 @@
                                 </div>
                                 <div style="margin-top:14px; font-size:13px; color:#555;">
                                     次の問題に進む前に、式と回転の図を頭の中で思い浮かべてください。
+                                </div>
+                            </div>
+                        `;
+                    } else if (is2_5) {
+                        // 2-5（向心加速度・向心力）: 2-4 と同じ 3 行段組み KaTeX（aligned）で
+                        //   「記号式／数値式／答え」を表示し、その下に formulaType ごとの振り返り文を載せる。
+                        //   遠心力は「見かけの力」と明記（つり合うとは書かない）。
+                        let reflFormulaLatex_2_5, reflText_2_5;
+                        if (problem.formulaType === 'centripAccelVR') {
+                            const vsq2_5 = problem.v * problem.v;
+                            reflFormulaLatex_2_5 = `\\begin{aligned} a &= \\dfrac{v^{2}}{r} \\\\[6pt] &= \\dfrac{${problem.v}^{\\,2}}{${problem.r}} = \\dfrac{${vsq2_5}}{${problem.r}} \\\\[6pt] &= ${problem.expectedA}\\ \\mathrm{m/s^2} \\end{aligned}`;
+                            reflText_2_5 = '円運動を続けるには、たえず中心 O に向かって物体を引っぱる力（向心力）が必要です。その力を生む加速度が向心加速度 a で、a ＝ v² ÷ r ＝ 4² ÷ 2 ＝ 16 ÷ 2 ＝ 8.0 m/s²。半径が同じなら、速さが大きいほど中心に引きもどす加速度も大きくなります。';
+                        } else if (problem.formulaType === 'centripAccelROmega') {
+                            const omsq2_5 = problem.omega * problem.omega;
+                            reflFormulaLatex_2_5 = `\\begin{aligned} a &= r\\,\\omega^{2} \\\\[6pt] &= ${problem.r} \\times ${problem.omega}^{\\,2} = ${problem.r} \\times ${omsq2_5} \\\\[6pt] &= ${problem.expectedA}\\ \\mathrm{m/s^2} \\end{aligned}`;
+                            reflText_2_5 = '周速度 v がわからなくても、半径 r と角速度 ω があれば a ＝ r × ω² で求められます。a ＝ 0.5 × 6² ＝ 0.5 × 36 ＝ 18.0 m/s²。これは a ＝ v² ÷ r に v ＝ r × ω（2-4 の式 2-30）を入れて導いた式です。';
+                        } else if (problem.formulaType === 'centripForceMVR') {
+                            const vsq2_5b = problem.v * problem.v;
+                            const mvsq2_5 = problem.m * vsq2_5b;
+                            reflFormulaLatex_2_5 = `\\begin{aligned} F &= m\\,\\dfrac{v^{2}}{r} \\\\[6pt] &= ${problem.m} \\times \\dfrac{${problem.v}^{\\,2}}{${problem.r}} = \\dfrac{${mvsq2_5}}{${problem.r}} \\\\[6pt] &= ${problem.expectedF}\\ \\mathrm{N} \\end{aligned}`;
+                            reflText_2_5 = '向心力は「質量 × 向心加速度」F ＝ m × v² ÷ r で求められます。F ＝ 2 × 3² ÷ 1.5 ＝ 2 × 9 ÷ 1.5 ＝ 12.0 N。なお、物体を回す人は外向きに引っぱられるように感じますが、実際に物体を円運動させているのは中心向きの力（向心力）だけです。この外向きに感じる見かけの力を遠心力といいます。';
+                        } else {
+                            // centripForceMROmega
+                            const omsq2_5b = problem.omega * problem.omega;
+                            const mr2_5 = problem.m * problem.r;
+                            reflFormulaLatex_2_5 = `\\begin{aligned} F &= m\\,r\\,\\omega^{2} \\\\[6pt] &= ${problem.m} \\times ${problem.r} \\times ${problem.omega}^{\\,2} = ${mr2_5} \\times ${omsq2_5b} \\\\[6pt] &= ${problem.expectedF}\\ \\mathrm{N} \\end{aligned}`;
+                            reflText_2_5 = '周速度 v がなくても、F ＝ m × r × ω² で求められます。F ＝ 0.5 × 2 × 4² ＝ 0.5 × 2 × 16 ＝ 16.0 N。中心向きの向心力が実際に物体を円運動させており、外向きに感じる遠心力は見かけの力です。';
+                        }
+                        content.innerHTML = header + staticCanvas1_6 + `
+                            <div class="calc-stage-container">
+                                <div class="calc-question-text">答えの意味を確認しよう。</div>
+                                <div class="calc-formula-display">
+                                    $${reflFormulaLatex_2_5}$
+                                </div>
+                                <div style="background:#eaf1fa; border-left:4px solid #1e5fa8; padding:14px 18px; border-radius:3px; margin-top:18px; font-size:15px; line-height:1.7;">
+                                    ${reflText_2_5}
+                                </div>
+                                <div style="margin-top:14px; font-size:13px; color:#555;">
+                                    次の問題に進む前に、式と円運動の図を頭の中で思い浮かべてください。
                                 </div>
                             </div>
                         `;
@@ -13791,6 +14268,109 @@
                     const vTipX = cutX - 50;
                     svg += `<line x1="${cutX}" y1="${cutTopY}" x2="${vTipX}" y2="${cutTopY}" stroke="${BLUE}" stroke-width="2.5" marker-end="url(#stc24-blue)"/>`;
                     svg += `<text x="${vTipX - 4}" y="${cutTopY - 6}" text-anchor="end" font-size="13" fill="${BLUE}" font-weight="700">v ＝ ?</text>`;
+                }
+
+                svg += `</svg></div>`;
+                return svg;
+            }
+
+            // 2-5（向心加速度・向心力）の問題図を生成する。
+            //   problem.canvas.kind で 4 パターンに分岐：
+            //     'centripAccel'      (問1): 円 + 中心向き赤矢印 a + 半径 r・接線 v
+            //     'centripAccelOmega' (問2): 円 + 中心向き赤矢印 a + 半径 r・回転弧 ω（周速度 v は描かない）
+            //     'centripForce'      (問3): 円 + 中心向き赤矢印 F + 質量 m・半径 r・接線 v + 外向き破線 F′（遠心力）
+            //     'centripForceOmega' (問4): 円 + 中心向き赤矢印 F + 質量 m・半径 r・回転弧 ω + 外向き破線 F′（v は描かない）
+            //   共通：中央やや左に円（中心 O）、円周上の右上に物体（青）、接線方向にグレー点線の
+            //   「飛び出そうとする向き」矢印、中心まわりに反時計回りの回転弧（細いグレー）。
+            //   配色は build2_4RotationCanvas と同じ（青=主役/速度・赤=加速度/力・グレー=寸法）。
+            build2_5CircularCanvas(problem) {
+                const c = problem.canvas || { width: 340, height: 240, kind: 'centripAccel' };
+                const W = c.width, H = c.height;
+                const kind = c.kind || 'centripAccel';
+                const BLUE = '#1e5fa8';
+                const RED = '#c62828';
+                const isForce = (kind === 'centripForce' || kind === 'centripForceOmega');
+                const isOmega = (kind === 'centripAccelOmega' || kind === 'centripForceOmega');
+
+                let svg = `<div class="drawing-wrapper" style="pointer-events:none;">
+                <svg class="drawing-svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="cursor:default;">
+                <defs>
+                  <marker id="stc25-blue" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><polygon points="0,0 9,3.5 0,7" fill="${BLUE}"/></marker>
+                  <marker id="stc25-red" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><polygon points="0,0 9,3.5 0,7" fill="${RED}"/></marker>
+                  <marker id="stc25-gray" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto"><polygon points="0,0 8,3.5 0,7" fill="#777"/></marker>
+                  <marker id="stc25-grayS" markerWidth="8" markerHeight="7" refX="1" refY="3.5" orient="auto"><polygon points="8,0 0,3.5 8,7" fill="#777"/></marker>
+                </defs>`;
+
+                // 中心 O（中央やや左）、半径 R（描画スケール）
+                const cx = W / 2 - 22, cy = H / 2 + 6;
+                const R = 78;
+                // 円本体
+                svg += `<circle cx="${cx}" cy="${cy}" r="${R}" fill="#fbfcfe" stroke="#444" stroke-width="1.5"/>`;
+                // 中心 O
+                svg += `<circle cx="${cx}" cy="${cy}" r="3" fill="#333"/>`;
+                svg += `<text x="${cx - 12}" y="${cy + 14}" font-size="12" fill="#333">O</text>`;
+
+                // 物体の位置（右上、角度 −40°）
+                const pAng = -40 * Math.PI / 180;
+                const pX = cx + R * Math.cos(pAng);
+                const pY = cy + R * Math.sin(pAng);
+
+                // 半径補助線（中心→物体、グレー破線）。r ラベルは線の下側（ω 弧・接線が上側にあるので重なり回避）
+                svg += `<line x1="${cx}" y1="${cy}" x2="${pX}" y2="${pY}" stroke="#777" stroke-width="1.2" stroke-dasharray="4,3"/>`;
+                const rLabX = (cx + pX) / 2 + 4;
+                const rLabY = (cy + pY) / 2 + 18;
+                svg += `<text x="${rLabX}" y="${rLabY}" text-anchor="middle" font-size="13" fill="#555" font-weight="600">r ＝ ${problem.r} m</text>`;
+
+                // 接線方向（反時計回り → (-sin, cos)）。グレー点線の短い矢印「飛び出そうとする向き」
+                const tx = -Math.sin(pAng), ty = Math.cos(pAng);
+                const tanLen = 30;
+                const tanX2 = pX + tx * tanLen, tanY2 = pY + ty * tanLen;
+                svg += `<line x1="${pX}" y1="${pY}" x2="${tanX2}" y2="${tanY2}" stroke="#999" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#stc25-gray)"/>`;
+                svg += `<text x="${tanX2 + 4}" y="${tanY2 - 2}" font-size="10" fill="#888">飛び出そうとする向き</text>`;
+
+                // 中心まわりの回転弧（反時計回り）。omega 問題は赤＋ラベル、それ以外は細いグレー
+                const rotR = 30;
+                const arcColor = isOmega ? RED : '#888';
+                const arcW = isOmega ? 2 : 1.2;
+                svg += `<path d="M ${cx + rotR} ${cy} A ${rotR} ${rotR} 0 0 0 ${cx} ${cy - rotR}" fill="none" stroke="${arcColor}" stroke-width="${arcW}"/>`;
+                svg += `<path d="M ${cx - 4} ${cy - rotR + 3} L ${cx + 6} ${cy - rotR} L ${cx + 1} ${cy - rotR - 8} Z" fill="${arcColor}"/>`;
+                if (isOmega) {
+                    svg += `<text x="${cx + rotR + 6}" y="${cy - rotR + 4}" font-size="13" fill="${RED}" font-weight="700">ω ＝ ${problem.omega} rad/s</text>`;
+                }
+
+                // 周速度 v の接線矢印（青）— a/v 問（centripAccel）と F/v 問（centripForce）のみ
+                if (!isOmega) {
+                    const vLen = 40;
+                    const vX2 = pX + tx * vLen, vY2 = pY + ty * vLen;
+                    // 接線（飛び出し方向）と重ならないよう、青の v 矢印は実線で太く描く
+                    svg += `<line x1="${pX}" y1="${pY}" x2="${vX2}" y2="${vY2}" stroke="${BLUE}" stroke-width="2.5" marker-end="url(#stc25-blue)"/>`;
+                    svg += `<text x="${vX2 + 4}" y="${vY2 + 12}" font-size="13" fill="${BLUE}" font-weight="700">v ＝ ${problem.v} m/s</text>`;
+                }
+
+                // 中心向きの赤矢印（向心加速度 a または向心力 F）。物体 → 中心方向
+                const inX = cx - pX, inY = cy - pY;
+                const inLen = Math.sqrt(inX * inX + inY * inY);
+                const ux = inX / inLen, uy = inY / inLen;
+                const aArrowLen = 46;
+                const aX2 = pX + ux * aArrowLen, aY2 = pY + uy * aArrowLen;
+                svg += `<line x1="${pX}" y1="${pY}" x2="${aX2}" y2="${aY2}" stroke="${RED}" stroke-width="2.8" marker-end="url(#stc25-red)"/>`;
+                const aLabel = isForce ? 'F ＝ ?' : 'a ＝ ?';
+                svg += `<text x="${(pX + aX2) / 2 - 6}" y="${(pY + aY2) / 2 - 6}" text-anchor="end" font-size="14" fill="${RED}" font-weight="700">${aLabel}</text>`;
+
+                // 物体（青の塗り円）
+                svg += `<circle cx="${pX}" cy="${pY}" r="6" fill="${BLUE}" stroke="#0a3c70" stroke-width="1.5"/>`;
+                // 質量 m ラベル（力の問題のみ、物体の外側）
+                if (isForce) {
+                    svg += `<text x="${pX + 10}" y="${pY + 4}" font-size="12" fill="${BLUE}" font-weight="700">m ＝ ${problem.m} kg</text>`;
+                }
+
+                // 遠心力 F′（見かけの力）— 力の問題のみ。物体から外向き（中心と反対）に赤の破線矢印を短く。
+                //   ラベルは canvas 幅に収めるため簡潔に「F′（遠心力）」。見かけの力である説明は Stage 5 振り返りに記載。
+                if (isForce) {
+                    const fpLen = 30;
+                    const fpX2 = pX - ux * fpLen, fpY2 = pY - uy * fpLen;
+                    svg += `<line x1="${pX}" y1="${pY}" x2="${fpX2}" y2="${fpY2}" stroke="${RED}" stroke-width="1.8" stroke-dasharray="4,3" marker-end="url(#stc25-red)"/>`;
+                    svg += `<text x="${fpX2 + 4}" y="${fpY2 - 4}" font-size="10" fill="${RED}">F′（遠心力）</text>`;
                 }
 
                 svg += `</svg></div>`;
@@ -16441,6 +17021,8 @@
                                            ? (HINTS_2_3_BY_ID[(this.getCalcProblem() || {}).id] || HINTS_2_3_V)
                                        : (this.currentUnitId === '2-4')
                                            ? (HINTS_2_4_BY_ID[(this.getCalcProblem() || {}).id] || HINTS_2_4_PV)
+                                       : (this.currentUnitId === '2-5')
+                                           ? (HINTS_2_5_BY_ID[(this.getCalcProblem() || {}).id] || HINTS_2_5_AVR)
                                        : HINTS_2_1;
                     const stageHints = hintsTable[stagePart];
                     const levelKeys = ['b', 'a', 'c'];
@@ -16576,6 +17158,9 @@
                 if (this.currentUnitId === '2-4') {
                     return PROBLEMS_2_4[this.currentProblemIndex];
                 }
+                if (this.currentUnitId === '2-5') {
+                    return PROBLEMS_2_5[this.currentProblemIndex];
+                }
                 return null;
             }
 
@@ -16616,8 +17201,9 @@
                 const is2_2 = this.currentUnitId === '2-2';
                 const is2_3 = this.currentUnitId === '2-3';
                 const is2_4 = this.currentUnitId === '2-4';
-                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4;
-                // 1-6〜1-12 / 2-2 / 2-3 / 2-4 は problem.stage0Correct、2-1 は固定値 's'
+                const is2_5 = this.currentUnitId === '2-5';
+                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5;
+                // 1-6〜1-12 / 2-2 / 2-3 / 2-4 / 2-5 は problem.stage0Correct、2-1 は固定値 's'
                 const correct = isForceCalc ? problem.stage0Correct : 's';
                 const isCorrect = (value === correct);
                 if (isCorrect) {
@@ -16671,6 +17257,11 @@
                                 : (problem.formulaType === 'freeFallTime')
                                 ? '正解。物体が地面に達するまでの時間 t [s] を求めます。'
                                 : '正解。t 秒後の物体の速度 v [m/s] の大きさを求めます。';
+                        } else if (is2_5) {
+                            // 2-5: formulaType で求める量が異なる（a / F）
+                            msg = (problem.formulaType === 'centripForceMVR' || problem.formulaType === 'centripForceMROmega')
+                                ? '正解。物体にはたらく向心力 F [N] の大きさを求めます。'
+                                : '正解。物体の向心加速度 a [m/s²] の大きさを求めます。';
                         }
                         feedback.textContent = msg;
                     }
@@ -16804,6 +17395,21 @@
                             } else {
                                 msg = '不正解。問題文の末尾「○○を求めよ」に注目してください。';
                             }
+                        } else if (is2_5) {
+                            // 2-5: 与えられている量を選んだ場合の説明
+                            if (value === 'peripheralV') {
+                                msg = '不正解。周速度 v は問題文に「v ＝ ○○ m/s」で与えられています。求めるものは別の量です。';
+                            } else if (value === 'angularV') {
+                                msg = '不正解。角速度 ω は問題文に「ω ＝ ○○ rad/s」で与えられています。求めるものは別の量です。';
+                            } else if (value === 'radius') {
+                                msg = '不正解。半径 r は問題文に「r ＝ ○○ m」で与えられています。求めるものは別の量です。';
+                            } else if (value === 'mass') {
+                                msg = '不正解。質量 m は問題文に「m ＝ ○○ kg」で与えられています。求めるものは別の量です。';
+                            } else if (value === 'centripAccel') {
+                                msg = '不正解。問題文の末尾は「向心力 F を求めよ」です。向心加速度ではありません。';
+                            } else {
+                                msg = '不正解。問題文の末尾「○○を求めよ」に注目してください。';
+                            }
                         } else {
                             msg = (value === 'v')
                                 ? '不正解。速度は問題文に「○○ m/s」の形で数値が与えられています。「求めよ」と書かれている量を探してください。'
@@ -16844,8 +17450,9 @@
                 const is2_2 = this.currentUnitId === '2-2';
                 const is2_3 = this.currentUnitId === '2-3';
                 const is2_4 = this.currentUnitId === '2-4';
-                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4;
-                // 1-6〜1-12 / 2-2 / 2-3 / 2-4 は problem.stage1Correct、2-1 は固定値 'constant'
+                const is2_5 = this.currentUnitId === '2-5';
+                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5;
+                // 1-6〜1-12 / 2-2 / 2-3 / 2-4 / 2-5 は problem.stage1Correct、2-1 は固定値 'constant'
                 const correct = isForceCalc ? problem.stage1Correct : 'constant';
                 const isCorrect = (value === correct);
                 if (isCorrect) {
@@ -16882,6 +17489,8 @@
                             msg = (problem.formulaType === 'verticalDownV')
                                 ? '正解。鉛直下方への投げおろしは、はじめの速度 v₀ ≠ 0 で重力加速度 g が一定にはたらく等加速度運動です。式 2-24 が使えます。'
                                 : '正解。「そっと手をはなした自由落下」は、はじめの速度 v₀ ＝ 0 で重力加速度 g が一定にはたらく等加速度運動の特殊な場合です。式 2-26 / 式 2-27 が使えます。';
+                        } else if (is2_5) {
+                            msg = '正解。物体が円周上を回る「円運動」です。円運動を続けるには、たえず中心 O に向かう力（向心力）が必要です。教科書 45 ページの式 2-32〜2-34 が使えます。';
                         }
                         feedback.textContent = msg;
                     }
@@ -16937,6 +17546,14 @@
                                     ? '不正解。問題文には「自由落下させた」とあります。回転ではなく、鉛直下方への落下運動です。'
                                     : '不正解。物体が一定の重力加速度 g で落下する運動を「自由落下」といいます。';
                             }
+                        } else if (is2_5) {
+                            msg = (value === 'uniformLinear')
+                                ? '不正解。物体は直線運動ではなく、円周上を回っています。'
+                                : (value === 'freeFall')
+                                ? '不正解。自由落下は地球の重力で落ちる運動です。この問題は円運動です。'
+                                : (value === 'rotationOnly')
+                                ? '不正解。円板が回るだけでなく、物体が円運動を続けるには中心 O に向かう力（向心力）がたえず必要です。'
+                                : '不正解。物体が円周上を回る運動を「円運動」といいます。';
                         }
                         feedback.textContent = msg;
                     }
@@ -17014,7 +17631,8 @@
                     A1x: 'A₁', A1y: 'A₁', x1s: 'x₁', y1s: 'y₁', A2x: 'A₂', A2y: 'A₂', x2s: 'x₂', y2s: 'y₂', Ax: 'A', Ay: 'A',
                     Abx: 'A大', Aby: 'A大', xbs: 'x大', ybs: 'y大', Acx: 'A切', Acy: 'A切', xcs: 'x切', ycs: 'y切', A0x: 'A₀', A0y: 'A₀',
                     v0: 'v₀', t1: 't', t2: 't', a: 'a', s: 's',
-                    l: 'l', theta: 'θ', omega: 'ω', pi: 'π', n: 'n'
+                    l: 'l', theta: 'θ', omega: 'ω', pi: 'π', n: 'n',
+                    g: 'g', h: 'h', m: 'm'
                 };
                 slotRoles.forEach(r => { slotEls[r] = document.getElementById('slot-' + r); });
                 // Reset visual state
@@ -17089,6 +17707,17 @@
                             } else {
                                 feedback.textContent = '不正解。単位に注目して入れ直してください。「m/s²」が重力加速度 g、「s（秒）」が時間 t です。';
                             }
+                        } else if (this.currentUnitId === '2-5') {
+                            const ft2_5sub = (this.getCalcProblem() || {}).formulaType;
+                            if (ft2_5sub === 'centripAccelVR') {
+                                feedback.textContent = '不正解。単位に注目して入れ直してください。「m/s」が周速度 v、「m」が半径 r です（v が 2 乗される量）。';
+                            } else if (ft2_5sub === 'centripAccelROmega') {
+                                feedback.textContent = '不正解。単位に注目して入れ直してください。「m」が半径 r、「rad/s」が角速度 ω です（ω が 2 乗される量）。';
+                            } else if (ft2_5sub === 'centripForceMVR') {
+                                feedback.textContent = '不正解。単位に注目して入れ直してください。「kg」が質量 m、「m/s」が周速度 v、「m」が半径 r です。';
+                            } else {
+                                feedback.textContent = '不正解。単位に注目して入れ直してください。「kg」が質量 m、「m」が半径 r、「rad/s」が角速度 ω です。';
+                            }
                         } else {
                             feedback.textContent = '不正解。単位に注目して入れ直してください。「m/s」が速度 v、「s（秒）」が時間 t です。';
                         }
@@ -17121,9 +17750,10 @@
                 const is2_2 = this.currentUnitId === '2-2';
                 const is2_3 = this.currentUnitId === '2-3';
                 const is2_4 = this.currentUnitId === '2-4';
-                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4;
+                const is2_5 = this.currentUnitId === '2-5';
+                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5;
 
-                // 1-6〜1-12 / 2-2 / 2-3 / 2-4 は小数入力（step=0.1 を許容）し tolerance で判定。
+                // 1-6〜1-12 / 2-2 / 2-3 / 2-4 / 2-5 は小数入力（step=0.1 を許容）し tolerance で判定。
                 const userAnswer = isForceCalc ? parseFloat(answerInput.value) : parseInt(answerInput.value);
                 // 2-2: formulaType ごとに expected を取り出す。
                 //   aFromV → expectedA、sFromV0AT → expectedS、それ以外（vFromAT / vFromV0AS）→ expectedV
@@ -17137,6 +17767,13 @@
                 const expected2_4 = is2_4
                     ? (problem.formulaType === 'angularVFromThetaT' ? problem.expectedOmega
                        : problem.expectedV)
+                    : null;
+                // 2-5: formulaType ごとに expected を取り出す。
+                //   centripAccel系（centripAccelVR / centripAccelROmega）→ expectedA
+                //   centripForce系（centripForceMVR / centripForceMROmega）→ expectedF
+                const expected2_5 = is2_5
+                    ? ((problem.formulaType === 'centripForceMVR' || problem.formulaType === 'centripForceMROmega')
+                       ? problem.expectedF : problem.expectedA)
                     : null;
                 // 2-3: formulaType ごとに expected を取り出す。
                 //   freeFallH → expectedH、freeFallTime → expectedT、それ以外（freeFallV / verticalDownV）→ expectedV
@@ -17155,6 +17792,7 @@
                                  : is2_2 ? expected2_2
                                  : is2_3 ? expected2_3
                                  : is2_4 ? expected2_4
+                                 : is2_5 ? expected2_5
                                  : problem.expectedDisplacement;
                 const tolerance  = isForceCalc ? (problem.tolerance || 1) : 0;
                 // 浮動小数点誤差対策: tolerance 境界（例 tolerance=0.1 で |userAnswer-expected|=0.10000...142）が
@@ -17338,6 +17976,30 @@
                                 ${expl2_3}
                             </div>
                         `;
+                    } else if (is2_5) {
+                        let expl2_5;
+                        if (problem.formulaType === 'centripAccelVR') {
+                            const vsq2_5e = problem.v * problem.v;
+                            expl2_5 = `a ＝ v² ÷ r ＝ ${problem.v}² ÷ ${problem.r} ＝ ${vsq2_5e} ÷ ${problem.r} ＝ ${expected} [m/s²]`;
+                        } else if (problem.formulaType === 'centripAccelROmega') {
+                            const omsq2_5e = problem.omega * problem.omega;
+                            expl2_5 = `a ＝ r × ω² ＝ ${problem.r} × ${problem.omega}² ＝ ${problem.r} × ${omsq2_5e} ＝ ${expected} [m/s²]`;
+                        } else if (problem.formulaType === 'centripForceMVR') {
+                            const vsq2_5f = problem.v * problem.v;
+                            const mvsq2_5e = problem.m * vsq2_5f;
+                            expl2_5 = `F ＝ m × v² ÷ r ＝ ${problem.m} × ${problem.v}² ÷ ${problem.r} ＝ ${mvsq2_5e} ÷ ${problem.r} ＝ ${expected} [N]`;
+                        } else {
+                            // centripForceMROmega
+                            const omsq2_5f = problem.omega * problem.omega;
+                            const mr2_5e = problem.m * problem.r;
+                            expl2_5 = `F ＝ m × r × ω² ＝ ${problem.m} × ${problem.r} × ${problem.omega}² ＝ ${mr2_5e} × ${omsq2_5f} ＝ ${expected} [N]`;
+                        }
+                        feedback.innerHTML = `
+                            <div style="margin-bottom: 10px;">正解です。</div>
+                            <div class="answer-explanation">
+                                ${expl2_5}
+                            </div>
+                        `;
                     } else {
                         feedback.innerHTML = `
                             <div style="margin-bottom: 10px;">正解です。</div>
@@ -17403,6 +18065,7 @@
                                             : is2_2 ? (problem.unit || 'm/s')
                                             : is2_3 ? (problem.unit || 'm/s')
                                             : is2_4 ? (problem.unit || 'm/s')
+                                            : is2_5 ? (problem.unit || 'm/s²')
                                             : 'N';
                             feedback.innerHTML += `<div class="answer-explanation">正解は ${expected} [${unitLabel}] です。計算の手順をもう一度確認してください。</div>`;
                         }
