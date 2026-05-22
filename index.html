@@ -2339,10 +2339,10 @@
         const DASHBOARD_UNIT_COUNTS = {
             '1-1': 4, '1-2': 6, '1-3': 4, '1-4': 4, '1-5': 4,
             '1-6': 4, '1-7': 4, '1-8': 4, '1-9': 4,
-            '1-10': 4, '1-11': 4, '1-12': 4, '2-1': 5, '2-2': 4, '2-3': 4, '2-4': 4, '2-5': 4
+            '1-10': 4, '1-11': 4, '1-12': 4, '2-1': 5, '2-2': 4, '2-3': 4, '2-4': 4, '2-5': 4, '3-2': 4
         };
         // 単元表示順
-        const DASHBOARD_UNIT_ORDER = ['1-1', '1-2', '1-3', '1-4', '1-5', '1-6', '1-7', '1-8', '1-9', '1-10', '1-11', '1-12', '2-1', '2-2', '2-3', '2-4', '2-5'];
+        const DASHBOARD_UNIT_ORDER = ['1-1', '1-2', '1-3', '1-4', '1-5', '1-6', '1-7', '1-8', '1-9', '1-10', '1-11', '1-12', '2-1', '2-2', '2-3', '2-4', '2-5', '3-2'];
 
         // 【校内版では実名ロスターを定義していたが、GitHub Pages 配信のため空に変更】
         // 将来、名簿照合に戻す場合は 1番〜36番 + 40番の形式で復活可能
@@ -2498,6 +2498,15 @@
                 id: '2-5',
                 title: '向心加速度・向心力',
                 subtitle: '円運動 a=v²/r=rω² / 向心力 F=mv²/r=mrω²',
+                level: '基礎',
+                completed: false,
+                score: 0,
+                total: 0
+            },
+            {
+                id: '3-2',
+                title: '運動方程式（F = ma）',
+                subtitle: '運動の第二法則 F=ma / a=F÷m / m=F÷a',
                 level: '基礎',
                 completed: false,
                 score: 0,
@@ -6168,6 +6177,330 @@
         };
 
         // ==================================================================
+        // 3-2: 運動方程式（F = ma）— 教科書 p.47-48、式 2-35
+        // ==================================================================
+        //   2-5 と同じ 6 ステージ計算問題フロー（renderCalculationProblem）を共有する。
+        //   Stage 2 は derivationSteps アコーディオン方式（render1_10DerivAccordion を再利用）。
+        //   F=ma は単一の基本関係なので「公式選択」step は作らず、derivationSteps は
+        //   「解法の道筋」「式変形の操作（両辺を◯で割る等）」を選ばせる形にする。
+        //   formulaType: forceFromMA（問1）／accelFromFM（問2）／massFromFA（問3）／forceFromKinematics（問4）。
+        //   問題図は build3_2ForceCanvas(problem) が描く（canvas.kind で分岐）。
+        const PROBLEMS_3_2 = [
+            {
+                id: 1,
+                formulaType: 'forceFromMA',
+                m: 3, a: 4,
+                expectedF: 12, tolerance: 0.1, unit: 'N', decimals: 1, baselineTime: 150,
+                sentence: 'なめらかな水平面の上に置かれた質量 m ＝ 3 kg の物体に、一定の力を運動の向きに加えたところ、加速度 a ＝ 4 m/s² が生じた。物体に加えた力 F [N] を求めよ。',
+                condition: '基礎、運動方程式、F=m×a、m=3 a=4 → F=12.0 N',
+                canvasType: '2d-static',
+                canvas: { width: 340, height: 180, kind: 'forceMA' },
+                stage0Choices: [
+                    { value: 'force', label: '物体に加えた力 F [N] の大きさ' },
+                    { value: 'mass',  label: '物体の質量 m [kg] の大きさ' },
+                    { value: 'accel', label: '生じた加速度 a [m/s²] の大きさ' }
+                ],
+                stage0Correct: 'force',
+                stage1Choices: [
+                    { value: 'secondLaw',     label: '物体に力が加わって加速度が生じている、運動の第二法則の問題である' },
+                    { value: 'uniformLinear', label: '力が加わらず速度が一定のままの、等速直線運動の問題である' },
+                    { value: 'balance',       label: '物体に働く力がつり合って静止している、力のつり合いの問題である' }
+                ],
+                stage1Correct: 'secondLaw',
+                derivationSteps: [
+                    {
+                        prompt: 'Stage 1 で「力が加わって加速度が生じる（運動の第二法則）」の問題だと分かりました。運動方程式は F ＝ m × a（式 2-35）です。求めるのは力 F で、質量 m と加速度 a の両方が分かっています。次にすることはどれですか？',
+                        choices: [
+                            { value: 'direct', label: 'F ＝ m × a に、質量 m と加速度 a をそのまま代入して掛け算する' },
+                            { value: 'solve',  label: 'F ＝ m × a を変形して、別の文字について解いてから代入する' },
+                            { value: 'needA',  label: '加速度 a が足りないので、先に別の式で a を計算する' }
+                        ],
+                        correct: 'direct',
+                        onCorrectText: '運動方程式 F ＝ m × a に、質量 m ＝ 3 kg と加速度 a ＝ 4 m/s² をそのまま代入して掛け算すれば、力 F が求まります。'
+                    }
+                ],
+                formula: 'F = m\\,a',
+                substitutions: {
+                    slots: ['m', 'a'],
+                    cards: [
+                        { role: 'm', label: 'm', value: 3, unit: 'kg' },
+                        { role: 'a', label: 'a', value: 4, unit: 'm/s²' }
+                    ]
+                }
+            },
+            {
+                id: 2,
+                formulaType: 'accelFromFM',
+                m: 5, F: 20,
+                expectedA: 4, tolerance: 0.1, unit: 'm/s²', decimals: 1, baselineTime: 170,
+                sentence: 'なめらかな水平面の上に置かれた質量 m ＝ 5 kg の物体に、一定の力 F ＝ 20 N を運動の向きに加えた。このとき物体に生じる加速度 a [m/s²] を求めよ。',
+                condition: '基礎、運動方程式の変形、a=F÷m、F=20 m=5 → a=4.0 m/s²',
+                canvasType: '2d-static',
+                canvas: { width: 340, height: 180, kind: 'accelFM' },
+                stage0Choices: [
+                    { value: 'accel', label: '物体に生じる加速度 a [m/s²] の大きさ' },
+                    { value: 'force', label: '物体に加えた力 F [N] の大きさ' },
+                    { value: 'mass',  label: '物体の質量 m [kg] の大きさ' }
+                ],
+                stage0Correct: 'accel',
+                stage1Choices: [
+                    { value: 'secondLaw',     label: '物体に力が加わって加速度が生じている、運動の第二法則の問題である' },
+                    { value: 'uniformLinear', label: '力が加わらず速度が一定のままの、等速直線運動の問題である' },
+                    { value: 'balance',       label: '物体に働く力がつり合って静止している、力のつり合いの問題である' }
+                ],
+                stage1Correct: 'secondLaw',
+                derivationSteps: [
+                    {
+                        prompt: '運動方程式は F ＝ m × a（式 2-35）です。求めるのは加速度 a なので、この式を a について解きます。両辺をどうすればよいですか？',
+                        choices: [
+                            { value: 'divM', label: '両辺を m で割る（→ a ＝ F ÷ m）' },
+                            { value: 'mulM', label: '両辺に m を掛ける（→ a ＝ F × m）' },
+                            { value: 'subM', label: '両辺から m を引く（→ a ＝ F − m）' }
+                        ],
+                        correct: 'divM',
+                        onCorrectText: 'F ＝ m × a の両辺を m で割ると a ＝ F ÷ m。力を質量で割れば加速度が求まります。'
+                    }
+                ],
+                formula: 'a = \\dfrac{F}{m}',
+                substitutions: {
+                    slots: ['F', 'm'],
+                    cards: [
+                        { role: 'F', label: 'F', value: 20, unit: 'N' },
+                        { role: 'm', label: 'm', value: 5,  unit: 'kg' }
+                    ]
+                }
+            },
+            {
+                id: 3,
+                formulaType: 'massFromFA',
+                F: 30, a: 6,
+                expectedM: 5, tolerance: 0.1, unit: 'kg', decimals: 1, baselineTime: 170,
+                sentence: 'なめらかな水平面の上に置かれたある物体に、一定の力 F ＝ 30 N を運動の向きに加えたところ、加速度 a ＝ 6 m/s² が生じた。この物体の質量 m [kg] を求めよ。',
+                condition: '基礎、運動方程式の変形、m=F÷a、F=30 a=6 → m=5.0 kg',
+                canvasType: '2d-static',
+                canvas: { width: 340, height: 180, kind: 'massFA' },
+                stage0Choices: [
+                    { value: 'mass',  label: '物体の質量 m [kg] の大きさ' },
+                    { value: 'force', label: '物体に加えた力 F [N] の大きさ' },
+                    { value: 'accel', label: '生じた加速度 a [m/s²] の大きさ' }
+                ],
+                stage0Correct: 'mass',
+                stage1Choices: [
+                    { value: 'secondLaw',     label: '物体に力が加わって加速度が生じている、運動の第二法則の問題である' },
+                    { value: 'uniformLinear', label: '力が加わらず速度が一定のままの、等速直線運動の問題である' },
+                    { value: 'balance',       label: '物体に働く力がつり合って静止している、力のつり合いの問題である' }
+                ],
+                stage1Correct: 'secondLaw',
+                derivationSteps: [
+                    {
+                        prompt: '運動方程式は F ＝ m × a（式 2-35）です。求めるのは質量 m なので、この式を m について解きます。両辺をどうすればよいですか？',
+                        choices: [
+                            { value: 'divA', label: '両辺を a で割る（→ m ＝ F ÷ a）' },
+                            { value: 'mulA', label: '両辺に a を掛ける（→ m ＝ F × a）' },
+                            { value: 'subA', label: '両辺から a を引く（→ m ＝ F − a）' }
+                        ],
+                        correct: 'divA',
+                        onCorrectText: 'F ＝ m × a の両辺を a で割ると m ＝ F ÷ a。力を加速度で割れば質量が求まります。'
+                    }
+                ],
+                formula: 'm = \\dfrac{F}{a}',
+                substitutions: {
+                    slots: ['F', 'a'],
+                    cards: [
+                        { role: 'F', label: 'F', value: 30, unit: 'N' },
+                        { role: 'a', label: 'a', value: 6,  unit: 'm/s²' }
+                    ]
+                }
+            },
+            {
+                id: 4,
+                formulaType: 'forceFromKinematics',
+                m: 10, v0: 0, v: 12, t: 4,
+                expectedA: 3, expectedF: 30, tolerance: 0.1, unit: 'N', decimals: 1, baselineTime: 240,
+                sentence: 'なめらかな水平面の上で静止していた（初速度 v₀ ＝ 0 m/s）質量 m ＝ 10 kg の物体に、一定の力を運動の向きに t ＝ 4 秒間加え続けたところ、速度が v ＝ 12 m/s になった。物体に加えた力 F [N] を求めよ。',
+                condition: '応用、2 段階、a=(v−v₀)/t=(12−0)/4=3 → F=m×a=10×3=30.0 N',
+                canvasType: '2d-static',
+                canvas: { width: 360, height: 200, kind: 'kinematics' },
+                stage0Choices: [
+                    { value: 'force', label: '物体に加えた力 F [N] の大きさ' },
+                    { value: 'accel', label: 'この間に生じた加速度 a [m/s²] の大きさ' },
+                    { value: 'mass',  label: '物体の質量 m [kg] の大きさ' }
+                ],
+                stage0Correct: 'force',
+                stage1Choices: [
+                    { value: 'secondLaw',     label: '力が加わって速度が一定の割合で増え、加速度が生じている、運動の第二法則の問題である' },
+                    { value: 'uniformLinear', label: '力が加わらず速度が一定のままの、等速直線運動の問題である' },
+                    { value: 'balance',       label: '物体に働く力がつり合って静止している、力のつり合いの問題である' }
+                ],
+                stage1Correct: 'secondLaw',
+                derivationSteps: [
+                    {
+                        prompt: '求めるのは力 F。運動方程式 F ＝ m × a（式 2-35）を使いますが、加速度 a の数値が問題にありません。次にすることはどれですか？',
+                        choices: [
+                            { value: 'calcA',  label: '2-2 で学んだ a ＝ (v − v₀) ÷ t で、先に加速度 a を求める' },
+                            { value: 'useV',   label: '加速度の代わりに速度 v を使い、F ＝ m × v で計算する' },
+                            { value: 'cannot', label: '加速度がないので、この問題は解けない' }
+                        ],
+                        correct: 'calcA',
+                        onCorrectText: '加速度の数値がないので、まず 2-2 で学んだ a ＝ (v − v₀) ÷ t で加速度を求めます。速度 v をそのまま力の式に使うことはできません。'
+                    },
+                    {
+                        prompt: 'a ＝ (v − v₀) ÷ t に v ＝ 12 m/s、v₀ ＝ 0 m/s、t ＝ 4 s を入れると、加速度 a は何 m/s² ですか？',
+                        choices: [
+                            { value: 'a3',  label: 'a ＝ (12 − 0) ÷ 4 ＝ 3 m/s²' },
+                            { value: 'a48', label: 'a ＝ (12 − 0) × 4 ＝ 48 m/s²' },
+                            { value: 'a16', label: 'a ＝ 12 ＋ 4 ＝ 16 m/s²' }
+                        ],
+                        correct: 'a3',
+                        onCorrectText: '加速度は a ＝ (12 − 0) ÷ 4 ＝ 3 m/s² です。これで F ＝ m × a に入れる加速度がそろいました。'
+                    },
+                    {
+                        prompt: '加速度 a ＝ 3 m/s² が求まりました。これと質量 m ＝ 10 kg を運動方程式 F ＝ m × a に入れると、力 F の式はどうなりますか？',
+                        choices: [
+                            { value: 'fmul', label: 'F ＝ 10 × 3（質量 × 加速度）' },
+                            { value: 'fv',   label: 'F ＝ 10 × 12（質量 × 速度）' },
+                            { value: 'fdiv', label: 'F ＝ 10 ÷ 3（質量 ÷ 加速度）' }
+                        ],
+                        correct: 'fmul',
+                        onCorrectText: 'F ＝ m × a ＝ 10 × 3 です。掛けるのは速度 12 ではなく加速度 3 m/s² であることに注意してください。'
+                    }
+                ],
+                formula: 'F = m\\,a \\quad\\left(a = \\dfrac{v - v_0}{t}\\right)',
+                substitutions: {
+                    slots: ['m', 'a'],
+                    cards: [
+                        { role: 'm', label: 'm', value: 10, unit: 'kg' },
+                        { role: 'a', label: 'a', value: 3,  unit: 'm/s²' }
+                    ]
+                }
+            }
+        ];
+
+        // 問1（forceFromMA: F=m×a）
+        const HINTS_3_2_FORCE = {
+            stage0: {
+                b: '問題文の最後の文に注目してください。「求めよ」と書かれている量が求めるものです。質量 3 kg、加速度 4 m/s² はすでに数値が書かれています。',
+                a: '問題文の末尾に「加えた力 F [N] を求めよ」とあります。求めるものは力 F、単位は N です。',
+                c: '教科書47ページ「2 運動の第二法則」を確認してください。'
+            },
+            stage1: {
+                b: '問題文に「力を加えたところ、加速度が生じた」とあります。力が加わると速度が変わる（加速度が生じる）関係を表す法則を思い出してください。',
+                a: '物体に力が加わると力に比例した加速度が生じます。これを「運動の第二法則」といいます。速度が変わらない等速直線運動とは違います。',
+                c: '教科書47ページ「2 運動の第二法則」、図2-54 を確認してください。'
+            },
+            stage2: {
+                b: '運動方程式は F ＝ m × a。力・質量・加速度を結ぶ式です。今回は質量と加速度が両方分かっているので、変形せずそのまま代入できます。',
+                a: 'F ＝ m × a（式 2-35）に質量 m と加速度 a を代入して掛け算すれば力が求まります。',
+                c: '教科書47ページ 式(2-35)「F ＝ m a」を確認してください。'
+            },
+            stage3: {
+                b: '式は F ＝ m × a です。m には質量、a には加速度を入れます。',
+                a: '式 F ＝ m × a の空欄に、m ＝ 3 kg、a ＝ 4 m/s² を入れてください。',
+                c: '教科書48ページ 例題13 を確認してください。'
+            },
+            stage4: {
+                b: '質量の数値と加速度の数値を掛け算するだけです。電卓を使って構いません。答えは小数第1位までで答えてください。',
+                a: 'F ＝ 3 × 4 ＝ 12.0 [N]。1 N は質量 1 kg の物体に 1 m/s² の加速度を生じさせる力です。',
+                c: '教科書48ページ 例題13、47ページ Note 2-1 を確認してください。'
+            }
+        };
+
+        // 問2（accelFromFM: a=F÷m）
+        const HINTS_3_2_ACCEL = {
+            stage0: {
+                b: '問題文の最後の文に注目してください。質量 5 kg、力 20 N はすでに数値が書かれています。',
+                a: '問題文の末尾に「生じる加速度 a [m/s²] を求めよ」とあります。求めるものは加速度 a、単位は m/s² です。',
+                c: '教科書47ページ「2 運動の第二法則」を確認してください。'
+            },
+            stage1: {
+                b: '問題文に「力を加えた。生じる加速度を求めよ」とあります。力が加わると加速度が生じる関係を表す法則を思い出してください。',
+                a: '物体に力が加わると力に比例した加速度が生じます。これを「運動の第二法則」といいます。',
+                c: '教科書47ページ「2 運動の第二法則」、図2-54 を確認してください。'
+            },
+            stage2: {
+                b: '運動方程式 F ＝ m × a で、今回は力と質量が分かっていて加速度を求めます。この式を加速度について書きかえると（両辺を質量で割ると）どうなるでしょうか。',
+                a: 'F ＝ m × a の両辺を m で割ると a ＝ F ÷ m。力を質量で割れば加速度が求まります。',
+                c: '教科書47ページ 式(2-35) を確認してください。'
+            },
+            stage3: {
+                b: '式は a ＝ F ÷ m です。F には力、m には質量を入れます。',
+                a: '式 a ＝ F ÷ m の空欄に、F ＝ 20 N、m ＝ 5 kg を入れてください。',
+                c: '教科書47ページ 式(2-35) を確認してください。'
+            },
+            stage4: {
+                b: '力の数値を質量の数値で割るだけです。電卓を使って構いません。答えは小数第1位までで答えてください。',
+                a: 'a ＝ 20 ÷ 5 ＝ 4.0 [m/s²]。単位は m/s² です。',
+                c: '教科書48ページ 問29 の周辺を確認してください。'
+            }
+        };
+
+        // 問3（massFromFA: m=F÷a）
+        const HINTS_3_2_MASS = {
+            stage0: {
+                b: '問題文の最後の文に注目してください。力 30 N、加速度 6 m/s² はすでに数値が書かれています。',
+                a: '問題文の末尾に「物体の質量 m [kg] を求めよ」とあります。求めるものは質量 m、単位は kg です。',
+                c: '教科書48ページ 問29 を確認してください。'
+            },
+            stage1: {
+                b: '問題文に「力を加えたところ、加速度が生じた」とあります。力が加わると加速度が生じる関係を表す法則を思い出してください。',
+                a: '物体に力が加わると力に比例した加速度が生じます。これを「運動の第二法則」といいます。',
+                c: '教科書47ページ「2 運動の第二法則」、図2-54 を確認してください。'
+            },
+            stage2: {
+                b: '運動方程式 F ＝ m × a で、今回は力と加速度が分かっていて質量を求めます。この式を質量について書きかえると（両辺を加速度で割ると）どうなるでしょうか。',
+                a: 'F ＝ m × a の両辺を a で割ると m ＝ F ÷ a。力を加速度で割れば質量が求まります。',
+                c: '教科書47ページ 式(2-35) を確認してください。'
+            },
+            stage3: {
+                b: '式は m ＝ F ÷ a です。F には力、a には加速度を入れます。',
+                a: '式 m ＝ F ÷ a の空欄に、F ＝ 30 N、a ＝ 6 m/s² を入れてください。',
+                c: '教科書48ページ 問29 を確認してください。'
+            },
+            stage4: {
+                b: '力の数値を加速度の数値で割るだけです。電卓を使って構いません。答えは小数第1位までで答えてください。',
+                a: 'm ＝ 30 ÷ 6 ＝ 5.0 [kg]。単位は kg です。',
+                c: '教科書48ページ 問29 を確認してください。'
+            }
+        };
+
+        // 問4（forceFromKinematics: a=(v−v₀)/t → F=m×a）
+        const HINTS_3_2_KINEMATICS = {
+            stage0: {
+                b: '問題文の最後の文に注目してください。質量 10 kg、初速度 0 m/s、時間 4 秒、あとの速度 12 m/s はすでに数値が書かれています。',
+                a: '問題文の末尾に「加えた力 F [N] を求めよ」とあります。求めるものは力 F。ただし加速度の数値は問題に書かれていません。',
+                c: '教科書48ページ 例題13 を確認してください。'
+            },
+            stage1: {
+                b: '問題文に「一定の力を加え続けたところ、速度が 0 から 12 m/s に増えた」とあります。力が加わって速度が一定の割合で増える現象を表す法則を思い出してください。',
+                a: '一定の力が加わると一定の加速度が生じて速度が増えます。力と加速度の関係は「運動の第二法則」、速度の増え方は 2-2 の「等加速度直線運動」です。この問題は両方を使います。',
+                c: '教科書47ページ「2 運動の第二法則」と 41ページ「2 加速度」を確認してください。'
+            },
+            stage2: {
+                b: '力を求めるには F ＝ m × a を使いますが、加速度 a の数値がありません。「v₀ ＝ 0 から t ＝ 4 秒で v ＝ 12 m/s」という速度の情報から、先に加速度を求める方法を 2-2 で学びました。',
+                a: '2 段階で解きます。まず 2-2 の a ＝ (v − v₀) ÷ t で加速度を求め、次にその a を F ＝ m × a に入れて力を求めます。速度 v をそのまま力の式に使うことはできません。',
+                c: '教科書48ページ 例題13（a を出してから F を出す流れ）を確認してください。'
+            },
+            stage3: {
+                b: 'まず加速度を a ＝ (v − v₀) ÷ t で計算します。a ＝ (12 − 0) ÷ 4 ＝ 3 m/s²。次にその a を F ＝ m × a の a に入れます。',
+                a: 'F ＝ m × a の空欄に、m ＝ 10 kg、a ＝ 3 m/s²（先に求めた加速度）を入れてください。',
+                c: '教科書48ページ 例題13 の解答を確認してください。'
+            },
+            stage4: {
+                b: '加速度の値（3 m/s²）と質量の値（10 kg）を掛け算します。速度 12 ではなく加速度 3 を掛けることに注意してください。電卓を使って構いません。答えは小数第1位までで答えてください。',
+                a: 'F ＝ m × a ＝ 10 × 3 ＝ 30.0 [N]。先に求めた加速度 3 m/s² を使います。単位は N です。',
+                c: '教科書48ページ 例題13 を確認してください。'
+            }
+        };
+
+        // 問 id（1〜4）→ ヒント表。renderCalculationProblem / showHint から参照。
+        const HINTS_3_2_BY_ID = {
+            1: HINTS_3_2_FORCE,
+            2: HINTS_3_2_ACCEL,
+            3: HINTS_3_2_MASS,
+            4: HINTS_3_2_KINEMATICS
+        };
+
+        // ==================================================================
         // 考査対策・考査問題マスターデータ（仕様書 §10〜§12）
         // ==================================================================
         // 1 つの問題マスターから 3 つの出力を生成：
@@ -7789,6 +8122,7 @@
                 if (unitId === '2-3') return PROBLEMS_2_3.length;
                 if (unitId === '2-4') return PROBLEMS_2_4.length;
                 if (unitId === '2-5') return PROBLEMS_2_5.length;
+                if (unitId === '3-2') return PROBLEMS_3_2.length;
                 return 0;
             }
 
@@ -10269,6 +10603,7 @@
                 else if (this.currentUnitId === '2-3') problems = PROBLEMS_2_3;
                 else if (this.currentUnitId === '2-4') problems = PROBLEMS_2_4;
                 else if (this.currentUnitId === '2-5') problems = PROBLEMS_2_5;
+                else if (this.currentUnitId === '3-2') problems = PROBLEMS_3_2;
 
                 if (this.currentProblemIndex >= problems.length) {
                     this.showSummary();
@@ -10383,6 +10718,7 @@
                     else if (this.currentUnitId === '2-3') problems = PROBLEMS_2_3;
                     else if (this.currentUnitId === '2-4') problems = PROBLEMS_2_4;
                     else if (this.currentUnitId === '2-5') problems = PROBLEMS_2_5;
+                    else if (this.currentUnitId === '3-2') problems = PROBLEMS_3_2;
                     sidebarList.innerHTML = problems.map((p, i) =>
                         `<li class="${i === this.currentProblemIndex ? 'is-active' : ''}">問 ${p.id}</li>`
                     ).join('');
@@ -10410,7 +10746,7 @@
                 const content = document.getElementById('problemContent');
 
                 // Handle different problem types
-                if (this.currentUnitId === '2-1' || this.currentUnitId === '2-2' || this.currentUnitId === '2-3' || this.currentUnitId === '2-4' || this.currentUnitId === '2-5' || this.currentUnitId === '1-6' || this.currentUnitId === '1-7' || this.currentUnitId === '1-8' || this.currentUnitId === '1-9' || this.currentUnitId === '1-10' || this.currentUnitId === '1-11' || this.currentUnitId === '1-12') {
+                if (this.currentUnitId === '2-1' || this.currentUnitId === '2-2' || this.currentUnitId === '2-3' || this.currentUnitId === '2-4' || this.currentUnitId === '2-5' || this.currentUnitId === '3-2' || this.currentUnitId === '1-6' || this.currentUnitId === '1-7' || this.currentUnitId === '1-8' || this.currentUnitId === '1-9' || this.currentUnitId === '1-10' || this.currentUnitId === '1-11' || this.currentUnitId === '1-12') {
                     this.renderCalculationProblem(problem, content);
                 } else if (this.currentUnitId === '1-3' || this.currentUnitId === '1-4' || this.currentUnitId === '1-5') {
                     this.drawingStageIndex = 0;
@@ -10513,9 +10849,10 @@
                 const is2_3 = this.currentUnitId === '2-3';
                 const is2_4 = this.currentUnitId === '2-4';
                 const is2_5 = this.currentUnitId === '2-5';
+                const is3_2 = this.currentUnitId === '3-2';
                 // isForceCalc は「6 ステージ汎用フロー（problem.stage0Choices 等を持つ）」を意味する。
-                //   2-2 / 2-3 / 2-4 / 2-5 も同じデータ schema（sentence / stage0Choices / stage1Choices / substitutions）を採るので含める。
-                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5;
+                //   2-2 / 2-3 / 2-4 / 2-5 / 3-2 も同じデータ schema（sentence / stage0Choices / stage1Choices / substitutions）を採るので含める。
+                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2;
                 // Persistent problem statement shown at the top of every stage
                 const problemText = isForceCalc
                     ? problem.sentence
@@ -10617,6 +10954,15 @@
                         '計算する',
                         '答えの意味を確認'
                     ]
+                    : is3_2
+                    ? [
+                        '求める量を確認する',
+                        '運動の種類を確認する',
+                        '使う式を導く',
+                        '数値を代入する',
+                        '計算する',
+                        '答えの意味を確認'
+                    ]
                     : [
                         '求める量を確認する',
                         '運動の種類を確認する',
@@ -10653,6 +10999,7 @@
                                       : is2_3 ? this.build2_3FreeFallCanvas(problem)
                                       : is2_4 ? this.build2_4RotationCanvas(problem)
                                       : is2_5 ? this.build2_5CircularCanvas(problem)
+                                      : is3_2 ? this.build3_2ForceCanvas(problem)
                                       : '';
 
                 // 1-7（案B 7 ステージ）は専用ルートで処理し、early return する。
@@ -10729,6 +11076,8 @@
                         ? 'この問題はどのような運動ですか？'
                         : is2_5
                         ? 'この問題はどのような運動ですか？'
+                        : is3_2
+                        ? 'この問題はどのような運動の問題ですか？'
                         : '問題文の「一定の速さで運動した」は、どのような運動ですか？';
                     content.innerHTML = header + staticCanvas1_6 + `
                         <div class="calc-stage-container">
@@ -10985,6 +11334,25 @@
                         `;
                         this.render1_10DerivAccordion();
                         return;
+                    } else if (is3_2) {
+                        // 3-2（運動方程式 F=ma）: derivationSteps を 1 ステップずつアコーディオン表示して
+                        //   生徒自身に「解法の道筋／式変形の操作」を選ばせる（is2_5 と同じパターン、early return）。
+                        if (this.calcInputs.derivStepIndex === undefined) {
+                            this.calcInputs.derivStepIndex = 0;
+                        }
+                        content.innerHTML = header + staticCanvas1_6 + `
+                            <div class="calc-stage-container">
+                                <div class="calc-question-text">使う式を、一段ずつ自分で導いてください。</div>
+                                <div id="derivAccordion"></div>
+                                <div id="stageFeedback" style="margin-top:12px; font-size:14px; min-height:20px;"></div>
+                            </div>
+                        `;
+                        document.getElementById('controlButtons').innerHTML = `
+                            <button class="btn hint-btn" onclick="app.showHint('calc_${this.currentProblemIndex}_stage2')">ヒント</button>
+                            <span id="stage2NextSlot"></span>
+                        `;
+                        this.render1_10DerivAccordion();
+                        return;
                     } else {
                         content.innerHTML = header + `
                             <div class="calc-stage-container">
@@ -11026,7 +11394,7 @@
                             Abx: 'A大', Aby: 'A大', xbs: 'x大', ybs: 'y大', Acx: 'A切', Acy: 'A切', xcs: 'x切', ycs: 'y切', A0x: 'A₀', A0y: 'A₀',
                             v: 'v', v0: 'v₀', t: 't', t1: 't', t2: 't', a: 'a', s: 's',
                             l: 'l', theta: 'θ', omega: 'ω', pi: 'π', n: 'n',
-                            g: 'g', h: 'h', m: 'm' };
+                            g: 'g', h: 'h', m: 'm', F: 'F' };
                         const makeSlotSpan = (role, text) =>
                             `<span class="calc-formula-input empty" data-slot="${role}" id="slot-${role}">${text || slotLabel[role] || role}</span>`;
                         const slotSpans = slots.map(role => makeSlotSpan(role));
@@ -11164,6 +11532,20 @@
                             } else {
                                 // centripForceMROmega
                                 formulaHTML = `F ＝ ${slotSpans[0]} × ${slotSpans[1]} × ${slotSpans[2]}${sup2_2_5}`;
+                            }
+                        } else if (is3_2) {
+                            // 3-2（運動方程式 F=ma）: formulaType ごとに式の形が異なる。各量は 1 スロットのみ。
+                            //   forceFromMA          → F ＝ [m] × [a]            （slots: m, a）
+                            //   accelFromFM          → a ＝ [F] ÷ [m]            （slots: F, m）
+                            //   massFromFA           → m ＝ [F] ÷ [a]            （slots: F, a）
+                            //   forceFromKinematics  → F ＝ [m] × [a]            （a は derivationStep で求めた 3。slots: m, a）
+                            if (problem.formulaType === 'accelFromFM') {
+                                formulaHTML = `a ＝ ${slotSpans[0]} ÷ ${slotSpans[1]}`;
+                            } else if (problem.formulaType === 'massFromFA') {
+                                formulaHTML = `m ＝ ${slotSpans[0]} ÷ ${slotSpans[1]}`;
+                            } else {
+                                // forceFromMA / forceFromKinematics
+                                formulaHTML = `F ＝ ${slotSpans[0]} × ${slotSpans[1]}`;
                             }
                         } else if (is2_3) {
                             // 2-3（重力加速度）: formulaType ごとに式の形が異なる
@@ -11568,6 +11950,45 @@
                                 </div>
                             </div>
                         `;
+                    } else if (is3_2) {
+                        // 3-2（運動方程式 F=ma）: formulaType ごとに数値入りの式と単位を切り替える。
+                        //   答えは小数第 1 位まで（注記ボックス併設、2-5 と同じ）。
+                        //   問4 は derivationStep で求めた加速度 3 を使う（F ＝ 10 × 3）。
+                        let formulaLine_3_2, answerLabel_3_2, unitLabel_3_2;
+                        if (problem.formulaType === 'accelFromFM') {
+                            formulaLine_3_2 = `$a = \\dfrac{${problem.F}}{${problem.m}} = {\\color{#c62828}?}\\ \\mathrm{[m/s^2]}$`;
+                            answerLabel_3_2 = 'a ＝';
+                            unitLabel_3_2 = '[m/s²]';
+                        } else if (problem.formulaType === 'massFromFA') {
+                            formulaLine_3_2 = `$m = \\dfrac{${problem.F}}{${problem.a}} = {\\color{#c62828}?}\\ \\mathrm{[kg]}$`;
+                            answerLabel_3_2 = 'm ＝';
+                            unitLabel_3_2 = '[kg]';
+                        } else if (problem.formulaType === 'forceFromKinematics') {
+                            formulaLine_3_2 = `$F = ${problem.m} \\times ${problem.expectedA} = {\\color{#c62828}?}\\ \\mathrm{[N]}$`;
+                            answerLabel_3_2 = 'F ＝';
+                            unitLabel_3_2 = '[N]';
+                        } else {
+                            // forceFromMA
+                            formulaLine_3_2 = `$F = ${problem.m} \\times ${problem.a} = {\\color{#c62828}?}\\ \\mathrm{[N]}$`;
+                            answerLabel_3_2 = 'F ＝';
+                            unitLabel_3_2 = '[N]';
+                        }
+                        content.innerHTML = header + staticCanvas1_6 + `
+                            <div class="calc-stage-container">
+                                <div class="calc-question-text">計算結果を入力してください（電卓を使って構いません）。</div>
+                                <div class="calc-formula-display">
+                                    ${formulaLine_3_2}
+                                </div>
+                                <div style="background:#eef3fa; border-left:3px solid #4a7cbe; padding:8px 12px; border-radius:3px; margin:8px 0 10px; font-size:12px; line-height:1.6; color:#333;">
+                                    <strong>有効数字</strong>：計算結果が小数点以下第 2 位以上になる場合、第 2 位を四捨五入して<strong>小数第 1 位まで</strong>で答えてください。
+                                </div>
+                                <div class="calc-input-row">
+                                    <span class="calc-input-label">答え：${answerLabel_3_2}</span>
+                                    <input type="number" id="answerInput" class="calc-answer-input" placeholder="数値" style="width:120px;" step="0.1">
+                                    <span style="font-size:14px; color:#555; margin-left:6px;">${unitLabel_3_2}</span>
+                                </div>
+                            </div>
+                        `;
                     } else {
                         content.innerHTML = header + `
                             <div class="calc-stage-container">
@@ -11896,6 +12317,39 @@
                                 </div>
                                 <div style="margin-top:14px; font-size:13px; color:#555;">
                                     次の問題に進む前に、式と円運動の図を頭の中で思い浮かべてください。
+                                </div>
+                            </div>
+                        `;
+                    } else if (is3_2) {
+                        // 3-2（運動方程式 F=ma）: 2-5 と同じ 3 行段組み KaTeX（aligned）で
+                        //   「記号式／数値式／答え」を表示し、その下に formulaType ごとの振り返り文を載せる。
+                        //   「比例・反比例」は小学校レベルの言い回し（◯倍にすれば◯倍／半分）に言い換える。
+                        let reflFormulaLatex_3_2, reflText_3_2;
+                        if (problem.formulaType === 'accelFromFM') {
+                            reflFormulaLatex_3_2 = `\\begin{aligned} a &= \\dfrac{F}{m} \\\\[6pt] &= \\dfrac{${problem.F}}{${problem.m}} \\\\[6pt] &= ${problem.expectedA}.0\\ \\mathrm{m/s^2} \\end{aligned}`;
+                            reflText_3_2 = '加速度 a ＝ 20 ÷ 5 ＝ 4.0 m/s²。同じ 20 N の力でも、質量が 2 倍になれば加速度は半分になります（質量 10 kg なら 2 m/s²）。';
+                        } else if (problem.formulaType === 'massFromFA') {
+                            reflFormulaLatex_3_2 = `\\begin{aligned} m &= \\dfrac{F}{a} \\\\[6pt] &= \\dfrac{${problem.F}}{${problem.a}} \\\\[6pt] &= ${problem.expectedM}.0\\ \\mathrm{kg} \\end{aligned}`;
+                            reflText_3_2 = '質量 m ＝ 30 ÷ 6 ＝ 5.0 kg。F ＝ m × a の関係から、加えた力と生じた加速度が分かれば質量を逆算できます。同じ力で加速度が小さい物体ほど、質量が大きい物体です。';
+                        } else if (problem.formulaType === 'forceFromKinematics') {
+                            reflFormulaLatex_3_2 = `\\begin{aligned} a &= \\dfrac{v-v_0}{t} = \\dfrac{${problem.v}-${problem.v0}}{${problem.t}} = ${problem.expectedA}\\ \\mathrm{m/s^2} \\\\[6pt] F &= m\\,a = ${problem.m} \\times ${problem.expectedA} = ${problem.expectedF}.0\\ \\mathrm{N} \\end{aligned}`;
+                            reflText_3_2 = 'まず加速度 a ＝ (12 − 0) ÷ 4 ＝ 3 m/s²、次に力 F ＝ 10 × 3 ＝ 30.0 N。速度の情報から加速度を出し、それを運動方程式に入れて力を求める 2 段階の問題でした。力を求めるとき掛けるのは速度 12 ではなく加速度 3 です。';
+                        } else {
+                            // forceFromMA
+                            reflFormulaLatex_3_2 = `\\begin{aligned} F &= m\\,a \\\\[6pt] &= ${problem.m} \\times ${problem.a} \\\\[6pt] &= ${problem.expectedF}.0\\ \\mathrm{N} \\end{aligned}`;
+                            reflText_3_2 = '力 F ＝ 3 × 4 ＝ 12.0 N。1 N は質量 1 kg の物体に 1 m/s² の加速度を生じさせる力です。同じ物体でも、加える力を 2 倍にすれば加速度も 2 倍になります。';
+                        }
+                        content.innerHTML = header + staticCanvas1_6 + `
+                            <div class="calc-stage-container">
+                                <div class="calc-question-text">答えの意味を確認しよう。</div>
+                                <div class="calc-formula-display">
+                                    $${reflFormulaLatex_3_2}$
+                                </div>
+                                <div style="background:#eaf1fa; border-left:4px solid #1e5fa8; padding:14px 18px; border-radius:3px; margin-top:18px; font-size:15px; line-height:1.7;">
+                                    ${reflText_3_2}
+                                </div>
+                                <div style="margin-top:14px; font-size:13px; color:#555;">
+                                    次の問題に進む前に、式と運動方程式の図を頭の中で思い浮かべてください。
                                 </div>
                             </div>
                         `;
@@ -14372,6 +14826,104 @@
                     svg += `<line x1="${pX}" y1="${pY}" x2="${fpX2}" y2="${fpY2}" stroke="${RED}" stroke-width="1.8" stroke-dasharray="4,3" marker-end="url(#stc25-red)"/>`;
                     svg += `<text x="${fpX2 + 4}" y="${fpY2 - 4}" font-size="10" fill="${RED}">F′（遠心力）</text>`;
                 }
+
+                svg += `</svg></div>`;
+                return svg;
+            }
+
+            // 3-2（運動方程式 F=ma）の問題図。canvas.kind で分岐。
+            //   配色：青＝既知の主役量／赤＝力・加速度・未知（? ラベル）／グレー＝寸法。
+            //   共通：下端に水平面（細いグレー実線＋簡易ハッチ）、中央に物体（青い角丸長方形、中に質量ラベル）、
+            //         物体の左面から右向きの赤い太矢印（力 F）、物体の上に右向きの加速度 a の矢印（力と同じ向き）。
+            build3_2ForceCanvas(problem) {
+                const c = problem.canvas || { width: 340, height: 180, kind: 'forceMA' };
+                const W = c.width, H = c.height;
+                const kind = c.kind || 'forceMA';
+                const BLUE = '#1e5fa8';
+                const RED = '#c62828';
+                const GRAY = '#777';
+
+                let svg = `<div class="drawing-wrapper" style="pointer-events:none;">
+                <svg class="drawing-svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="cursor:default;">
+                <defs>
+                  <marker id="stc32-blue" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><polygon points="0,0 9,3.5 0,7" fill="${BLUE}"/></marker>
+                  <marker id="stc32-red" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><polygon points="0,0 9,3.5 0,7" fill="${RED}"/></marker>
+                  <marker id="stc32-gray" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto"><polygon points="0,0 8,3.5 0,7" fill="${GRAY}"/></marker>
+                  <marker id="stc32-grayS" markerWidth="8" markerHeight="7" refX="1" refY="3.5" orient="auto"><polygon points="8,0 0,3.5 8,7" fill="${GRAY}"/></marker>
+                </defs>`;
+
+                // 水平面（細いグレー実線＋簡易ハッチ）。下端から少し上。
+                const groundY = H - 38;
+                svg += `<line x1="20" y1="${groundY}" x2="${W - 20}" y2="${groundY}" stroke="${GRAY}" stroke-width="1.5"/>`;
+                for (let hx = 28; hx < W - 24; hx += 16) {
+                    svg += `<line x1="${hx}" y1="${groundY}" x2="${hx - 8}" y2="${groundY + 9}" stroke="#aaa" stroke-width="1"/>`;
+                }
+
+                if (kind === 'kinematics') {
+                    // 問4：左に静止状態の薄い箱（v₀ ＝ 0、破線）、右に本体（m=10 kg、下に v=12 m/s）、
+                    //      その間を経過時間 t=4 s のグレー寸法線でつなぐ。本体の左面から右向き力矢印 F=?（赤）。
+                    const boxW = 64, boxH = 40;
+                    const boxY = groundY - boxH;
+                    // 静止状態（左、薄い破線箱）
+                    const ghostX = 44;
+                    svg += `<rect x="${ghostX}" y="${boxY}" width="${boxW}" height="${boxH}" rx="6" ry="6" fill="#eef3fa" stroke="${BLUE}" stroke-width="1.4" stroke-dasharray="5,3" opacity="0.7"/>`;
+                    svg += `<text x="${ghostX + boxW / 2}" y="${boxY - 8}" text-anchor="middle" font-size="12" fill="${GRAY}">v₀ ＝ 0 m/s</text>`;
+                    // 本体（右、青箱）
+                    const bodyX = W - 44 - boxW;
+                    svg += `<rect x="${bodyX}" y="${boxY}" width="${boxW}" height="${boxH}" rx="6" ry="6" fill="#dce9f7" stroke="${BLUE}" stroke-width="1.8"/>`;
+                    svg += `<text x="${bodyX + boxW / 2}" y="${boxY + boxH / 2 + 4}" text-anchor="middle" font-size="13" fill="${BLUE}" font-weight="700">m ＝ ${problem.m} kg</text>`;
+                    // v = 12 m/s（本体の下、青）
+                    svg += `<text x="${bodyX + boxW / 2}" y="${groundY + 24}" text-anchor="middle" font-size="12" fill="${BLUE}" font-weight="600">v ＝ ${problem.v} m/s</text>`;
+                    // 経過時間 t の寸法線（2 箱の上方をつなぐグレー両矢印）
+                    const dimY = boxY - 30;
+                    svg += `<line x1="${ghostX + boxW / 2}" y1="${dimY}" x2="${bodyX + boxW / 2}" y2="${dimY}" stroke="${GRAY}" stroke-width="1.2" marker-start="url(#stc32-grayS)" marker-end="url(#stc32-gray)"/>`;
+                    svg += `<line x1="${ghostX + boxW / 2}" y1="${boxY - 18}" x2="${ghostX + boxW / 2}" y2="${dimY}" stroke="${GRAY}" stroke-width="0.8" stroke-dasharray="3,3"/>`;
+                    svg += `<line x1="${bodyX + boxW / 2}" y1="${boxY - 18}" x2="${bodyX + boxW / 2}" y2="${dimY}" stroke="${GRAY}" stroke-width="0.8" stroke-dasharray="3,3"/>`;
+                    svg += `<text x="${(ghostX + bodyX + boxW) / 2}" y="${dimY - 6}" text-anchor="middle" font-size="12" fill="${GRAY}" font-weight="600">t ＝ ${problem.t} s</text>`;
+                    // 力矢印 F=?（本体の左面から右向き、赤）
+                    const fY = boxY + boxH / 2;
+                    const fLen = 40;
+                    svg += `<line x1="${bodyX - fLen}" y1="${fY}" x2="${bodyX}" y2="${fY}" stroke="${RED}" stroke-width="2.8" marker-end="url(#stc32-red)"/>`;
+                    svg += `<text x="${bodyX - fLen / 2}" y="${fY - 8}" text-anchor="middle" font-size="14" fill="${RED}" font-weight="700">F ＝ ?</text>`;
+                    svg += `</svg></div>`;
+                    return svg;
+                }
+
+                // 問1〜3 共通レイアウト：中央に物体（青い角丸長方形）、左面から右向き F、上に加速度 a の矢印。
+                const boxW = 78, boxH = 46;
+                const boxX = W / 2 - boxW / 2 + 6;
+                const boxY = groundY - boxH;
+                const cYmid = boxY + boxH / 2;
+
+                // 力矢印 F（物体の左面から右向き、赤い太矢印）
+                const fLen = 56;
+                // 力 F が既知なのは問2(accelFM)・問3(massFA)。未知（求める量）なのは問1(forceMA)のみ。
+                const fLabel = (kind === 'forceMA') ? 'F ＝ ?' : `F ＝ ${problem.F} N`;
+                svg += `<line x1="${boxX - fLen}" y1="${cYmid}" x2="${boxX}" y2="${cYmid}" stroke="${RED}" stroke-width="2.8" marker-end="url(#stc32-red)"/>`;
+                svg += `<text x="${boxX - fLen / 2}" y="${cYmid - 8}" text-anchor="middle" font-size="14" fill="${RED}" font-weight="700">${fLabel}</text>`;
+
+                // 加速度 a の矢印（物体の上、右向き＝力と同じ向き）
+                const aY = boxY - 18;
+                const aLen = 50;
+                const aX1 = boxX + boxW / 2 - aLen / 2;
+                const aX2 = boxX + boxW / 2 + aLen / 2;
+                // 加速度は既知（問1・問3）ならグレー、未知（問2）なら赤の ?。
+                const aIsUnknown = (kind === 'accelFM');
+                const aColor = aIsUnknown ? RED : GRAY;
+                let aLabel;
+                if (kind === 'forceMA') aLabel = `a ＝ ${problem.a} m/s²`;
+                else if (kind === 'massFA') aLabel = `a ＝ ${problem.a} m/s²`;
+                else aLabel = 'a ＝ ?'; // accelFM
+                svg += `<line x1="${aX1}" y1="${aY}" x2="${aX2}" y2="${aY}" stroke="${aColor}" stroke-width="${aIsUnknown ? 2.6 : 2}" marker-end="url(#stc32-${aIsUnknown ? 'red' : 'gray'})"/>`;
+                svg += `<text x="${boxX + boxW / 2}" y="${aY - 7}" text-anchor="middle" font-size="13" fill="${aColor}" font-weight="${aIsUnknown ? 700 : 600}">${aLabel}</text>`;
+
+                // 物体（青い角丸長方形）
+                svg += `<rect x="${boxX}" y="${boxY}" width="${boxW}" height="${boxH}" rx="7" ry="7" fill="#dce9f7" stroke="${BLUE}" stroke-width="1.8"/>`;
+                // 質量ラベル（物体の中。問3 は未知なので赤の ?）
+                const mIsUnknown = (kind === 'massFA');
+                const mColor = mIsUnknown ? RED : BLUE;
+                const mLabel = mIsUnknown ? 'm ＝ ?' : `m ＝ ${problem.m} kg`;
+                svg += `<text x="${boxX + boxW / 2}" y="${cYmid + 5}" text-anchor="middle" font-size="13" fill="${mColor}" font-weight="700">${mLabel}</text>`;
 
                 svg += `</svg></div>`;
                 return svg;
@@ -17023,6 +17575,8 @@
                                            ? (HINTS_2_4_BY_ID[(this.getCalcProblem() || {}).id] || HINTS_2_4_PV)
                                        : (this.currentUnitId === '2-5')
                                            ? (HINTS_2_5_BY_ID[(this.getCalcProblem() || {}).id] || HINTS_2_5_AVR)
+                                       : (this.currentUnitId === '3-2')
+                                           ? (HINTS_3_2_BY_ID[(this.getCalcProblem() || {}).id] || HINTS_3_2_FORCE)
                                        : HINTS_2_1;
                     const stageHints = hintsTable[stagePart];
                     const levelKeys = ['b', 'a', 'c'];
@@ -17161,6 +17715,9 @@
                 if (this.currentUnitId === '2-5') {
                     return PROBLEMS_2_5[this.currentProblemIndex];
                 }
+                if (this.currentUnitId === '3-2') {
+                    return PROBLEMS_3_2[this.currentProblemIndex];
+                }
                 return null;
             }
 
@@ -17202,8 +17759,9 @@
                 const is2_3 = this.currentUnitId === '2-3';
                 const is2_4 = this.currentUnitId === '2-4';
                 const is2_5 = this.currentUnitId === '2-5';
-                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5;
-                // 1-6〜1-12 / 2-2 / 2-3 / 2-4 / 2-5 は problem.stage0Correct、2-1 は固定値 's'
+                const is3_2 = this.currentUnitId === '3-2';
+                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2;
+                // 1-6〜1-12 / 2-2 / 2-3 / 2-4 / 2-5 / 3-2 は problem.stage0Correct、2-1 は固定値 's'
                 const correct = isForceCalc ? problem.stage0Correct : 's';
                 const isCorrect = (value === correct);
                 if (isCorrect) {
@@ -17262,6 +17820,13 @@
                             msg = (problem.formulaType === 'centripForceMVR' || problem.formulaType === 'centripForceMROmega')
                                 ? '正解。物体にはたらく向心力 F [N] の大きさを求めます。'
                                 : '正解。物体の向心加速度 a [m/s²] の大きさを求めます。';
+                        } else if (is3_2) {
+                            // 3-2: formulaType で求める量が異なる（F / a / m）
+                            msg = (problem.formulaType === 'accelFromFM')
+                                ? '正解。物体に生じる加速度 a [m/s²] の大きさを求めます。'
+                                : (problem.formulaType === 'massFromFA')
+                                ? '正解。物体の質量 m [kg] の大きさを求めます。'
+                                : '正解。物体に加えた力 F [N] の大きさを求めます。';
                         }
                         feedback.textContent = msg;
                     }
@@ -17410,6 +17975,19 @@
                             } else {
                                 msg = '不正解。問題文の末尾「○○を求めよ」に注目してください。';
                             }
+                        } else if (is3_2) {
+                            // 3-2: 与えられている量を選んだ場合の説明
+                            if (value === 'mass' && problem.formulaType !== 'massFromFA') {
+                                msg = '不正解。質量 m は問題文に「m ＝ ○○ kg」で与えられています。求めるものは別の量です。';
+                            } else if (value === 'accel' && problem.formulaType !== 'accelFromFM') {
+                                msg = (problem.formulaType === 'forceFromKinematics')
+                                    ? '不正解。問題文の末尾は「加えた力 F を求めよ」です。加速度は途中で計算する量です。'
+                                    : '不正解。加速度 a は問題文に「a ＝ ○○ m/s²」で与えられています。求めるものは別の量です。';
+                            } else if (value === 'force' && problem.formulaType !== 'forceFromMA' && problem.formulaType !== 'forceFromKinematics') {
+                                msg = '不正解。力 F は問題文に「F ＝ ○○ N」で与えられています。求めるものは別の量です。';
+                            } else {
+                                msg = '不正解。問題文の末尾「○○を求めよ」に注目してください。';
+                            }
                         } else {
                             msg = (value === 'v')
                                 ? '不正解。速度は問題文に「○○ m/s」の形で数値が与えられています。「求めよ」と書かれている量を探してください。'
@@ -17451,8 +18029,9 @@
                 const is2_3 = this.currentUnitId === '2-3';
                 const is2_4 = this.currentUnitId === '2-4';
                 const is2_5 = this.currentUnitId === '2-5';
-                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5;
-                // 1-6〜1-12 / 2-2 / 2-3 / 2-4 / 2-5 は problem.stage1Correct、2-1 は固定値 'constant'
+                const is3_2 = this.currentUnitId === '3-2';
+                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2;
+                // 1-6〜1-12 / 2-2 / 2-3 / 2-4 / 2-5 / 3-2 は problem.stage1Correct、2-1 は固定値 'constant'
                 const correct = isForceCalc ? problem.stage1Correct : 'constant';
                 const isCorrect = (value === correct);
                 if (isCorrect) {
@@ -17491,6 +18070,10 @@
                                 : '正解。「そっと手をはなした自由落下」は、はじめの速度 v₀ ＝ 0 で重力加速度 g が一定にはたらく等加速度運動の特殊な場合です。式 2-26 / 式 2-27 が使えます。';
                         } else if (is2_5) {
                             msg = '正解。物体が円周上を回る「円運動」です。円運動を続けるには、たえず中心 O に向かう力（向心力）が必要です。教科書 45 ページの式 2-32〜2-34 が使えます。';
+                        } else if (is3_2) {
+                            msg = (problem.formulaType === 'forceFromKinematics')
+                                ? '正解。一定の力で速度が一定の割合で増える、運動の第二法則の問題です。加速度の出し方（2-2）と運動方程式 F ＝ m × a（式 2-35）の両方を使います。'
+                                : '正解。物体に力が加わって加速度が生じる、運動の第二法則の問題です。教科書 47 ページの運動方程式 F ＝ m × a（式 2-35）が使えます。';
                         }
                         feedback.textContent = msg;
                     }
@@ -17554,6 +18137,12 @@
                                 : (value === 'rotationOnly')
                                 ? '不正解。円板が回るだけでなく、物体が円運動を続けるには中心 O に向かう力（向心力）がたえず必要です。'
                                 : '不正解。物体が円周上を回る運動を「円運動」といいます。';
+                        } else if (is3_2) {
+                            msg = (value === 'uniformLinear')
+                                ? '不正解。問題文には「力を加えたところ加速度が生じた（速度が変わった）」とあります。速度が一定のままの等速直線運動ではありません。'
+                                : (value === 'balance')
+                                ? '不正解。物体は静止しておらず、力が加わって加速度が生じています。力がつり合っている状態ではありません。'
+                                : '不正解。物体に力が加わって加速度が生じる現象は「運動の第二法則」です。運動方程式 F ＝ m × a が使えます。';
                         }
                         feedback.textContent = msg;
                     }
@@ -17632,7 +18221,7 @@
                     Abx: 'A大', Aby: 'A大', xbs: 'x大', ybs: 'y大', Acx: 'A切', Acy: 'A切', xcs: 'x切', ycs: 'y切', A0x: 'A₀', A0y: 'A₀',
                     v0: 'v₀', t1: 't', t2: 't', a: 'a', s: 's',
                     l: 'l', theta: 'θ', omega: 'ω', pi: 'π', n: 'n',
-                    g: 'g', h: 'h', m: 'm'
+                    g: 'g', h: 'h', m: 'm', F: 'F'
                 };
                 slotRoles.forEach(r => { slotEls[r] = document.getElementById('slot-' + r); });
                 // Reset visual state
@@ -17718,6 +18307,15 @@
                             } else {
                                 feedback.textContent = '不正解。単位に注目して入れ直してください。「kg」が質量 m、「m」が半径 r、「rad/s」が角速度 ω です。';
                             }
+                        } else if (this.currentUnitId === '3-2') {
+                            const ft3_2sub = (this.getCalcProblem() || {}).formulaType;
+                            if (ft3_2sub === 'accelFromFM') {
+                                feedback.textContent = '不正解。単位に注目して入れ直してください。「N」が力 F、「kg」が質量 m です（a ＝ F ÷ m）。';
+                            } else if (ft3_2sub === 'massFromFA') {
+                                feedback.textContent = '不正解。単位に注目して入れ直してください。「N」が力 F、「m/s²」が加速度 a です（m ＝ F ÷ a）。';
+                            } else {
+                                feedback.textContent = '不正解。単位に注目して入れ直してください。「kg」が質量 m、「m/s²」が加速度 a です（F ＝ m × a）。';
+                            }
                         } else {
                             feedback.textContent = '不正解。単位に注目して入れ直してください。「m/s」が速度 v、「s（秒）」が時間 t です。';
                         }
@@ -17751,9 +18349,10 @@
                 const is2_3 = this.currentUnitId === '2-3';
                 const is2_4 = this.currentUnitId === '2-4';
                 const is2_5 = this.currentUnitId === '2-5';
-                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5;
+                const is3_2 = this.currentUnitId === '3-2';
+                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2;
 
-                // 1-6〜1-12 / 2-2 / 2-3 / 2-4 / 2-5 は小数入力（step=0.1 を許容）し tolerance で判定。
+                // 1-6〜1-12 / 2-2 / 2-3 / 2-4 / 2-5 / 3-2 は小数入力（step=0.1 を許容）し tolerance で判定。
                 const userAnswer = isForceCalc ? parseFloat(answerInput.value) : parseInt(answerInput.value);
                 // 2-2: formulaType ごとに expected を取り出す。
                 //   aFromV → expectedA、sFromV0AT → expectedS、それ以外（vFromAT / vFromV0AS）→ expectedV
@@ -17775,6 +18374,13 @@
                     ? ((problem.formulaType === 'centripForceMVR' || problem.formulaType === 'centripForceMROmega')
                        ? problem.expectedF : problem.expectedA)
                     : null;
+                // 3-2: formulaType ごとに expected を取り出す。
+                //   accelFromFM → expectedA、massFromFA → expectedM、それ以外（forceFromMA / forceFromKinematics）→ expectedF
+                const expected3_2 = is3_2
+                    ? (problem.formulaType === 'accelFromFM' ? problem.expectedA
+                       : problem.formulaType === 'massFromFA' ? problem.expectedM
+                       : problem.expectedF)
+                    : null;
                 // 2-3: formulaType ごとに expected を取り出す。
                 //   freeFallH → expectedH、freeFallTime → expectedT、それ以外（freeFallV / verticalDownV）→ expectedV
                 const expected2_3 = is2_3
@@ -17793,6 +18399,7 @@
                                  : is2_3 ? expected2_3
                                  : is2_4 ? expected2_4
                                  : is2_5 ? expected2_5
+                                 : is3_2 ? expected3_2
                                  : problem.expectedDisplacement;
                 const tolerance  = isForceCalc ? (problem.tolerance || 1) : 0;
                 // 浮動小数点誤差対策: tolerance 境界（例 tolerance=0.1 で |userAnswer-expected|=0.10000...142）が
@@ -18000,6 +18607,25 @@
                                 ${expl2_5}
                             </div>
                         `;
+                    } else if (is3_2) {
+                        let expl3_2;
+                        if (problem.formulaType === 'accelFromFM') {
+                            expl3_2 = `a ＝ F ÷ m ＝ ${problem.F} ÷ ${problem.m} ＝ ${expected} [m/s²]`;
+                        } else if (problem.formulaType === 'massFromFA') {
+                            expl3_2 = `m ＝ F ÷ a ＝ ${problem.F} ÷ ${problem.a} ＝ ${expected} [kg]`;
+                        } else if (problem.formulaType === 'forceFromKinematics') {
+                            expl3_2 = `a ＝ (v − v₀) ÷ t ＝ (${problem.v} − ${problem.v0}) ÷ ${problem.t} ＝ ${problem.expectedA} m/s²<br>`
+                                    + `F ＝ m × a ＝ ${problem.m} × ${problem.expectedA} ＝ ${expected} [N]`;
+                        } else {
+                            // forceFromMA
+                            expl3_2 = `F ＝ m × a ＝ ${problem.m} × ${problem.a} ＝ ${expected} [N]`;
+                        }
+                        feedback.innerHTML = `
+                            <div style="margin-bottom: 10px;">正解です。</div>
+                            <div class="answer-explanation">
+                                ${expl3_2}
+                            </div>
+                        `;
                     } else {
                         feedback.innerHTML = `
                             <div style="margin-bottom: 10px;">正解です。</div>
@@ -18066,6 +18692,7 @@
                                             : is2_3 ? (problem.unit || 'm/s')
                                             : is2_4 ? (problem.unit || 'm/s')
                                             : is2_5 ? (problem.unit || 'm/s²')
+                                            : is3_2 ? (problem.unit || 'N')
                                             : 'N';
                             feedback.innerHTML += `<div class="answer-explanation">正解は ${expected} [${unitLabel}] です。計算の手順をもう一度確認してください。</div>`;
                         }
