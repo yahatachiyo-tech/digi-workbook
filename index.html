@@ -2379,10 +2379,10 @@
         const DASHBOARD_UNIT_COUNTS = {
             '1-1': 4, '1-2': 6, '1-3': 4, '1-4': 4, '1-5': 4,
             '1-6': 4, '1-7': 4, '1-8': 4, '1-9': 4,
-            '1-10': 4, '1-11': 4, '1-12': 4, '2-1': 5, '2-2': 4, '2-3': 4, '2-4': 4, '2-5': 4, '3-1': 6, '3-2': 4
+            '1-10': 4, '1-11': 4, '1-12': 4, '2-1': 5, '2-2': 4, '2-3': 4, '2-4': 4, '2-5': 4, '3-1': 6, '3-2': 4, '3-3': 4
         };
         // 単元表示順
-        const DASHBOARD_UNIT_ORDER = ['1-1', '1-2', '1-3', '1-4', '1-5', '1-6', '1-7', '1-8', '1-9', '1-10', '1-11', '1-12', '2-1', '2-2', '2-3', '2-4', '2-5', '3-1', '3-2'];
+        const DASHBOARD_UNIT_ORDER = ['1-1', '1-2', '1-3', '1-4', '1-5', '1-6', '1-7', '1-8', '1-9', '1-10', '1-11', '1-12', '2-1', '2-2', '2-3', '2-4', '2-5', '3-1', '3-2', '3-3'];
 
         // 【校内版では実名ロスターを定義していたが、GitHub Pages 配信のため空に変更】
         // 将来、名簿照合に戻す場合は 1番〜36番 + 40番の形式で復活可能
@@ -2556,6 +2556,15 @@
                 id: '3-2',
                 title: '運動方程式（F = ma）',
                 subtitle: '運動の第二法則 F=ma / a=F÷m / m=F÷a',
+                level: '基礎',
+                completed: false,
+                score: 0,
+                total: 0
+            },
+            {
+                id: '3-3',
+                title: '慣性力',
+                subtitle: '見かけの力 −ma / エレベータ・ロープ（F=mg±ma）',
                 level: '基礎',
                 completed: false,
                 score: 0,
@@ -6549,6 +6558,389 @@
             4: HINTS_3_2_KINEMATICS
         };
 
+        // Problems for sub-unit 3-3: 慣性力（見かけの力 −ma）
+        //   3-2 と同じ 6 ステージ計算フローを共有する（is3_3 で分岐）。
+        //   Stage 2 は derivationSteps アコーディオン方式（render1_10DerivAccordion を再利用）。
+        //   慣性力は加速度と逆向きの見かけの力。重力 mg は derivationStep 内で先に数値化し、
+        //   Stage 3 代入は「mg」「ma」（または「F−mg」「m」）の数値スロットに落とす（g はカードに出さない）。
+        //   formulaType: inertiaUp（F=mg+ma 加速上昇）／inertiaDown（F=mg−ma 加速下降）／
+        //                inertiaRope（S=mg+ma 張力）／inertiaAccel（a=(F−mg)/m 逆算）。
+        //   問題図は build3_3InertiaCanvas(problem) が描く（canvas.kind で分岐）。
+        const PROBLEMS_3_3 = [
+            {
+                id: 1,
+                formulaType: 'inertiaUp',
+                m: 60, a: 2, g: 9.8, mg: 588, ma: 120,
+                expectedF: 708, tolerance: 0.1, unit: 'N', decimals: 1, baselineTime: 220,
+                sentence: 'エレベータが加速度 a ＝ 2 m/s² で上昇をはじめた。エレベータの中に乗っている質量 m ＝ 60 kg の人が、エレベータの床を押す力 F [N] を求めよ。ただし、重力加速度を g ＝ 9.8 m/s² とする。',
+                condition: '紹介、慣性力（例題14型）、加速上昇、F=mg+ma=588+120=708.0 N',
+                canvasType: '2d-static',
+                canvas: { width: 360, height: 220, kind: 'inertiaUp' },
+                stage0Choices: [
+                    { value: 'floorForce', label: '人がエレベータの床を押す力 F [N] の大きさ' },
+                    { value: 'mass',       label: '人の質量 m [kg] の大きさ' },
+                    { value: 'accel',      label: 'エレベータの加速度 a [m/s²] の大きさ' }
+                ],
+                stage0Correct: 'floorForce',
+                stage1Choices: [
+                    { value: 'inertia',       label: '加速度運動する物体に慣性力を加えて、力のつり合いとして考える問題である' },
+                    { value: 'uniformLinear', label: '速度が一定のままで、力が何も加わらない等速直線運動の問題である' },
+                    { value: 'staticBalance', label: '物体が静止していて、重力と床の反力だけがつり合っている問題である' }
+                ],
+                stage1Correct: 'inertia',
+                derivationSteps: [
+                    {
+                        prompt: '人がエレベータの床を押す力 F は、作用と反作用の関係から、床が人を押し上げる力（反力）と大きさが等しくなります。エレベータが上向きに加速しているとき、加速度と逆向きにつけ加える慣性力（見かけの力）の向きはどちらですか。',
+                        choices: [
+                            { value: 'down', label: '下向き（加速度が上向きなので、慣性力はその逆の下向き）' },
+                            { value: 'up',   label: '上向き（加速度と同じ上向き）' },
+                            { value: 'none', label: '慣性力は働かない（加速していても向きは関係ない）' }
+                        ],
+                        correct: 'down',
+                        onCorrectText: '加速度が上向きなので、慣性力（見かけの力）はその逆の下向きです。これは加速で体が下に押しつけられ、重く感じる感覚に対応します。'
+                    },
+                    {
+                        prompt: '人には、上向きに床の反力 F、下向きに重力 mg、下向きに慣性力 ma が働き、この 3 つがつり合うと考えます。つり合いの式から、F はどう表せますか。',
+                        choices: [
+                            { value: 'plus',  label: 'F ＝ mg ＋ ma（下向きの重力と慣性力を足して支える）' },
+                            { value: 'minus', label: 'F ＝ mg − ma（重力から慣性力を引く）' },
+                            { value: 'onlyg', label: 'F ＝ mg（加速していても重力だけ支えればよい）' }
+                        ],
+                        correct: 'plus',
+                        onCorrectText: '下向きに重力 mg と慣性力 ma の 2 つが働くので、それを支える上向きの力は F ＝ mg ＋ ma です。加速上昇では、ふだんより大きな力で床を押します。'
+                    },
+                    {
+                        prompt: '重力 mg と加速度ぶんの力 ma を数値にします。重力は「質量 × 9.8」で求めます。それぞれいくつですか。',
+                        choices: [
+                            { value: 'right',  label: 'mg ＝ 60 × 9.8 ＝ 588 N、ma ＝ 60 × 2 ＝ 120 N' },
+                            { value: 'swap',   label: 'mg ＝ 60 × 2 ＝ 120 N、ma ＝ 60 × 9.8 ＝ 588 N' },
+                            { value: 'nomass', label: 'mg ＝ 9.8 N、ma ＝ 2 N（質量をかけ忘れる）' }
+                        ],
+                        correct: 'right',
+                        onCorrectText: '重力 mg ＝ 60 × 9.8 ＝ 588 N、加速度ぶんの力 ma ＝ 60 × 2 ＝ 120 N。あとはこの 2 つを足せば F が求まります。'
+                    }
+                ],
+                formula: 'F = mg + ma',
+                substitutions: {
+                    slots: ['mg', 'ma'],
+                    cards: [
+                        { role: 'mg', label: 'mg', value: 588, unit: 'N' },
+                        { role: 'ma', label: 'ma', value: 120, unit: 'N' }
+                    ]
+                }
+            },
+            {
+                id: 2,
+                formulaType: 'inertiaDown',
+                m: 50, a: 1.5, g: 9.8, mg: 490, ma: 75,
+                expectedF: 415, tolerance: 0.1, unit: 'N', decimals: 1, baselineTime: 230,
+                sentence: 'エレベータが加速度 a ＝ 1.5 m/s² で下降をはじめた。エレベータの中に乗っている質量 m ＝ 50 kg の人が、エレベータの床を押す力 F [N] を求めよ。ただし、重力加速度を g ＝ 9.8 m/s² とする。',
+                condition: '紹介、慣性力（問31型）、加速下降、F=mg−ma=490−75=415.0 N',
+                canvasType: '2d-static',
+                canvas: { width: 360, height: 220, kind: 'inertiaDown' },
+                stage0Choices: [
+                    { value: 'floorForce', label: '人がエレベータの床を押す力 F [N] の大きさ' },
+                    { value: 'mass',       label: '人の質量 m [kg] の大きさ' },
+                    { value: 'accel',      label: 'エレベータの加速度 a [m/s²] の大きさ' }
+                ],
+                stage0Correct: 'floorForce',
+                stage1Choices: [
+                    { value: 'inertia',       label: '加速度運動する物体に慣性力を加えて、力のつり合いとして考える問題である' },
+                    { value: 'uniformLinear', label: '速度が一定のままで、力が何も加わらない等速直線運動の問題である' },
+                    { value: 'staticBalance', label: '物体が静止していて、重力と床の反力だけがつり合っている問題である' }
+                ],
+                stage1Correct: 'inertia',
+                derivationSteps: [
+                    {
+                        prompt: '今回はエレベータが下向きに加速しています。加速度と逆向きにつけ加える慣性力（見かけの力）の向きはどちらですか。',
+                        choices: [
+                            { value: 'up',   label: '上向き（加速度が下向きなので、慣性力はその逆の上向き）' },
+                            { value: 'down', label: '下向き（加速度と同じ下向き）' },
+                            { value: 'none', label: '慣性力は働かない（下降だから重力だけ）' }
+                        ],
+                        correct: 'up',
+                        onCorrectText: '加速度が下向きなので、慣性力（見かけの力）はその逆の上向きです。これは下に加速されるとき体が軽く感じる感覚に対応します。'
+                    },
+                    {
+                        prompt: '人には、上向きに床の反力 F、下向きに重力 mg、上向きに慣性力 ma が働き、この 3 つがつり合うと考えます。つり合いの式から、F はどう表せますか。',
+                        choices: [
+                            { value: 'minus', label: 'F ＝ mg − ma（上向きの慣性力のぶんだけ、支える力は重力より小さい）' },
+                            { value: 'plus',  label: 'F ＝ mg ＋ ma（重力と慣性力を足す）' },
+                            { value: 'onlyg', label: 'F ＝ mg（加速しても重力だけ支えればよい）' }
+                        ],
+                        correct: 'minus',
+                        onCorrectText: '慣性力 ma が上向きなので、重力 mg の一部を慣性力が肩代わりします。支える力は F ＝ mg − ma となり、ふだんより小さくなります。'
+                    },
+                    {
+                        prompt: '重力 mg と加速度ぶんの力 ma を数値にします。重力は「質量 × 9.8」で求めます。それぞれいくつですか。',
+                        choices: [
+                            { value: 'right',  label: 'mg ＝ 50 × 9.8 ＝ 490 N、ma ＝ 50 × 1.5 ＝ 75 N' },
+                            { value: 'swap',   label: 'mg ＝ 50 × 1.5 ＝ 75 N、ma ＝ 50 × 9.8 ＝ 490 N' },
+                            { value: 'nomass', label: 'mg ＝ 9.8 N、ma ＝ 1.5 N（質量をかけ忘れる）' }
+                        ],
+                        correct: 'right',
+                        onCorrectText: '重力 mg ＝ 50 × 9.8 ＝ 490 N、加速度ぶんの力 ma ＝ 50 × 1.5 ＝ 75 N。あとは重力から慣性力ぶんを引けば F が求まります。'
+                    }
+                ],
+                formula: 'F = mg - ma',
+                substitutions: {
+                    slots: ['mg', 'ma'],
+                    cards: [
+                        { role: 'mg', label: 'mg', value: 490, unit: 'N' },
+                        { role: 'ma', label: 'ma', value: 75,  unit: 'N' }
+                    ]
+                }
+            },
+            {
+                id: 3,
+                formulaType: 'inertiaRope',
+                m: 20, a: 2, g: 9.8, mg: 196, ma: 40,
+                expectedS: 236, tolerance: 0.1, unit: 'N', decimals: 1, baselineTime: 220,
+                sentence: '質量 m ＝ 20 kg の物体を、ロープで真上に引き上げる。引き上げはじめに、物体が上向きに加速度 a ＝ 2 m/s² で動き出した。このとき、ロープに働く張力 S [N] を求めよ。ただし、重力加速度を g ＝ 9.8 m/s² とする。',
+                condition: '紹介、慣性力（問30型・張力）、加速上昇、S=mg+ma=196+40=236.0 N',
+                canvasType: '2d-static',
+                canvas: { width: 360, height: 240, kind: 'inertiaRope' },
+                stage0Choices: [
+                    { value: 'tension', label: 'ロープに働く張力 S [N] の大きさ' },
+                    { value: 'mass',    label: '物体の質量 m [kg] の大きさ' },
+                    { value: 'accel',   label: '物体の加速度 a [m/s²] の大きさ' }
+                ],
+                stage0Correct: 'tension',
+                stage1Choices: [
+                    { value: 'inertia',       label: '加速度運動する物体に慣性力を加えて、力のつり合いとして考える問題である' },
+                    { value: 'uniformLinear', label: '速度が一定のままで、力が何も加わらない等速直線運動の問題である' },
+                    { value: 'staticBalance', label: '物体が静止していて、重力と張力だけがつり合っている問題である' }
+                ],
+                stage1Correct: 'inertia',
+                derivationSteps: [
+                    {
+                        prompt: '物体は上向きに加速して引き上げられています。実際の力は上向きの張力 S と下向きの重力 mg です。これに慣性力（見かけの力）をつけ加えます。慣性力の向きはどちらですか。',
+                        choices: [
+                            { value: 'down', label: '下向き（加速度が上向きなので、慣性力はその逆の下向き）' },
+                            { value: 'up',   label: '上向き（張力と同じ上向き）' },
+                            { value: 'none', label: '慣性力は働かない（ロープでつるしているだけ）' }
+                        ],
+                        correct: 'down',
+                        onCorrectText: '加速度が上向きなので、慣性力（見かけの力）はその逆の下向きです。下向きの力は重力 mg と慣性力 ma の 2 つになります。'
+                    },
+                    {
+                        prompt: '物体には、上向きに張力 S、下向きに重力 mg、下向きに慣性力 ma が働き、この 3 つがつり合うと考えます。つり合いの式から、張力 S はどう表せますか。',
+                        choices: [
+                            { value: 'plus',  label: 'S ＝ mg ＋ ma（下向きの重力と慣性力を足して支える）' },
+                            { value: 'minus', label: 'S ＝ mg − ma（重力から慣性力を引く）' },
+                            { value: 'onlyg', label: 'S ＝ mg（加速しても重力だけ支えればよい）' }
+                        ],
+                        correct: 'plus',
+                        onCorrectText: '下向きに重力 mg と慣性力 ma の 2 つが働くので、それを支える張力は S ＝ mg ＋ ma です。加速して引き上げるときは、ただつるすときより大きな張力が必要です。'
+                    },
+                    {
+                        prompt: '重力 mg と加速度ぶんの力 ma を数値にします。重力は「質量 × 9.8」で求めます。それぞれいくつですか。',
+                        choices: [
+                            { value: 'right',  label: 'mg ＝ 20 × 9.8 ＝ 196 N、ma ＝ 20 × 2 ＝ 40 N' },
+                            { value: 'swap',   label: 'mg ＝ 20 × 2 ＝ 40 N、ma ＝ 20 × 9.8 ＝ 196 N' },
+                            { value: 'nomass', label: 'mg ＝ 9.8 N、ma ＝ 2 N（質量をかけ忘れる）' }
+                        ],
+                        correct: 'right',
+                        onCorrectText: '重力 mg ＝ 20 × 9.8 ＝ 196 N、加速度ぶんの力 ma ＝ 20 × 2 ＝ 40 N。あとはこの 2 つを足せば張力 S が求まります。'
+                    }
+                ],
+                formula: 'S = mg + ma',
+                substitutions: {
+                    slots: ['mg', 'ma'],
+                    cards: [
+                        { role: 'mg', label: 'mg', value: 196, unit: 'N' },
+                        { role: 'ma', label: 'ma', value: 40,  unit: 'N' }
+                    ]
+                }
+            },
+            {
+                id: 4,
+                formulaType: 'inertiaAccel',
+                m: 10, F: 170, g: 9.8, mg: 98, net: 72,
+                expectedA: 7.2, tolerance: 0.1, unit: 'm/s²', decimals: 1, baselineTime: 240,
+                sentence: '質量 m ＝ 10 kg の物体を、ロープで真上に F ＝ 170 N の力で引き上げる。このとき物体に生じる加速度 a [m/s²] を求めよ。ただし、重力加速度を g ＝ 9.8 m/s² とする。',
+                condition: '紹介、慣性力（問32型・逆算）、a=(F−mg)/m=(170−98)/10=72/10=7.2 m/s²',
+                canvasType: '2d-static',
+                canvas: { width: 360, height: 240, kind: 'inertiaAccel' },
+                stage0Choices: [
+                    { value: 'accel', label: '物体に生じる加速度 a [m/s²] の大きさ' },
+                    { value: 'force', label: '引き上げる力 F [N] の大きさ' },
+                    { value: 'mass',  label: '物体の質量 m [kg] の大きさ' }
+                ],
+                stage0Correct: 'accel',
+                stage1Choices: [
+                    { value: 'inertia',       label: '加速度運動する物体に慣性力を加えて、力のつり合いとして考える問題である' },
+                    { value: 'uniformLinear', label: '速度が一定のままで、力が何も加わらない等速直線運動の問題である' },
+                    { value: 'staticBalance', label: '物体が静止していて、力がつり合っている問題である' }
+                ],
+                stage1Correct: 'inertia',
+                derivationSteps: [
+                    {
+                        prompt: '物体は上向きの力 F ＝ 170 N で引き上げられ、上向きに加速します。加速度と逆向きにつけ加える慣性力（見かけの力）の向きはどちらですか。',
+                        choices: [
+                            { value: 'down', label: '下向き（加速度が上向きなので、慣性力はその逆の下向き）' },
+                            { value: 'up',   label: '上向き（引き上げる力と同じ上向き）' },
+                            { value: 'none', label: '慣性力は働かない' }
+                        ],
+                        correct: 'down',
+                        onCorrectText: '加速度が上向きなので、慣性力（見かけの力）は下向きです。物体には、上向きに F、下向きに重力 mg と慣性力 ma が働いてつり合います。'
+                    },
+                    {
+                        prompt: '上向きの力 F、下向きの重力 mg、下向きの慣性力 ma がつり合うので F ＝ mg ＋ ma。これを ma ＝ F − mg と書きかえ、求めたい加速度 a について解くには、両辺をどうしますか。',
+                        choices: [
+                            { value: 'divM', label: '両辺を m で割る（→ a ＝ (F − mg) ÷ m）' },
+                            { value: 'mulM', label: '両辺に m を掛ける（→ a ＝ (F − mg) × m）' },
+                            { value: 'subM', label: '両辺から m を引く（→ a ＝ (F − mg) − m）' }
+                        ],
+                        correct: 'divM',
+                        onCorrectText: 'ma ＝ F − mg の両辺を m で割ると a ＝ (F − mg) ÷ m。物体を動かす残りの力（F − mg）を質量で割れば加速度が求まります。'
+                    },
+                    {
+                        prompt: '重力 mg と、物体を動かす残りの力 F − mg を数値にします。重力は「質量 × 9.8」で求めます。それぞれいくつですか。',
+                        choices: [
+                            { value: 'right',  label: 'mg ＝ 10 × 9.8 ＝ 98 N、F − mg ＝ 170 − 98 ＝ 72 N' },
+                            { value: 'nomass', label: 'mg ＝ 9.8 N（質量をかけ忘れる）、F − mg ＝ 170 − 9.8 ＝ 160.2 N' },
+                            { value: 'subm',   label: 'mg ＝ 170 − 10 ＝ 160 N、F − mg ＝ 170 − 160 ＝ 10 N' }
+                        ],
+                        correct: 'right',
+                        onCorrectText: '重力 mg ＝ 10 × 9.8 ＝ 98 N。物体を動かす残りの力 F − mg ＝ 170 − 98 ＝ 72 N。あとは質量 m で割れば加速度 a が求まります。'
+                    }
+                ],
+                formula: 'a = \\dfrac{F - mg}{m}',
+                substitutions: {
+                    slots: ['net', 'm'],
+                    cards: [
+                        { role: 'net', label: 'F − mg', value: 72, unit: 'N' },
+                        { role: 'm',   label: 'm',      value: 10, unit: 'kg' }
+                    ]
+                }
+            }
+        ];
+
+        // 問1（inertiaUp: F=mg+ma 加速上昇）
+        const HINTS_3_3_UP = {
+            stage0: {
+                b: '問題文の最後の文に注目してください。質量 60 kg、加速度 2 m/s²、重力加速度 9.8 m/s² はすでに数値が書かれています。',
+                a: '問題文の末尾に「床を押す力 F [N] を求めよ」とあります。求めるものは人が床を押す力 F、単位は N です。',
+                c: '教科書49ページ「4 慣性力」、例題14 を確認してください。'
+            },
+            stage1: {
+                b: 'エレベータといっしょに動く人から見ると、人は静止しているように見えます。でもエレベータは加速しています。実際の力だけではつり合いません。',
+                a: '加速度運動する物体に、加速度と逆向きの見かけの力（慣性力）をつけ加えると、運動の問題を力のつり合いの問題として考えられます。静止している物体のつり合いとは違います。',
+                c: '教科書49ページ「4 慣性力」、図2-56 を確認してください。'
+            },
+            stage2: {
+                b: 'エレベータが上に加速すると、体が床に強く押しつけられて重く感じます。慣性力は加速度と逆の下向きで、重力に上乗せされます。',
+                a: '加速上昇では慣性力 ma が下向き。上向きの床の反力 F が、下向きの重力 mg と慣性力 ma の両方を支えるので F ＝ mg ＋ ma。重力は mg ＝ 質量 × 9.8 です。',
+                c: '教科書49〜50ページ 例題14 の式「F ＝ mg ＋ ma」を確認してください。'
+            },
+            stage3: {
+                b: 'まず数値にします。重力 mg ＝ 60 × 9.8 ＝ 588 N、加速度ぶん ma ＝ 60 × 2 ＝ 120 N。この 2 つを式 F ＝ mg ＋ ma に入れます。',
+                a: '式 F ＝ mg ＋ ma の空欄に、mg ＝ 588 N、ma ＝ 120 N を入れてください。',
+                c: '教科書50ページ 例題14 の代入の流れを確認してください。'
+            },
+            stage4: {
+                b: '重力 588 N と加速度ぶんの力 120 N を足し算するだけです。電卓を使って構いません。答えは小数第1位までで答えてください。',
+                a: 'F ＝ mg ＋ ma ＝ 588 ＋ 120 ＝ 708.0 [N]。単位は N です。',
+                c: '教科書50ページ 例題14 の解答を確認してください。'
+            }
+        };
+
+        // 問2（inertiaDown: F=mg−ma 加速下降）
+        const HINTS_3_3_DOWN = {
+            stage0: {
+                b: '問題文の最後の文に注目してください。質量 50 kg、加速度 1.5 m/s²、重力加速度 9.8 m/s² はすでに数値が書かれています。',
+                a: '問題文の末尾に「床を押す力 F [N] を求めよ」とあります。求めるものは人が床を押す力 F、単位は N です。',
+                c: '教科書49ページ「4 慣性力」、問31 を確認してください。'
+            },
+            stage1: {
+                b: 'エレベータといっしょに動く人から見ると、人は静止しているように見えます。でもエレベータは下向きに加速しています。実際の力だけではつり合いません。',
+                a: '加速度運動する物体に、加速度と逆向きの見かけの力（慣性力）をつけ加えると、力のつり合いの問題として考えられます。',
+                c: '教科書49ページ「4 慣性力」、図2-56 を確認してください。'
+            },
+            stage2: {
+                b: 'エレベータが下に加速すると、体が一瞬軽く感じます。慣性力は加速度と逆の上向きで、重力の一部を肩代わりします。',
+                a: '加速下降では慣性力 ma が上向き。床の反力 F が支えるべき重力 mg の一部を慣性力が肩代わりするので F ＝ mg − ma。重力は mg ＝ 質量 × 9.8 です。',
+                c: '教科書49ページ 問31、図2-56 を確認してください。'
+            },
+            stage3: {
+                b: 'まず数値にします。重力 mg ＝ 50 × 9.8 ＝ 490 N、加速度ぶん ma ＝ 50 × 1.5 ＝ 75 N。この 2 つを式 F ＝ mg − ma に入れます。',
+                a: '式 F ＝ mg − ma の空欄に、mg ＝ 490 N、ma ＝ 75 N を入れてください。',
+                c: '教科書49ページ 問31 を確認してください。'
+            },
+            stage4: {
+                b: '重力 490 N から加速度ぶんの力 75 N を引き算するだけです。電卓を使って構いません。答えは小数第1位までで答えてください。',
+                a: 'F ＝ mg − ma ＝ 490 − 75 ＝ 415.0 [N]。下降加速なので問1（上昇）より小さい力になります。単位は N です。',
+                c: '教科書49ページ 問31 を確認してください。'
+            }
+        };
+
+        // 問3（inertiaRope: S=mg+ma 張力）
+        const HINTS_3_3_ROPE = {
+            stage0: {
+                b: '問題文の最後の文に注目してください。質量 20 kg、加速度 2 m/s²、重力加速度 9.8 m/s² はすでに数値が書かれています。',
+                a: '問題文の末尾に「ロープに働く張力 S [N] を求めよ」とあります。求めるものはロープの張力 S、単位は N です。',
+                c: '教科書49ページ 問30 を確認してください。'
+            },
+            stage1: {
+                b: '物体は上向きに加速しながら引き上げられています。ただつるして止まっているのとは違い、速度が増えています。',
+                a: '加速度運動する物体に、加速度と逆向きの見かけの力（慣性力）をつけ加えると、力のつり合いの問題として考えられます。静止してつり合う場合とは違います。',
+                c: '教科書49ページ「4 慣性力」、図2-56 を確認してください。'
+            },
+            stage2: {
+                b: '上向きに加速して引き上げるには、重力に逆らうだけでなく、加速させるぶんの力も必要です。慣性力は加速度と逆の下向きで、重力に上乗せされます。',
+                a: '加速上昇では慣性力 ma が下向き。上向きの張力 S が、下向きの重力 mg と慣性力 ma の両方を支えるので S ＝ mg ＋ ma。重力は mg ＝ 質量 × 9.8 です。',
+                c: '教科書49ページ 問30、図2-56 を確認してください。'
+            },
+            stage3: {
+                b: 'まず数値にします。重力 mg ＝ 20 × 9.8 ＝ 196 N、加速度ぶん ma ＝ 20 × 2 ＝ 40 N。この 2 つを式 S ＝ mg ＋ ma に入れます。',
+                a: '式 S ＝ mg ＋ ma の空欄に、mg ＝ 196 N、ma ＝ 40 N を入れてください。',
+                c: '教科書49ページ 問30 を確認してください。'
+            },
+            stage4: {
+                b: '重力 196 N と加速度ぶんの力 40 N を足し算するだけです。電卓を使って構いません。答えは小数第1位までで答えてください。',
+                a: 'S ＝ mg ＋ ma ＝ 196 ＋ 40 ＝ 236.0 [N]。単位は N です。',
+                c: '教科書49ページ 問30 を確認してください。'
+            }
+        };
+
+        // 問4（inertiaAccel: a=(F−mg)/m 逆算）
+        const HINTS_3_3_ACCEL = {
+            stage0: {
+                b: '問題文の最後の文に注目してください。質量 10 kg、引き上げる力 170 N、重力加速度 9.8 m/s² はすでに数値が書かれています。',
+                a: '問題文の末尾に「生じる加速度 a [m/s²] を求めよ」とあります。求めるものは加速度 a、単位は m/s² です。',
+                c: '教科書49ページ 問32 を確認してください。'
+            },
+            stage1: {
+                b: '物体には上向きの引き上げる力と下向きの重力がかかっています。この 2 つは大きさが違うので、つり合っていません。物体は加速します。',
+                a: '加速度運動する物体に慣性力を加えると力のつり合いとして考えられます。上向きの力・下向きの重力・下向きの慣性力がつり合うとして式を立てます。',
+                c: '教科書49ページ 問32、47ページ「2 運動の第二法則」を確認してください。'
+            },
+            stage2: {
+                b: '物体を上向きに動かすのは、引き上げる力から重力を引いた「残りの力」です。その残りの力を質量で割れば加速度が出ます。',
+                a: 'F ＝ mg ＋ ma を ma ＝ F − mg と書きかえ、両辺を m で割ると a ＝ (F − mg) ÷ m。重力は mg ＝ 質量 × 9.8 です。',
+                c: '教科書49ページ 問32、47ページ 式(2-35) を確認してください。'
+            },
+            stage3: {
+                b: 'まず重力 mg ＝ 10 × 9.8 ＝ 98 N、物体を動かす残りの力 F − mg ＝ 170 − 98 ＝ 72 N を出します。これを式 a ＝ (F − mg) ÷ m に入れます。',
+                a: '式 a ＝ (F − mg) ÷ m の空欄に、F − mg ＝ 72 N、m ＝ 10 kg を入れてください。',
+                c: '教科書49ページ 問32 を確認してください。'
+            },
+            stage4: {
+                b: '残りの力 72 N を質量 10 kg で割り算するだけです。電卓を使って構いません。答えは小数第1位までで答えてください。',
+                a: 'a ＝ (F − mg) ÷ m ＝ 72 ÷ 10 ＝ 7.2 [m/s²]。単位は m/s² です。',
+                c: '教科書49ページ 問32 を確認してください。'
+            }
+        };
+
+        // 問 id（1〜4）→ ヒント表。renderCalculationProblem / showHint から参照。
+        const HINTS_3_3_BY_ID = {
+            1: HINTS_3_3_UP,
+            2: HINTS_3_3_DOWN,
+            3: HINTS_3_3_ROPE,
+            4: HINTS_3_3_ACCEL
+        };
+
         // ==================================================================
         // 考査対策・考査問題マスターデータ（仕様書 §10〜§12）
         // ==================================================================
@@ -8243,6 +8635,7 @@
                 if (unitId === '2-5') return PROBLEMS_2_5.length;
                 if (unitId === '3-1') return PROBLEMS_3_1.length;
                 if (unitId === '3-2') return PROBLEMS_3_2.length;
+                if (unitId === '3-3') return PROBLEMS_3_3.length;
                 return 0;
             }
 
@@ -10725,6 +11118,7 @@
                 else if (this.currentUnitId === '2-5') problems = PROBLEMS_2_5;
                 else if (this.currentUnitId === '3-1') problems = PROBLEMS_3_1;
                 else if (this.currentUnitId === '3-2') problems = PROBLEMS_3_2;
+                else if (this.currentUnitId === '3-3') problems = PROBLEMS_3_3;
 
                 if (this.currentProblemIndex >= problems.length) {
                     this.showSummary();
@@ -10841,6 +11235,7 @@
                     else if (this.currentUnitId === '2-5') problems = PROBLEMS_2_5;
                     else if (this.currentUnitId === '3-1') problems = PROBLEMS_3_1;
                     else if (this.currentUnitId === '3-2') problems = PROBLEMS_3_2;
+                    else if (this.currentUnitId === '3-3') problems = PROBLEMS_3_3;
                     sidebarList.innerHTML = problems.map((p, i) =>
                         `<li class="${i === this.currentProblemIndex ? 'is-active' : ''}">問 ${p.id}</li>`
                     ).join('');
@@ -10868,7 +11263,7 @@
                 const content = document.getElementById('problemContent');
 
                 // Handle different problem types
-                if (this.currentUnitId === '2-1' || this.currentUnitId === '2-2' || this.currentUnitId === '2-3' || this.currentUnitId === '2-4' || this.currentUnitId === '2-5' || this.currentUnitId === '3-2' || this.currentUnitId === '1-6' || this.currentUnitId === '1-7' || this.currentUnitId === '1-8' || this.currentUnitId === '1-9' || this.currentUnitId === '1-10' || this.currentUnitId === '1-11' || this.currentUnitId === '1-12') {
+                if (this.currentUnitId === '2-1' || this.currentUnitId === '2-2' || this.currentUnitId === '2-3' || this.currentUnitId === '2-4' || this.currentUnitId === '2-5' || this.currentUnitId === '3-2' || this.currentUnitId === '3-3' || this.currentUnitId === '1-6' || this.currentUnitId === '1-7' || this.currentUnitId === '1-8' || this.currentUnitId === '1-9' || this.currentUnitId === '1-10' || this.currentUnitId === '1-11' || this.currentUnitId === '1-12') {
                     this.renderCalculationProblem(problem, content);
                 } else if (this.currentUnitId === '1-3' || this.currentUnitId === '1-4' || this.currentUnitId === '1-5') {
                     this.drawingStageIndex = 0;
@@ -10972,9 +11367,10 @@
                 const is2_4 = this.currentUnitId === '2-4';
                 const is2_5 = this.currentUnitId === '2-5';
                 const is3_2 = this.currentUnitId === '3-2';
+                const is3_3 = this.currentUnitId === '3-3';
                 // isForceCalc は「6 ステージ汎用フロー（problem.stage0Choices 等を持つ）」を意味する。
-                //   2-2 / 2-3 / 2-4 / 2-5 / 3-2 も同じデータ schema（sentence / stage0Choices / stage1Choices / substitutions）を採るので含める。
-                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2;
+                //   2-2 / 2-3 / 2-4 / 2-5 / 3-2 / 3-3 も同じデータ schema（sentence / stage0Choices / stage1Choices / substitutions）を採るので含める。
+                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2 || is3_3;
                 // Persistent problem statement shown at the top of every stage
                 const problemText = isForceCalc
                     ? problem.sentence
@@ -11085,6 +11481,15 @@
                         '計算する',
                         '答えの意味を確認'
                     ]
+                    : is3_3
+                    ? [
+                        '求める量を確認する',
+                        'どんな問題か確認する',
+                        '使う式を導く',
+                        '数値を代入する',
+                        '計算する',
+                        '答えの意味を確認'
+                    ]
                     : [
                         '求める量を確認する',
                         '運動の種類を確認する',
@@ -11122,6 +11527,7 @@
                                       : is2_4 ? this.build2_4RotationCanvas(problem)
                                       : is2_5 ? this.build2_5CircularCanvas(problem)
                                       : is3_2 ? this.build3_2ForceCanvas(problem)
+                                      : is3_3 ? this.build3_3InertiaCanvas(problem)
                                       : '';
 
                 // 1-7（案B 7 ステージ）は専用ルートで処理し、early return する。
@@ -11198,6 +11604,8 @@
                         ? 'この問題はどのような運動ですか？'
                         : is2_5
                         ? 'この問題はどのような運動ですか？'
+                        : is3_3
+                        ? 'この問題はどのような問題ですか？'
                         : is3_2
                         ? 'この問題はどのような運動の問題ですか？'
                         : '問題文の「一定の速さで運動した」は、どのような運動ですか？';
@@ -11475,6 +11883,26 @@
                         `;
                         this.render1_10DerivAccordion();
                         return;
+                    } else if (is3_3) {
+                        // 3-3（慣性力 −ma）: derivationSteps を 1 ステップずつアコーディオン表示して
+                        //   生徒自身に「慣性力の向き／つり合いの式／重力 mg・ma の数値化」を選ばせる
+                        //   （is3_2 と同じパターン、early return）。
+                        if (this.calcInputs.derivStepIndex === undefined) {
+                            this.calcInputs.derivStepIndex = 0;
+                        }
+                        content.innerHTML = header + staticCanvas1_6 + `
+                            <div class="calc-stage-container">
+                                <div class="calc-question-text">使う式を、一段ずつ自分で導いてください。</div>
+                                <div id="derivAccordion"></div>
+                                <div id="stageFeedback" style="margin-top:12px; font-size:14px; min-height:20px;"></div>
+                            </div>
+                        `;
+                        document.getElementById('controlButtons').innerHTML = `
+                            <button class="btn hint-btn" onclick="app.showHint('calc_${this.currentProblemIndex}_stage2')">ヒント</button>
+                            <span id="stage2NextSlot"></span>
+                        `;
+                        this.render1_10DerivAccordion();
+                        return;
                     } else {
                         content.innerHTML = header + `
                             <div class="calc-stage-container">
@@ -11516,7 +11944,7 @@
                             Abx: 'A大', Aby: 'A大', xbs: 'x大', ybs: 'y大', Acx: 'A切', Acy: 'A切', xcs: 'x切', ycs: 'y切', A0x: 'A₀', A0y: 'A₀',
                             v: 'v', v0: 'v₀', t: 't', t1: 't', t2: 't', a: 'a', s: 's',
                             l: 'l', theta: 'θ', omega: 'ω', pi: 'π', n: 'n',
-                            g: 'g', h: 'h', m: 'm', F: 'F' };
+                            g: 'g', h: 'h', m: 'm', F: 'F', mg: 'mg', ma: 'ma', net: 'F − mg' };
                         const makeSlotSpan = (role, text) =>
                             `<span class="calc-formula-input empty" data-slot="${role}" id="slot-${role}">${text || slotLabel[role] || role}</span>`;
                         const slotSpans = slots.map(role => makeSlotSpan(role));
@@ -11668,6 +12096,22 @@
                             } else {
                                 // forceFromMA / forceFromKinematics
                                 formulaHTML = `F ＝ ${slotSpans[0]} × ${slotSpans[1]}`;
+                            }
+                        } else if (is3_3) {
+                            // 3-3（慣性力 −ma）: formulaType ごとに式の形が異なる。各量は 1 スロットのみ。
+                            //   inertiaUp     → F ＝ [mg] ＋ [ma]        （slots: mg, ma）
+                            //   inertiaDown   → F ＝ [mg] − [ma]        （slots: mg, ma）
+                            //   inertiaRope   → S ＝ [mg] ＋ [ma]        （slots: mg, ma）
+                            //   inertiaAccel  → a ＝ [F − mg] ÷ [m]      （slots: net, m）
+                            if (problem.formulaType === 'inertiaDown') {
+                                formulaHTML = `F ＝ ${slotSpans[0]} − ${slotSpans[1]}`;
+                            } else if (problem.formulaType === 'inertiaRope') {
+                                formulaHTML = `S ＝ ${slotSpans[0]} ＋ ${slotSpans[1]}`;
+                            } else if (problem.formulaType === 'inertiaAccel') {
+                                formulaHTML = `a ＝ ${slotSpans[0]} ÷ ${slotSpans[1]}`;
+                            } else {
+                                // inertiaUp
+                                formulaHTML = `F ＝ ${slotSpans[0]} ＋ ${slotSpans[1]}`;
                             }
                         } else if (is2_3) {
                             // 2-3（重力加速度）: formulaType ごとに式の形が異なる
@@ -12111,6 +12555,45 @@
                                 </div>
                             </div>
                         `;
+                    } else if (is3_3) {
+                        // 3-3（慣性力 −ma）: formulaType ごとに数値入りの式と単位を切り替える。
+                        //   重力 mg と加速度ぶん ma（または F−mg と m）は derivationStep で先に数値化済み。
+                        //   答えは小数第 1 位まで（注記ボックス併設、3-2 と同じ）。
+                        let formulaLine_3_3, answerLabel_3_3, unitLabel_3_3;
+                        if (problem.formulaType === 'inertiaDown') {
+                            formulaLine_3_3 = `$F = ${problem.mg} - ${problem.ma} = {\\color{#c62828}?}\\ \\mathrm{[N]}$`;
+                            answerLabel_3_3 = 'F ＝';
+                            unitLabel_3_3 = '[N]';
+                        } else if (problem.formulaType === 'inertiaRope') {
+                            formulaLine_3_3 = `$S = ${problem.mg} + ${problem.ma} = {\\color{#c62828}?}\\ \\mathrm{[N]}$`;
+                            answerLabel_3_3 = 'S ＝';
+                            unitLabel_3_3 = '[N]';
+                        } else if (problem.formulaType === 'inertiaAccel') {
+                            formulaLine_3_3 = `$a = \\dfrac{${problem.net}}{${problem.m}} = {\\color{#c62828}?}\\ \\mathrm{[m/s^2]}$`;
+                            answerLabel_3_3 = 'a ＝';
+                            unitLabel_3_3 = '[m/s²]';
+                        } else {
+                            // inertiaUp
+                            formulaLine_3_3 = `$F = ${problem.mg} + ${problem.ma} = {\\color{#c62828}?}\\ \\mathrm{[N]}$`;
+                            answerLabel_3_3 = 'F ＝';
+                            unitLabel_3_3 = '[N]';
+                        }
+                        content.innerHTML = header + staticCanvas1_6 + `
+                            <div class="calc-stage-container">
+                                <div class="calc-question-text">計算結果を入力してください（電卓を使って構いません）。</div>
+                                <div class="calc-formula-display">
+                                    ${formulaLine_3_3}
+                                </div>
+                                <div style="background:#eef3fa; border-left:3px solid #4a7cbe; padding:8px 12px; border-radius:3px; margin:8px 0 10px; font-size:12px; line-height:1.6; color:#333;">
+                                    <strong>有効数字</strong>：計算結果が小数点以下第 2 位以上になる場合、第 2 位を四捨五入して<strong>小数第 1 位まで</strong>で答えてください。
+                                </div>
+                                <div class="calc-input-row">
+                                    <span class="calc-input-label">答え：${answerLabel_3_3}</span>
+                                    <input type="number" id="answerInput" class="calc-answer-input" placeholder="数値" style="width:120px;" step="0.1">
+                                    <span style="font-size:14px; color:#555; margin-left:6px;">${unitLabel_3_3}</span>
+                                </div>
+                            </div>
+                        `;
                     } else {
                         content.innerHTML = header + `
                             <div class="calc-stage-container">
@@ -12472,6 +12955,39 @@
                                 </div>
                                 <div style="margin-top:14px; font-size:13px; color:#555;">
                                     次の問題に進む前に、式と運動方程式の図を頭の中で思い浮かべてください。
+                                </div>
+                            </div>
+                        `;
+                    } else if (is3_3) {
+                        // 3-3（慣性力 −ma）: 3-2 と同じ 3 行段組み KaTeX（aligned）で
+                        //   「記号式／数値式／答え」を表示し、その下に formulaType ごとの振り返り文を載せる。
+                        //   重力 mg は数値（質量 × 9.8）に置きかえ済み。
+                        let reflFormulaLatex_3_3, reflText_3_3;
+                        if (problem.formulaType === 'inertiaDown') {
+                            reflFormulaLatex_3_3 = `\\begin{aligned} F &= mg - ma \\\\[6pt] &= ${problem.mg} - ${problem.ma} \\\\[6pt] &= ${problem.expectedF}.0\\ \\mathrm{N} \\end{aligned}`;
+                            reflText_3_3 = '下向きに加速するエレベータの中では、加速度と逆向き（上向き）の慣性力 ma が重力の一部を肩代わりします。だから床を押す力は F ＝ 490 − 75 ＝ 415.0 N と、ふだん（重力 490 N だけ）より小さくなります。エレベータが下りはじめるしゅんかんに体が軽く感じるのは、この慣性力のためです。';
+                        } else if (problem.formulaType === 'inertiaRope') {
+                            reflFormulaLatex_3_3 = `\\begin{aligned} S &= mg + ma \\\\[6pt] &= ${problem.mg} + ${problem.ma} \\\\[6pt] &= ${problem.expectedS}.0\\ \\mathrm{N} \\end{aligned}`;
+                            reflText_3_3 = '物体を上向きに加速して引き上げるには、重力を支える力に加えて、加速させるぶんの力も必要です。慣性力 ma が下向きに加わるので、張力は S ＝ 196 ＋ 40 ＝ 236.0 N。ただつるして止めておくとき（196 N）より大きな張力がかかります。';
+                        } else if (problem.formulaType === 'inertiaAccel') {
+                            reflFormulaLatex_3_3 = `\\begin{aligned} a &= \\dfrac{F - mg}{m} = \\dfrac{${problem.F} - ${problem.mg}}{${problem.m}} \\\\[6pt] &= \\dfrac{${problem.net}}{${problem.m}} = ${problem.expectedA}\\ \\mathrm{m/s^2} \\end{aligned}`;
+                            reflText_3_3 = '上向きの力 170 N から下向きの重力 mg ＝ 98 N を引いた、物体を動かす残りの力 72 N が物体を加速させます。これを質量で割って a ＝ 72 ÷ 10 ＝ 7.2 m/s²。もし引き上げる力が重力 98 N と同じなら加速度は 0（一定の速さ）、98 N より小さければ物体は上がりません。';
+                        } else {
+                            // inertiaUp
+                            reflFormulaLatex_3_3 = `\\begin{aligned} F &= mg + ma \\\\[6pt] &= ${problem.mg} + ${problem.ma} \\\\[6pt] &= ${problem.expectedF}.0\\ \\mathrm{N} \\end{aligned}`;
+                            reflText_3_3 = '上向きに加速するエレベータの中では、加速度と逆向き（下向き）の慣性力 ma が重力に上乗せされます。だから床を押す力は F ＝ 588 ＋ 120 ＝ 708.0 N と、ふだん（重力 588 N だけ）より大きくなります。エレベータが動き出すしゅんかんに体が重く感じるのは、この慣性力（見かけの力）のためです。';
+                        }
+                        content.innerHTML = header + staticCanvas1_6 + `
+                            <div class="calc-stage-container">
+                                <div class="calc-question-text">答えの意味を確認しよう。</div>
+                                <div class="calc-formula-display">
+                                    $${reflFormulaLatex_3_3}$
+                                </div>
+                                <div style="background:#eaf1fa; border-left:4px solid #1e5fa8; padding:14px 18px; border-radius:3px; margin-top:18px; font-size:15px; line-height:1.7;">
+                                    ${reflText_3_3}
+                                </div>
+                                <div style="margin-top:14px; font-size:13px; color:#555;">
+                                    次の問題に進む前に、慣性力（見かけの力）の向きと、つり合いの図を頭の中で思い浮かべてください。
                                 </div>
                             </div>
                         `;
@@ -15047,6 +15563,147 @@
                 const mLabel = mIsUnknown ? 'm ＝ ?' : `m ＝ ${problem.m} kg`;
                 svg += `<text x="${boxX + boxW / 2}" y="${cYmid + 5}" text-anchor="middle" font-size="13" fill="${mColor}" font-weight="700">${mLabel}</text>`;
 
+                svg += `</svg></div>`;
+                return svg;
+            }
+
+            // 3-3（慣性力）の問題図。canvas.kind で 4 種を描き分ける。
+            //   配色：青＝既知量／赤＝未知（求める量、? ラベル）／グレー＝慣性力（見かけの力、破線）。
+            //   inertiaUp   : エレベータ箱（外枠グレー）＋中に人を表す青箱。上向き F=?（赤）、
+            //                 下向き mg（青）、下向き慣性力（グレー破線）、箱外右に上向き加速度 a（上昇）。
+            //   inertiaDown : 同様だが慣性力は上向き（破線）、箱外右に下向き加速度 a（下降）。
+            //   inertiaRope : 天井ハッチ→ロープ→青い物体。上向き S=?（赤）、下向き mg（青）、
+            //                 下向き慣性力（グレー破線）、右に上向き加速度 a。
+            //   inertiaAccel: ロープ吊り。上向き F（青・既知）、下向き mg（青）、右に上向き加速度 a=?（赤）。
+            build3_3InertiaCanvas(problem) {
+                const c = problem.canvas || { width: 360, height: 220, kind: 'inertiaUp' };
+                const W = c.width, H = c.height;
+                const kind = c.kind || 'inertiaUp';
+                const BLUE = '#1e5fa8';
+                const RED = '#c62828';
+                const GRAY = '#777';
+
+                let svg = `<div class="drawing-wrapper" style="pointer-events:none;">
+                <svg class="drawing-svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="cursor:default;">
+                <defs>
+                  <marker id="stc33-blue" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><polygon points="0,0 9,3.5 0,7" fill="${BLUE}"/></marker>
+                  <marker id="stc33-red" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><polygon points="0,0 9,3.5 0,7" fill="${RED}"/></marker>
+                  <marker id="stc33-gray" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto"><polygon points="0,0 8,3.5 0,7" fill="${GRAY}"/></marker>
+                </defs>`;
+
+                if (kind === 'inertiaUp' || kind === 'inertiaDown') {
+                    const up = (kind === 'inertiaUp');
+                    // エレベータの箱（外枠グレー）。中央やや左寄りに配置し、右側を加速度矢印に空ける。
+                    const elx = 70, ely = 26, elw = 150, elh = H - 64;
+                    svg += `<rect x="${elx}" y="${ely}" width="${elw}" height="${elh}" rx="4" ry="4" fill="#f7f8fa" stroke="${GRAY}" stroke-width="2"/>`;
+                    // 上部に吊りケーブル
+                    svg += `<line x1="${elx + elw / 2}" y1="${ely}" x2="${elx + elw / 2}" y2="6" stroke="${GRAY}" stroke-width="1.5"/>`;
+                    // 中の人を表す青箱
+                    const pbW = 54, pbH = 50;
+                    const pbX = elx + elw / 2 - pbW / 2;
+                    const pbY = ely + elh - pbH - 14;
+                    svg += `<rect x="${pbX}" y="${pbY}" width="${pbW}" height="${pbH}" rx="6" ry="6" fill="#dce9f7" stroke="${BLUE}" stroke-width="1.8"/>`;
+                    svg += `<text x="${pbX + pbW / 2}" y="${pbY + pbH / 2 + 4}" text-anchor="middle" font-size="12" fill="${BLUE}" font-weight="700">m ＝ ${problem.m} kg</text>`;
+                    const cx = pbX + pbW / 2;
+                    // 上向き F=?（赤）：人箱の上面から上へ
+                    const fLen = 40;
+                    svg += `<line x1="${cx}" y1="${pbY}" x2="${cx}" y2="${pbY - fLen}" stroke="${RED}" stroke-width="2.8" marker-end="url(#stc33-red)"/>`;
+                    svg += `<text x="${cx + 8}" y="${pbY - fLen + 6}" text-anchor="start" font-size="13" fill="${RED}" font-weight="700">F ＝ ?</text>`;
+                    // 下向き mg（青）：人箱の下面から下へ
+                    const mgLen = 36;
+                    svg += `<line x1="${cx - 14}" y1="${pbY + pbH}" x2="${cx - 14}" y2="${pbY + pbH + mgLen}" stroke="${BLUE}" stroke-width="2.4" marker-end="url(#stc33-blue)"/>`;
+                    svg += `<text x="${cx - 20}" y="${pbY + pbH + mgLen + 2}" text-anchor="end" font-size="12" fill="${BLUE}" font-weight="600">mg ＝ ${problem.mg} N</text>`;
+                    // 慣性力（グレー破線）：上昇=下向き／下降=上向き。人箱の右寄りから。
+                    const iaLen = 34;
+                    if (up) {
+                        svg += `<line x1="${cx + 16}" y1="${pbY + pbH}" x2="${cx + 16}" y2="${pbY + pbH + iaLen}" stroke="${GRAY}" stroke-width="2.2" stroke-dasharray="5,3" marker-end="url(#stc33-gray)"/>`;
+                        svg += `<text x="${cx + 22}" y="${pbY + pbH + iaLen + 2}" text-anchor="start" font-size="11" fill="${GRAY}" font-weight="600">慣性力 ma（下向き）</text>`;
+                    } else {
+                        // 下降: 慣性力は上向き。上向きの F（中心）と重ならないよう中心の左側に描き、ラベルは左寄せにする。
+                        svg += `<line x1="${cx - 16}" y1="${pbY}" x2="${cx - 16}" y2="${pbY - iaLen}" stroke="${GRAY}" stroke-width="2.2" stroke-dasharray="5,3" marker-end="url(#stc33-gray)"/>`;
+                        svg += `<text x="${cx - 22}" y="${pbY - iaLen - 2}" text-anchor="end" font-size="11" fill="${GRAY}" font-weight="600">慣性力 ma（上向き）</text>`;
+                    }
+                    // 加速度矢印（箱の外、右側）。上昇＝上向き／下降＝下向き。グレー（既知）。
+                    const aX = elx + elw + 28;
+                    const aLen = 52;
+                    const aMidY = ely + elh / 2;
+                    if (up) {
+                        svg += `<line x1="${aX}" y1="${aMidY + aLen / 2}" x2="${aX}" y2="${aMidY - aLen / 2}" stroke="${GRAY}" stroke-width="2.4" marker-end="url(#stc33-gray)"/>`;
+                    } else {
+                        svg += `<line x1="${aX}" y1="${aMidY - aLen / 2}" x2="${aX}" y2="${aMidY + aLen / 2}" stroke="${GRAY}" stroke-width="2.4" marker-end="url(#stc33-gray)"/>`;
+                    }
+                    svg += `<text x="${aX + 8}" y="${aMidY + 4}" text-anchor="start" font-size="12" fill="${GRAY}" font-weight="600">a ＝ ${problem.a} m/s²</text>`;
+                    svg += `<text x="${aX}" y="${ely - 10}" text-anchor="middle" font-size="11" fill="${GRAY}">${up ? '上昇' : '下降'}</text>`;
+                    svg += `</svg></div>`;
+                    return svg;
+                }
+
+                if (kind === 'inertiaRope') {
+                    // 天井ハッチ → ロープ → 青い物体。上向き S=?（赤）、下向き mg（青）、下向き慣性力（グレー破線）。
+                    const ceilY = 22;
+                    svg += `<line x1="40" y1="${ceilY}" x2="${W - 40}" y2="${ceilY}" stroke="${GRAY}" stroke-width="2"/>`;
+                    for (let hx = 48; hx < W - 40; hx += 16) {
+                        svg += `<line x1="${hx}" y1="${ceilY}" x2="${hx - 8}" y2="${ceilY - 9}" stroke="#aaa" stroke-width="1"/>`;
+                    }
+                    const bx = 130;
+                    const obW = 70, obH = 56;
+                    const obY = H - obH - 40;
+                    const obX = bx - obW / 2;
+                    // ロープ（天井から物体の上面まで）
+                    svg += `<line x1="${bx}" y1="${ceilY}" x2="${bx}" y2="${obY}" stroke="#555" stroke-width="2"/>`;
+                    // 物体
+                    svg += `<rect x="${obX}" y="${obY}" width="${obW}" height="${obH}" rx="6" ry="6" fill="#dce9f7" stroke="${BLUE}" stroke-width="1.8"/>`;
+                    svg += `<text x="${bx}" y="${obY + obH / 2 + 4}" text-anchor="middle" font-size="12" fill="${BLUE}" font-weight="700">m ＝ ${problem.m} kg</text>`;
+                    // 上向き張力 S=?（赤）：ロープに沿って物体の上から上向き
+                    const sLen = 40;
+                    svg += `<line x1="${bx}" y1="${obY}" x2="${bx}" y2="${obY - sLen}" stroke="${RED}" stroke-width="2.8" marker-end="url(#stc33-red)"/>`;
+                    svg += `<text x="${bx + 8}" y="${obY - sLen + 8}" text-anchor="start" font-size="13" fill="${RED}" font-weight="700">S ＝ ?</text>`;
+                    // 下向き mg（青）
+                    const mgLen = 38;
+                    svg += `<line x1="${bx - 14}" y1="${obY + obH}" x2="${bx - 14}" y2="${obY + obH + mgLen}" stroke="${BLUE}" stroke-width="2.4" marker-end="url(#stc33-blue)"/>`;
+                    svg += `<text x="${bx - 20}" y="${obY + obH + mgLen + 2}" text-anchor="end" font-size="12" fill="${BLUE}" font-weight="600">mg ＝ ${problem.mg} N</text>`;
+                    // 下向き慣性力（グレー破線）
+                    const iaLen = 36;
+                    svg += `<line x1="${bx + 16}" y1="${obY + obH}" x2="${bx + 16}" y2="${obY + obH + iaLen}" stroke="${GRAY}" stroke-width="2.2" stroke-dasharray="5,3" marker-end="url(#stc33-gray)"/>`;
+                    svg += `<text x="${bx + 22}" y="${obY + obH + iaLen + 2}" text-anchor="start" font-size="11" fill="${GRAY}" font-weight="600">慣性力 ma（下向き）</text>`;
+                    // 加速度矢印（右、上向き、グレー＝既知）
+                    const aX = W - 56;
+                    const aLen = 52;
+                    const aMidY = obY + obH / 2;
+                    svg += `<line x1="${aX}" y1="${aMidY + aLen / 2}" x2="${aX}" y2="${aMidY - aLen / 2}" stroke="${GRAY}" stroke-width="2.4" marker-end="url(#stc33-gray)"/>`;
+                    // ラベルは矢印の左に寄せる（右に出すと viewBox 右端で見切れるため）
+                    svg += `<text x="${aX - 8}" y="${aMidY + 4}" text-anchor="end" font-size="12" fill="${GRAY}" font-weight="600">a ＝ ${problem.a} m/s²</text>`;
+                    svg += `</svg></div>`;
+                    return svg;
+                }
+
+                // inertiaAccel（問4）：ロープ吊り。上向き F（青・既知 170 N）、下向き mg（青 98 N）、右に上向き加速度 a=?（赤）。
+                const ceilY = 22;
+                svg += `<line x1="40" y1="${ceilY}" x2="${W - 40}" y2="${ceilY}" stroke="${GRAY}" stroke-width="2"/>`;
+                for (let hx = 48; hx < W - 40; hx += 16) {
+                    svg += `<line x1="${hx}" y1="${ceilY}" x2="${hx - 8}" y2="${ceilY - 9}" stroke="#aaa" stroke-width="1"/>`;
+                }
+                const bx = 130;
+                const obW = 70, obH = 56;
+                const obY = H - obH - 40;
+                const obX = bx - obW / 2;
+                svg += `<line x1="${bx}" y1="${ceilY}" x2="${bx}" y2="${obY}" stroke="#555" stroke-width="2"/>`;
+                svg += `<rect x="${obX}" y="${obY}" width="${obW}" height="${obH}" rx="6" ry="6" fill="#dce9f7" stroke="${BLUE}" stroke-width="1.8"/>`;
+                svg += `<text x="${bx}" y="${obY + obH / 2 + 4}" text-anchor="middle" font-size="12" fill="${BLUE}" font-weight="700">m ＝ ${problem.m} kg</text>`;
+                // 上向き引き上げる力 F（青・既知）
+                const fLen = 44;
+                svg += `<line x1="${bx}" y1="${obY}" x2="${bx}" y2="${obY - fLen}" stroke="${BLUE}" stroke-width="2.8" marker-end="url(#stc33-blue)"/>`;
+                svg += `<text x="${bx + 8}" y="${obY - fLen + 8}" text-anchor="start" font-size="13" fill="${BLUE}" font-weight="700">F ＝ ${problem.F} N</text>`;
+                // 下向き mg（青・既知）
+                const mgLen2 = 38;
+                svg += `<line x1="${bx}" y1="${obY + obH}" x2="${bx}" y2="${obY + obH + mgLen2}" stroke="${BLUE}" stroke-width="2.4" marker-end="url(#stc33-blue)"/>`;
+                svg += `<text x="${bx + 8}" y="${obY + obH + mgLen2 + 2}" text-anchor="start" font-size="12" fill="${BLUE}" font-weight="600">mg ＝ ${problem.mg} N</text>`;
+                // 加速度矢印（右、上向き、赤＝未知）
+                const aX2 = W - 56;
+                const aLen2 = 52;
+                const aMidY2 = obY + obH / 2;
+                svg += `<line x1="${aX2}" y1="${aMidY2 + aLen2 / 2}" x2="${aX2}" y2="${aMidY2 - aLen2 / 2}" stroke="${RED}" stroke-width="2.6" marker-end="url(#stc33-red)"/>`;
+                svg += `<text x="${aX2 + 6}" y="${aMidY2 + 4}" text-anchor="start" font-size="13" fill="${RED}" font-weight="700">a ＝ ?</text>`;
                 svg += `</svg></div>`;
                 return svg;
             }
@@ -17699,6 +18356,8 @@
                                            ? (HINTS_2_5_BY_ID[(this.getCalcProblem() || {}).id] || HINTS_2_5_AVR)
                                        : (this.currentUnitId === '3-2')
                                            ? (HINTS_3_2_BY_ID[(this.getCalcProblem() || {}).id] || HINTS_3_2_FORCE)
+                                       : (this.currentUnitId === '3-3')
+                                           ? (HINTS_3_3_BY_ID[(this.getCalcProblem() || {}).id] || HINTS_3_3_UP)
                                        : HINTS_2_1;
                     const stageHints = hintsTable[stagePart];
                     const levelKeys = ['b', 'a', 'c'];
@@ -17840,6 +18499,9 @@
                 if (this.currentUnitId === '3-2') {
                     return PROBLEMS_3_2[this.currentProblemIndex];
                 }
+                if (this.currentUnitId === '3-3') {
+                    return PROBLEMS_3_3[this.currentProblemIndex];
+                }
                 return null;
             }
 
@@ -17882,8 +18544,9 @@
                 const is2_4 = this.currentUnitId === '2-4';
                 const is2_5 = this.currentUnitId === '2-5';
                 const is3_2 = this.currentUnitId === '3-2';
-                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2;
-                // 1-6〜1-12 / 2-2 / 2-3 / 2-4 / 2-5 / 3-2 は problem.stage0Correct、2-1 は固定値 's'
+                const is3_3 = this.currentUnitId === '3-3';
+                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2 || is3_3;
+                // 1-6〜1-12 / 2-2 / 2-3 / 2-4 / 2-5 / 3-2 / 3-3 は problem.stage0Correct、2-1 は固定値 's'
                 const correct = isForceCalc ? problem.stage0Correct : 's';
                 const isCorrect = (value === correct);
                 if (isCorrect) {
@@ -17949,6 +18612,13 @@
                                 : (problem.formulaType === 'massFromFA')
                                 ? '正解。物体の質量 m [kg] の大きさを求めます。'
                                 : '正解。物体に加えた力 F [N] の大きさを求めます。';
+                        } else if (is3_3) {
+                            // 3-3: formulaType で求める量が異なる（F / S / a）
+                            msg = (problem.formulaType === 'inertiaRope')
+                                ? '正解。ロープに働く張力 S [N] の大きさを求めます。'
+                                : (problem.formulaType === 'inertiaAccel')
+                                ? '正解。物体に生じる加速度 a [m/s²] の大きさを求めます。'
+                                : '正解。人がエレベータの床を押す力 F [N] の大きさを求めます。';
                         }
                         feedback.textContent = msg;
                     }
@@ -18110,6 +18780,17 @@
                             } else {
                                 msg = '不正解。問題文の末尾「○○を求めよ」に注目してください。';
                             }
+                        } else if (is3_3) {
+                            // 3-3: 与えられている量を選んだ場合の説明
+                            if (value === 'mass') {
+                                msg = '不正解。質量 m は問題文に「m ＝ ○○ kg」で与えられています。求めるものは別の量です。';
+                            } else if (value === 'accel' && problem.formulaType !== 'inertiaAccel') {
+                                msg = '不正解。加速度 a は問題文に「a ＝ ○○ m/s²」で与えられています。求めるものは別の量です。';
+                            } else if (value === 'force' && problem.formulaType === 'inertiaAccel') {
+                                msg = '不正解。引き上げる力 F は問題文に「F ＝ ○○ N」で与えられています。求めるものは加速度です。';
+                            } else {
+                                msg = '不正解。問題文の末尾「○○を求めよ」に注目してください。';
+                            }
                         } else {
                             msg = (value === 'v')
                                 ? '不正解。速度は問題文に「○○ m/s」の形で数値が与えられています。「求めよ」と書かれている量を探してください。'
@@ -18152,8 +18833,9 @@
                 const is2_4 = this.currentUnitId === '2-4';
                 const is2_5 = this.currentUnitId === '2-5';
                 const is3_2 = this.currentUnitId === '3-2';
-                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2;
-                // 1-6〜1-12 / 2-2 / 2-3 / 2-4 / 2-5 / 3-2 は problem.stage1Correct、2-1 は固定値 'constant'
+                const is3_3 = this.currentUnitId === '3-3';
+                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2 || is3_3;
+                // 1-6〜1-12 / 2-2 / 2-3 / 2-4 / 2-5 / 3-2 / 3-3 は problem.stage1Correct、2-1 は固定値 'constant'
                 const correct = isForceCalc ? problem.stage1Correct : 'constant';
                 const isCorrect = (value === correct);
                 if (isCorrect) {
@@ -18196,6 +18878,8 @@
                             msg = (problem.formulaType === 'forceFromKinematics')
                                 ? '正解。一定の力で速度が一定の割合で増える、運動の第二法則の問題です。加速度の出し方（2-2）と運動方程式 F ＝ m × a（式 2-35）の両方を使います。'
                                 : '正解。物体に力が加わって加速度が生じる、運動の第二法則の問題です。教科書 47 ページの運動方程式 F ＝ m × a（式 2-35）が使えます。';
+                        } else if (is3_3) {
+                            msg = '正解。加速度運動する物体に、加速度と逆向きの慣性力（見かけの力）をつけ加えると、力のつり合いとして考えられます。教科書 49 ページ「4 慣性力」が使えます。';
                         }
                         feedback.textContent = msg;
                     }
@@ -18265,6 +18949,12 @@
                                 : (value === 'balance')
                                 ? '不正解。物体は静止しておらず、力が加わって加速度が生じています。力がつり合っている状態ではありません。'
                                 : '不正解。物体に力が加わって加速度が生じる現象は「運動の第二法則」です。運動方程式 F ＝ m × a が使えます。';
+                        } else if (is3_3) {
+                            msg = (value === 'uniformLinear')
+                                ? '不正解。物体（人）はエレベータといっしょに加速しています。速度が一定のままの等速直線運動ではありません。'
+                                : (value === 'staticBalance')
+                                ? '不正解。物体は静止しておらず加速しています。実際の力だけではつり合わないので、加速度と逆向きの慣性力（見かけの力）をつけ加えて考えます。'
+                                : '不正解。加速度運動する物体に、加速度と逆向きの慣性力（見かけの力）を加えて、力のつり合いとして考える問題です。';
                         }
                         feedback.textContent = msg;
                     }
@@ -18472,9 +19162,10 @@
                 const is2_4 = this.currentUnitId === '2-4';
                 const is2_5 = this.currentUnitId === '2-5';
                 const is3_2 = this.currentUnitId === '3-2';
-                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2;
+                const is3_3 = this.currentUnitId === '3-3';
+                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2 || is3_3;
 
-                // 1-6〜1-12 / 2-2 / 2-3 / 2-4 / 2-5 / 3-2 は小数入力（step=0.1 を許容）し tolerance で判定。
+                // 1-6〜1-12 / 2-2 / 2-3 / 2-4 / 2-5 / 3-2 / 3-3 は小数入力（step=0.1 を許容）し tolerance で判定。
                 const userAnswer = isForceCalc ? parseFloat(answerInput.value) : parseInt(answerInput.value);
                 // 2-2: formulaType ごとに expected を取り出す。
                 //   aFromV → expectedA、sFromV0AT → expectedS、それ以外（vFromAT / vFromV0AS）→ expectedV
@@ -18503,6 +19194,13 @@
                        : problem.formulaType === 'massFromFA' ? problem.expectedM
                        : problem.expectedF)
                     : null;
+                // 3-3: formulaType ごとに expected を取り出す。
+                //   inertiaAccel → expectedA、inertiaRope → expectedS、それ以外（inertiaUp / inertiaDown）→ expectedF
+                const expected3_3 = is3_3
+                    ? (problem.formulaType === 'inertiaAccel' ? problem.expectedA
+                       : problem.formulaType === 'inertiaRope' ? problem.expectedS
+                       : problem.expectedF)
+                    : null;
                 // 2-3: formulaType ごとに expected を取り出す。
                 //   freeFallH → expectedH、freeFallTime → expectedT、それ以外（freeFallV / verticalDownV）→ expectedV
                 const expected2_3 = is2_3
@@ -18522,6 +19220,7 @@
                                  : is2_4 ? expected2_4
                                  : is2_5 ? expected2_5
                                  : is3_2 ? expected3_2
+                                 : is3_3 ? expected3_3
                                  : problem.expectedDisplacement;
                 const tolerance  = isForceCalc ? (problem.tolerance || 1) : 0;
                 // 浮動小数点誤差対策: tolerance 境界（例 tolerance=0.1 で |userAnswer-expected|=0.10000...142）が
@@ -18748,6 +19447,25 @@
                                 ${expl3_2}
                             </div>
                         `;
+                    } else if (is3_3) {
+                        let expl3_3;
+                        if (problem.formulaType === 'inertiaDown') {
+                            expl3_3 = `F ＝ mg − ma ＝ ${problem.mg} − ${problem.ma} ＝ ${expected} [N]`;
+                        } else if (problem.formulaType === 'inertiaRope') {
+                            expl3_3 = `S ＝ mg ＋ ma ＝ ${problem.mg} ＋ ${problem.ma} ＝ ${expected} [N]`;
+                        } else if (problem.formulaType === 'inertiaAccel') {
+                            expl3_3 = `mg ＝ ${problem.m} × ${problem.g} ＝ ${problem.mg} N、F − mg ＝ ${problem.F} − ${problem.mg} ＝ ${problem.net} N<br>`
+                                    + `a ＝ (F − mg) ÷ m ＝ ${problem.net} ÷ ${problem.m} ＝ ${expected} [m/s²]`;
+                        } else {
+                            // inertiaUp
+                            expl3_3 = `F ＝ mg ＋ ma ＝ ${problem.mg} ＋ ${problem.ma} ＝ ${expected} [N]`;
+                        }
+                        feedback.innerHTML = `
+                            <div style="margin-bottom: 10px;">正解です。</div>
+                            <div class="answer-explanation">
+                                ${expl3_3}
+                            </div>
+                        `;
                     } else {
                         feedback.innerHTML = `
                             <div style="margin-bottom: 10px;">正解です。</div>
@@ -18815,6 +19533,7 @@
                                             : is2_4 ? (problem.unit || 'm/s')
                                             : is2_5 ? (problem.unit || 'm/s²')
                                             : is3_2 ? (problem.unit || 'N')
+                                            : is3_3 ? (problem.unit || 'N')
                                             : 'N';
                             feedback.innerHTML += `<div class="answer-explanation">正解は ${expected} [${unitLabel}] です。計算の手順をもう一度確認してください。</div>`;
                         }
