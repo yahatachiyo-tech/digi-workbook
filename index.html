@@ -2379,10 +2379,10 @@
         const DASHBOARD_UNIT_COUNTS = {
             '1-1': 4, '1-2': 6, '1-3': 4, '1-4': 4, '1-5': 4,
             '1-6': 4, '1-7': 4, '1-8': 4, '1-9': 4,
-            '1-10': 4, '1-11': 4, '1-12': 4, '2-1': 5, '2-2': 4, '2-3': 4, '2-4': 4, '2-5': 4, '3-1': 6, '3-2': 4, '3-3': 4
+            '1-10': 4, '1-11': 4, '1-12': 4, '2-1': 5, '2-2': 4, '2-3': 4, '2-4': 4, '2-5': 4, '3-1': 6, '3-2': 4, '3-3': 4, '3-4': 4
         };
         // 単元表示順
-        const DASHBOARD_UNIT_ORDER = ['1-1', '1-2', '1-3', '1-4', '1-5', '1-6', '1-7', '1-8', '1-9', '1-10', '1-11', '1-12', '2-1', '2-2', '2-3', '2-4', '2-5', '3-1', '3-2', '3-3'];
+        const DASHBOARD_UNIT_ORDER = ['1-1', '1-2', '1-3', '1-4', '1-5', '1-6', '1-7', '1-8', '1-9', '1-10', '1-11', '1-12', '2-1', '2-2', '2-3', '2-4', '2-5', '3-1', '3-2', '3-3', '3-4'];
 
         // 【校内版では実名ロスターを定義していたが、GitHub Pages 配信のため空に変更】
         // 将来、名簿照合に戻す場合は 1番〜36番 + 40番の形式で復活可能
@@ -2565,6 +2565,15 @@
                 id: '3-3',
                 title: '慣性力',
                 subtitle: '見かけの力 −ma / エレベータ・ロープ（F=mg±ma）',
+                level: '基礎',
+                completed: false,
+                score: 0,
+                total: 0
+            },
+            {
+                id: '3-4',
+                title: '運動量と力積',
+                subtitle: '運動量 p=mv / 力積 Ft=mv−mv₀ / 衝撃力 / 運動量保存',
                 level: '基礎',
                 completed: false,
                 score: 0,
@@ -6941,6 +6950,380 @@
             4: HINTS_3_3_ACCEL
         };
 
+        // Problems for sub-unit 3-4: 運動量と力積（p=mv / 力積 Ft=mv−mv₀ / 衝撃力 / 運動量保存）
+        //   3-3 と同じ 6 ステージ計算フローを共有する（is3_4 で分岐）。
+        //   Stage 2 は derivationSteps アコーディオン方式（render1_10DerivAccordion を再利用）。
+        //   問3・問4 は答えを「大きさ」で求めさせる（負の数入力なし）。負号・逆向きは言葉で説明。
+        //   formulaType: momentum（p=mv）／impulseV（v=(Ft+mv₀)/m）／
+        //                impactForce（F=m(v₀−v)/t の大きさ）／momentumConserv（v₁'=(m₂v₂')/m₁ の大きさ）。
+        //   問題図は build3_4MomentumCanvas(problem) が描く（canvas.kind で分岐）。
+        const PROBLEMS_3_4 = [
+            {
+                id: 1,
+                formulaType: 'momentum',
+                m: 30, v: 20,
+                expectedP: 600, tolerance: 0.1, unit: 'kg·m/s', decimals: 1, baselineTime: 160,
+                sentence: '質量 m ＝ 30 kg の物体が、速度 v ＝ 20 m/s で等速直線運動をしている。この物体の運動量 p [kg·m/s] を求めよ。',
+                condition: '紹介、運動量、p=m×v=30×20=600.0 kg·m/s',
+                canvasType: '2d-static',
+                canvas: { width: 360, height: 180, kind: 'momentum' },
+                stage0Choices: [
+                    { value: 'momentum', label: '物体の運動量 p [kg·m/s] の大きさ' },
+                    { value: 'mass',     label: '物体の質量 m [kg] の大きさ' },
+                    { value: 'velocity', label: '物体の速度 v [m/s] の大きさ' }
+                ],
+                stage0Correct: 'momentum',
+                stage1Choices: [
+                    { value: 'momentum', label: '運動している物体の「運動の大きさ」を、質量と速度から求める問題である' },
+                    { value: 'impulse',  label: '物体に力を加えて、速度を変化させたあとの速度を求める問題である' },
+                    { value: 'conserv',  label: '2 つの物体が衝突して、衝突後の速度を求める問題である' }
+                ],
+                stage1Correct: 'momentum',
+                derivationSteps: [
+                    {
+                        prompt: 'Stage 1 で「運動の大きさを質量と速度から求める（運動量）」の問題だと分かりました。運動量 p は、質量 m と速度 v をどうすれば求められますか。',
+                        choices: [
+                            { value: 'mul', label: 'p ＝ m × v（質量と速度を掛ける）' },
+                            { value: 'div', label: 'p ＝ m ÷ v（質量を速度で割る）' },
+                            { value: 'add', label: 'p ＝ m ＋ v（質量と速度を足す）' }
+                        ],
+                        correct: 'mul',
+                        onCorrectText: '運動量は p ＝ m × v（質量 × 速度）で求めます。運動量は速度と同じ向きをもつ量で、単位は kg·m/s です。'
+                    },
+                    {
+                        prompt: '式 p ＝ m × v に、質量 m ＝ 30 kg と速度 v ＝ 20 m/s をそのまま入れます。次にすることはどれですか。',
+                        choices: [
+                            { value: 'direct', label: '質量と速度を、変形せずそのまま代入して掛け算する' },
+                            { value: 'solve',  label: 'この式を別の文字について解いてから代入する' },
+                            { value: 'needA',  label: '加速度が足りないので、先に加速度を求める' }
+                        ],
+                        correct: 'direct',
+                        onCorrectText: '質量も速度も数値が分かっているので、p ＝ m × v にそのまま代入して掛け算すれば運動量が求まります。'
+                    }
+                ],
+                formula: 'p = m\\,v',
+                substitutions: {
+                    slots: ['m', 'v'],
+                    cards: [
+                        { role: 'm', label: 'm', value: 30, unit: 'kg' },
+                        { role: 'v', label: 'v', value: 20, unit: 'm/s' }
+                    ]
+                }
+            },
+            {
+                id: 2,
+                formulaType: 'impulseV',
+                m: 5, v0: 4, F: 10, t: 2, Ft: 20, mv0: 20,
+                expectedV: 8, tolerance: 0.1, unit: 'm/s', decimals: 1, baselineTime: 240,
+                sentence: '質量 m ＝ 5 kg の物体が、速度 v₀ ＝ 4 m/s で等速直線運動をしている。これに、運動と同じ向きの力 F ＝ 10 N を t ＝ 2 秒間加えた。このとき、物体の速度 v [m/s] を求めよ。',
+                condition: '紹介、力積と運動量変化（例題15型）、Ft=mv−mv₀ → v=(Ft+mv₀)/m=(20+20)/5=8.0 m/s',
+                canvasType: '2d-static',
+                canvas: { width: 380, height: 200, kind: 'impulse' },
+                stage0Choices: [
+                    { value: 'velocity', label: '力を加えたあとの物体の速度 v [m/s] の大きさ' },
+                    { value: 'force',    label: '物体に加えた力 F [N] の大きさ' },
+                    { value: 'time',     label: '力を加えた時間 t [s] の大きさ' }
+                ],
+                stage0Correct: 'velocity',
+                stage1Choices: [
+                    { value: 'impulse',  label: '物体に力を一定時間加えて、運動量を変化させたあとの速度を求める問題である' },
+                    { value: 'momentum', label: '速度を変えずに、いまの運動の大きさ（運動量）だけを求める問題である' },
+                    { value: 'conserv',  label: '2 つの物体が衝突して、衝突後の速度を求める問題である' }
+                ],
+                stage1Correct: 'impulse',
+                derivationSteps: [
+                    {
+                        prompt: '力 F をある時間 t 加えると運動量が変化します。「力 × 時間」を力積といい、運動量の変化は力積に等しくなります。この関係を式で表すとどれですか。',
+                        choices: [
+                            { value: 'eq',   label: 'F × t ＝ m × v − m × v₀（力積 ＝ あとの運動量 − はじめの運動量）' },
+                            { value: 'noV0', label: 'F × t ＝ m × v（力積 ＝ あとの運動量だけ）' },
+                            { value: 'plus', label: 'F × t ＝ m × v ＋ m × v₀（運動量を足す）' }
+                        ],
+                        correct: 'eq',
+                        onCorrectText: '力積と運動量変化の関係は Ft ＝ mv − mv₀（式 2-39）です。左辺の Ft（力 × 時間）が力積、右辺が運動量の変化です。'
+                    },
+                    {
+                        prompt: 'Ft ＝ mv − mv₀ を v について解きます。右辺を mv だけにするために、両辺をどうすればよいですか。',
+                        choices: [
+                            { value: 'addBoth', label: '両辺に mv₀ を足す（→ Ft ＋ mv₀ ＝ mv）' },
+                            { value: 'subBoth', label: '両辺から mv₀ を引く' },
+                            { value: 'divBoth', label: '両辺を mv₀ で割る' }
+                        ],
+                        correct: 'addBoth',
+                        onCorrectText: '両辺に mv₀ を足すと Ft ＋ mv₀ ＝ mv。これで右辺は mv だけになりました。'
+                    },
+                    {
+                        prompt: 'Ft ＋ mv₀ ＝ mv になりました。求めるのは v なので、両辺をどうすればよいですか。',
+                        choices: [
+                            { value: 'divM', label: '両辺を m で割る（→ v ＝ (Ft ＋ mv₀) ÷ m）' },
+                            { value: 'mulM', label: '両辺に m を掛ける' },
+                            { value: 'subM', label: '両辺から m を引く' }
+                        ],
+                        correct: 'divM',
+                        onCorrectText: '両辺を m で割ると v ＝ (Ft ＋ mv₀) ÷ m。これで速度 v を求める式が完成しました。'
+                    },
+                    {
+                        prompt: '式に入れる Ft（力積）と mv₀（はじめの運動量）を数値にします。それぞれいくつですか。',
+                        choices: [
+                            { value: 'right', label: 'Ft ＝ 10 × 2 ＝ 20、mv₀ ＝ 5 × 4 ＝ 20' },
+                            { value: 'swap',  label: 'Ft ＝ 5 × 4 ＝ 20、mv₀ ＝ 10 × 2 ＝ 20' },
+                            { value: 'wrong', label: 'Ft ＝ 10 ＋ 2 ＝ 12、mv₀ ＝ 5 ＋ 4 ＝ 9（足し算でそろえる）' }
+                        ],
+                        correct: 'right',
+                        onCorrectText: '力積 Ft ＝ 10 × 2 ＝ 20、はじめの運動量 mv₀ ＝ 5 × 4 ＝ 20。あとはこの 2 つを足して質量で割れば速度 v が求まります。'
+                    }
+                ],
+                formula: 'v = \\dfrac{Ft + m v_0}{m}',
+                substitutions: {
+                    slots: ['Ft', 'mv0', 'm'],
+                    cards: [
+                        { role: 'Ft',  label: 'Ft',  value: 20, unit: 'N·s' },
+                        { role: 'mv0', label: 'mv₀', value: 20, unit: 'kg·m/s' },
+                        { role: 'm',   label: 'm',   value: 5,  unit: 'kg' }
+                    ]
+                }
+            },
+            {
+                id: 3,
+                formulaType: 'impactForce',
+                m: 0.5, v0: 10, v: 0, t: 0.01, dv: 10,
+                expectedF: 500, tolerance: 0.1, unit: 'N', decimals: 1, baselineTime: 220,
+                sentence: '質量 m ＝ 0.5 kg のかなづちが、速度 v₀ ＝ 10 m/s でくぎに当たり、t ＝ 0.01 秒で止まった（あとの速度 v ＝ 0 m/s）。このとき、くぎが受ける力（衝撃力）F [N] の大きさを求めよ。',
+                condition: '紹介、衝撃力（例題16型）、F=m(v₀−v)/t=0.5×10/0.01=500.0 N（大きさ）',
+                canvasType: '2d-static',
+                canvas: { width: 380, height: 200, kind: 'impactForce' },
+                stage0Choices: [
+                    { value: 'force',    label: 'くぎが受ける力（衝撃力）F [N] の大きさ' },
+                    { value: 'velocity', label: 'かなづちが当たるときの速度 v₀ [m/s] の大きさ' },
+                    { value: 'time',     label: 'かなづちが止まるまでの時間 t [s] の大きさ' }
+                ],
+                stage0Correct: 'force',
+                stage1Choices: [
+                    { value: 'impact',   label: 'きわめて短い時間で運動量が変化したときに働く、大きな力（衝撃力）を求める問題である' },
+                    { value: 'momentum', label: '速度を変えずに、いまの運動の大きさ（運動量）だけを求める問題である' },
+                    { value: 'conserv',  label: '2 つの物体が衝突して、衝突後の速度を求める問題である' }
+                ],
+                stage1Correct: 'impact',
+                derivationSteps: [
+                    {
+                        prompt: 'かなづちは短い時間 t のあいだに、速度が v₀ から 0 に減りました。運動量の変化は力積に等しい（Ft ＝ mv − mv₀）ので、力 F について解きます。両辺を t で割るとどうなりますか。',
+                        choices: [
+                            { value: 'fdt', label: 'F ＝ (mv − mv₀) ÷ t（運動量の変化を時間で割る）' },
+                            { value: 'fmt', label: 'F ＝ (mv − mv₀) × t（運動量の変化に時間を掛ける）' },
+                            { value: 'fmv', label: 'F ＝ m × v（運動量がそのまま力になる）' }
+                        ],
+                        correct: 'fdt',
+                        onCorrectText: 'Ft ＝ mv − mv₀ の両辺を t で割ると F ＝ (mv − mv₀) ÷ t。運動量の変化を時間で割れば、その間に働いた力が求まります。力の向きはかなづちの運動と逆向き（くぎを止める向き）ですが、ここでは大きさを求めるので速度の変化は (v₀ − v) を使います。'
+                    },
+                    {
+                        prompt: 'かなづちは止まったので、あとの速度 v ＝ 0。速度の変化は v₀ − v ＝ 10 − 0 ＝ 10 m/s です。力の大きさ F ＝ m × (v₀ − v) ÷ t に入れる 3 つの数値はどれですか。',
+                        choices: [
+                            { value: 'right', label: 'm ＝ 0.5、(v₀ − v) ＝ 10、t ＝ 0.01' },
+                            { value: 'swap',  label: 'm ＝ 0.5、(v₀ − v) ＝ 0.01、t ＝ 10' },
+                            { value: 'add',   label: 'm ＝ 0.5、(v₀ − v) ＝ 10、t ＝ 10 ＋ 0.01（足し算でそろえる）' }
+                        ],
+                        correct: 'right',
+                        onCorrectText: '質量 m ＝ 0.5 kg、速度の変化 (v₀ − v) ＝ 10 m/s、時間 t ＝ 0.01 s。これを F ＝ m × (v₀ − v) ÷ t に入れます。'
+                    }
+                ],
+                formula: 'F = \\dfrac{m\\,(v_0 - v)}{t}',
+                substitutions: {
+                    slots: ['m', 'dv', 't'],
+                    cards: [
+                        { role: 'm',  label: 'm',     value: 0.5,  unit: 'kg' },
+                        { role: 'dv', label: 'v₀ − v', value: 10,   unit: 'm/s' },
+                        { role: 't',  label: 't',     value: 0.01, unit: 's' }
+                    ]
+                }
+            },
+            {
+                id: 4,
+                formulaType: 'momentumConserv',
+                m1: 150, m2: 60, v2: 5, m2v2: 300,
+                expectedV1: 2, tolerance: 0.1, unit: 'm/s', decimals: 1, baselineTime: 240,
+                sentence: '湖の上で静止している質量 m₁ ＝ 150 kg のボートから、質量 m₂ ＝ 60 kg の人が、速度 v₂′ ＝ 5 m/s でボートをけって湖に飛び込んだ。このとき、ボートが動き出す速さ v₁′ [m/s] の大きさを求めよ。ただし、水の抵抗は考えないものとする。',
+                condition: '紹介、運動量保存（例題17型）、m₁v₁′+m₂v₂′=0 → 大きさ (m₂v₂′)/m₁=300/150=2.0 m/s（人と逆向き）',
+                canvasType: '2d-static',
+                canvas: { width: 400, height: 200, kind: 'momentumConserv' },
+                stage0Choices: [
+                    { value: 'boatV',   label: '飛び込んだあとにボートが動く速さ v₁′ [m/s] の大きさ' },
+                    { value: 'personV', label: '人が飛び込む速度 v₂′ [m/s] の大きさ' },
+                    { value: 'boatM',   label: 'ボートの質量 m₁ [kg] の大きさ' }
+                ],
+                stage0Correct: 'boatV',
+                stage1Choices: [
+                    { value: 'conserv',  label: '2 つの物体（人とボート）の運動量の和が変化しない、運動量保存の法則の問題である' },
+                    { value: 'impulse',  label: '1 つの物体に力を加えて、速度を変化させる問題である' },
+                    { value: 'momentum', label: 'いまの運動の大きさ（運動量）だけを求める問題である' }
+                ],
+                stage1Correct: 'conserv',
+                derivationSteps: [
+                    {
+                        prompt: '飛び込む前は、人もボートもいっしょに静止しています。このとき、人とボートを合わせた運動量の和はいくつですか。',
+                        choices: [
+                            { value: 'zero', label: '0（どちらも速度が 0 なので、運動量の和も 0）' },
+                            { value: 'm2v2', label: '60 × 5 ＝ 300' },
+                            { value: 'm1',   label: '150' }
+                        ],
+                        correct: 'zero',
+                        onCorrectText: '飛び込む前は両方とも静止しているので、運動量の和は 0 です。運動量保存の法則から、飛び込んだあとの運動量の和も 0 のままです。'
+                    },
+                    {
+                        prompt: '飛び込んだあとも運動量の和は 0 です。ボートの速度を v₁′、人の速度を v₂′ として、これを v₁′ の「大きさ」について解くとどう表せますか。',
+                        choices: [
+                            { value: 'right', label: 'v₁′ の大きさ ＝ (m₂ × v₂′) ÷ m₁（人の運動量をボートの質量で割る）' },
+                            { value: 'swapM', label: 'v₁′ の大きさ ＝ (m₂ × v₂′) ÷ m₂（人の質量で割る）' },
+                            { value: 'mul',   label: 'v₁′ の大きさ ＝ m₂ × v₂′ × m₁（掛け算でそろえる）' }
+                        ],
+                        correct: 'right',
+                        onCorrectText: '運動量保存 m₁v₁′ ＋ m₂v₂′ ＝ 0 を解くと、ボートの速さの大きさは (m₂ × v₂′) ÷ m₁。人の運動量をボートの質量で割ります。式の上ではマイナス（ボートは人と逆向き）ですが、ここでは速さ＝大きさを求めます。'
+                    },
+                    {
+                        prompt: '式 v₁′ ＝ (m₂ × v₂′) ÷ m₁ に入れる、人の運動量 m₂ × v₂′ を数値にします。いくつですか。',
+                        choices: [
+                            { value: 'right', label: 'm₂ × v₂′ ＝ 60 × 5 ＝ 300' },
+                            { value: 'm1',    label: 'm₂ × v₂′ ＝ 150 × 5 ＝ 750（ボートの質量を使う）' },
+                            { value: 'add',   label: 'm₂ × v₂′ ＝ 60 ＋ 5 ＝ 65（足し算でそろえる）' }
+                        ],
+                        correct: 'right',
+                        onCorrectText: '人の運動量 m₂ × v₂′ ＝ 60 × 5 ＝ 300。これをボートの質量 m₁ ＝ 150 で割れば、ボートの速さが求まります。'
+                    }
+                ],
+                formula: "v_1' = \\dfrac{m_2\\,v_2'}{m_1}",
+                substitutions: {
+                    slots: ['m2v2', 'm1'],
+                    cards: [
+                        { role: 'm2v2', label: "m₂v₂'", value: 300, unit: 'kg·m/s' },
+                        { role: 'm1',   label: 'm₁',    value: 150, unit: 'kg' }
+                    ]
+                }
+            }
+        ];
+
+        // 問1（momentum: p=mv）
+        const HINTS_3_4_MOMENTUM = {
+            stage0: {
+                b: '問題文の最後の文に注目してください。質量 30 kg、速度 20 m/s はすでに数値が書かれています。残った量が求めるものです。',
+                a: '問題文の末尾に「運動量 p [kg·m/s] を求めよ」とあります。求めるものは運動量 p、単位は kg·m/s です。',
+                c: '教科書50ページ「1 運動量」を確認してください。'
+            },
+            stage1: {
+                b: '止まっている物体を止めるのは簡単ですが、速く重い物体ほど止めにくくなります。「運動の止めにくさ（運動の大きさ）」を表す量を思い出してください。',
+                a: '質量 m と速度 v の積 m × v を運動の大きさを表す量とし、運動量といいます。力で速度を変える問題でも衝突の問題でもありません。',
+                c: '教科書50ページ「1 運動量」、図2-59 を確認してください。'
+            },
+            stage2: {
+                b: '運動量は「質量」と「速度」を組み合わせて作ります。重いほど、また速いほど運動量は大きくなります。2 つをどうつなぐかを考えてください。',
+                a: '運動量は p ＝ m × v（質量 × 速度）で求めます。今回は質量も速度も分かっているので、そのまま代入できます。',
+                c: '教科書50ページ「1 運動量」を確認してください。'
+            },
+            stage3: {
+                b: '式は p ＝ m × v です。m には質量、v には速度を入れます。',
+                a: '式 p ＝ m × v の空欄に、m ＝ 30 kg、v ＝ 20 m/s を入れてください。',
+                c: '教科書50ページ「1 運動量」を確認してください。'
+            },
+            stage4: {
+                b: '質量の数値と速度の数値を掛け算するだけです。電卓を使って構いません。答えは小数第1位までで答えてください。',
+                a: 'p ＝ 30 × 20 ＝ 600.0 [kg·m/s]。運動量の単位は kg·m/s です。',
+                c: '教科書51ページ 問33 を確認してください。'
+            }
+        };
+
+        // 問2（impulseV: v=(Ft+mv₀)/m）
+        const HINTS_3_4_IMPULSE = {
+            stage0: {
+                b: '問題文の最後の文に注目してください。質量 5 kg、はじめの速度 4 m/s、力 10 N、時間 2 秒はすでに数値が書かれています。',
+                a: '問題文の末尾に「物体の速度 v [m/s] を求めよ」とあります。求めるものは力を加えたあとの速度 v、単位は m/s です。',
+                c: '教科書51ページ 例題15 を確認してください。'
+            },
+            stage1: {
+                b: '走っている物体を、進む向きに後ろから一定時間おすと、速度はどうなるでしょうか。力を加えた時間ぶんだけ運動量が変わります。',
+                a: '力 F を時間 t のあいだ加えると運動量が変化します。これは力積（力 × 時間）の問題です。いまの運動量を求めるだけや、衝突の問題ではありません。',
+                c: '教科書51ページ「2 力積」、例題15 を確認してください。'
+            },
+            stage2: {
+                b: '「力 × 時間」を力積といい、これが運動量の変化（あとの運動量 − はじめの運動量）に等しくなります。この関係を式にしてから、あとの速度について解きます。',
+                a: '運動量の変化は力積に等しい：Ft ＝ mv − mv₀（式 2-39）。これを v について解くと v ＝ (Ft ＋ mv₀) ÷ m となります。',
+                c: '教科書51ページ 式(2-39)「Ft ＝ mv − mv₀」、例題15 を確認してください。'
+            },
+            stage3: {
+                b: '式は v ＝ (Ft ＋ mv₀) ÷ m です。Ft は力積（10 × 2 ＝ 20）、mv₀ ははじめの運動量（5 × 4 ＝ 20）、m は質量です。',
+                a: '式 v ＝ (Ft ＋ mv₀) ÷ m の空欄に、Ft ＝ 20、mv₀ ＝ 20、m ＝ 5 を入れてください。',
+                c: '教科書51ページ 例題15 の解答を確認してください。'
+            },
+            stage4: {
+                b: '力積とはじめの運動量を足してから、質量で割ります。電卓を使って構いません。答えは小数第1位までで答えてください。',
+                a: 'v ＝ (20 ＋ 20) ÷ 5 ＝ 40 ÷ 5 ＝ 8.0 [m/s]。教科書の解き方（v ＝ Ft ÷ m ＋ v₀ ＝ 4 ＋ 4 ＝ 8）でも同じ答えです。',
+                c: '教科書51ページ 例題15 を確認してください。'
+            }
+        };
+
+        // 問3（impactForce: F=m(v₀−v)/t の大きさ）
+        const HINTS_3_4_IMPACT = {
+            stage0: {
+                b: '問題文の最後の文に注目してください。質量 0.5 kg、当たるときの速度 10 m/s、止まるまでの時間 0.01 秒はすでに数値が書かれています。',
+                a: '問題文の末尾に「くぎが受ける力（衝撃力）F [N] の大きさを求めよ」とあります。求めるものは力 F の大きさ、単位は N です。',
+                c: '教科書51ページ「3 衝撃力」、例題16 を確認してください。'
+            },
+            stage1: {
+                b: 'かなづちは 0.01 秒というきわめて短い時間で、速度 10 m/s から止まりました。短い時間で運動量を大きく変えるとき、力はどうなるでしょうか。',
+                a: 'きわめて短い時間に運動量を変化させると、ひじょうに大きな力が必要になります。この力を衝撃力といいます。運動量を求めるだけや、衝突後の速度の問題ではありません。',
+                c: '教科書51ページ「3 衝撃力」、例題16 を確認してください。'
+            },
+            stage2: {
+                b: '運動量の変化は力積（力 × 時間）に等しいので、Ft ＝ mv − mv₀ から力 F を求められます。力を出すには、運動量の変化を時間で割ります。',
+                a: 'Ft ＝ mv − mv₀ を t で割ると F ＝ (mv − mv₀) ÷ t。大きさを求めるときは速度の変化に (v₀ − v) を使い、F ＝ m × (v₀ − v) ÷ t とします。',
+                c: '教科書51〜52ページ 例題16 の解答を確認してください。'
+            },
+            stage3: {
+                b: 'かなづちは止まったので、あとの速度 v ＝ 0。速度の変化は v₀ − v ＝ 10 − 0 ＝ 10 m/s です。式 F ＝ m × (v₀ − v) ÷ t に入れます。',
+                a: '式 F ＝ m × (v₀ − v) ÷ t の空欄に、m ＝ 0.5 kg、(v₀ − v) ＝ 10 m/s、t ＝ 0.01 s を入れてください。',
+                c: '教科書52ページ 例題16 の解答を確認してください。'
+            },
+            stage4: {
+                b: '質量と速度の変化を掛けてから、時間（0.01 秒）で割ります。0.01 で割ると数が大きくなります。電卓を使って構いません。答えは小数第1位までで答えてください。',
+                a: 'F ＝ 0.5 × 10 ÷ 0.01 ＝ 5 ÷ 0.01 ＝ 500.0 [N]。教科書では F ＝ −500 N と出ますが、負号は向き（運動と逆向き）を表すだけで、大きさは 500 N です。',
+                c: '教科書52ページ 例題16 の解答を確認してください。'
+            }
+        };
+
+        // 問4（momentumConserv: v₁'=(m₂v₂')/m₁ の大きさ）
+        const HINTS_3_4_CONSERV = {
+            stage0: {
+                b: '問題文の最後の文に注目してください。ボートの質量 150 kg、人の質量 60 kg、人が飛び込む速度 5 m/s はすでに数値が書かれています。',
+                a: '問題文の末尾に「ボートが動き出す速さ v₁′ [m/s] の大きさを求めよ」とあります。求めるものはボートの速さ v₁′、単位は m/s です。',
+                c: '教科書52〜53ページ 例題17 を確認してください。'
+            },
+            stage1: {
+                b: 'スケート靴をはいて止まっているとき、相手を前におすと、自分は後ろに下がります。人がボートをけって飛び込むと、ボートはどうなるでしょうか。',
+                a: '人とボートがおたがいに力を及ぼし合うだけで外からの力がないとき、2 つの運動量の和は変わりません。これを運動量保存の法則といいます。',
+                c: '教科書52ページ「4 運動量保存の法則」、例題17 を確認してください。'
+            },
+            stage2: {
+                b: '飛び込む前は人もボートも静止しているので、運動量の和は 0 です。飛び込んだあとも和は 0 のままになる、という関係を式にします。',
+                a: '運動量保存の法則は m₁v₁′ ＋ m₂v₂′ ＝ 0（前の運動量の和が 0 のとき）。これを v₁′ について解くと、大きさは (m₂v₂′) ÷ m₁。マイナスは人と逆向きを表します。',
+                c: '教科書52ページ 式(2-40)、例題17 を確認してください。'
+            },
+            stage3: {
+                b: '式は v₁′ ＝ (m₂ × v₂′) ÷ m₁ です。m₂ × v₂′ は人の運動量（60 × 5 ＝ 300）、m₁ はボートの質量です。',
+                a: '式 v₁′ ＝ (m₂v₂′) ÷ m₁ の空欄に、m₂v₂′ ＝ 300、m₁ ＝ 150 を入れてください。',
+                c: '教科書53ページ 例題17 の解答を確認してください。'
+            },
+            stage4: {
+                b: '人の運動量（300）を、ボートの質量（150）で割るだけです。電卓を使って構いません。答えは小数第1位までで答えてください。',
+                a: 'v₁′ ＝ 300 ÷ 150 ＝ 2.0 [m/s]。教科書では v₁′ ＝ −2 m/s と出ますが、負号は人と逆向きを表すだけで、速さ（大きさ）は 2.0 m/s です。',
+                c: '教科書53ページ 例題17 の解答を確認してください。'
+            }
+        };
+
+        // 問 id（1〜4）→ ヒント表。renderCalculationProblem / showHint から参照。
+        const HINTS_3_4_BY_ID = {
+            1: HINTS_3_4_MOMENTUM,
+            2: HINTS_3_4_IMPULSE,
+            3: HINTS_3_4_IMPACT,
+            4: HINTS_3_4_CONSERV
+        };
+
         // ==================================================================
         // 考査対策・考査問題マスターデータ（仕様書 §10〜§12）
         // ==================================================================
@@ -8636,6 +9019,7 @@
                 if (unitId === '3-1') return PROBLEMS_3_1.length;
                 if (unitId === '3-2') return PROBLEMS_3_2.length;
                 if (unitId === '3-3') return PROBLEMS_3_3.length;
+                if (unitId === '3-4') return PROBLEMS_3_4.length;
                 return 0;
             }
 
@@ -11119,6 +11503,7 @@
                 else if (this.currentUnitId === '3-1') problems = PROBLEMS_3_1;
                 else if (this.currentUnitId === '3-2') problems = PROBLEMS_3_2;
                 else if (this.currentUnitId === '3-3') problems = PROBLEMS_3_3;
+                else if (this.currentUnitId === '3-4') problems = PROBLEMS_3_4;
 
                 if (this.currentProblemIndex >= problems.length) {
                     this.showSummary();
@@ -11236,6 +11621,7 @@
                     else if (this.currentUnitId === '3-1') problems = PROBLEMS_3_1;
                     else if (this.currentUnitId === '3-2') problems = PROBLEMS_3_2;
                     else if (this.currentUnitId === '3-3') problems = PROBLEMS_3_3;
+                    else if (this.currentUnitId === '3-4') problems = PROBLEMS_3_4;
                     sidebarList.innerHTML = problems.map((p, i) =>
                         `<li class="${i === this.currentProblemIndex ? 'is-active' : ''}">問 ${p.id}</li>`
                     ).join('');
@@ -11263,7 +11649,7 @@
                 const content = document.getElementById('problemContent');
 
                 // Handle different problem types
-                if (this.currentUnitId === '2-1' || this.currentUnitId === '2-2' || this.currentUnitId === '2-3' || this.currentUnitId === '2-4' || this.currentUnitId === '2-5' || this.currentUnitId === '3-2' || this.currentUnitId === '3-3' || this.currentUnitId === '1-6' || this.currentUnitId === '1-7' || this.currentUnitId === '1-8' || this.currentUnitId === '1-9' || this.currentUnitId === '1-10' || this.currentUnitId === '1-11' || this.currentUnitId === '1-12') {
+                if (this.currentUnitId === '2-1' || this.currentUnitId === '2-2' || this.currentUnitId === '2-3' || this.currentUnitId === '2-4' || this.currentUnitId === '2-5' || this.currentUnitId === '3-2' || this.currentUnitId === '3-3' || this.currentUnitId === '3-4' || this.currentUnitId === '1-6' || this.currentUnitId === '1-7' || this.currentUnitId === '1-8' || this.currentUnitId === '1-9' || this.currentUnitId === '1-10' || this.currentUnitId === '1-11' || this.currentUnitId === '1-12') {
                     this.renderCalculationProblem(problem, content);
                 } else if (this.currentUnitId === '1-3' || this.currentUnitId === '1-4' || this.currentUnitId === '1-5') {
                     this.drawingStageIndex = 0;
@@ -11368,9 +11754,10 @@
                 const is2_5 = this.currentUnitId === '2-5';
                 const is3_2 = this.currentUnitId === '3-2';
                 const is3_3 = this.currentUnitId === '3-3';
+                const is3_4 = this.currentUnitId === '3-4';
                 // isForceCalc は「6 ステージ汎用フロー（problem.stage0Choices 等を持つ）」を意味する。
-                //   2-2 / 2-3 / 2-4 / 2-5 / 3-2 / 3-3 も同じデータ schema（sentence / stage0Choices / stage1Choices / substitutions）を採るので含める。
-                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2 || is3_3;
+                //   2-2 / 2-3 / 2-4 / 2-5 / 3-2 / 3-3 / 3-4 も同じデータ schema（sentence / stage0Choices / stage1Choices / substitutions）を採るので含める。
+                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2 || is3_3 || is3_4;
                 // Persistent problem statement shown at the top of every stage
                 const problemText = isForceCalc
                     ? problem.sentence
@@ -11490,6 +11877,15 @@
                         '計算する',
                         '答えの意味を確認'
                     ]
+                    : is3_4
+                    ? [
+                        '求める量を確認する',
+                        'どんな問題か確認する',
+                        '使う式を導く',
+                        '数値を代入する',
+                        '計算する',
+                        '答えの意味を確認'
+                    ]
                     : [
                         '求める量を確認する',
                         '運動の種類を確認する',
@@ -11528,6 +11924,7 @@
                                       : is2_5 ? this.build2_5CircularCanvas(problem)
                                       : is3_2 ? this.build3_2ForceCanvas(problem)
                                       : is3_3 ? this.build3_3InertiaCanvas(problem)
+                                      : is3_4 ? this.build3_4MomentumCanvas(problem)
                                       : '';
 
                 // 1-7（案B 7 ステージ）は専用ルートで処理し、early return する。
@@ -11605,6 +12002,8 @@
                         : is2_5
                         ? 'この問題はどのような運動ですか？'
                         : is3_3
+                        ? 'この問題はどのような問題ですか？'
+                        : is3_4
                         ? 'この問題はどのような問題ですか？'
                         : is3_2
                         ? 'この問題はどのような運動の問題ですか？'
@@ -11903,6 +12302,26 @@
                         `;
                         this.render1_10DerivAccordion();
                         return;
+                    } else if (is3_4) {
+                        // 3-4（運動量と力積）: derivationSteps を 1 ステップずつアコーディオン表示して
+                        //   生徒自身に「使う式／式変形の操作／力積・運動量の数値化」を選ばせる
+                        //   （is3_3 と同じパターン、early return）。
+                        if (this.calcInputs.derivStepIndex === undefined) {
+                            this.calcInputs.derivStepIndex = 0;
+                        }
+                        content.innerHTML = header + staticCanvas1_6 + `
+                            <div class="calc-stage-container">
+                                <div class="calc-question-text">使う式を、一段ずつ自分で導いてください。</div>
+                                <div id="derivAccordion"></div>
+                                <div id="stageFeedback" style="margin-top:12px; font-size:14px; min-height:20px;"></div>
+                            </div>
+                        `;
+                        document.getElementById('controlButtons').innerHTML = `
+                            <button class="btn hint-btn" onclick="app.showHint('calc_${this.currentProblemIndex}_stage2')">ヒント</button>
+                            <span id="stage2NextSlot"></span>
+                        `;
+                        this.render1_10DerivAccordion();
+                        return;
                     } else {
                         content.innerHTML = header + `
                             <div class="calc-stage-container">
@@ -11944,7 +12363,8 @@
                             Abx: 'A大', Aby: 'A大', xbs: 'x大', ybs: 'y大', Acx: 'A切', Acy: 'A切', xcs: 'x切', ycs: 'y切', A0x: 'A₀', A0y: 'A₀',
                             v: 'v', v0: 'v₀', t: 't', t1: 't', t2: 't', a: 'a', s: 's',
                             l: 'l', theta: 'θ', omega: 'ω', pi: 'π', n: 'n',
-                            g: 'g', h: 'h', m: 'm', F: 'F', mg: 'mg', ma: 'ma', net: 'F − mg' };
+                            g: 'g', h: 'h', m: 'm', F: 'F', mg: 'mg', ma: 'ma', net: 'F − mg',
+                            p: 'p', Ft: 'Ft', mv0: 'mv₀', dv: 'v₀ − v', m2v2: "m₂v₂'", m1: 'm₁' };
                         const makeSlotSpan = (role, text) =>
                             `<span class="calc-formula-input empty" data-slot="${role}" id="slot-${role}">${text || slotLabel[role] || role}</span>`;
                         const slotSpans = slots.map(role => makeSlotSpan(role));
@@ -12112,6 +12532,22 @@
                             } else {
                                 // inertiaUp
                                 formulaHTML = `F ＝ ${slotSpans[0]} ＋ ${slotSpans[1]}`;
+                            }
+                        } else if (is3_4) {
+                            // 3-4（運動量と力積）: formulaType ごとに式の形が異なる。各量は 1 スロットのみ。
+                            //   momentum        → p ＝ [m] × [v]                     （slots: m, v）
+                            //   impulseV        → v ＝ ( [Ft] ＋ [mv0] ) ÷ [m]        （slots: Ft, mv0, m）
+                            //   impactForce     → F ＝ [m] × [dv] ÷ [t]              （slots: m, dv, t）
+                            //   momentumConserv → v₁' ＝ [m2v2] ÷ [m1]                （slots: m2v2, m1）
+                            if (problem.formulaType === 'impulseV') {
+                                formulaHTML = `v ＝ ( ${slotSpans[0]} ＋ ${slotSpans[1]} ) ÷ ${slotSpans[2]}`;
+                            } else if (problem.formulaType === 'impactForce') {
+                                formulaHTML = `F ＝ ${slotSpans[0]} × ${slotSpans[1]} ÷ ${slotSpans[2]}`;
+                            } else if (problem.formulaType === 'momentumConserv') {
+                                formulaHTML = `v₁' ＝ ${slotSpans[0]} ÷ ${slotSpans[1]}`;
+                            } else {
+                                // momentum
+                                formulaHTML = `p ＝ ${slotSpans[0]} × ${slotSpans[1]}`;
                             }
                         } else if (is2_3) {
                             // 2-3（重力加速度）: formulaType ごとに式の形が異なる
@@ -12594,6 +13030,45 @@
                                 </div>
                             </div>
                         `;
+                    } else if (is3_4) {
+                        // 3-4（運動量と力積）: formulaType ごとに数値入りの式と単位を切り替える。
+                        //   力積 Ft・はじめの運動量 mv₀・人の運動量 m₂v₂' は derivationStep で先に数値化済み。
+                        //   答えは小数第 1 位まで（注記ボックス併設、3-3 と同じ）。問3・問4 は大きさ（負号なし）。
+                        let formulaLine_3_4, answerLabel_3_4, unitLabel_3_4;
+                        if (problem.formulaType === 'impulseV') {
+                            formulaLine_3_4 = `$v = \\dfrac{${problem.Ft} + ${problem.mv0}}{${problem.m}} = {\\color{#c62828}?}\\ \\mathrm{[m/s]}$`;
+                            answerLabel_3_4 = 'v ＝';
+                            unitLabel_3_4 = '[m/s]';
+                        } else if (problem.formulaType === 'impactForce') {
+                            formulaLine_3_4 = `$F = \\dfrac{${problem.m} \\times ${problem.dv}}{${problem.t}} = {\\color{#c62828}?}\\ \\mathrm{[N]}$`;
+                            answerLabel_3_4 = 'F ＝';
+                            unitLabel_3_4 = '[N]';
+                        } else if (problem.formulaType === 'momentumConserv') {
+                            formulaLine_3_4 = `$v_1' = \\dfrac{${problem.m2v2}}{${problem.m1}} = {\\color{#c62828}?}\\ \\mathrm{[m/s]}$`;
+                            answerLabel_3_4 = "v₁' ＝";
+                            unitLabel_3_4 = '[m/s]';
+                        } else {
+                            // momentum
+                            formulaLine_3_4 = `$p = ${problem.m} \\times ${problem.v} = {\\color{#c62828}?}\\ \\mathrm{[kg{\\cdot}m/s]}$`;
+                            answerLabel_3_4 = 'p ＝';
+                            unitLabel_3_4 = '[kg·m/s]';
+                        }
+                        content.innerHTML = header + staticCanvas1_6 + `
+                            <div class="calc-stage-container">
+                                <div class="calc-question-text">計算結果を入力してください（電卓を使って構いません）。</div>
+                                <div class="calc-formula-display">
+                                    ${formulaLine_3_4}
+                                </div>
+                                <div style="background:#eef3fa; border-left:3px solid #4a7cbe; padding:8px 12px; border-radius:3px; margin:8px 0 10px; font-size:12px; line-height:1.6; color:#333;">
+                                    <strong>有効数字</strong>：計算結果が小数点以下第 2 位以上になる場合、第 2 位を四捨五入して<strong>小数第 1 位まで</strong>で答えてください。
+                                </div>
+                                <div class="calc-input-row">
+                                    <span class="calc-input-label">答え：${answerLabel_3_4}</span>
+                                    <input type="number" id="answerInput" class="calc-answer-input" placeholder="数値" style="width:120px;" step="0.1">
+                                    <span style="font-size:14px; color:#555; margin-left:6px;">${unitLabel_3_4}</span>
+                                </div>
+                            </div>
+                        `;
                     } else {
                         content.innerHTML = header + `
                             <div class="calc-stage-container">
@@ -12988,6 +13463,39 @@
                                 </div>
                                 <div style="margin-top:14px; font-size:13px; color:#555;">
                                     次の問題に進む前に、慣性力（見かけの力）の向きと、つり合いの図を頭の中で思い浮かべてください。
+                                </div>
+                            </div>
+                        `;
+                    } else if (is3_4) {
+                        // 3-4（運動量と力積）: 3-3 と同じ 3 行段組み KaTeX（aligned）で
+                        //   「記号式／数値式／答え」を表示し、その下に formulaType ごとの振り返り文を載せる。
+                        //   問3・問4 は大きさで答えるので、負号・逆向きはここで言葉で説明する。
+                        let reflFormulaLatex_3_4, reflText_3_4;
+                        if (problem.formulaType === 'impulseV') {
+                            reflFormulaLatex_3_4 = `\\begin{aligned} v &= \\dfrac{Ft + m v_0}{m} = \\dfrac{${problem.Ft} + ${problem.mv0}}{${problem.m}} \\\\[6pt] &= \\dfrac{40}{${problem.m}} = ${problem.expectedV}.0\\ \\mathrm{m/s} \\end{aligned}`;
+                            reflText_3_4 = '力 F を時間 t のあいだ加えると、運動量が「力 × 時間（力積）」のぶんだけ増えます。今回は力積 Ft ＝ 20 が加わって、速度が 4 m/s から 8.0 m/s に増えました。同じ力でも、加える時間が長いほど速度の変化は大きくなります。';
+                        } else if (problem.formulaType === 'impactForce') {
+                            reflFormulaLatex_3_4 = `\\begin{aligned} F &= \\dfrac{m\\,(v_0 - v)}{t} = \\dfrac{${problem.m} \\times ${problem.dv}}{${problem.t}} \\\\[6pt] &= \\dfrac{5}{${problem.t}} = ${problem.expectedF}.0\\ \\mathrm{N} \\end{aligned}`;
+                            reflText_3_4 = 'かなづちはわずか 0.01 秒で止まったので、ひじょうに大きな力 500.0 N が働きました。これが衝撃力です。同じ運動量の変化でも、止まるまでの時間が短いほど力は大きくなります（時間 t と力 F は反比例）。クッションや手袋で衝突の時間を長くすると衝撃力を小さくできます。教科書では F ＝ −500 N と出ますが、負号はかなづちの運動と逆向きを表すだけで、くぎはその反作用で 500 N の力を受けます。';
+                        } else if (problem.formulaType === 'momentumConserv') {
+                            reflFormulaLatex_3_4 = `\\begin{aligned} v_1' &= \\dfrac{m_2\\,v_2'}{m_1} = \\dfrac{${problem.m2v2}}{${problem.m1}} \\\\[6pt] &= ${problem.expectedV1}.0\\ \\mathrm{m/s} \\end{aligned}`;
+                            reflText_3_4 = '飛び込む前、人とボートは静止していて運動量の和は 0 でした。人が前へ飛び出すと、その逆向きにボートが動き、運動量の和は 0 のまま保たれます。だからボートは人と逆向きに 2.0 m/s で進みます。質量の大きいボート（150 kg）は、質量の小さい人（60 kg）より遅く動きます。ロケットがガスを後ろへふき出して前へ進むのも、同じ運動量保存の法則です。';
+                        } else {
+                            // momentum
+                            reflFormulaLatex_3_4 = `\\begin{aligned} p &= m\\,v \\\\[6pt] &= ${problem.m} \\times ${problem.v} \\\\[6pt] &= ${problem.expectedP}.0\\ \\mathrm{kg\\cdot m/s} \\end{aligned}`;
+                            reflText_3_4 = '運動量 p ＝ 30 × 20 ＝ 600.0 kg·m/s。運動量は「運動の止めにくさ（運動の大きさ）」を表す量で、質量が大きいほど、速度が速いほど大きくなります。同じ速度でも質量が 2 倍なら運動量も 2 倍、同じ質量でも速度が 2 倍なら運動量も 2 倍です。運動量は速度と同じ向きをもつ量です。';
+                        }
+                        content.innerHTML = header + staticCanvas1_6 + `
+                            <div class="calc-stage-container">
+                                <div class="calc-question-text">答えの意味を確認しよう。</div>
+                                <div class="calc-formula-display">
+                                    $${reflFormulaLatex_3_4}$
+                                </div>
+                                <div style="background:#eaf1fa; border-left:4px solid #1e5fa8; padding:14px 18px; border-radius:3px; margin-top:18px; font-size:15px; line-height:1.7;">
+                                    ${reflText_3_4}
+                                </div>
+                                <div style="margin-top:14px; font-size:13px; color:#555;">
+                                    次の問題に進む前に、式と運動量・力積の図を頭の中で思い浮かべてください。
                                 </div>
                             </div>
                         `;
@@ -15708,6 +16216,134 @@
                 return svg;
             }
 
+            // 3-4（運動量と力積）の問題図。canvas.kind で 4 種を描き分ける。
+            //   配色：青＝既知量／赤＝未知（求める量 ? ）／グレー＝補助。マーカー id stc34-*。
+            //   ラベルが viewBox 内に収まり重ならないよう座標を調整（右端見切れ・衝突に注意）。
+            build3_4MomentumCanvas(problem) {
+                const c = problem.canvas || { width: 360, height: 180, kind: 'momentum' };
+                const W = c.width, H = c.height;
+                const kind = c.kind || 'momentum';
+                const BLUE = '#1e5fa8';
+                const RED = '#c62828';
+                const GRAY = '#777';
+
+                let svg = `<div class="drawing-wrapper" style="pointer-events:none;">
+                <svg class="drawing-svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="cursor:default;">
+                <defs>
+                  <marker id="stc34-blue" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><polygon points="0,0 9,3.5 0,7" fill="${BLUE}"/></marker>
+                  <marker id="stc34-red" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><polygon points="0,0 9,3.5 0,7" fill="${RED}"/></marker>
+                  <marker id="stc34-gray" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto"><polygon points="0,0 8,3.5 0,7" fill="${GRAY}"/></marker>
+                </defs>`;
+
+                if (kind === 'momentum') {
+                    // 問1: 水平線の上に球（m=30 kg）。右向きの速度ベクトル（v=20 m/s 青）。運動量 p=?（赤）。
+                    const groundY = H - 40;
+                    svg += `<line x1="20" y1="${groundY}" x2="${W - 20}" y2="${groundY}" stroke="${GRAY}" stroke-width="2"/>`;
+                    const ballX = 90, ballR = 24;
+                    const ballY = groundY - ballR;
+                    svg += `<circle cx="${ballX}" cy="${ballY}" r="${ballR}" fill="#dce9f7" stroke="${BLUE}" stroke-width="1.8"/>`;
+                    svg += `<text x="${ballX}" y="${ballY + 4}" text-anchor="middle" font-size="12" fill="${BLUE}" font-weight="700">m ＝ ${problem.m}</text>`;
+                    svg += `<text x="${ballX}" y="${ballY - ballR - 8}" text-anchor="middle" font-size="11" fill="${BLUE}">kg</text>`;
+                    // 速度ベクトル（右向き・青・既知）：球の中心の高さから右へ
+                    const vx1 = ballX + ballR + 6, vx2 = vx1 + 90;
+                    svg += `<line x1="${vx1}" y1="${ballY}" x2="${vx2}" y2="${ballY}" stroke="${BLUE}" stroke-width="2.8" marker-end="url(#stc34-blue)"/>`;
+                    svg += `<text x="${(vx1 + vx2) / 2}" y="${ballY - 8}" text-anchor="middle" font-size="12" fill="${BLUE}" font-weight="600">v ＝ ${problem.v} m/s</text>`;
+                    // 運動量 p=?（赤）：図の右上にラベルだけ（運動の大きさは速度と同じ向き）
+                    svg += `<text x="${W - 24}" y="36" text-anchor="end" font-size="14" fill="${RED}" font-weight="700">p ＝ ?</text>`;
+                    svg += `<text x="${W - 24}" y="54" text-anchor="end" font-size="11" fill="${RED}">[kg·m/s]</text>`;
+                    svg += `</svg></div>`;
+                    return svg;
+                }
+
+                if (kind === 'impulse') {
+                    // 問2: 左に球（v₀ 矢印・青）、中央に力 F の右向き矢印（青）+ t 表示、右に球（v=?・赤）。
+                    const midY = H / 2 - 6;
+                    const ballR = 22;
+                    // 左の球（はじめ）
+                    const lbX = 56;
+                    svg += `<circle cx="${lbX}" cy="${midY}" r="${ballR}" fill="#dce9f7" stroke="${BLUE}" stroke-width="1.8"/>`;
+                    svg += `<text x="${lbX}" y="${midY + 4}" text-anchor="middle" font-size="11" fill="${BLUE}" font-weight="700">m ＝ ${problem.m}</text>`;
+                    // v₀ 矢印（青・既知）
+                    const v0x1 = lbX + ballR + 4, v0x2 = v0x1 + 40;
+                    svg += `<line x1="${v0x1}" y1="${midY}" x2="${v0x2}" y2="${midY}" stroke="${BLUE}" stroke-width="2.4" marker-end="url(#stc34-blue)"/>`;
+                    svg += `<text x="${(v0x1 + v0x2) / 2}" y="${midY - 8}" text-anchor="middle" font-size="11" fill="${BLUE}" font-weight="600">v₀ ＝ ${problem.v0}</text>`;
+                    // 中央の力 F 矢印（青・既知）+ 時間 t 表示
+                    const fcx = W / 2 - 6;
+                    const fx1 = fcx - 26, fx2 = fcx + 44;
+                    svg += `<line x1="${fx1}" y1="${midY + 38}" x2="${fx2}" y2="${midY + 38}" stroke="${BLUE}" stroke-width="3" marker-end="url(#stc34-blue)"/>`;
+                    svg += `<text x="${(fx1 + fx2) / 2}" y="${midY + 58}" text-anchor="middle" font-size="12" fill="${BLUE}" font-weight="700">F ＝ ${problem.F} N（t ＝ ${problem.t} s 加える）</text>`;
+                    // 右の球（あと・未知）
+                    const rbX = W - 70;
+                    svg += `<circle cx="${rbX}" cy="${midY}" r="${ballR}" fill="#fbe3e3" stroke="${RED}" stroke-width="1.8"/>`;
+                    svg += `<text x="${rbX}" y="${midY + 4}" text-anchor="middle" font-size="11" fill="${RED}" font-weight="700">m</text>`;
+                    // v=?（赤・未知）
+                    const vx1 = rbX + ballR + 4, vx2 = Math.min(W - 12, vx1 + 30);
+                    svg += `<line x1="${vx1}" y1="${midY}" x2="${vx2}" y2="${midY}" stroke="${RED}" stroke-width="2.6" marker-end="url(#stc34-red)"/>`;
+                    svg += `<text x="${rbX}" y="${midY - ballR - 8}" text-anchor="middle" font-size="12" fill="${RED}" font-weight="700">v ＝ ?</text>`;
+                    svg += `</svg></div>`;
+                    return svg;
+                }
+
+                if (kind === 'impactForce') {
+                    // 問3: 右向きに進むかなづち（m=0.5 kg, v₀ 矢印・青）がくぎに当たる。
+                    //   当たったあと v=0、接触時間 t=0.01 s。くぎが受ける力 F=?（赤）を左向き矢印で。
+                    const midY = H / 2 - 4;
+                    // くぎ（右側・縦線 + 頭）
+                    const nailX = W - 70;
+                    svg += `<line x1="${nailX}" y1="${midY - 30}" x2="${nailX}" y2="${midY + 46}" stroke="${GRAY}" stroke-width="3"/>`;
+                    svg += `<line x1="${nailX - 12}" y1="${midY - 30}" x2="${nailX + 12}" y2="${midY - 30}" stroke="${GRAY}" stroke-width="5"/>`;
+                    svg += `<text x="${nailX}" y="${midY + 62}" text-anchor="middle" font-size="11" fill="${GRAY}">くぎ</text>`;
+                    // かなづち（青箱）
+                    const hmW = 70, hmH = 40;
+                    const hmX = 44, hmY = midY - hmH / 2;
+                    svg += `<rect x="${hmX}" y="${hmY}" width="${hmW}" height="${hmH}" rx="5" ry="5" fill="#dce9f7" stroke="${BLUE}" stroke-width="1.8"/>`;
+                    svg += `<text x="${hmX + hmW / 2}" y="${midY + 4}" text-anchor="middle" font-size="11" fill="${BLUE}" font-weight="700">m ＝ ${problem.m}</text>`;
+                    // v₀ 矢印（右向き・青・既知）
+                    const v0x1 = hmX + hmW + 4, v0x2 = v0x1 + 56;
+                    svg += `<line x1="${v0x1}" y1="${midY}" x2="${v0x2}" y2="${midY}" stroke="${BLUE}" stroke-width="2.8" marker-end="url(#stc34-blue)"/>`;
+                    svg += `<text x="${(v0x1 + v0x2) / 2}" y="${midY - 8}" text-anchor="middle" font-size="11" fill="${BLUE}" font-weight="600">v₀ ＝ ${problem.v0}</text>`;
+                    // 接触時間・あとの速度の注記
+                    svg += `<text x="${hmX}" y="22" text-anchor="start" font-size="11" fill="${GRAY}">t ＝ ${problem.t} s で止まる（v ＝ 0）</text>`;
+                    // くぎが受ける力 F=?（赤・左向き＝かなづちの運動と逆向き）。くぎから左へ。
+                    const fxA = nailX - 6, fxB = nailX - 56;
+                    svg += `<line x1="${fxA}" y1="${midY + 30}" x2="${fxB}" y2="${midY + 30}" stroke="${RED}" stroke-width="2.6" marker-end="url(#stc34-red)"/>`;
+                    svg += `<text x="${(fxA + fxB) / 2}" y="${midY + 48}" text-anchor="middle" font-size="12" fill="${RED}" font-weight="700">F ＝ ?</text>`;
+                    svg += `</svg></div>`;
+                    return svg;
+                }
+
+                // momentumConserv（問4）：上段「飛び込む前」＝静止（運動量の和 0）、下段「飛び込んだあと」。
+                const ballR = 16;
+                const boatW = 70, boatH = 14;
+                // ----- 上段：飛び込む前（静止） -----
+                const topY = 44;
+                svg += `<text x="20" y="22" text-anchor="start" font-size="11" fill="${GRAY}">飛び込む前（静止：運動量の和 0）</text>`;
+                const tBoatX = 70;
+                svg += `<rect x="${tBoatX}" y="${topY}" width="${boatW}" height="${boatH}" rx="5" ry="5" fill="#dce9f7" stroke="${BLUE}" stroke-width="1.8"/>`;
+                svg += `<text x="${tBoatX + boatW / 2}" y="${topY + boatH + 14}" text-anchor="middle" font-size="10" fill="${BLUE}">ボート m₁ ＝ ${problem.m1} kg</text>`;
+                const tPersonX = tBoatX + boatW / 2;
+                svg += `<circle cx="${tPersonX}" cy="${topY - ballR + 2}" r="${ballR}" fill="#dce9f7" stroke="${BLUE}" stroke-width="1.8"/>`;
+                svg += `<text x="${tPersonX + ballR + 6}" y="${topY - ballR + 6}" text-anchor="start" font-size="10" fill="${BLUE}">人 m₂ ＝ ${problem.m2} kg</text>`;
+                // ----- 下段：飛び込んだあと -----
+                const botY = H - 48;
+                svg += `<text x="20" y="${botY - 30}" text-anchor="start" font-size="11" fill="${GRAY}">飛び込んだあと（運動量の和 0 のまま）</text>`;
+                const bBoatX = 90;
+                svg += `<rect x="${bBoatX}" y="${botY}" width="${boatW}" height="${boatH}" rx="5" ry="5" fill="#fbe3e3" stroke="${RED}" stroke-width="1.8"/>`;
+                // ボート左向き v₁'=?（赤・未知）
+                const b1x1 = bBoatX - 6, b1x2 = bBoatX - 52;
+                svg += `<line x1="${b1x1}" y1="${botY + boatH / 2}" x2="${b1x2}" y2="${botY + boatH / 2}" stroke="${RED}" stroke-width="2.6" marker-end="url(#stc34-red)"/>`;
+                svg += `<text x="${(b1x1 + b1x2) / 2}" y="${botY + boatH / 2 + 18}" text-anchor="middle" font-size="12" fill="${RED}" font-weight="700">v₁' ＝ ?</text>`;
+                // 人（右へ）
+                const bPersonX = bBoatX + boatW + 36;
+                svg += `<circle cx="${bPersonX}" cy="${botY + 2}" r="${ballR}" fill="#dce9f7" stroke="${BLUE}" stroke-width="1.8"/>`;
+                // 人 右向き v₂'（青・既知）
+                const p2x1 = bPersonX + ballR + 4, p2x2 = Math.min(W - 14, p2x1 + 44);
+                svg += `<line x1="${p2x1}" y1="${botY + 2}" x2="${p2x2}" y2="${botY + 2}" stroke="${BLUE}" stroke-width="2.8" marker-end="url(#stc34-blue)"/>`;
+                svg += `<text x="${bPersonX}" y="${botY - ballR - 4}" text-anchor="middle" font-size="11" fill="${BLUE}" font-weight="600">v₂' ＝ ${problem.v2}</text>`;
+                svg += `</svg></div>`;
+                return svg;
+            }
+
             // 1-9 Stage 2 用の schematic 図: 偶力の典型図（新仕様、問題図と整合）。
             //   左作用点に上向き F、右作用点に下向き F、間の距離 d は腕（水平破線・1-8 と同流儀）。
             //   中央に CW 回転矢印（左↑・右↓ → 時計回りに回転）。
@@ -18358,6 +18994,8 @@
                                            ? (HINTS_3_2_BY_ID[(this.getCalcProblem() || {}).id] || HINTS_3_2_FORCE)
                                        : (this.currentUnitId === '3-3')
                                            ? (HINTS_3_3_BY_ID[(this.getCalcProblem() || {}).id] || HINTS_3_3_UP)
+                                       : (this.currentUnitId === '3-4')
+                                           ? (HINTS_3_4_BY_ID[(this.getCalcProblem() || {}).id] || HINTS_3_4_MOMENTUM)
                                        : HINTS_2_1;
                     const stageHints = hintsTable[stagePart];
                     const levelKeys = ['b', 'a', 'c'];
@@ -18502,6 +19140,9 @@
                 if (this.currentUnitId === '3-3') {
                     return PROBLEMS_3_3[this.currentProblemIndex];
                 }
+                if (this.currentUnitId === '3-4') {
+                    return PROBLEMS_3_4[this.currentProblemIndex];
+                }
                 return null;
             }
 
@@ -18545,8 +19186,9 @@
                 const is2_5 = this.currentUnitId === '2-5';
                 const is3_2 = this.currentUnitId === '3-2';
                 const is3_3 = this.currentUnitId === '3-3';
-                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2 || is3_3;
-                // 1-6〜1-12 / 2-2 / 2-3 / 2-4 / 2-5 / 3-2 / 3-3 は problem.stage0Correct、2-1 は固定値 's'
+                const is3_4 = this.currentUnitId === '3-4';
+                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2 || is3_3 || is3_4;
+                // 1-6〜1-12 / 2-2 / 2-3 / 2-4 / 2-5 / 3-2 / 3-3 / 3-4 は problem.stage0Correct、2-1 は固定値 's'
                 const correct = isForceCalc ? problem.stage0Correct : 's';
                 const isCorrect = (value === correct);
                 if (isCorrect) {
@@ -18619,6 +19261,15 @@
                                 : (problem.formulaType === 'inertiaAccel')
                                 ? '正解。物体に生じる加速度 a [m/s²] の大きさを求めます。'
                                 : '正解。人がエレベータの床を押す力 F [N] の大きさを求めます。';
+                        } else if (is3_4) {
+                            // 3-4: formulaType で求める量が異なる（p / v / F / v₁'）
+                            msg = (problem.formulaType === 'momentum')
+                                ? '正解。物体の運動量 p [kg·m/s] の大きさを求めます。'
+                                : (problem.formulaType === 'impulseV')
+                                ? '正解。力を加えたあとの物体の速度 v [m/s] の大きさを求めます。'
+                                : (problem.formulaType === 'impactForce')
+                                ? '正解。くぎが受ける力（衝撃力）F [N] の大きさを求めます。'
+                                : '正解。飛び込んだあとにボートが動く速さ v₁′ [m/s] の大きさを求めます。';
                         }
                         feedback.textContent = msg;
                     }
@@ -18791,6 +19442,25 @@
                             } else {
                                 msg = '不正解。問題文の末尾「○○を求めよ」に注目してください。';
                             }
+                        } else if (is3_4) {
+                            // 3-4: 与えられている量を選んだ場合の説明
+                            if (value === 'mass') {
+                                msg = '不正解。質量 m は問題文に「m ＝ ○○ kg」で与えられています。求めるものは別の量です。';
+                            } else if (value === 'velocity' && problem.formulaType === 'momentum') {
+                                msg = '不正解。速度 v は問題文に「v ＝ ○○ m/s」で与えられています。求めるものは別の量です。';
+                            } else if (value === 'velocity' && problem.formulaType === 'impactForce') {
+                                msg = '不正解。当たるときの速度 v₀ は問題文に「v₀ ＝ ○○ m/s」で与えられています。求めるものは別の量です。';
+                            } else if (value === 'force') {
+                                msg = '不正解。力 F は問題文に「F ＝ ○○ N」で与えられています。求めるものは別の量です。';
+                            } else if (value === 'time') {
+                                msg = '不正解。時間 t は問題文に「○○ 秒（間）」で与えられています。求めるものは別の量です。';
+                            } else if (value === 'personV') {
+                                msg = '不正解。人が飛び込む速度 v₂′ は問題文に「v₂′ ＝ ○○ m/s」で与えられています。求めるものはボートの速さです。';
+                            } else if (value === 'boatM') {
+                                msg = '不正解。ボートの質量 m₁ は問題文に「m₁ ＝ ○○ kg」で与えられています。求めるものはボートの速さです。';
+                            } else {
+                                msg = '不正解。問題文の末尾「○○を求めよ」に注目してください。';
+                            }
                         } else {
                             msg = (value === 'v')
                                 ? '不正解。速度は問題文に「○○ m/s」の形で数値が与えられています。「求めよ」と書かれている量を探してください。'
@@ -18834,8 +19504,9 @@
                 const is2_5 = this.currentUnitId === '2-5';
                 const is3_2 = this.currentUnitId === '3-2';
                 const is3_3 = this.currentUnitId === '3-3';
-                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2 || is3_3;
-                // 1-6〜1-12 / 2-2 / 2-3 / 2-4 / 2-5 / 3-2 / 3-3 は problem.stage1Correct、2-1 は固定値 'constant'
+                const is3_4 = this.currentUnitId === '3-4';
+                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2 || is3_3 || is3_4;
+                // 1-6〜1-12 / 2-2 / 2-3 / 2-4 / 2-5 / 3-2 / 3-3 / 3-4 は problem.stage1Correct、2-1 は固定値 'constant'
                 const correct = isForceCalc ? problem.stage1Correct : 'constant';
                 const isCorrect = (value === correct);
                 if (isCorrect) {
@@ -18880,6 +19551,14 @@
                                 : '正解。物体に力が加わって加速度が生じる、運動の第二法則の問題です。教科書 47 ページの運動方程式 F ＝ m × a（式 2-35）が使えます。';
                         } else if (is3_3) {
                             msg = '正解。加速度運動する物体に、加速度と逆向きの慣性力（見かけの力）をつけ加えると、力のつり合いとして考えられます。教科書 49 ページ「4 慣性力」が使えます。';
+                        } else if (is3_4) {
+                            msg = (problem.formulaType === 'impulseV')
+                                ? '正解。力 F を一定時間 t 加えて運動量を変化させる、力積の問題です。Ft ＝ mv − mv₀（式 2-39）が使えます。'
+                                : (problem.formulaType === 'impactForce')
+                                ? '正解。きわめて短い時間で運動量が変化したときに働く、大きな力（衝撃力）を求める問題です。Ft ＝ mv − mv₀ から力を求めます。'
+                                : (problem.formulaType === 'momentumConserv')
+                                ? '正解。人とボートがおたがいに力を及ぼし合うだけの、運動量保存の法則の問題です。運動量の和は変化しません（式 2-40）。'
+                                : '正解。質量と速度から運動の大きさ（運動量）を求める問題です。p ＝ m × v が使えます。';
                         }
                         feedback.textContent = msg;
                     }
@@ -18955,6 +19634,16 @@
                                 : (value === 'staticBalance')
                                 ? '不正解。物体は静止しておらず加速しています。実際の力だけではつり合わないので、加速度と逆向きの慣性力（見かけの力）をつけ加えて考えます。'
                                 : '不正解。加速度運動する物体に、加速度と逆向きの慣性力（見かけの力）を加えて、力のつり合いとして考える問題です。';
+                        } else if (is3_4) {
+                            msg = (value === 'momentum')
+                                ? '不正解。これは「いまの運動量だけを求める問題」ではありません。問題文をもう一度読み、力を加えたり物体どうしが力を及ぼし合ったりしていないか確認してください。'
+                                : (value === 'impulse')
+                                ? '不正解。これは「1 つの物体に力を加えて速度を変える問題」ではありません。問題文の状況をもう一度確認してください。'
+                                : (value === 'conserv')
+                                ? '不正解。これは「2 つの物体が力を及ぼし合う運動量保存の問題」ではありません。問題文の状況をもう一度確認してください。'
+                                : (value === 'impact')
+                                ? '不正解。これは「きわめて短い時間で運動量が変化する衝撃力の問題」ではありません。問題文の状況をもう一度確認してください。'
+                                : '不正解。問題文の状況（運動量を求める／力積で速度を変える／衝撃力／運動量保存）をもう一度確認してください。';
                         }
                         feedback.textContent = msg;
                     }
@@ -19163,9 +19852,10 @@
                 const is2_5 = this.currentUnitId === '2-5';
                 const is3_2 = this.currentUnitId === '3-2';
                 const is3_3 = this.currentUnitId === '3-3';
-                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2 || is3_3;
+                const is3_4 = this.currentUnitId === '3-4';
+                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2 || is3_3 || is3_4;
 
-                // 1-6〜1-12 / 2-2 / 2-3 / 2-4 / 2-5 / 3-2 / 3-3 は小数入力（step=0.1 を許容）し tolerance で判定。
+                // 1-6〜1-12 / 2-2 / 2-3 / 2-4 / 2-5 / 3-2 / 3-3 / 3-4 は小数入力（step=0.1 を許容）し tolerance で判定。
                 const userAnswer = isForceCalc ? parseFloat(answerInput.value) : parseInt(answerInput.value);
                 // 2-2: formulaType ごとに expected を取り出す。
                 //   aFromV → expectedA、sFromV0AT → expectedS、それ以外（vFromAT / vFromV0AS）→ expectedV
@@ -19201,6 +19891,14 @@
                        : problem.formulaType === 'inertiaRope' ? problem.expectedS
                        : problem.expectedF)
                     : null;
+                // 3-4: formulaType ごとに expected を取り出す。
+                //   momentum → expectedP、impulseV → expectedV、impactForce → expectedF、momentumConserv → expectedV1
+                const expected3_4 = is3_4
+                    ? (problem.formulaType === 'momentum' ? problem.expectedP
+                       : problem.formulaType === 'impulseV' ? problem.expectedV
+                       : problem.formulaType === 'impactForce' ? problem.expectedF
+                       : problem.expectedV1)
+                    : null;
                 // 2-3: formulaType ごとに expected を取り出す。
                 //   freeFallH → expectedH、freeFallTime → expectedT、それ以外（freeFallV / verticalDownV）→ expectedV
                 const expected2_3 = is2_3
@@ -19221,6 +19919,7 @@
                                  : is2_5 ? expected2_5
                                  : is3_2 ? expected3_2
                                  : is3_3 ? expected3_3
+                                 : is3_4 ? expected3_4
                                  : problem.expectedDisplacement;
                 const tolerance  = isForceCalc ? (problem.tolerance || 1) : 0;
                 // 浮動小数点誤差対策: tolerance 境界（例 tolerance=0.1 で |userAnswer-expected|=0.10000...142）が
@@ -19466,6 +20165,26 @@
                                 ${expl3_3}
                             </div>
                         `;
+                    } else if (is3_4) {
+                        let expl3_4;
+                        if (problem.formulaType === 'impulseV') {
+                            expl3_4 = `Ft ＝ ${problem.F} × ${problem.t} ＝ ${problem.Ft}、mv₀ ＝ ${problem.m} × ${problem.v0} ＝ ${problem.mv0}<br>`
+                                    + `v ＝ (Ft ＋ mv₀) ÷ m ＝ (${problem.Ft} ＋ ${problem.mv0}) ÷ ${problem.m} ＝ ${expected} [m/s]`;
+                        } else if (problem.formulaType === 'impactForce') {
+                            expl3_4 = `F ＝ m × (v₀ − v) ÷ t ＝ ${problem.m} × ${problem.dv} ÷ ${problem.t} ＝ ${expected} [N]（大きさ）`;
+                        } else if (problem.formulaType === 'momentumConserv') {
+                            expl3_4 = `m₂v₂' ＝ ${problem.m2} × ${problem.v2} ＝ ${problem.m2v2}<br>`
+                                    + `v₁' ＝ (m₂v₂') ÷ m₁ ＝ ${problem.m2v2} ÷ ${problem.m1} ＝ ${expected} [m/s]（大きさ）`;
+                        } else {
+                            // momentum
+                            expl3_4 = `p ＝ m × v ＝ ${problem.m} × ${problem.v} ＝ ${expected} [kg·m/s]`;
+                        }
+                        feedback.innerHTML = `
+                            <div style="margin-bottom: 10px;">正解です。</div>
+                            <div class="answer-explanation">
+                                ${expl3_4}
+                            </div>
+                        `;
                     } else {
                         feedback.innerHTML = `
                             <div style="margin-bottom: 10px;">正解です。</div>
@@ -19534,6 +20253,7 @@
                                             : is2_5 ? (problem.unit || 'm/s²')
                                             : is3_2 ? (problem.unit || 'N')
                                             : is3_3 ? (problem.unit || 'N')
+                                            : is3_4 ? (problem.unit || 'kg·m/s')
                                             : 'N';
                             feedback.innerHTML += `<div class="answer-explanation">正解は ${expected} [${unitLabel}] です。計算の手順をもう一度確認してください。</div>`;
                         }
