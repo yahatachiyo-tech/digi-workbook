@@ -1875,6 +1875,38 @@
             color: #7a5a00;
             font-size: 11px;
         }
+        /* ログイン状況グリッドの凡例 */
+        .dashboard-login-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px 18px;
+            margin-top: 12px;
+            font-size: 12px;
+            color: #444;
+        }
+        .dashboard-login-legend .legend-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .dashboard-login-legend .legend-swatch {
+            width: 14px;
+            height: 14px;
+            border-radius: 3px;
+            border: 1px solid #bbb;
+            display: inline-block;
+        }
+        .dashboard-login-legend .sw-active   { background: #d1e9d1; border-color: var(--color-success); }
+        .dashboard-login-legend .sw-logout   { background: #e0e4ec; border-color: #8a96aa; }
+        .dashboard-login-legend .sw-leave    { background: #fff3cd; border-color: #d4a017; }
+        .dashboard-login-legend .sw-inactive { background: #f0f0f0; border-color: #e0e0e0; }
+        .dashboard-login-legend .sw-teacher  { background: #fde8a3; border-color: #d3a500; }
+        .dashboard-legend-note {
+            margin-top: 8px;
+            font-size: 11px;
+            color: #777;
+            line-height: 1.6;
+        }
         .dashboard-table {
             width: 100%;
             border-collapse: collapse;
@@ -2274,6 +2306,14 @@
                 <div class="dashboard-section">
                     <div class="dashboard-section-title">ログイン状況（1-40）</div>
                     <div class="dashboard-login-grid" id="dashboardLoginGrid"></div>
+                    <div class="dashboard-login-legend">
+                        <span class="legend-item"><span class="legend-swatch sw-active"></span>ログイン中</span>
+                        <span class="legend-item"><span class="legend-swatch sw-logout"></span>ログアウト</span>
+                        <span class="legend-item"><span class="legend-swatch sw-leave"></span>離脱（ページを閉じた）</span>
+                        <span class="legend-item"><span class="legend-swatch sw-inactive"></span>未ログイン</span>
+                        <span class="legend-item"><span class="legend-swatch sw-teacher"></span>教員（40）</span>
+                    </div>
+                    <div class="dashboard-legend-note">※ 関数電卓など別アプリへの切り替えは「離脱」になりません。「離脱（黄）」はブラウザやタブを閉じたときだけ表示されます。</div>
                 </div>
 
                 <!-- (b) 生徒取り組みテーブル -->
@@ -7802,10 +7842,13 @@
                     document.getElementById('nameInputSection').classList.add('active');
                 }
 
-                // タブ／ブラウザ閉じ・ページ遷移時に stage='leave' ログを送る
-                //   pagehide は iOS Safari やバックグラウンド化でも発火（beforeunload は発火しないことがある）
-                //   visibilitychange (hidden) はモバイルでホーム画面に戻ったとき等で発火
-                //   _leaveLogSent フラグで二重送信を防止
+                // 「本当にページを閉じた・別ページへ移動した」ときだけ stage='leave' ログを送る。
+                //   pagehide / beforeunload は タブ・ウィンドウを閉じる／再読み込み／別 URL へ移動 のときに発火する。
+                //   ★ visibilitychange (hidden) は使わない：
+                //      関数電卓アプリや別ウィンドウへの切り替え・画面の暗転/スリープ・別タブ閲覧でも発火し、
+                //      「離脱」が大量に誤検出されてダッシュボードが黄色だらけになっていたため除外。
+                //      電卓を使うために一時的に画面を離れても「離脱」とは扱わない。
+                //   _leaveLogSent フラグで pagehide と beforeunload の二重送信を防止（閉じる瞬間は 1 回だけ）。
                 this._leaveLogSent = false;
                 const sendLeaveOnce = () => {
                     if (this._leaveLogSent) return;
@@ -7816,16 +7859,6 @@
                 };
                 window.addEventListener('pagehide', sendLeaveOnce);
                 window.addEventListener('beforeunload', sendLeaveOnce);
-                document.addEventListener('visibilitychange', () => {
-                    if (document.visibilityState === 'hidden') {
-                        // visibilitychange は復帰の可能性があるため送信後にフラグをリセットしない
-                        sendLeaveOnce();
-                    } else if (document.visibilityState === 'visible') {
-                        // 復帰時は次の hidden で再度送れるよう、フラグを戻しておく
-                        // （ただし pagehide / beforeunload の後はページが破棄されるので影響なし）
-                        this._leaveLogSent = false;
-                    }
-                });
             }
 
             // ===== USER AUTHENTICATION =====
