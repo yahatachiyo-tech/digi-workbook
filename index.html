@@ -4767,42 +4767,114 @@
             4: HINTS_1_12_AREA_CUT
         };
 
-        // Problems for sub-unit 2-1: displacement and velocity (repetitive calculation)
-        // Formula: s = v × t (displacement = velocity × time)
-        // Based on teacher's exam pattern (R07 1学期期末考査 問1)
-        // baselineTime[sec] used by §8.3 昇格判定（0.5〜2倍以内の所要時間条件）。
+        // Problems for sub-unit 2-1: 変位と速度（等速直線運動 s=v×t / v=s÷t / t=s÷v）
+        //   2-2 と同じ 6 ステージ汎用フロー（sentence / stage0Choices / stage1Choices /
+        //   derivationSteps / substitutions）に乗せる。問題図は build2_1VTGraph（v-t グラフの長方形）。
+        //   昇格判定は §8.3、所要時間条件に baselineTime[sec] を使う。
         const PROBLEMS_2_1 = [
-            { id: 1, velocity: 1,  time: 19, expectedDisplacement: 19,  baselineTime: 60 },
-            { id: 2, velocity: 13, time: 13, expectedDisplacement: 169, baselineTime: 60 },
-            { id: 3, velocity: 3,  time: 14, expectedDisplacement: 42,  baselineTime: 60 },
-            { id: 4, velocity: 5,  time: 8,  expectedDisplacement: 40,  baselineTime: 60 },
-            { id: 5, velocity: 7,  time: 6,  expectedDisplacement: 42,  baselineTime: 60 }
+            {
+                id: 1, formulaType: 'dispFromVT', velocity: 15, time: 8,
+                expectedAns: 120, tolerance: 0.1, unit: 'm', decimals: 0, baselineTime: 120,
+                sentence: '一直線の道を、自動車が速度 v（速さ）15 m/s で走り続けた。速さは変わらない。8 秒間で進んだ距離（変位 s）は何 m か。変位 s [m] を求めよ。',
+                condition: '基礎、等速直線運動、s=v×t、v=15 t=8 → s=120 m',
+                canvasType: '2d-static', canvas: { width: 320, height: 220, kind: 'dispRect', showAnswer: false },
+                stage0Choices: [ { value: 'distance', label: '8 秒間で進んだ距離（変位 s [m]）の大きさ' }, { value: 'velocity', label: '走っている速度 v [m/s] の大きさ' }, { value: 'time', label: '走った時間 t [s] の長さ' } ],
+                stage0Correct: 'distance',
+                stage1Choices: [ { value: 'uniformLinear', label: '速度が一定で変わらない、等速直線運動である' }, { value: 'uniformAccel', label: '一定の加速度で速度が増える、等加速度直線運動である' }, { value: 'freeFall', label: '物体が静かに落下する、自由落下である' } ],
+                stage1Correct: 'uniformLinear',
+                derivationSteps: [
+                    { prompt: '速度 15 m/s が表す意味はどれですか？', choices: [ { value: 'perSec', label: '1 秒あたりに 15 m 進む' }, { value: 'total', label: '全部で 15 m 進む' }, { value: 'perM', label: '1 m あたり 15 秒かかる' } ], correct: 'perSec', onCorrectText: '速さ 15 m/s は「1 秒あたりに 15 m 進む」という意味です。' },
+                    { prompt: '1 秒あたり 15 m 進む自動車が、8 秒間で進む距離はどう求めますか？', choices: [ { value: 'mul', label: 'v × t（1 秒あたり 15 m が 8 秒ぶん）' }, { value: 'div', label: 'v ÷ t（速さを時間で割る）' }, { value: 'add', label: 'v ＋ t（速さと時間を足す）' } ], correct: 'mul', onCorrectText: '1 秒あたり 15 m が 8 秒ぶんだから v × t です。これは v-t グラフの長方形の面積（たて v × よこ t）＝ 変位 s にあたります。（き・は・じ では「は × じ」が「き」）' }
+                ],
+                formula: 's = v\\,t',
+                substitutions: { slots: ['v', 't'], cards: [ { role: 'v', label: 'v', value: 15, unit: 'm/s' }, { role: 't', label: 't', value: 8, unit: 's' } ] }
+            },
+            {
+                id: 2, formulaType: 'velFromST', velocity: 5, time: 20, distance: 100,
+                expectedAns: 5, tolerance: 0.1, unit: 'm/s', decimals: 0, baselineTime: 120,
+                sentence: '一直線の道を、自転車が同じ速さで走り続けた。速さは変わらない。20 秒間で進んだ距離（変位 s）は 100 m だった。このときの速度 v（速さ）は何 m/s か。速度 v [m/s] を求めよ。',
+                condition: '基礎、等速直線運動、v=s÷t、s=100 t=20 → v=5 m/s',
+                canvasType: '2d-static', canvas: { width: 320, height: 220, kind: 'velRect', showAnswer: false },
+                stage0Choices: [ { value: 'velocity', label: '走っている速度 v [m/s] の大きさ' }, { value: 'distance', label: '20 秒間で進んだ距離（変位 s [m]）の大きさ' }, { value: 'time', label: '走った時間 t [s] の長さ' } ],
+                stage0Correct: 'velocity',
+                stage1Choices: [ { value: 'uniformLinear', label: '速度が一定で変わらない、等速直線運動である' }, { value: 'uniformAccel', label: '一定の加速度で速度が増える、等加速度直線運動である' }, { value: 'freeFall', label: '物体が静かに落下する、自由落下である' } ],
+                stage1Correct: 'uniformLinear',
+                derivationSteps: [
+                    { prompt: '速さ v とは、何を表す量ですか？', choices: [ { value: 'perSec', label: '1 秒あたりに進む距離' }, { value: 'total', label: '全部で進んだ距離' }, { value: 'sumST', label: '距離と時間を足したもの' } ], correct: 'perSec', onCorrectText: '速さは「1 秒あたりに進む距離」です。だから 100 m を 20 秒で「1 秒あたり何 m か」に直せば速さが出ます。' },
+                    { prompt: '20 秒間で 100 m 進んだとき、「1 秒あたりに進む距離（速さ）」を求める計算はどれですか？', choices: [ { value: 'divST', label: 's ÷ t（距離 ÷ 時間）' }, { value: 'mulST', label: 's × t（距離と時間を掛けてしまう）' }, { value: 'divTS', label: 't ÷ s（時間 ÷ 距離。逆に割ってしまう）' } ], correct: 'divST', onCorrectText: '100 m を 20 秒で割れば「1 秒あたりに進む距離」＝速さです。v ＝ s ÷ t です。割れるのは、すでに分かっている量だけ。求める量どうしを逆にしないこと。（き・は・じ では「き ÷ じ」が「は」）' }
+                ],
+                formula: 'v = \\dfrac{s}{t}',
+                substitutions: { slots: ['s', 't'], cards: [ { role: 's', label: 's', value: 100, unit: 'm' }, { role: 't', label: 't', value: 20, unit: 's' } ] }
+            },
+            {
+                id: 3, formulaType: 'timeFromSV', velocity: 8, time: 30, distance: 240,
+                expectedAns: 30, tolerance: 0.1, unit: 's', decimals: 0, baselineTime: 130,
+                sentence: '一直線の道を、電車が速度 v（速さ）8 m/s で走り続けた。速さは変わらない。240 m 進むのに、かかった時間（経過時間 t）は何秒か。経過時間 t [s] を求めよ。',
+                condition: '基礎、等速直線運動、t=s÷v、s=240 v=8 → t=30 s',
+                canvasType: '2d-static', canvas: { width: 320, height: 220, kind: 'timeRect', showAnswer: false },
+                stage0Choices: [ { value: 'time', label: '240 m 進むのにかかった時間（経過時間 t [s]）の長さ' }, { value: 'velocity', label: '走っている速度 v [m/s] の大きさ' }, { value: 'distance', label: '進んだ距離（変位 s [m]）の大きさ' } ],
+                stage0Correct: 'time',
+                stage1Choices: [ { value: 'uniformLinear', label: '速度が一定で変わらない、等速直線運動である' }, { value: 'uniformAccel', label: '一定の加速度で速度が増える、等加速度直線運動である' }, { value: 'freeFall', label: '物体が静かに落下する、自由落下である' } ],
+                stage1Correct: 'uniformLinear',
+                derivationSteps: [
+                    { prompt: '速度 8 m/s が表す意味はどれですか？', choices: [ { value: 'perSec', label: '1 秒あたりに 8 m 進む' }, { value: 'total', label: '全部で 8 m 進む' }, { value: 'perM', label: '1 m あたり 8 秒かかる' } ], correct: 'perSec', onCorrectText: '速さ 8 m/s は「1 秒あたりに 8 m 進む」という意味です。' },
+                    { prompt: '速さ 8 m/s は 1 秒に 8 m 進みます。240 m 進むには「8 m ずつ何回ぶん」必要ですか。その計算はどれですか？', choices: [ { value: 'divSV', label: 's ÷ v（距離 ÷ 速さ）' }, { value: 'mulSV', label: 's × v（距離と速さを掛けてしまう）' }, { value: 'divVS', label: 'v ÷ s（速さ ÷ 距離。逆に割ってしまう）' } ], correct: 'divSV', onCorrectText: '240 m を「8 m ずつ何回ぶん」かは 240 ÷ 8 です。これは v-t グラフの長方形の「よこ（時間 t）」を求めることにあたります。t ＝ s ÷ v です。割れるのは、すでに分かっている量だけ。求める量どうしを逆にしないこと。（き・は・じ では「き ÷ は」が「じ」）' }
+                ],
+                formula: 't = \\dfrac{s}{v}',
+                substitutions: { slots: ['s', 'v'], cards: [ { role: 's', label: 's', value: 240, unit: 'm' }, { role: 'v', label: 'v', value: 8, unit: 'm/s' } ] }
+            },
+            {
+                id: 4, formulaType: 'dispFromVT', velocity: 12, time: 5,
+                expectedAns: 60, tolerance: 0.1, unit: 'm', decimals: 0, baselineTime: 110,
+                sentence: '一直線の道を、ランナーが速度 v（速さ）12 m/s で走り続けた。速さは変わらない。5 秒間で進んだ距離（変位 s）は何 m か。変位 s [m] を求めよ。',
+                condition: '基礎、等速直線運動、s=v×t、v=12 t=5 → s=60 m（問1と同じ面積の確認）',
+                canvasType: '2d-static', canvas: { width: 320, height: 220, kind: 'dispRect', showAnswer: false },
+                stage0Choices: [ { value: 'distance', label: '5 秒間で進んだ距離（変位 s [m]）の大きさ' }, { value: 'velocity', label: '走っている速度 v [m/s] の大きさ' }, { value: 'time', label: '走った時間 t [s] の長さ' } ],
+                stage0Correct: 'distance',
+                stage1Choices: [ { value: 'uniformLinear', label: '速度が一定で変わらない、等速直線運動である' }, { value: 'uniformAccel', label: '一定の加速度で速度が増える、等加速度直線運動である' }, { value: 'freeFall', label: '物体が静かに落下する、自由落下である' } ],
+                stage1Correct: 'uniformLinear',
+                derivationSteps: [
+                    { prompt: '速度 12 m/s が表す意味はどれですか？', choices: [ { value: 'perSec', label: '1 秒あたりに 12 m 進む' }, { value: 'total', label: '全部で 12 m 進む' }, { value: 'perM', label: '1 m あたり 12 秒かかる' } ], correct: 'perSec', onCorrectText: '速さ 12 m/s は「1 秒あたりに 12 m 進む」という意味です。' },
+                    { prompt: '1 秒あたり 12 m 進むランナーが、5 秒間で進む距離はどう求めますか？', choices: [ { value: 'mul', label: 'v × t（1 秒あたり 12 m が 5 秒ぶん）' }, { value: 'div', label: 'v ÷ t（速さを時間で割る）' }, { value: 'add', label: 'v ＋ t（速さと時間を足す）' } ], correct: 'mul', onCorrectText: '問1 と同じで v × t です。求める変位は v-t グラフの長方形の面積（たて v × よこ t）にあたります。問1 で見た面積を、もう一度確かめましょう。（き・は・じ では「は × じ」が「き」）' }
+                ],
+                formula: 's = v\\,t',
+                substitutions: { slots: ['v', 't'], cards: [ { role: 'v', label: 'v', value: 12, unit: 'm/s' }, { role: 't', label: 't', value: 5, unit: 's' } ] }
+            },
+            {
+                id: 5, formulaType: 'velFromST', velocity: 6, time: 30, distance: 180,
+                expectedAns: 6, tolerance: 0.1, unit: 'm/s', decimals: 0, baselineTime: 120,
+                sentence: '一直線の道を、バスが同じ速さで走り続けた。速さは変わらない。30 秒間で進んだ距離（変位 s）は 180 m だった。このときの速度 v（速さ）は何 m/s か。速度 v [m/s] を求めよ。',
+                condition: '基礎、等速直線運動、v=s÷t、s=180 t=30 → v=6 m/s',
+                canvasType: '2d-static', canvas: { width: 320, height: 220, kind: 'velRect', showAnswer: false },
+                stage0Choices: [ { value: 'velocity', label: '走っている速度 v [m/s] の大きさ' }, { value: 'distance', label: '30 秒間で進んだ距離（変位 s [m]）の大きさ' }, { value: 'time', label: '走った時間 t [s] の長さ' } ],
+                stage0Correct: 'velocity',
+                stage1Choices: [ { value: 'uniformLinear', label: '速度が一定で変わらない、等速直線運動である' }, { value: 'uniformAccel', label: '一定の加速度で速度が増える、等加速度直線運動である' }, { value: 'freeFall', label: '物体が静かに落下する、自由落下である' } ],
+                stage1Correct: 'uniformLinear',
+                derivationSteps: [
+                    { prompt: '速さ v とは、何を表す量ですか？', choices: [ { value: 'perSec', label: '1 秒あたりに進む距離' }, { value: 'total', label: '全部で進んだ距離' }, { value: 'sumST', label: '距離と時間を足したもの' } ], correct: 'perSec', onCorrectText: '速さは「1 秒あたりに進む距離」です。180 m を 30 秒で「1 秒あたり何 m か」に直せば速さが出ます。' },
+                    { prompt: '30 秒間で 180 m 進んだとき、「1 秒あたりに進む距離（速さ）」を求める計算はどれですか？', choices: [ { value: 'divST', label: 's ÷ t（距離 ÷ 時間）' }, { value: 'mulST', label: 's × t（距離と時間を掛けてしまう）' }, { value: 'divTS', label: 't ÷ s（時間 ÷ 距離。逆に割ってしまう）' } ], correct: 'divST', onCorrectText: '180 m を 30 秒で割れば「1 秒あたりに進む距離」＝速さです。v ＝ s ÷ t です。割れるのは、すでに分かっている量だけ。求める量どうしを逆にしないこと。（き・は・じ では「き ÷ じ」が「は」）' }
+                ],
+                formula: 'v = \\dfrac{s}{t}',
+                substitutions: { slots: ['s', 't'], cards: [ { role: 's', label: 's', value: 180, unit: 'm' }, { role: 't', label: 't', value: 30, unit: 's' } ] }
+            }
         ];
 
-        // Shared 3-stage hints (B→A→C) for each stage of unit 2-1.
-        // Keys match the calc-stage index: stage0=事実抽出, stage1=現象把握, stage3=代入, stage4=計算.
-        // Stage 2 (必然の公式) has no hint — formula is presented as conclusion, not a choice.
-        const HINTS_2_1 = {
-            stage0: {
-                b: '問題文の最後の文に注目してください。「求めよ」と書かれている量が求めるものです。それ以外の数値（○○ m/s、○○ 秒など）は与えられている値です。',
-                a: '問題文の末尾に「変位 s [m] を求めよ」とあります。求めるものは変位 s [m] です。速度 v（m/s 単位）と時間 t（秒単位）は問題文に数値として与えられています。',
-                c: '教科書40ページ「2 変位と速度」の冒頭を確認してください。'
-            },
-            stage1: {
-                b: '問題文に「一定の速さで運動した」とあります。速さが「一定」とは、速さが変化しているでしょうか、それとも変化していないでしょうか。',
-                a: '速さが変わらない直線運動のことを「等速直線運動」といいます。',
-                c: '教科書40ページ「1 直線運動」を確認してください。'
-            },
-            stage3: {
-                b: '問題文の中で「○○ m/s」と書かれた数が速度、「○○ 秒間」と書かれた数が時間です。単位を手がかりにどの数がどの記号に対応するかを考えましょう。',
-                a: '速度の記号は v、時間の記号は t です。問題文の「○○ m/s」を v の位置に、「○○ 秒」を t の位置に入れます。',
-                c: '教科書40ページの例題などで、記号と数値の対応を確認してください。'
-            },
-            stage4: {
-                b: '数値が式に入ったら、あとは計算するだけです。式の形に注目しましょう。',
-                a: 's ＝ 速度の数値 × 時間の数値。この掛け算の答えが変位の値です。',
-                c: '教科書の例題で計算手順を確認してください。'
-            }
+        // 2-1 ヒント（問 id ごと B→A→C）。showHint は HINTS_2_1_byId[id] を引く（2-2 と同形）。
+        const HINTS_2_1_byId = {
+            1: { stage0: { b: '問題文の最後の文に注目してください。「求めよ」と書かれている量が、これから出すものです。', a: '末尾に「変位 s [m] を求めよ」とあります。求めるものは変位 s（進んだ距離）です。速度 15 m/s と時間 8 秒は、すでに分かっている値です。', c: '教科書40ページ「2 変位と速度」の冒頭を確認してください。' }, stage1: { b: '問題文に「速さは変わらない」とあります。速さが変わらない直線の運動を、何といったでしょうか。', a: '速さが変わらない直線運動を「等速直線運動」といいます。v-t グラフでは高さ v の横一直線になり、その下の長方形の面積が変位 s にあたります。', c: '教科書40ページ「1 直線運動」を確認してください。' }, stage2: { b: '「15 m/s」は 1 秒あたりに進む距離です。それが 8 秒ぶんあると、進む距離はどうなるでしょうか。', a: '1 秒あたり進む距離（速さ v）× 時間 t ＝ 進んだ距離（変位 s）。s ＝ v × t です。', c: '教科書40ページ「2 変位と速度」と、速さ・時間・変位の関係を確認してください。' }, stage3: { b: '「○○ m/s」と書かれた数が速度、「○○ 秒」と書かれた数が時間です。単位を手がかりにしましょう。', a: '速度の記号は v、時間の記号は t です。問題文の 15 m/s を v に、8 秒を t に入れます。', c: '教科書40ページの記号と数値の対応を確認してください。' }, stage4: { b: '数値が式に入ったら、あとは計算するだけです。式の形は掛け算です。', a: 's ＝ 15 × 8。この掛け算の答えが変位 s の値（m）です。', c: '教科書40ページの例題で計算の手順を確認してください。' } },
+            2: { stage0: { b: '問題文の最後の文に注目してください。「求めよ」と書かれている量が、これから出すものです。', a: '末尾に「速度 v [m/s] を求めよ」とあります。求めるものは速度 v（速さ）です。距離 100 m と時間 20 秒は、すでに分かっている値です。', c: '教科書40ページ「2 変位と速度」の冒頭を確認してください。' }, stage1: { b: '問題文に「速さは変わらない」とあります。速さが変わらない直線の運動を、何といったでしょうか。', a: '速さが変わらない直線運動を「等速直線運動」といいます。v-t グラフでは高さ v の横一直線になり、その下の長方形の面積が変位 s にあたります。', c: '教科書40ページ「1 直線運動」を確認してください。' }, stage2: { b: '速さとは「1 秒あたりに進む距離」のことです。20 秒で 100 m 進んだとき、1 秒あたりは何 m でしょうか。', a: '進んだ距離（変位 s）÷ かかった時間 t ＝ 1 秒あたりに進む距離（速さ v）。v ＝ s ÷ t です。', c: '教科書40ページ「2 変位と速度」で、速さの意味を確認してください。' }, stage3: { b: '「○○ m」と書かれた数が距離、「○○ 秒」と書かれた数が時間です。単位を手がかりにしましょう。', a: '距離の記号は s、時間の記号は t です。問題文の 100 m を s に、20 秒を t に入れます。', c: '教科書40ページの記号と数値の対応を確認してください。' }, stage4: { b: '数値が式に入ったら、あとは計算するだけです。式の形は割り算です。', a: 'v ＝ 100 ÷ 20。この割り算の答えが速度 v の値（m/s）です。', c: '教科書40ページの例題で計算の手順を確認してください。' } },
+            3: { stage0: { b: '問題文の最後の文に注目してください。「求めよ」と書かれている量が、これから出すものです。', a: '末尾に「経過時間 t [s] を求めよ」とあります。求めるものはかかった時間 t です。距離 240 m と速度 8 m/s は、すでに分かっている値です。', c: '教科書40ページ「2 変位と速度」の冒頭を確認してください。' }, stage1: { b: '問題文に「速さは変わらない」とあります。速さが変わらない直線の運動を、何といったでしょうか。', a: '速さが変わらない直線運動を「等速直線運動」といいます。v-t グラフでは高さ v の横一直線になり、その下の長方形の面積が変位 s にあたります。', c: '教科書40ページ「1 直線運動」を確認してください。' }, stage2: { b: '速さ 8 m/s は 1 秒に 8 m 進みます。240 m 進むには「8 m ずつ何回ぶん」必要でしょうか。', a: '進んだ距離（変位 s）÷ 速さ v ＝ かかった時間 t。t ＝ s ÷ v です。これは v-t グラフの長方形の「よこ（時間 t）」を求めることにあたります。', c: '教科書40ページ「2 変位と速度」で、速さ・距離・時間の関係を確認してください。' }, stage3: { b: '「○○ m」と書かれた数が距離、「○○ m/s」と書かれた数が速度です。単位を手がかりにしましょう。', a: '距離の記号は s、速度の記号は v です。問題文の 240 m を s に、8 m/s を v に入れます。', c: '教科書40ページの記号と数値の対応を確認してください。' }, stage4: { b: '数値が式に入ったら、あとは計算するだけです。式の形は割り算です。', a: 't ＝ 240 ÷ 8。この割り算の答えがかかった時間 t の値（秒）です。', c: '教科書40ページの例題で計算の手順を確認してください。' } },
+            4: { stage0: { b: '問題文の最後の文に注目してください。「求めよ」と書かれている量が、これから出すものです。', a: '末尾に「変位 s [m] を求めよ」とあります。求めるものは変位 s（進んだ距離）です。速度 12 m/s と時間 5 秒は、すでに分かっている値です。', c: '教科書40ページ「2 変位と速度」の冒頭を確認してください。' }, stage1: { b: '問題文に「速さは変わらない」とあります。速さが変わらない直線の運動を、何といったでしょうか。', a: '速さが変わらない直線運動を「等速直線運動」といいます。v-t グラフでは高さ v の横一直線になり、その下の長方形の面積が変位 s にあたります。', c: '教科書40ページ「1 直線運動」を確認してください。' }, stage2: { b: '問1 と同じ求め方です。「12 m/s」は 1 秒あたりに進む距離です。それが 5 秒ぶんあると、進む距離はどうなるでしょうか。', a: '速さ v × 時間 t ＝ 変位 s。s ＝ v × t です。これは v-t グラフの長方形の面積（たて v × よこ t）にあたります。', c: '教科書40ページ「2 変位と速度」と、長方形の面積＝変位の関係を確認してください。' }, stage3: { b: '「○○ m/s」と書かれた数が速度、「○○ 秒」と書かれた数が時間です。単位を手がかりにしましょう。', a: '速度の記号は v、時間の記号は t です。問題文の 12 m/s を v に、5 秒を t に入れます。', c: '教科書40ページの記号と数値の対応を確認してください。' }, stage4: { b: '数値が式に入ったら、あとは計算するだけです。式の形は掛け算です。', a: 's ＝ 12 × 5。この掛け算の答えが変位 s の値（m）です。', c: '教科書40ページの例題で計算の手順を確認してください。' } },
+            5: { stage0: { b: '問題文の最後の文に注目してください。「求めよ」と書かれている量が、これから出すものです。', a: '末尾に「速度 v [m/s] を求めよ」とあります。求めるものは速度 v（速さ）です。距離 180 m と時間 30 秒は、すでに分かっている値です。', c: '教科書40ページ「2 変位と速度」の冒頭を確認してください。' }, stage1: { b: '問題文に「速さは変わらない」とあります。速さが変わらない直線の運動を、何といったでしょうか。', a: '速さが変わらない直線運動を「等速直線運動」といいます。v-t グラフでは高さ v の横一直線になり、その下の長方形の面積が変位 s にあたります。', c: '教科書40ページ「1 直線運動」を確認してください。' }, stage2: { b: '問2 と同じ求め方です。速さとは「1 秒あたりに進む距離」のことです。30 秒で 180 m 進んだとき、1 秒あたりは何 m でしょうか。', a: '進んだ距離（変位 s）÷ かかった時間 t ＝ 速さ v。v ＝ s ÷ t です。', c: '教科書40ページ「2 変位と速度」で、速さの意味を確認してください。' }, stage3: { b: '「○○ m」と書かれた数が距離、「○○ 秒」と書かれた数が時間です。単位を手がかりにしましょう。', a: '距離の記号は s、時間の記号は t です。問題文の 180 m を s に、30 秒を t に入れます。', c: '教科書40ページの記号と数値の対応を確認してください。' }, stage4: { b: '数値が式に入ったら、あとは計算するだけです。式の形は割り算です。', a: 'v ＝ 180 ÷ 30。この割り算の答えが速度 v の値（m/s）です。', c: '教科書40ページの例題で計算の手順を確認してください。' } }
+        };
+
+        // 2-1 Stage5 振り返り文（問 id ごと）。2-2 の Stage5 と同じ枠で REFLECT_2_1[id] を表示する。
+        const REFLECT_2_1 = {
+            1: 'v-t グラフは高さ v の横一直線になった。その下の長方形の面積（たて v ＝ 15 × よこ t ＝ 8）が、求めた変位 s ＝ 120 m である。速さ × 時間 ＝ 進んだ距離。図の面積と計算の答えが一致することを確かめておく。',
+            2: '長方形のよこ（時間 t ＝ 20）と面積（変位 s ＝ 100 m）が分かっているとき、たて（速さ v）は 面積 ÷ よこ で出せる。v ＝ 100 ÷ 20 ＝ 5 m/s。速さとは「1 秒あたりに進む距離」だと確かめておく。',
+            3: '長方形のたて（速さ v ＝ 8）と面積（変位 s ＝ 240 m）が分かっているとき、よこ（時間 t）は 面積 ÷ たて で出せる。t ＝ 240 ÷ 8 ＝ 30 s。これは「8 m ずつ何回ぶんか」を数えたことと同じである。',
+            4: '問1 と同じ「長方形の面積 ＝ 変位」だった。たて v ＝ 12 × よこ t ＝ 5 ＝ 面積 s ＝ 60 m。次の 2-2 では速さが少しずつ変わる運動を学ぶ。そのときグラフは長方形ではなく台形になり、面積の出し方も少し変わる。',
+            5: '長方形のよこ（時間 t ＝ 30）と面積（変位 s ＝ 180 m）から、たて（速さ v）＝ 180 ÷ 30 ＝ 6 m/s が求まった。ここまでの問はすべて高さ v が一定の「長方形」だった。次の 2-2 では速さが変わるため、図は台形になる。長方形の面積で変位を求める考え方が、その土台になる。'
         };
 
         // Problems for sub-unit 2-2: 等加速度運動
@@ -12545,6 +12617,7 @@
                 const is1_10 = this.currentUnitId === '1-10';
                 const is1_11 = this.currentUnitId === '1-11';
                 const is1_12 = this.currentUnitId === '1-12';
+                const is2_1 = this.currentUnitId === '2-1';
                 const is2_2 = this.currentUnitId === '2-2';
                 const is2_3 = this.currentUnitId === '2-3';
                 const is2_4 = this.currentUnitId === '2-4';
@@ -12559,9 +12632,9 @@
                 const is5_1 = this.currentUnitId === '5-1';
                 const is5_2 = this.currentUnitId === '5-2';
                 // isForceCalc は「6 ステージ汎用フロー（problem.stage0Choices 等を持つ）」を意味する。
-                //   2-2 / 2-3 / 2-4 / 2-5 / 3-2 / 3-3 / 3-4 / 4-1 / 4-2 / 4-3 も同じデータ schema（sentence / stage0Choices / stage1Choices / substitutions）を採るので含める。
+                //   2-1 / 2-2 / 2-3 / 2-4 / 2-5 / 3-2 / 3-3 / 3-4 / 4-1 / 4-2 / 4-3 も同じデータ schema（sentence / stage0Choices / stage1Choices / substitutions）を採るので含める。
                 //   4-3 はエネルギー [J] を求めるため isForceCalc には含めるが、力ではないので isForceCalc 名は便宜上の流用。
-                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2 || is3_3 || is3_4 || is4_1 || is4_2 || is4_3 || is4_4 || is5_1 || is5_2;
+                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_1 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2 || is3_3 || is3_4 || is4_1 || is4_2 || is4_3 || is4_4 || is5_1 || is5_2;
                 // Persistent problem statement shown at the top of every stage
                 const problemText = isForceCalc
                     ? problem.sentence
@@ -12645,7 +12718,7 @@
                         '計算する',
                         '答えの意味を確認'
                     ]
-                    : is2_2
+                    : (is2_1 || is2_2)
                     ? [
                         '求める量を確認する',
                         '運動の種類を確認する',
@@ -12731,6 +12804,7 @@
                                       : is1_10 ? this.build1_10StaticCanvas(problem)
                                       : is1_11 ? this.build1_11StaticCanvas(problem)
                                       : is1_12 ? (problem.formulaType === 'centroid' ? this.build1_12StaticCanvas(problem) : this.build1_12PlateCanvas(problem))
+                                      : is2_1 ? this.build2_1VTGraph(problem)
                                       : is2_2 ? this.build2_2VTGraph(problem)
                                       : is2_3 ? this.build2_3FreeFallCanvas(problem)
                                       : is2_4 ? this.build2_4RotationCanvas(problem)
@@ -12814,6 +12888,8 @@
                         ? '図の棒にはたらく力の関係はどれですか？'
                         : is1_12
                         ? 'この問題はどのような問題ですか？'
+                        : is2_1
+                        ? '問題文の「速さは変わらない」は、どのような運動ですか？'
                         : is2_2
                         ? '問題文の「一定の加速度で速度を増している」は、どのような運動ですか？'
                         : is2_3
@@ -13014,9 +13090,9 @@
                         `;
                         this.render1_10DerivAccordion();
                         return;
-                    } else if (is2_2) {
-                        // 2-2（等加速度運動）: 式 2-20〜2-23 を、derivationSteps を 1 ステップずつ
-                        //   アコーディオン表示して生徒自身に導かせる。
+                    } else if (is2_1 || is2_2) {
+                        // 2-1（等速直線運動 s=vt / v=s÷t / t=s÷v）/ 2-2（等加速度運動 式 2-20〜2-23）:
+                        //   derivationSteps を 1 ステップずつアコーディオン表示して生徒自身に導かせる。
                         //   1-10 問3・問4 / 1-11 / 1-12 と同じ render1_10DerivAccordion を再利用する。
                         if (this.calcInputs.derivStepIndex === undefined) {
                             this.calcInputs.derivStepIndex = 0;
@@ -13299,6 +13375,19 @@
                                     </div>`;
                                 // slotToCardRoleMap は problem.substitutions に定義済み。
                                 slotToCardRoleMap = problem.substitutions.slotToCardRoleMap;
+                            }
+                        } else if (is2_1) {
+                            // 2-1（等速直線運動）: formulaType ごとに式の形が異なる。各量は 1 スロットのみ。
+                            //   dispFromVT → s ＝ [v] × [t]   （slots: v, t）
+                            //   velFromST  → v ＝ [s] ÷ [t]    （slots: s, t）
+                            //   timeFromSV → t ＝ [s] ÷ [v]    （slots: s, v）
+                            if (problem.formulaType === 'velFromST') {
+                                formulaHTML = `v ＝ ${slotSpans[0]} ÷ ${slotSpans[1]}`;
+                            } else if (problem.formulaType === 'timeFromSV') {
+                                formulaHTML = `t ＝ ${slotSpans[0]} ÷ ${slotSpans[1]}`;
+                            } else {
+                                // dispFromVT
+                                formulaHTML = `s ＝ ${slotSpans[0]} × ${slotSpans[1]}`;
                             }
                         } else if (is2_2) {
                             // 2-2（等加速度運動）: formulaType ごとに式の形が異なる
@@ -13750,6 +13839,37 @@
                                 </div>
                             `;
                         }
+                    } else if (is2_1) {
+                        // 2-1（等速直線運動）: formulaType ごとに数値入りの式と単位を切り替える。
+                        //   答えは整数（割り切れる値）だが、入力は step=0.1 を許容し tolerance で判定する。
+                        let formulaLine_2_1, answerLabel_2_1, unitLabel_2_1;
+                        if (problem.formulaType === 'velFromST') {
+                            formulaLine_2_1 = `$v = ${problem.distance} \\div ${problem.time} = {\\color{#c62828}?}\\ \\mathrm{[m/s]}$`;
+                            answerLabel_2_1 = 'v ＝';
+                            unitLabel_2_1 = '[m/s]';
+                        } else if (problem.formulaType === 'timeFromSV') {
+                            formulaLine_2_1 = `$t = ${problem.distance} \\div ${problem.velocity} = {\\color{#c62828}?}\\ \\mathrm{[s]}$`;
+                            answerLabel_2_1 = 't ＝';
+                            unitLabel_2_1 = '[s]';
+                        } else {
+                            // dispFromVT
+                            formulaLine_2_1 = `$s = ${problem.velocity} \\times ${problem.time} = {\\color{#c62828}?}\\ \\mathrm{[m]}$`;
+                            answerLabel_2_1 = 's ＝';
+                            unitLabel_2_1 = '[m]';
+                        }
+                        content.innerHTML = header + staticCanvas1_6 + `
+                            <div class="calc-stage-container">
+                                <div class="calc-question-text">計算結果を入力してください（電卓を使って構いません）。</div>
+                                <div class="calc-formula-display">
+                                    ${formulaLine_2_1}
+                                </div>
+                                <div class="calc-input-row">
+                                    <span class="calc-input-label">答え：${answerLabel_2_1}</span>
+                                    <input type="number" id="answerInput" class="calc-answer-input" placeholder="数値" style="width:120px;" step="0.1">
+                                    <span style="font-size:14px; color:#555; margin-left:6px;">${unitLabel_2_1}</span>
+                                </div>
+                            </div>
+                        `;
                     } else if (is2_2) {
                         // 2-2（等加速度運動）: formulaType ごとに数値入りの式と単位を切り替える。
                         //   答えは小数第 1 位まで（1-10 と同じ「四捨五入注記」ボックスを併設）。
@@ -14403,6 +14523,33 @@
                                 </div>
                             </div>
                         `;
+                    } else if (is2_1) {
+                        // 2-1: 振り返り。2-2 と同じ枠で、formulaType ごとの数値式（KaTeX）と
+                        //   REFLECT_2_1[id] の振り返り文を表示する。
+                        let reflFormulaLatex_2_1;
+                        if (problem.formulaType === 'velFromST') {
+                            reflFormulaLatex_2_1 = `v = \\dfrac{s}{t} = \\dfrac{${problem.distance}}{${problem.time}} = ${problem.expectedAns}\\ \\mathrm{m/s}`;
+                        } else if (problem.formulaType === 'timeFromSV') {
+                            reflFormulaLatex_2_1 = `t = \\dfrac{s}{v} = \\dfrac{${problem.distance}}{${problem.velocity}} = ${problem.expectedAns}\\ \\mathrm{s}`;
+                        } else {
+                            // dispFromVT
+                            reflFormulaLatex_2_1 = `s = v\\,t = ${problem.velocity} \\times ${problem.time} = ${problem.expectedAns}\\ \\mathrm{m}`;
+                        }
+                        const reflText_2_1 = REFLECT_2_1[problem.id] || '';
+                        content.innerHTML = header + staticCanvas1_6 + `
+                            <div class="calc-stage-container">
+                                <div class="calc-question-text">答えの意味を確認しよう。</div>
+                                <div class="calc-formula-display">
+                                    $${reflFormulaLatex_2_1}$
+                                </div>
+                                <div style="background:#eaf1fa; border-left:4px solid #1e5fa8; padding:14px 18px; border-radius:3px; margin-top:18px; font-size:15px; line-height:1.7;">
+                                    ${reflText_2_1}
+                                </div>
+                                <div style="margin-top:14px; font-size:13px; color:#555;">
+                                    次の問題に進む前に、式と v-t グラフ（長方形の面積 ＝ 変位）を頭の中で思い浮かべてください。
+                                </div>
+                            </div>
+                        `;
                     } else if (is2_2) {
                         // 2-2: 振り返り。1-12 図心と同じ 3 行段組み KaTeX（aligned）で
                         //   「記号式／数値式／答え」を表示し、その下に formulaType ごとの振り返り文を載せる。
@@ -14856,17 +15003,10 @@
                             </div>
                         `;
                     } else {
-                        const ans = problem.expectedDisplacement;
+                        // フォールバック（現状すべての計算単元は上の isForceCalc 分岐で処理される）。
                         content.innerHTML = header + `
                             <div class="calc-stage-container">
                                 <div class="calc-question-text">答えの意味を確認しよう。</div>
-                                <div class="calc-formula-display">
-                                    $s = ${problem.velocity} \\times ${problem.time} = ${ans}\\,\\mathrm{[m]}$
-                                </div>
-                                <div style="background:#eaf1fa; border-left:4px solid #1e5fa8; padding:14px 18px; border-radius:3px; margin-top:18px; font-size:15px; line-height:1.7;">
-                                    この物体は <strong>${problem.time} 秒間</strong> に <strong>${ans} m</strong> 進みました。<br>
-                                    速さ <strong>${problem.velocity} m/s</strong>（1秒間に ${problem.velocity} m 進む）の物体が、${problem.time} 秒間進むので、合計で ${problem.velocity} × ${problem.time} ＝ <strong>${ans} m</strong> という結果になります。
-                                </div>
                                 <div style="margin-top:14px; font-size:13px; color:#555;">
                                     次の問題に進む前に、計算結果と場面の対応を頭の中で思い浮かべてください。
                                 </div>
@@ -16905,6 +17045,100 @@
                     svg += `<text x="${cxA}" y="${cyA + 4}" text-anchor="middle" font-size="14" fill="${BLUE}" font-weight="700">s ＝ ${problem.s} m</text>`;
                     // 傾き a
                     svg += `<text x="${(x1 + x2) / 2 + 8}" y="${(y1 + y2) / 2 - 8}" font-size="11" fill="${BLUE}" font-weight="600">a ＝ ${problem.a}</text>`;
+                }
+
+                svg += `</svg></div>`;
+                return svg;
+            }
+
+            // 2-1（変位と速度・等速直線運動）の v-t グラフを生成する。
+            //   高さ v の横一直線（傾き 0）＋その下の長方形（面積 ＝ 変位 s）を薄青で塗る。
+            //   build2_2VTGraph を雛形にし、軸・色・余白は同一。marker 接頭辞は stc21-。
+            //   problem.canvas.kind で 3 パターンに分岐（求める量だけ赤の「?」、残り 2 つは数値）：
+            //     'dispRect' (問1・問4, s求める): たて青 v、よこグレー t、中央 赤「s ＝ ?」
+            //     'velRect'  (問2・問5, v求める): よこグレー t、中央青 s、上辺 赤「v ＝ ?」
+            //     'timeRect' (問3, t求める)     : たて青 v、中央青 s、よこ 赤「t ＝ ?」
+            //   problem.canvas.showAnswer===true のとき、求める量の「?」を計算値（expectedAns）に差し替える。
+            build2_1VTGraph(problem) {
+                const c = problem.canvas || { width: 320, height: 220, kind: 'dispRect' };
+                const W = c.width, H = c.height;
+                const kind = c.kind || 'dispRect';
+                const showAnswer = c.showAnswer === true;
+                const mLeft = 56, mRight = 38, mTop = 30, mBottom = 46;
+                const ox = mLeft, oy = H - mBottom;
+
+                // 既知量と求める量。v 未知（velRect）/ t 未知（timeRect）は内部で算出して描画寸法を決める。
+                const v = problem.velocity;     // 速さ [m/s]
+                const t = problem.time;         // 時間 [s]
+                const ans = problem.expectedAns;
+
+                // スケール（build2_2VTGraph と同じ係数）。
+                const vMax = Math.max(1, v) * 1.25;
+                const tMax = Math.max(0.5, t) * 1.25;
+                const plotW = W - mLeft - mRight;
+                const plotH = H - mTop - mBottom;
+                const sx = (tv) => ox + (tv / tMax) * plotW;
+                const sy = (vv) => oy - (vv / vMax) * plotH;
+
+                let svg = `<div class="drawing-wrapper" style="pointer-events:none;">
+                <svg class="drawing-svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="cursor:default;">
+                <defs>
+                  <marker id="stc21-axis" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><polygon points="0,0 9,3.5 0,7" fill="#3A434C"/></marker>
+                  <marker id="stc21-dim" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto"><polygon points="0,0 8,3.5 0,7" fill="#777"/></marker>
+                  <marker id="stc21-dimS" markerWidth="8" markerHeight="7" refX="1" refY="3.5" orient="auto"><polygon points="8,0 0,3.5 8,7" fill="#777"/></marker>
+                </defs>`;
+
+                // 軸（X 軸・Y 軸 + 矢印 + ラベル）
+                const axisEndX = ox + plotW + 14;
+                const axisEndY = oy - plotH - 8;
+                svg += `<line x1="${ox}" y1="${oy}" x2="${axisEndX}" y2="${oy}" stroke="#3A434C" stroke-width="1.2" marker-end="url(#stc21-axis)"/>`;
+                svg += `<line x1="${ox}" y1="${oy}" x2="${ox}" y2="${axisEndY}" stroke="#3A434C" stroke-width="1.2" marker-end="url(#stc21-axis)"/>`;
+                svg += `<text x="${axisEndX + 4}" y="${oy + 4}" font-size="12" fill="#3A434C" font-style="italic">t [s]</text>`;
+                svg += `<text x="${ox - 6}" y="${axisEndY - 6}" text-anchor="end" font-size="12" fill="#3A434C" font-style="italic">v [m/s]</text>`;
+                // 原点 O と 0
+                svg += `<circle cx="${ox}" cy="${oy}" r="3" fill="#333"/>`;
+                svg += `<text x="${ox - 10}" y="${oy + 14}" text-anchor="middle" font-size="12" fill="#333" font-weight="600">O</text>`;
+                svg += `<text x="${ox - 10}" y="${oy + 2}" text-anchor="middle" font-size="10" fill="#666">0</text>`;
+
+                const BLUE = '#1e5fa8';
+                const RED = '#c62828';
+                const GRAY = '#555';
+
+                // 長方形の頂点（高さ v、よこ t）。等速 → 高さ一定の横一直線。
+                const x0 = sx(0), xt = sx(t);
+                const yv = sy(v);
+                const cxA = (x0 + xt) / 2;            // 長方形中央 x
+                const cyA = (yv + oy) / 2;            // 長方形中央 y
+
+                // 長方形の塗り（面積 ＝ 変位 s）
+                svg += `<polygon points="${x0},${yv} ${xt},${yv} ${xt},${oy} ${x0},${oy}" fill="#bcd2ee" fill-opacity="0.55" stroke="none"/>`;
+                // 上辺（高さ v の横一直線）
+                svg += `<line x1="${x0}" y1="${yv}" x2="${xt}" y2="${yv}" stroke="${BLUE}" stroke-width="2.5"/>`;
+                // 左辺・右辺（破線でガイド）
+                svg += `<line x1="${ox}" y1="${yv}" x2="${x0}" y2="${yv}" stroke="#bbb" stroke-width="1" stroke-dasharray="3,3"/>`;
+                svg += `<line x1="${xt}" y1="${oy}" x2="${xt}" y2="${yv}" stroke="#bbb" stroke-width="1" stroke-dasharray="3,3"/>`;
+                // 始点・終点の点
+                svg += `<circle cx="${x0}" cy="${yv}" r="3.5" fill="${BLUE}"/>`;
+                svg += `<circle cx="${xt}" cy="${yv}" r="3.5" fill="${BLUE}"/>`;
+
+                if (kind === 'velRect') {
+                    // v 求める：たて（高さ v）を赤、よこ t をグレー、中央に青で s。
+                    const vLabel = showAnswer ? `v ＝ ${ans} m/s` : 'v ＝ ?';
+                    svg += `<text x="${ox - 6}" y="${yv + 4}" text-anchor="end" font-size="11" fill="${RED}" font-weight="700">${vLabel}</text>`;
+                    svg += `<text x="${xt}" y="${oy + 16}" text-anchor="middle" font-size="11" fill="${GRAY}" font-weight="500">t ＝ ${t}</text>`;
+                    svg += `<text x="${cxA}" y="${cyA + 4}" text-anchor="middle" font-size="13" fill="${BLUE}" font-weight="700">s ＝ ${problem.distance} m</text>`;
+                } else if (kind === 'timeFromSV' || kind === 'timeRect') {
+                    // t 求める：たて青 v、中央青 s、よこ（X 軸 t 位置）を赤。
+                    const tLabel = showAnswer ? `t ＝ ${ans} s` : 't ＝ ?';
+                    svg += `<text x="${ox - 6}" y="${yv + 4}" text-anchor="end" font-size="11" fill="${BLUE}" font-weight="600">v ＝ ${v}</text>`;
+                    svg += `<text x="${xt}" y="${oy + 16}" text-anchor="middle" font-size="11" fill="${RED}" font-weight="700">${tLabel}</text>`;
+                    svg += `<text x="${cxA}" y="${cyA + 4}" text-anchor="middle" font-size="13" fill="${BLUE}" font-weight="700">s ＝ ${problem.distance} m</text>`;
+                } else {
+                    // dispRect（s 求める）：たて青 v、よこグレー t、中央に赤で s。
+                    const sLabel = showAnswer ? `s ＝ ${ans} m` : 's ＝ ?';
+                    svg += `<text x="${ox - 6}" y="${yv + 4}" text-anchor="end" font-size="11" fill="${BLUE}" font-weight="600">v ＝ ${v}</text>`;
+                    svg += `<text x="${xt}" y="${oy + 16}" text-anchor="middle" font-size="11" fill="${GRAY}" font-weight="500">t ＝ ${t}</text>`;
+                    svg += `<text x="${cxA}" y="${cyA + 4}" text-anchor="middle" font-size="14" fill="${RED}" font-weight="700">${sLabel}</text>`;
                 }
 
                 svg += `</svg></div>`;
@@ -21256,8 +21490,8 @@
                         return;
                     }
 
-                    // 1-6 は HINTS_1_6、1-7 は HINTS_1_7、1-8 は HINTS_1_8、1-9 は HINTS_1_9、2-1 は HINTS_2_1。
-                    //   1-10 / 1-11 / 1-12 / 2-2 は問のタイプが複数あるため、現在の問 id でヒント表を引く。
+                    // 1-6 は HINTS_1_6、1-7 は HINTS_1_7、1-8 は HINTS_1_8、1-9 は HINTS_1_9。
+                    //   1-10 / 1-11 / 1-12 / 2-1 / 2-2 ... は問のタイプが複数あるため、現在の問 id でヒント表を引く。
                     const hintsTable = (this.currentUnitId === '1-6') ? HINTS_1_6 :
                                        (this.currentUnitId === '1-7') ? HINTS_1_7 :
                                        (this.currentUnitId === '1-8') ? HINTS_1_8 :
@@ -21268,6 +21502,8 @@
                                            ? (HINTS_1_11_BY_ID[(this.getCalcProblem() || {}).id] || HINTS_1_11_FORCE)
                                        : (this.currentUnitId === '1-12')
                                            ? (HINTS_1_12_BY_ID[(this.getCalcProblem() || {}).id] || HINTS_1_12_DIST)
+                                       : (this.currentUnitId === '2-1')
+                                           ? (HINTS_2_1_byId[(this.getCalcProblem() || {}).id] || HINTS_2_1_byId[1])
                                        : (this.currentUnitId === '2-2')
                                            ? (HINTS_2_2_BY_ID[(this.getCalcProblem() || {}).id] || HINTS_2_2_A)
                                        : (this.currentUnitId === '2-3')
@@ -21294,7 +21530,7 @@
                                            ? (HINTS_5_1_BY_ID[(this.getCalcProblem() || {}).id] || HINTS_5_1_STATIC)
                                        : (this.currentUnitId === '5-2')
                                            ? (HINTS_5_2_BY_ID[(this.getCalcProblem() || {}).id] || HINTS_5_2_WORK)
-                                       : HINTS_2_1;
+                                       : (HINTS_2_1_byId[(this.getCalcProblem() || {}).id] || HINTS_2_1_byId[1]);
                     const stageHints = hintsTable[stagePart];
                     const levelKeys = ['b', 'a', 'c'];
                     hintText = stageHints ? stageHints[levelKeys[level]] : '';
@@ -21496,6 +21732,7 @@
                 const is1_10 = this.currentUnitId === '1-10';
                 const is1_11 = this.currentUnitId === '1-11';
                 const is1_12 = this.currentUnitId === '1-12';
+                const is2_1 = this.currentUnitId === '2-1';
                 const is2_2 = this.currentUnitId === '2-2';
                 const is2_3 = this.currentUnitId === '2-3';
                 const is2_4 = this.currentUnitId === '2-4';
@@ -21509,8 +21746,8 @@
                 const is4_4 = this.currentUnitId === '4-4';
                 const is5_1 = this.currentUnitId === '5-1';
                 const is5_2 = this.currentUnitId === '5-2';
-                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2 || is3_3 || is3_4 || is4_1 || is4_2 || is4_3 || is4_4 || is5_1 || is5_2;
-                // 1-6〜1-12 / 2-2 / 2-3 / 2-4 / 2-5 / 3-2 / 3-3 / 3-4 は problem.stage0Correct、2-1 は固定値 's'
+                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_1 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2 || is3_3 || is3_4 || is4_1 || is4_2 || is4_3 || is4_4 || is5_1 || is5_2;
+                // 全 6 ステージ汎用フロー（2-1 含む）は problem.stage0Correct を使う。
                 const correct = isForceCalc ? problem.stage0Correct : 's';
                 const isCorrect = (value === correct);
                 if (isCorrect) {
@@ -21519,7 +21756,14 @@
                     if (feedback) {
                         feedback.style.color = '#2e7d32';
                         let msg = '正解。変位 s を求めます。';
-                        if (is1_6) {
+                        if (is2_1) {
+                            // 2-1: formulaType で求める量が異なる（s / v / t）
+                            msg = (problem.formulaType === 'velFromST')
+                                ? '正解。走っている速度 v [m/s] の大きさを求めます。'
+                                : (problem.formulaType === 'timeFromSV')
+                                ? '正解。かかった時間（経過時間 t [s]）の長さを求めます。'
+                                : '正解。進んだ距離（変位 s [m]）の大きさを求めます。';
+                        } else if (is1_6) {
                             msg = '正解。合力 F の大きさを求めます。';
                         } else if (is1_7) {
                             msg = (problem.target === 'Fx')
@@ -21919,10 +22163,21 @@
                             } else {
                                 msg = '不正解。問題文の末尾「○○を求めよ」に注目してください。';
                             }
+                        } else if (is2_1) {
+                            // 2-1: 与えられている量を選んだ場合の説明（formulaType ごとに異なる）
+                            if (value === 'velocity' && problem.formulaType !== 'velFromST') {
+                                msg = '不正解。速度 v は問題文に「○○ m/s」の形で数値が与えられています。求めるものは別の量です。';
+                            } else if (value === 'distance' && problem.formulaType === 'dispFromVT') {
+                                msg = '不正解。問題文の末尾は「変位 s を求めよ」です。距離 s が求める対象です。';
+                            } else if (value === 'distance') {
+                                msg = '不正解。距離（変位 s）は問題文に「○○ m」の形で数値が与えられています。求めるものは別の量です。';
+                            } else if (value === 'time' && problem.formulaType !== 'timeFromSV') {
+                                msg = '不正解。時間 t は問題文に「○○ 秒間」の形で数値が与えられています。求めるものは別の量です。';
+                            } else {
+                                msg = '不正解。問題文の末尾「○○を求めよ」に注目してください。';
+                            }
                         } else {
-                            msg = (value === 'v')
-                                ? '不正解。速度は問題文に「○○ m/s」の形で数値が与えられています。「求めよ」と書かれている量を探してください。'
-                                : '不正解。時間は問題文に「○○ 秒間」の形で数値が与えられています。「求めよ」と書かれている量を探してください。';
+                            msg = '不正解。問題文の末尾「○○を求めよ」に注目してください。';
                         }
                         feedback.textContent = msg;
                     }
@@ -21956,6 +22211,7 @@
                 const is1_10 = this.currentUnitId === '1-10';
                 const is1_11 = this.currentUnitId === '1-11';
                 const is1_12 = this.currentUnitId === '1-12';
+                const is2_1 = this.currentUnitId === '2-1';
                 const is2_2 = this.currentUnitId === '2-2';
                 const is2_3 = this.currentUnitId === '2-3';
                 const is2_4 = this.currentUnitId === '2-4';
@@ -21969,8 +22225,8 @@
                 const is4_4 = this.currentUnitId === '4-4';
                 const is5_1 = this.currentUnitId === '5-1';
                 const is5_2 = this.currentUnitId === '5-2';
-                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2 || is3_3 || is3_4 || is4_1 || is4_2 || is4_3 || is4_4 || is5_1 || is5_2;
-                // 1-6〜1-12 / 2-2 / 2-3 / 2-4 / 2-5 / 3-2 / 3-3 / 3-4 は problem.stage1Correct、2-1 は固定値 'constant'
+                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_1 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2 || is3_3 || is3_4 || is4_1 || is4_2 || is4_3 || is4_4 || is5_1 || is5_2;
+                // 全 6 ステージ汎用フロー（2-1 含む）は problem.stage1Correct を使う。
                 const correct = isForceCalc ? problem.stage1Correct : 'constant';
                 const isCorrect = (value === correct);
                 if (isCorrect) {
@@ -21979,7 +22235,9 @@
                     if (feedback) {
                         feedback.style.color = '#2e7d32';
                         let msg = '正解。問題文の「一定の速さで運動した」＝ 等速直線運動です。';
-                        if (is1_6) {
+                        if (is2_1) {
+                            msg = '正解。速さが変わらない直線の運動「等速直線運動」です。v-t グラフは高さ v の横一直線になり、その下の長方形の面積が変位 s にあたります。';
+                        } else if (is1_6) {
                             msg = '正解。図の 2 力は直角に交わっています（作用点の直角マークを確認）。';
                         } else if (is1_7) {
                             msg = '正解。合力 F と角度 α が分かっているので、三角比で直角な 2 方向の分力が求まります。';
@@ -22078,7 +22336,13 @@
                     if (feedback) {
                         feedback.style.color = '#c62828';
                         let msg = '不正解。等加速度運動は速さが変わる運動です。問題文の「一定の速さ」をよく読んでください。';
-                        if (is1_6) {
+                        if (is2_1) {
+                            msg = (value === 'uniformAccel')
+                                ? '不正解。問題文には「速さは変わらない」とあります。速度が増える「等加速度直線運動」ではありません。'
+                                : (value === 'freeFall')
+                                ? '不正解。自由落下は地球の重力で落ちる運動です。この問題は一直線の道を進む運動で、自由落下ではありません。'
+                                : '不正解。問題文の「速さは変わらない」に注目してください。これは「等速直線運動」です。';
+                        } else if (is1_6) {
                             msg = '不正解。図の 2 本の矢印の角度をよく見てください。作用点に小さな正方形（直角マーク）が描かれています。';
                         } else if (is1_7) {
                             msg = '不正解。問題文には合力 F と角度 α が与えられています。合力を求めるのではなく、三角比で分力を求める問題です。';
@@ -22457,6 +22721,15 @@
                             } else {
                                 feedback.textContent = '不正解。入れ直してください。η が効率（%）、P が与えた動力（kW）です（P_E ＝ η × P ÷ 100）。';
                             }
+                        } else if (this.currentUnitId === '2-1') {
+                            const ft2_1sub = (this.getCalcProblem() || {}).formulaType;
+                            if (ft2_1sub === 'velFromST') {
+                                feedback.textContent = '不正解。単位に注目して入れ直してください。「m」が距離 s、「s（秒）」が時間 t です（v ＝ s ÷ t）。';
+                            } else if (ft2_1sub === 'timeFromSV') {
+                                feedback.textContent = '不正解。単位に注目して入れ直してください。「m」が距離 s、「m/s」が速度 v です（t ＝ s ÷ v）。';
+                            } else {
+                                feedback.textContent = '不正解。単位に注目して入れ直してください。「m/s」が速度 v、「s（秒）」が時間 t です（s ＝ v × t）。';
+                            }
                         } else {
                             feedback.textContent = '不正解。単位に注目して入れ直してください。「m/s」が速度 v、「s（秒）」が時間 t です。';
                         }
@@ -22486,6 +22759,7 @@
                 const is1_10 = this.currentUnitId === '1-10';
                 const is1_11 = this.currentUnitId === '1-11';
                 const is1_12 = this.currentUnitId === '1-12';
+                const is2_1 = this.currentUnitId === '2-1';
                 const is2_2 = this.currentUnitId === '2-2';
                 const is2_3 = this.currentUnitId === '2-3';
                 const is2_4 = this.currentUnitId === '2-4';
@@ -22499,9 +22773,9 @@
                 const is4_4 = this.currentUnitId === '4-4';
                 const is5_1 = this.currentUnitId === '5-1';
                 const is5_2 = this.currentUnitId === '5-2';
-                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2 || is3_3 || is3_4 || is4_1 || is4_2 || is4_3 || is4_4 || is5_1 || is5_2;
+                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_1 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2 || is3_3 || is3_4 || is4_1 || is4_2 || is4_3 || is4_4 || is5_1 || is5_2;
 
-                // 1-6〜1-12 / 2-2 / 2-3 / 2-4 / 2-5 / 3-2 / 3-3 / 3-4 は小数入力（step=0.1 を許容）し tolerance で判定。
+                // 6 ステージ汎用フロー（2-1 含む）は小数入力（step=0.1 を許容）し tolerance で判定。
                 const userAnswer = isForceCalc ? parseFloat(answerInput.value) : parseInt(answerInput.value);
                 // 2-2: formulaType ごとに expected を取り出す。
                 //   aFromV → expectedA、sFromV0AT → expectedS、それ以外（vFromAT / vFromV0AS）→ expectedV
@@ -22565,6 +22839,7 @@
                                  : is1_10 ? problem.expectedTension
                                  : is1_11 ? (problem.formulaType === 'leverForce' ? problem.expectedForce : problem.expectedDist)
                                  : is1_12 ? (problem.formulaType === 'centroid' ? problem.expectedDist : problem.expectedX)
+                                 : is2_1 ? problem.expectedAns
                                  : is2_2 ? expected2_2
                                  : is2_3 ? expected2_3
                                  : is2_4 ? expected2_4
@@ -22578,7 +22853,7 @@
                                  : is4_4 ? problem.expectedAns
                                  : is5_1 ? problem.expectedAns
                                  : is5_2 ? problem.expectedAns
-                                 : problem.expectedDisplacement;
+                                 : problem.expectedAns;
                 const tolerance  = isForceCalc ? (problem.tolerance || 1) : 0;
                 // 浮動小数点誤差対策: tolerance 境界（例 tolerance=0.1 で |userAnswer-expected|=0.10000...142）が
                 // 偽陰性となるのを避けるため、比較に 1e-9 の余裕を加える。
@@ -22694,6 +22969,22 @@
                             <div style="margin-bottom: 10px;">正解です。</div>
                             <div class="answer-explanation">
                                 ${expl1_12}
+                            </div>
+                        `;
+                    } else if (is2_1) {
+                        let expl2_1;
+                        if (problem.formulaType === 'velFromST') {
+                            expl2_1 = `v ＝ s ÷ t ＝ ${problem.distance} ÷ ${problem.time} ＝ ${expected} [m/s]`;
+                        } else if (problem.formulaType === 'timeFromSV') {
+                            expl2_1 = `t ＝ s ÷ v ＝ ${problem.distance} ÷ ${problem.velocity} ＝ ${expected} [s]`;
+                        } else {
+                            // dispFromVT
+                            expl2_1 = `s ＝ v × t ＝ ${problem.velocity} × ${problem.time} ＝ ${expected} [m]`;
+                        }
+                        feedback.innerHTML = `
+                            <div style="margin-bottom: 10px;">正解です。</div>
+                            <div class="answer-explanation">
+                                ${expl2_1}
                             </div>
                         `;
                     } else if (is2_2) {
@@ -22952,11 +23243,9 @@
                             </div>
                         `;
                     } else {
+                        // フォールバック（現状すべての計算単元は上の isForceCalc 分岐で処理される）。
                         feedback.innerHTML = `
                             <div style="margin-bottom: 10px;">正解です。</div>
-                            <div class="answer-explanation">
-                                s ＝ v × t ＝ ${problem.velocity} × ${problem.time} ＝ ${problem.expectedDisplacement} [m]
-                            </div>
                         `;
                     }
                     feedback.classList.add('active');
@@ -23013,6 +23302,7 @@
                             const unitLabel = (is1_8 || is1_9) ? 'N·m'
                                             : (is1_11 && problem.formulaType !== 'leverForce') ? 'cm'
                                             : (is1_12 && problem.formulaType === 'centroid') ? 'cm'
+                                            : is2_1 ? (problem.unit || 'm')
                                             : is2_2 ? (problem.unit || 'm/s')
                                             : is2_3 ? (problem.unit || 'm/s')
                                             : is2_4 ? (problem.unit || 'm/s')
