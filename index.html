@@ -12380,6 +12380,9 @@
                 if (problem.method === 'decomposition' && problem.canvas && !problem.canvas.givenArrows) {
                     this._augmentDecompositionCanvas(problem);
                 }
+                // 2-1 等: v-t グラフの「答え表示」は各問のロード時に必ずリセット（前回正解時に true にした名残を消し、
+                //   再訪時にいきなり答えが見えてしまうのを防ぐ）。
+                if (problem.canvas && problem.canvas.showAnswer) problem.canvas.showAnswer = false;
                 this.showScreen('problemScreen');
                 this.problemStartTime = Date.now();
                 // Reset to stage 0 for each new calc problem (level feature disabled)
@@ -16954,7 +16957,7 @@
                 const axisEndY = oy - plotH - 8;
                 svg += `<line x1="${ox}" y1="${oy}" x2="${axisEndX}" y2="${oy}" stroke="#3A434C" stroke-width="1.2" marker-end="url(#stc22-axis)"/>`;
                 svg += `<line x1="${ox}" y1="${oy}" x2="${ox}" y2="${axisEndY}" stroke="#3A434C" stroke-width="1.2" marker-end="url(#stc22-axis)"/>`;
-                svg += `<text x="${axisEndX + 4}" y="${oy + 4}" font-size="12" fill="#3A434C" font-style="italic">t [s]</text>`;
+                svg += `<text x="${W - 3}" y="${oy + 4}" text-anchor="end" font-size="12" fill="#3A434C" font-style="italic">t [s]</text>`;
                 svg += `<text x="${ox - 6}" y="${axisEndY - 6}" text-anchor="end" font-size="12" fill="#3A434C" font-style="italic">v [m/s]</text>`;
                 // 原点 O と 0
                 svg += `<circle cx="${ox}" cy="${oy}" r="3" fill="#333"/>`;
@@ -17093,7 +17096,7 @@
                 const axisEndY = oy - plotH - 8;
                 svg += `<line x1="${ox}" y1="${oy}" x2="${axisEndX}" y2="${oy}" stroke="#3A434C" stroke-width="1.2" marker-end="url(#stc21-axis)"/>`;
                 svg += `<line x1="${ox}" y1="${oy}" x2="${ox}" y2="${axisEndY}" stroke="#3A434C" stroke-width="1.2" marker-end="url(#stc21-axis)"/>`;
-                svg += `<text x="${axisEndX + 4}" y="${oy + 4}" font-size="12" fill="#3A434C" font-style="italic">t [s]</text>`;
+                svg += `<text x="${W - 3}" y="${oy + 4}" text-anchor="end" font-size="12" fill="#3A434C" font-style="italic">t [s]</text>`;
                 svg += `<text x="${ox - 6}" y="${axisEndY - 6}" text-anchor="end" font-size="12" fill="#3A434C" font-style="italic">v [m/s]</text>`;
                 // 原点 O と 0
                 svg += `<circle cx="${ox}" cy="${oy}" r="3" fill="#333"/>`;
@@ -22888,6 +22891,13 @@
                 if (isCorrect) {
                     feedback.classList.add('correct');
                     feedback.classList.remove('incorrect');
+                    // 2-1: 計算が正解したら、v-t グラフの「?」を求めた値に置き換えて再描画する
+                    //   （「計算した答え＝長方形の面積（変位）」の一致を体感させる。§6.4）。
+                    if (is2_1 && problem.canvas) {
+                        problem.canvas.showAnswer = true;
+                        const _vg21 = document.querySelector('#problemContent .drawing-wrapper') || document.querySelector('.drawing-wrapper');
+                        if (_vg21) _vg21.outerHTML = this.build2_1VTGraph(problem);
+                    }
                     if (is1_6) {
                         const sq = problem.f1 * problem.f1 + problem.f2 * problem.f2;
                         feedback.innerHTML = `
