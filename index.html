@@ -2379,10 +2379,10 @@
         const DASHBOARD_UNIT_COUNTS = {
             '1-1': 4, '1-2': 6, '1-3': 4, '1-4': 4, '1-5': 4,
             '1-6': 4, '1-7': 4, '1-8': 4, '1-9': 4,
-            '1-10': 4, '1-11': 4, '1-12': 4, '2-1': 5, '2-2': 4, '2-3': 4, '2-4': 4, '2-5': 4, '3-1': 6, '3-2': 4, '3-3': 4, '3-4': 4
+            '1-10': 4, '1-11': 4, '1-12': 4, '2-1': 5, '2-2': 4, '2-3': 4, '2-4': 4, '2-5': 4, '3-1': 6, '3-2': 4, '3-3': 4, '3-4': 4, '4-1': 4
         };
         // 単元表示順
-        const DASHBOARD_UNIT_ORDER = ['1-1', '1-2', '1-3', '1-4', '1-5', '1-6', '1-7', '1-8', '1-9', '1-10', '1-11', '1-12', '2-1', '2-2', '2-3', '2-4', '2-5', '3-1', '3-2', '3-3', '3-4'];
+        const DASHBOARD_UNIT_ORDER = ['1-1', '1-2', '1-3', '1-4', '1-5', '1-6', '1-7', '1-8', '1-9', '1-10', '1-11', '1-12', '2-1', '2-2', '2-3', '2-4', '2-5', '3-1', '3-2', '3-3', '3-4', '4-1'];
 
         // 【校内版では実名ロスターを定義していたが、GitHub Pages 配信のため空に変更】
         // 将来、名簿照合に戻す場合は 1番〜36番 + 40番の形式で復活可能
@@ -2574,6 +2574,15 @@
                 id: '3-4',
                 title: '運動量と力積',
                 subtitle: '運動量 p=mv / 力積 Ft=mv−mv₀ / 衝撃力 / 運動量保存',
+                level: '基礎',
+                completed: false,
+                score: 0,
+                total: 0
+            },
+            {
+                id: '4-1',
+                title: '仕事',
+                subtitle: 'A=Fs / A=Fs cosα（力と変位が同じ向き・角度をなす）',
                 level: '基礎',
                 completed: false,
                 score: 0,
@@ -7324,6 +7333,213 @@
             4: HINTS_3_4_CONSERV
         };
 
+        // Problems for sub-unit 4-1: 仕事（A = Fs / A = Fs cosα）
+        //   教科書 p.54-55 式(2-41) A = Fs、式(2-42) A = Fs cosα、例題18、問36 に準拠。
+        //   3-2 と同じ 6 ステージ計算フロー。問題図は build4_1WorkCanvas(problem) が canvas.kind で分岐。
+        const PROBLEMS_4_1 = [
+            {
+                id: 1,
+                formulaType: 'workFlat',
+                F: 30, s: 5,
+                expectedA: 150, tolerance: 0.1, unit: 'J', decimals: 0, baselineTime: 150,
+                sentence: 'なめらかな水平の床の上で、台車を一定の力 F ＝ 30 N で水平に押し続けて、力と同じ向きに s ＝ 5 m 動かした。このとき、この力がした仕事 A [J] を求めよ。',
+                condition: '基礎、仕事 A=Fs、力と変位が同じ向き、F=30 s=5 → A=150 J',
+                canvasType: '2d-static',
+                canvas: { width: 360, height: 180, kind: 'workFlat' },
+                stage0Choices: [
+                    { value: 'work',  label: 'この力がした仕事 A [J] の大きさ' },
+                    { value: 'force', label: '台車を押した力 F [N] の大きさ' },
+                    { value: 'dist',  label: '台車が動いた距離 s [m] の大きさ' }
+                ],
+                stage0Correct: 'work',
+                stage1Choices: [
+                    { value: 'sameDir',  label: '力の向きと、動いた向きが同じ向きの、仕事の問題である' },
+                    { value: 'angleDir', label: '力の向きと、動いた向きが角度をなしている、仕事の問題である' },
+                    { value: 'noMove',   label: '物体が動いていない（距離が 0 の）問題である' }
+                ],
+                stage1Correct: 'sameDir',
+                derivationSteps: [
+                    {
+                        prompt: 'Stage 1 で「力の向きと動いた向きが同じ」と分かりました。仕事は A ＝ F × s（式 2-41）、力 × その力の向きに動いた距離で求めます。力 F ＝ 30 N と距離 s ＝ 5 m の両方が分かっています。次にすることはどれですか。',
+                        choices: [
+                            { value: 'direct', label: 'A ＝ F × s に、力 F と距離 s をそのまま代入して掛け算する' },
+                            { value: 'add',    label: 'A ＝ F ＋ s として、力と距離を足し算する' },
+                            { value: 'needCos',label: '力の向きと動いた向きが同じでも、角度の cos を掛ける必要がある' }
+                        ],
+                        correct: 'direct',
+                        onCorrectText: '力の向きと動いた向きが同じなので、A ＝ F × s に F ＝ 30 N と s ＝ 5 m をそのまま代入して掛け算します。仕事は足し算ではなく掛け算で求めます。'
+                    }
+                ],
+                formula: 'A = Fs',
+                substitutions: { slots: ['F', 's'], cards: [ { role: 'F', label: 'F', value: 30, unit: 'N' }, { role: 's', label: 's', value: 5, unit: 'm' } ] }
+            },
+            {
+                id: 2,
+                formulaType: 'workLift',
+                F: 600, s: 15,
+                expectedA: 9000, tolerance: 0.1, unit: 'J', decimals: 0, baselineTime: 180,
+                sentence: '600 N の重力が働く物体を、ロープで真上にゆっくりと s ＝ 15 m 引き上げた。物体を引き上げる力は重力と同じ大きさ F ＝ 600 N で、力の向き（上向き）と動いた向き（上向き）は同じである。このとき、引き上げる力がした仕事 A [J] を求めよ。',
+                condition: '基礎（問36型）、A=Fs、F=重力=600 s=高さ=15 → A=9000 J',
+                canvasType: '2d-static',
+                canvas: { width: 320, height: 240, kind: 'workLift' },
+                stage0Choices: [
+                    { value: 'work',  label: '引き上げる力がした仕事 A [J] の大きさ' },
+                    { value: 'force', label: '引き上げる力 F [N] の大きさ' },
+                    { value: 'dist',  label: '引き上げた高さ s [m] の大きさ' }
+                ],
+                stage0Correct: 'work',
+                stage1Choices: [
+                    { value: 'sameDir',  label: '力の向き（上）と、動いた向き（上）が同じ向きの、仕事の問題である' },
+                    { value: 'angleDir', label: '力の向きと、動いた向きが角度をなしている、仕事の問題である' },
+                    { value: 'horizontal', label: '水平な床の上を横に動かす、仕事の問題である' }
+                ],
+                stage1Correct: 'sameDir',
+                derivationSteps: [
+                    {
+                        prompt: '物体をゆっくり一定の速さで真上に引き上げるとき、引き上げる力は物体に働く重力とつり合います。重力より小さい力では物体は持ち上がりません。だから式 A ＝ F × s（式 2-41）の F に入れる力は、重力と同じ大きさです。F に入れる力はどれですか。',
+                        choices: [
+                            { value: 'liftForce', label: '引き上げる力 F ＝ 600 N（重力と同じ大きさ）' },
+                            { value: 'half',      label: '重力の半分 300 N（持ち上げるので半分でよい）' },
+                            { value: 'distForce', label: '高さ 15 m（距離をそのまま力に使う）' }
+                        ],
+                        correct: 'liftForce',
+                        onCorrectText: '物体を支えて引き上げるには、少なくとも重力と同じ大きさの力が必要です。だから F ＝ 600 N。これと動いた距離（高さ）s ＝ 15 m を A ＝ F × s に入れます。'
+                    }
+                ],
+                formula: 'A = Fs',
+                substitutions: { slots: ['F', 's'], cards: [ { role: 'F', label: 'F', value: 600, unit: 'N' }, { role: 's', label: 's', value: 15, unit: 'm' } ] }
+            },
+            {
+                id: 3,
+                formulaType: 'workAngle',
+                F: 200, s: 4, alpha: 30, cosValue: 0.866,
+                expectedA: 692.8, tolerance: 0.1, unit: 'J', decimals: 1, baselineTime: 240,
+                sentence: '水平な床の上で、台車に F ＝ 200 N の力を加えた。この力の向きは、台車が動く向き（水平）と α ＝ 30° の角度をなしている。台車が水平に s ＝ 4 m 動いたとき、この力がした仕事 A [J] を求めよ。',
+                condition: '基礎（例題18型）、A=Fs cosα、F=200 s=4 cos30°=0.866 → 692.8 J。教科書は693Jに丸め',
+                canvasType: '2d-static',
+                canvas: { width: 380, height: 200, kind: 'workAngle' },
+                stage0Choices: [
+                    { value: 'work',  label: 'この力がした仕事 A [J] の大きさ' },
+                    { value: 'force', label: '台車に加えた力 F [N] の大きさ' },
+                    { value: 'angle', label: '力の向きと動く向きがなす角度 α [°] の大きさ' }
+                ],
+                stage0Correct: 'work',
+                stage1Choices: [
+                    { value: 'angleDir', label: '力の向きと、動いた向きが角度をなしている、仕事の問題である' },
+                    { value: 'sameDir',  label: '力の向きと、動いた向きが同じ向きの、仕事の問題である' },
+                    { value: 'lift',     label: '物体を真上に引き上げる、仕事の問題である' }
+                ],
+                stage1Correct: 'angleDir',
+                derivationSteps: [
+                    {
+                        prompt: 'Stage 1 で「力 F の向きと動いた向き（水平）が α ＝ 30° の角度をなす」と分かりました。仕事をするのは、動いた向きに沿った分力だけです。まず何をすればよいですか。',
+                        choices: [
+                            { value: 'split',    label: '力 F を「動いた向き（水平）」と「それに直角な向き」の 2 つの分力に分ける' },
+                            { value: 'asis',     label: '角度は気にせず、力 F をそのまま使う' },
+                            { value: 'mulFirst', label: '先に力 F と距離 s を掛けてしまう' }
+                        ],
+                        correct: 'split',
+                        onCorrectText: '力 F を「動いた向き（水平）」と「それに直角な向き」の 2 つに分けます。仕事をするのは動いた向きの分力だけで、直角な向きの分力はその向きに動いていないので仕事をしません。'
+                    },
+                    {
+                        prompt: '力 F を分けると直角三角形ができます。斜辺が力 F です。動いた向き（水平）にあたるのは、底辺と高さのどちらですか。また、その大きさはどう表せますか。',
+                        choices: [
+                            { value: 'base',   label: '底辺。大きさは F × cos α（底辺 ＝ 斜辺 × cos）' },
+                            { value: 'height', label: '高さ。大きさは F × sin α（高さ ＝ 斜辺 × sin）' },
+                            { value: 'full',   label: '斜辺そのまま。大きさは F（角度は関係ない）' }
+                        ],
+                        correct: 'base',
+                        onCorrectText: '動いた向き（水平）にあたるのは底辺です。底辺 ＝ 斜辺 × cos なので、動いた向きの分力の大きさは F × cos α です。'
+                    },
+                    {
+                        prompt: '動いた向きの分力 F × cos α に、動いた距離 s を掛けたものが仕事です。仕事 A を求める式はどれですか。',
+                        choices: [
+                            { value: 'fscos', label: 'A ＝ F × s × cos α（式 2-42）' },
+                            { value: 'fssin', label: 'A ＝ F × s × sin α' },
+                            { value: 'fs',    label: 'A ＝ F × s（cos α を掛けない）' }
+                        ],
+                        correct: 'fscos',
+                        onCorrectText: '動いた向きの分力 F × cos α に距離 s を掛けて A ＝ F × s × cos α（式 2-42）です。cos α を掛け忘れないようにしてください。'
+                    }
+                ],
+                formula: 'A = Fs\\cos\\alpha',
+                substitutions: {
+                    slots: ['F', 's', 'cosα'],
+                    cards: [
+                        { role: 'F',    label: 'F',       value: 200,   unit: 'N' },
+                        { role: 's',    label: 's',       value: 4,     unit: 'm' },
+                        { role: 'cosα', label: 'cos 30°', value: 0.866, unit: '' }
+                    ]
+                }
+            },
+            {
+                id: 4,
+                formulaType: 'forceFromWork',
+                A: 240, s: 8,
+                expectedF: 30, tolerance: 0.1, unit: 'N', decimals: 1, baselineTime: 210,
+                sentence: 'なめらかな水平の床の上で、荷物を一定の力で水平に押し続けて、力と同じ向きに s ＝ 8 m 動かした。このとき、この力がした仕事は A ＝ 240 J であった。荷物を押した力 F [N] を求めよ。',
+                condition: '応用（逆算）、A=Fs を F について解く、F=A÷s=240÷8=30.0 N。力と変位は同じ向きで cosα は出ない',
+                canvasType: '2d-static',
+                canvas: { width: 360, height: 180, kind: 'workFlat' },
+                stage0Choices: [
+                    { value: 'force', label: '荷物を押した力 F [N] の大きさ' },
+                    { value: 'work',  label: 'この力がした仕事 A [J] の大きさ' },
+                    { value: 'dist',  label: '荷物が動いた距離 s [m] の大きさ' }
+                ],
+                stage0Correct: 'force',
+                stage1Choices: [
+                    { value: 'sameDir',  label: '力の向きと、動いた向きが同じ向きの、仕事の問題である' },
+                    { value: 'angleDir', label: '力の向きと、動いた向きが角度をなしている、仕事の問題である' },
+                    { value: 'noMove',   label: '物体が動いていない（距離が 0 の）問題である' }
+                ],
+                stage1Correct: 'sameDir',
+                derivationSteps: [
+                    {
+                        prompt: '力の向きと動いた向きが同じなので、仕事は A ＝ F × s（式 2-41）で表せます。今回は仕事 A ＝ 240 J と距離 s ＝ 8 m が分かっていて、力 F を求めます。この式を F について解きます。両辺をどうすればよいですか。',
+                        choices: [
+                            { value: 'divS', label: '両辺を s で割る（→ F ＝ A ÷ s）' },
+                            { value: 'mulS', label: '両辺に s を掛ける（→ F ＝ A × s）' },
+                            { value: 'subS', label: '両辺から s を引く（→ F ＝ A − s）' }
+                        ],
+                        correct: 'divS',
+                        onCorrectText: 'A ＝ F × s では、力 F に距離 s が掛け算でついています。F だけを残すには、両辺を s で割って s を消します。F ＝ A ÷ s。仕事を動いた距離で割れば力が求まります。'
+                    }
+                ],
+                formula: 'F = \\dfrac{A}{s}',
+                substitutions: { slots: ['A', 's'], cards: [ { role: 'A', label: 'A', value: 240, unit: 'J' }, { role: 's', label: 's', value: 8, unit: 'm' } ] }
+            }
+        ];
+
+        const HINTS_4_1_FLAT = {
+            stage0: { b: '問題文の最後の文に注目してください。「求めよ」と書かれている量が求めるものです。力 30 N、距離 5 m はすでに数値が書かれています。', a: '問題文の末尾に「この力がした仕事 A [J] を求めよ」とあります。求めるものは仕事 A、単位は J です。', c: '教科書54ページ「仕事」の書き出しを確認してください。' },
+            stage1: { b: '問題文に「力と同じ向きに動かした」とあります。力の向きと、物体が動いた向きが同じか、角度をなしているかを確かめてください。', a: '力の向きと動いた向きが同じときは A ＝ F × s で求めます。角度をなすときだけ cos を掛けます。今回は同じ向きです。', c: '教科書54ページ 式(2-41)「A ＝ Fs」を確認してください。' },
+            stage2: { b: '仕事は A ＝ F × s。力 × その力の向きに動いた距離です。力と距離が両方分かっているので、そのまま掛け算できます。足し算ではありません。', a: 'A ＝ F × s（式 2-41）に力 F ＝ 30 N と距離 s ＝ 5 m を代入して掛け算すれば仕事が求まります。', c: '教科書54ページ 式(2-41)「A ＝ Fs」を確認してください。' },
+            stage3: { b: '式は A ＝ F × s です。F には力、s には距離を入れます。', a: '式 A ＝ F × s の空欄に、F ＝ 30 N、s ＝ 5 m を入れてください。', c: '教科書54ページ 式(2-41)を確認してください。' },
+            stage4: { b: '力の数値と距離の数値を掛け算するだけです。電卓を使って構いません。', a: 'A ＝ 30 × 5 ＝ 150 [J]。1 J は、1 N の力が物体を 1 m 動かしたときの仕事です。', c: '教科書54ページ 式(2-41)、単位 1 J ＝ 1 N·m の説明を確認してください。' }
+        };
+        const HINTS_4_1_LIFT = {
+            stage0: { b: '問題文の最後の文に注目してください。重力 600 N、引き上げた高さ 15 m はすでに数値が書かれています。', a: '問題文の末尾に「引き上げる力がした仕事 A [J] を求めよ」とあります。求めるものは仕事 A、単位は J です。', c: '教科書55ページ 問36（重力に逆らって引き上げる仕事）を確認してください。' },
+            stage1: { b: '問題文に「真上に引き上げた」「力の向き(上)と動いた向き(上)は同じ」とあります。力の向きと動いた向きが同じかを確かめてください。', a: '真上に引き上げるとき、力の向き(上)と動いた向き(上)は同じです。だから A ＝ F × s で求めます。', c: '教科書54ページ 式(2-41)「A ＝ Fs」を確認してください。' },
+            stage2: { b: '物体をゆっくり持ち上げるとき、引き上げる力は重力とつり合います。重力より小さい力では持ち上がりません。だから式の F には重力と同じ 600 N を入れます。', a: 'A ＝ F × s（式 2-41）に、引き上げる力 F ＝ 600 N（重力と同じ大きさ）と高さ s ＝ 15 m を入れます。', c: '教科書55ページ 問36を確認してください。' },
+            stage3: { b: '式は A ＝ F × s です。F には引き上げる力（重力と同じ 600 N）、s には高さを入れます。', a: '式 A ＝ F × s の空欄に、F ＝ 600 N、s ＝ 15 m を入れてください。', c: '教科書55ページ 問36を確認してください。' },
+            stage4: { b: '力の数値と高さの数値を掛け算するだけです。電卓を使って構いません。', a: 'A ＝ 600 × 15 ＝ 9000 [J]。重力に逆らって持ち上げる仕事も A ＝ F × s で求めます。', c: '教科書55ページ 問36を確認してください。' }
+        };
+        const HINTS_4_1_ANGLE = {
+            stage0: { b: '問題文の最後の文に注目してください。力 200 N、角度 30°、動いた距離 4 m はすでに数値が書かれています。', a: '問題文の末尾に「この力がした仕事 A [J] を求めよ」とあります。求めるものは仕事 A、単位は J です。', c: '教科書54ページ 例題18を確認してください。' },
+            stage1: { b: '問題文に「力の向きは、動く向きと 30° の角度をなしている」とあります。力の向きと動いた向きが同じか、角度をなすかを確かめてください。', a: '力の向きと動いた向きが角度をなすときは、動いた向きの分力だけが仕事をします。だから A ＝ F × s × cos α を使います。', c: '教科書54ページ 式(2-42)、例題18を確認してください。' },
+            stage2: { b: '力 F を、動いた向き（水平）と、それに直角な向きの 2 つに分けます。動いた向きにあたるのは底辺で、大きさは F × cos α です。直角な向きの分力（高さ F × sin α）はその向きに動いていないので仕事をしません。', a: '直角三角形で斜辺が力 F、動いた向き（底辺）が F × cos α。これに距離 s を掛けて A ＝ F × s × cos α（式 2-42）。cos α を掛け忘れないこと。', c: '教科書54ページ 式(2-42)、図2-62、例題18を確認してください。' },
+            stage3: { b: '式は A ＝ F × s × cos α です。F には力、s には距離、cos α には cos 30° の値（0.866）を入れます。', a: '式 A ＝ F × s × cos α の空欄に、F ＝ 200 N、s ＝ 4 m、cos 30° ＝ 0.866 を入れてください。', c: '教科書54ページ 例題18の解答を確認してください。' },
+            stage4: { b: '力、距離、cos 30°（0.866）の 3 つを掛け算します。電卓を使って構いません。答えは小数第1位までで答えてください。', a: 'A ＝ 200 × 4 × 0.866 ＝ 692.8 [J]。小数第1位を四捨五入すると 693 J で、教科書 例題18 と同じです。', c: '教科書54ページ 例題18を確認してください。' }
+        };
+        const HINTS_4_1_FORCE = {
+            stage0: { b: '問題文の最後の文に注目してください。仕事 240 J、動いた距離 8 m はすでに数値が書かれています。', a: '問題文の末尾に「荷物を押した力 F [N] を求めよ」とあります。求めるものは力 F、単位は N です。', c: '教科書54ページ 式(2-41)「A ＝ Fs」を確認してください。' },
+            stage1: { b: '問題文に「力と同じ向きに動かした」とあります。力の向きと動いた向きが同じかを確かめてください。', a: '力の向きと動いた向きが同じなので A ＝ F × s で表せます。今回は仕事と距離が分かっていて、力を逆に求めます。', c: '教科書54ページ 式(2-41)「A ＝ Fs」を確認してください。' },
+            stage2: { b: '仕事 A ＝ F × s では、力 F に距離 s が掛け算でついています。F だけを残すには、その s を消すために両辺を s で割ります。', a: 'A ＝ F × s の両辺を s で割ると F ＝ A ÷ s。仕事を動いた距離で割れば力が求まります。', c: '教科書54ページ 式(2-41)を確認してください。' },
+            stage3: { b: '式は F ＝ A ÷ s です。A には仕事、s には距離を入れます。', a: '式 F ＝ A ÷ s の空欄に、A ＝ 240 J、s ＝ 8 m を入れてください。', c: '教科書54ページ 式(2-41)を確認してください。' },
+            stage4: { b: '仕事の数値を距離の数値で割るだけです。電卓を使って構いません。答えは小数第1位までで答えてください。', a: 'F ＝ 240 ÷ 8 ＝ 30.0 [N]。仕事を距離で割ると力が求まります。', c: '教科書54ページ 式(2-41)を確認してください。' }
+        };
+        const HINTS_4_1_BY_ID = { 1: HINTS_4_1_FLAT, 2: HINTS_4_1_LIFT, 3: HINTS_4_1_ANGLE, 4: HINTS_4_1_FORCE };
+
         // ==================================================================
         // 考査対策・考査問題マスターデータ（仕様書 §10〜§12）
         // ==================================================================
@@ -9020,6 +9236,7 @@
                 if (unitId === '3-2') return PROBLEMS_3_2.length;
                 if (unitId === '3-3') return PROBLEMS_3_3.length;
                 if (unitId === '3-4') return PROBLEMS_3_4.length;
+                if (unitId === '4-1') return PROBLEMS_4_1.length;
                 return 0;
             }
 
@@ -11504,6 +11721,7 @@
                 else if (this.currentUnitId === '3-2') problems = PROBLEMS_3_2;
                 else if (this.currentUnitId === '3-3') problems = PROBLEMS_3_3;
                 else if (this.currentUnitId === '3-4') problems = PROBLEMS_3_4;
+                else if (this.currentUnitId === '4-1') problems = PROBLEMS_4_1;
 
                 if (this.currentProblemIndex >= problems.length) {
                     this.showSummary();
@@ -11622,6 +11840,7 @@
                     else if (this.currentUnitId === '3-2') problems = PROBLEMS_3_2;
                     else if (this.currentUnitId === '3-3') problems = PROBLEMS_3_3;
                     else if (this.currentUnitId === '3-4') problems = PROBLEMS_3_4;
+                    else if (this.currentUnitId === '4-1') problems = PROBLEMS_4_1;
                     sidebarList.innerHTML = problems.map((p, i) =>
                         `<li class="${i === this.currentProblemIndex ? 'is-active' : ''}">問 ${p.id}</li>`
                     ).join('');
@@ -11649,7 +11868,7 @@
                 const content = document.getElementById('problemContent');
 
                 // Handle different problem types
-                if (this.currentUnitId === '2-1' || this.currentUnitId === '2-2' || this.currentUnitId === '2-3' || this.currentUnitId === '2-4' || this.currentUnitId === '2-5' || this.currentUnitId === '3-2' || this.currentUnitId === '3-3' || this.currentUnitId === '3-4' || this.currentUnitId === '1-6' || this.currentUnitId === '1-7' || this.currentUnitId === '1-8' || this.currentUnitId === '1-9' || this.currentUnitId === '1-10' || this.currentUnitId === '1-11' || this.currentUnitId === '1-12') {
+                if (this.currentUnitId === '2-1' || this.currentUnitId === '2-2' || this.currentUnitId === '2-3' || this.currentUnitId === '2-4' || this.currentUnitId === '2-5' || this.currentUnitId === '3-2' || this.currentUnitId === '3-3' || this.currentUnitId === '3-4' || this.currentUnitId === '4-1' || this.currentUnitId === '1-6' || this.currentUnitId === '1-7' || this.currentUnitId === '1-8' || this.currentUnitId === '1-9' || this.currentUnitId === '1-10' || this.currentUnitId === '1-11' || this.currentUnitId === '1-12') {
                     this.renderCalculationProblem(problem, content);
                 } else if (this.currentUnitId === '1-3' || this.currentUnitId === '1-4' || this.currentUnitId === '1-5') {
                     this.drawingStageIndex = 0;
@@ -11755,9 +11974,10 @@
                 const is3_2 = this.currentUnitId === '3-2';
                 const is3_3 = this.currentUnitId === '3-3';
                 const is3_4 = this.currentUnitId === '3-4';
+                const is4_1 = this.currentUnitId === '4-1';
                 // isForceCalc は「6 ステージ汎用フロー（problem.stage0Choices 等を持つ）」を意味する。
-                //   2-2 / 2-3 / 2-4 / 2-5 / 3-2 / 3-3 / 3-4 も同じデータ schema（sentence / stage0Choices / stage1Choices / substitutions）を採るので含める。
-                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2 || is3_3 || is3_4;
+                //   2-2 / 2-3 / 2-4 / 2-5 / 3-2 / 3-3 / 3-4 / 4-1 も同じデータ schema（sentence / stage0Choices / stage1Choices / substitutions）を採るので含める。
+                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2 || is3_3 || is3_4 || is4_1;
                 // Persistent problem statement shown at the top of every stage
                 const problemText = isForceCalc
                     ? problem.sentence
@@ -11886,6 +12106,15 @@
                         '計算する',
                         '答えの意味を確認'
                     ]
+                    : is4_1
+                    ? [
+                        '求める量を確認する',
+                        'どんな問題か確認する',
+                        '使う式を導く',
+                        '数値を代入する',
+                        '計算する',
+                        '答えの意味を確認'
+                    ]
                     : [
                         '求める量を確認する',
                         '運動の種類を確認する',
@@ -11925,6 +12154,7 @@
                                       : is3_2 ? this.build3_2ForceCanvas(problem)
                                       : is3_3 ? this.build3_3InertiaCanvas(problem)
                                       : is3_4 ? this.build3_4MomentumCanvas(problem)
+                                      : is4_1 ? this.build4_1WorkCanvas(problem)
                                       : '';
 
                 // 1-7（案B 7 ステージ）は専用ルートで処理し、early return する。
@@ -12005,6 +12235,8 @@
                         ? 'この問題はどのような問題ですか？'
                         : is3_4
                         ? 'この問題はどのような問題ですか？'
+                        : is4_1
+                        ? 'この問題はどのような仕事の問題ですか？'
                         : is3_2
                         ? 'この問題はどのような運動の問題ですか？'
                         : '問題文の「一定の速さで運動した」は、どのような運動ですか？';
@@ -12322,6 +12554,26 @@
                         `;
                         this.render1_10DerivAccordion();
                         return;
+                    } else if (is4_1) {
+                        // 4-1（仕事 A=Fs / A=Fs cosα）: derivationSteps を 1 ステップずつアコーディオン表示して
+                        //   生徒自身に「力と変位の向きの関係／分力 F cos α／式変形」を選ばせる
+                        //   （is3_4 と同じパターン、early return）。
+                        if (this.calcInputs.derivStepIndex === undefined) {
+                            this.calcInputs.derivStepIndex = 0;
+                        }
+                        content.innerHTML = header + staticCanvas1_6 + `
+                            <div class="calc-stage-container">
+                                <div class="calc-question-text">使う式を、一段ずつ自分で導いてください。</div>
+                                <div id="derivAccordion"></div>
+                                <div id="stageFeedback" style="margin-top:12px; font-size:14px; min-height:20px;"></div>
+                            </div>
+                        `;
+                        document.getElementById('controlButtons').innerHTML = `
+                            <button class="btn hint-btn" onclick="app.showHint('calc_${this.currentProblemIndex}_stage2')">ヒント</button>
+                            <span id="stage2NextSlot"></span>
+                        `;
+                        this.render1_10DerivAccordion();
+                        return;
                     } else {
                         content.innerHTML = header + `
                             <div class="calc-stage-container">
@@ -12364,7 +12616,8 @@
                             v: 'v', v0: 'v₀', t: 't', t1: 't', t2: 't', a: 'a', s: 's',
                             l: 'l', theta: 'θ', omega: 'ω', pi: 'π', n: 'n',
                             g: 'g', h: 'h', m: 'm', F: 'F', mg: 'mg', ma: 'ma', net: 'F − mg',
-                            p: 'p', Ft: 'Ft', mv0: 'mv₀', dv: 'v₀ − v', m2v2: "m₂v₂'", m1: 'm₁' };
+                            p: 'p', Ft: 'Ft', mv0: 'mv₀', dv: 'v₀ − v', m2v2: "m₂v₂'", m1: 'm₁',
+                            A: 'A', cosα: 'cos α' };
                         const makeSlotSpan = (role, text) =>
                             `<span class="calc-formula-input empty" data-slot="${role}" id="slot-${role}">${text || slotLabel[role] || role}</span>`;
                         const slotSpans = slots.map(role => makeSlotSpan(role));
@@ -12548,6 +12801,19 @@
                             } else {
                                 // momentum
                                 formulaHTML = `p ＝ ${slotSpans[0]} × ${slotSpans[1]}`;
+                            }
+                        } else if (is4_1) {
+                            // 4-1（仕事 A=Fs / A=Fs cosα）: formulaType ごとに式の形が異なる。各量は 1 スロットのみ。
+                            //   workFlat / workLift  → A ＝ [F] × [s]              （slots: F, s）
+                            //   workAngle            → A ＝ [F] × [s] × [cos α]     （slots: F, s, cosα）
+                            //   forceFromWork        → F ＝ [A] ÷ [s]              （slots: A, s）
+                            if (problem.formulaType === 'workAngle') {
+                                formulaHTML = `A ＝ ${slotSpans[0]} × ${slotSpans[1]} × ${slotSpans[2]}`;
+                            } else if (problem.formulaType === 'forceFromWork') {
+                                formulaHTML = `F ＝ ${slotSpans[0]} ÷ ${slotSpans[1]}`;
+                            } else {
+                                // workFlat / workLift
+                                formulaHTML = `A ＝ ${slotSpans[0]} × ${slotSpans[1]}`;
                             }
                         } else if (is2_3) {
                             // 2-3（重力加速度）: formulaType ごとに式の形が異なる
@@ -13069,6 +13335,40 @@
                                 </div>
                             </div>
                         `;
+                    } else if (is4_1) {
+                        // 4-1（仕事 A=Fs / A=Fs cosα）: formulaType ごとに数値入りの式と単位を切り替える。
+                        //   workFlat / workLift は整数答え（注記不要）、workAngle / forceFromWork は小数第 1 位まで。
+                        let formulaLine_4_1, answerLabel_4_1, unitLabel_4_1;
+                        if (problem.formulaType === 'workAngle') {
+                            formulaLine_4_1 = `$A = ${problem.F} \\times ${problem.s} \\times ${problem.cosValue} = {\\color{#c62828}?}\\ \\mathrm{[J]}$`;
+                            answerLabel_4_1 = 'A ＝';
+                            unitLabel_4_1 = '[J]';
+                        } else if (problem.formulaType === 'forceFromWork') {
+                            formulaLine_4_1 = `$F = \\dfrac{${problem.A}}{${problem.s}} = {\\color{#c62828}?}\\ \\mathrm{[N]}$`;
+                            answerLabel_4_1 = 'F ＝';
+                            unitLabel_4_1 = '[N]';
+                        } else {
+                            // workFlat / workLift
+                            formulaLine_4_1 = `$A = ${problem.F} \\times ${problem.s} = {\\color{#c62828}?}\\ \\mathrm{[J]}$`;
+                            answerLabel_4_1 = 'A ＝';
+                            unitLabel_4_1 = '[J]';
+                        }
+                        content.innerHTML = header + staticCanvas1_6 + `
+                            <div class="calc-stage-container">
+                                <div class="calc-question-text">計算結果を入力してください（電卓を使って構いません）。</div>
+                                <div class="calc-formula-display">
+                                    ${formulaLine_4_1}
+                                </div>
+                                <div style="background:#eef3fa; border-left:3px solid #4a7cbe; padding:8px 12px; border-radius:3px; margin:8px 0 10px; font-size:12px; line-height:1.6; color:#333;">
+                                    <strong>有効数字</strong>：計算結果が小数点以下第 2 位以上になる場合、第 2 位を四捨五入して<strong>小数第 1 位まで</strong>で答えてください。
+                                </div>
+                                <div class="calc-input-row">
+                                    <span class="calc-input-label">答え：${answerLabel_4_1}</span>
+                                    <input type="number" id="answerInput" class="calc-answer-input" placeholder="数値" style="width:120px;" step="0.1">
+                                    <span style="font-size:14px; color:#555; margin-left:6px;">${unitLabel_4_1}</span>
+                                </div>
+                            </div>
+                        `;
                     } else {
                         content.innerHTML = header + `
                             <div class="calc-stage-container">
@@ -13496,6 +13796,39 @@
                                 </div>
                                 <div style="margin-top:14px; font-size:13px; color:#555;">
                                     次の問題に進む前に、式と運動量・力積の図を頭の中で思い浮かべてください。
+                                </div>
+                            </div>
+                        `;
+                    } else if (is4_1) {
+                        // 4-1（仕事 A=Fs / A=Fs cosα）: 3-4 と同じ 3 行段組み KaTeX（aligned）で
+                        //   「記号式／数値式／答え」を表示し、その下に formulaType ごとの振り返り文を載せる。
+                        //   問1・問2 は整数答え（J）、問3・問4 は小数第 1 位まで。CJK は \text{} で囲む。
+                        let reflFormulaLatex_4_1, reflText_4_1;
+                        if (problem.formulaType === 'workLift') {
+                            reflFormulaLatex_4_1 = `\\begin{aligned} A &= Fs \\\\[6pt] &= ${problem.F} \\times ${problem.s} \\\\[6pt] &= ${problem.expectedA}\\ \\mathrm{J} \\end{aligned}`;
+                            reflText_4_1 = '仕事 A ＝ 600 × 15 ＝ 9000 J。重力に逆らって物体を真上に持ち上げるときも、力の向き（上）と動いた向き（上）が同じなので A ＝ F × s で求められます。引き上げる力は重力と同じ大きさ 600 N で、これに引き上げた高さ 15 m を掛けます。';
+                        } else if (problem.formulaType === 'workAngle') {
+                            reflFormulaLatex_4_1 = `\\begin{aligned} A &= Fs\\cos\\alpha \\\\[6pt] &= ${problem.F} \\times ${problem.s} \\times ${problem.cosValue} \\\\[6pt] &= ${problem.expectedA}\\ \\mathrm{J} \\end{aligned}`;
+                            reflText_4_1 = '仕事 A ＝ 200 × 4 × 0.866 ＝ 692.8 J。力の向きと動いた向きが角度をなすときは、動いた向きの分力 F × cos α だけが仕事をします。小数第1位を四捨五入すると 693 J で、教科書 例題18 と同じです。同じ力でも、動く向きとなす角が大きいほど（cos が小さいほど）仕事は小さくなります。';
+                        } else if (problem.formulaType === 'forceFromWork') {
+                            reflFormulaLatex_4_1 = `\\begin{aligned} F &= \\dfrac{A}{s} \\\\[6pt] &= \\dfrac{${problem.A}}{${problem.s}} \\\\[6pt] &= ${problem.expectedF}.0\\ \\mathrm{N} \\end{aligned}`;
+                            reflText_4_1 = '力 F ＝ 240 ÷ 8 ＝ 30.0 N。A ＝ F × s の関係から、した仕事と動いた距離が分かれば、加えた力を逆算できます。仕事を距離で割れば力が求まります。同じ仕事でも、動く距離が長いほど必要な力は小さくなります。';
+                        } else {
+                            // workFlat
+                            reflFormulaLatex_4_1 = `\\begin{aligned} A &= Fs \\\\[6pt] &= ${problem.F} \\times ${problem.s} \\\\[6pt] &= ${problem.expectedA}\\ \\mathrm{J} \\end{aligned}`;
+                            reflText_4_1 = '仕事 A ＝ 30 × 5 ＝ 150 J。1 J は、1 N の力が物体を力の向きに 1 m 動かしたときの仕事です。力の向きと動いた向きが同じときは A ＝ F × s で求めます。同じ距離でも、加える力を 2 倍にすれば仕事も 2 倍になります。';
+                        }
+                        content.innerHTML = header + staticCanvas1_6 + `
+                            <div class="calc-stage-container">
+                                <div class="calc-question-text">答えの意味を確認しよう。</div>
+                                <div class="calc-formula-display">
+                                    $${reflFormulaLatex_4_1}$
+                                </div>
+                                <div style="background:#eaf1fa; border-left:4px solid #1e5fa8; padding:14px 18px; border-radius:3px; margin-top:18px; font-size:15px; line-height:1.7;">
+                                    ${reflText_4_1}
+                                </div>
+                                <div style="margin-top:14px; font-size:13px; color:#555;">
+                                    次の問題に進む前に、式と仕事の図（力と動いた向き）を頭の中で思い浮かべてください。
                                 </div>
                             </div>
                         `;
@@ -16344,6 +16677,133 @@
                 return svg;
             }
 
+            // 4-1（仕事 A=Fs / A=Fs cosα）の問題図。canvas.kind で 3 種を描き分ける。
+            //   配色：力 F（赤 #d23a2a）／分力 F cos α（青 #4a7fc8 細線）／補助線・寸法線（グレー #8a8a8a）。
+            //   マーカー id は他キャンバスと衝突しないよう接頭辞 stc41- を使う。
+            //   workFlat  : 水平な床の上の台車。右向き力 F（赤）、床に沿った移動距離 s の寸法線。
+            //   workLift  : 中央に物体。上向き引き上げ力 F（赤）、下向き重力 W（グレー細め）、高さ s の縦寸法線。
+            //   workAngle : 水平な床の上の台車。斜め上 α=30° の力 F（赤）、その水平分力 F cos α（青・点線）、
+            //               水平移動距離 s の寸法線、付け根に角度 α の弧。
+            build4_1WorkCanvas(problem) {
+                const c = problem.canvas || { width: 360, height: 180, kind: 'workFlat' };
+                const W = c.width, H = c.height;
+                const kind = c.kind || 'workFlat';
+                const RED = '#d23a2a';
+                const COMP = '#4a7fc8';
+                const GRAY = '#8a8a8a';
+
+                let svg = `<div class="drawing-wrapper" style="pointer-events:none;">
+                <svg class="drawing-svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="cursor:default;">
+                <defs>
+                  <marker id="stc41-red" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><polygon points="0,0 9,3.5 0,7" fill="${RED}"/></marker>
+                  <marker id="stc41-comp" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><polygon points="0,0 9,3.5 0,7" fill="${COMP}"/></marker>
+                  <marker id="stc41-gray" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto"><polygon points="0,0 8,3.5 0,7" fill="${GRAY}"/></marker>
+                  <marker id="stc41-grayS" markerWidth="8" markerHeight="7" refX="1" refY="3.5" orient="auto"><polygon points="8,0 0,3.5 8,7" fill="${GRAY}"/></marker>
+                </defs>`;
+
+                if (kind === 'workLift') {
+                    // 真上に引き上げる仕事。天井からロープでつるした物体を、床から浮かせて引き上げる。
+                    // 上向き F（赤）、下向き重力 W（グレー細め）、引き上げ高さ s の縦寸法線。物体は宙に浮かせ、
+                    // 重力の矢印が床線より下に出て見切れないようにする。
+                    const boxW = 64, boxH = 46;
+                    const boxX = W / 2 - boxW / 2 - 18;
+                    const cx = boxX + boxW / 2;
+                    const ceilY = 12;
+                    const boxY = 72;                  // 物体は床から浮いている（引き上げられている）
+                    const boxBottom = boxY + boxH;    // 物体の下面
+                    const groundTop = H - 24;
+                    // 天井（ハッチング）
+                    svg += `<line x1="20" y1="${ceilY}" x2="${W - 20}" y2="${ceilY}" stroke="${GRAY}" stroke-width="1.5"/>`;
+                    for (let hx = 28; hx < W - 24; hx += 16) {
+                        svg += `<line x1="${hx}" y1="${ceilY}" x2="${hx - 8}" y2="${ceilY - 9}" stroke="#bbb" stroke-width="1"/>`;
+                    }
+                    // ロープ（天井から物体上面へ）
+                    svg += `<line x1="${cx}" y1="${ceilY}" x2="${cx}" y2="${boxY}" stroke="#555" stroke-width="2"/>`;
+                    // 床（地面ハッチング）
+                    svg += `<line x1="20" y1="${groundTop}" x2="${W - 20}" y2="${groundTop}" stroke="${GRAY}" stroke-width="1.5"/>`;
+                    for (let hx = 28; hx < W - 24; hx += 16) {
+                        svg += `<line x1="${hx}" y1="${groundTop}" x2="${hx - 8}" y2="${groundTop + 9}" stroke="#bbb" stroke-width="1"/>`;
+                    }
+                    // 物体（箱）
+                    svg += `<rect x="${boxX}" y="${boxY}" width="${boxW}" height="${boxH}" rx="6" ry="6" fill="#dce9f7" stroke="#1e5fa8" stroke-width="1.8"/>`;
+                    // 上向き引き上げ力 F（赤）：物体の上面の左寄りから上へ
+                    const fLen = 42;
+                    const fX = cx - 14;
+                    svg += `<line x1="${fX}" y1="${boxY}" x2="${fX}" y2="${boxY - fLen}" stroke="${RED}" stroke-width="2.8" marker-end="url(#stc41-red)"/>`;
+                    svg += `<text x="${fX - 6}" y="${boxY - fLen + 6}" text-anchor="end" font-size="14" fill="${RED}" font-weight="700">F</text>`;
+                    // 下向き重力 W（グレー細め）：物体の下面の左寄りから下へ（宙に浮いているので床より上に収まる）
+                    const wLen = 30;
+                    svg += `<line x1="${fX}" y1="${boxBottom}" x2="${fX}" y2="${boxBottom + wLen}" stroke="${GRAY}" stroke-width="2" marker-end="url(#stc41-gray)"/>`;
+                    svg += `<text x="${fX - 6}" y="${boxBottom + wLen}" text-anchor="end" font-size="11" fill="${GRAY}" font-weight="600">W ＝ 600 N</text>`;
+                    // 引き上げ高さ s の縦寸法線（物体の右側、床から物体下面まで）
+                    const dimX = boxX + boxW + 38;
+                    svg += `<line x1="${dimX}" y1="${groundTop}" x2="${dimX}" y2="${boxBottom}" stroke="${GRAY}" stroke-width="1.2" marker-start="url(#stc41-grayS)" marker-end="url(#stc41-gray)"/>`;
+                    svg += `<line x1="${boxX + boxW}" y1="${boxBottom}" x2="${dimX}" y2="${boxBottom}" stroke="${GRAY}" stroke-width="0.8" stroke-dasharray="3,3"/>`;
+                    svg += `<text x="${dimX + 8}" y="${(groundTop + boxBottom) / 2 + 4}" text-anchor="start" font-size="13" fill="${GRAY}" font-weight="600">s</text>`;
+                    svg += `</svg></div>`;
+                    return svg;
+                }
+
+                // workFlat / workAngle 共通：水平な床の上の台車。
+                const groundY = H - 40;
+                svg += `<line x1="20" y1="${groundY}" x2="${W - 20}" y2="${groundY}" stroke="${GRAY}" stroke-width="1.5"/>`;
+                for (let hx = 28; hx < W - 24; hx += 16) {
+                    svg += `<line x1="${hx}" y1="${groundY}" x2="${hx - 8}" y2="${groundY + 9}" stroke="#bbb" stroke-width="1"/>`;
+                }
+                // 台車（箱＋車輪2つ）
+                const cartW = 70, cartH = 34;
+                const cartX = 70;
+                const cartY = groundY - cartH - 9;
+                svg += `<rect x="${cartX}" y="${cartY}" width="${cartW}" height="${cartH}" rx="5" ry="5" fill="#dce9f7" stroke="#1e5fa8" stroke-width="1.8"/>`;
+                const wheelR = 7;
+                svg += `<circle cx="${cartX + 16}" cy="${groundY - wheelR}" r="${wheelR}" fill="#fff" stroke="#555" stroke-width="1.6"/>`;
+                svg += `<circle cx="${cartX + cartW - 16}" cy="${groundY - wheelR}" r="${wheelR}" fill="#fff" stroke="#555" stroke-width="1.6"/>`;
+                // 力の付け根（台車の右側面の中央）
+                const ax = cartX + cartW;
+                const ay = cartY + cartH / 2;
+
+                if (kind === 'workAngle') {
+                    // 斜め上 α=30° の力 F（赤）。水平分力 F cos α（青・点線）。角度の弧。水平移動距離 s の寸法線。
+                    const rad = (problem.alpha || 30) * Math.PI / 180;
+                    const fLen = 70;
+                    const fEndX = ax + fLen * Math.cos(rad);
+                    const fEndY = ay - fLen * Math.sin(rad);
+                    // 力 F（赤）
+                    svg += `<line x1="${ax}" y1="${ay}" x2="${fEndX.toFixed(1)}" y2="${fEndY.toFixed(1)}" stroke="${RED}" stroke-width="2.8" marker-end="url(#stc41-red)"/>`;
+                    svg += `<text x="${(fEndX + 8).toFixed(1)}" y="${(fEndY - 2).toFixed(1)}" text-anchor="start" font-size="14" fill="${RED}" font-weight="700">F</text>`;
+                    // F 先端から床（水平）へ下ろした点線
+                    svg += `<line x1="${fEndX.toFixed(1)}" y1="${fEndY.toFixed(1)}" x2="${fEndX.toFixed(1)}" y2="${ay}" stroke="${GRAY}" stroke-width="1" stroke-dasharray="4,3"/>`;
+                    // 水平分力 F cos α（青・点線・細線）：付け根から下ろした点の x まで
+                    svg += `<line x1="${ax}" y1="${ay}" x2="${fEndX.toFixed(1)}" y2="${ay}" stroke="${COMP}" stroke-width="2" stroke-dasharray="6,3" marker-end="url(#stc41-comp)"/>`;
+                    svg += `<text x="${((ax + fEndX) / 2).toFixed(1)}" y="${ay + 16}" text-anchor="middle" font-size="11" fill="${COMP}" font-weight="600">F cos α</text>`;
+                    // 角度 α の弧（付け根）
+                    const arcR = 26;
+                    const arcEndX = ax + arcR * Math.cos(rad);
+                    const arcEndY = ay - arcR * Math.sin(rad);
+                    svg += `<path d="M ${ax + arcR} ${ay} A ${arcR} ${arcR} 0 0 0 ${arcEndX.toFixed(1)} ${arcEndY.toFixed(1)}" fill="none" stroke="${GRAY}" stroke-width="1.2"/>`;
+                    svg += `<text x="${ax + arcR + 8}" y="${ay - 8}" text-anchor="start" font-size="12" fill="${GRAY}" font-weight="600">α</text>`;
+                    // 水平移動距離 s の寸法線（床の上）
+                    const dimY = groundY + 22;
+                    const sX1 = cartX, sX2 = cartX + 150;
+                    svg += `<line x1="${sX1}" y1="${dimY}" x2="${sX2}" y2="${dimY}" stroke="${GRAY}" stroke-width="1.2" marker-start="url(#stc41-grayS)" marker-end="url(#stc41-gray)"/>`;
+                    svg += `<text x="${(sX1 + sX2) / 2}" y="${dimY + 14}" text-anchor="middle" font-size="13" fill="${GRAY}" font-weight="600">s</text>`;
+                    svg += `</svg></div>`;
+                    return svg;
+                }
+
+                // workFlat（問1・問4）：右向き力 F（赤）、床に沿った移動距離 s の寸法線。
+                const fLen = 56;
+                svg += `<line x1="${ax}" y1="${ay}" x2="${ax + fLen}" y2="${ay}" stroke="${RED}" stroke-width="2.8" marker-end="url(#stc41-red)"/>`;
+                svg += `<text x="${ax + fLen / 2}" y="${ay - 8}" text-anchor="middle" font-size="14" fill="${RED}" font-weight="700">F</text>`;
+                // 水平移動距離 s の寸法線（床の上）
+                const dimY2 = groundY + 22;
+                const sX1b = cartX, sX2b = cartX + 150;
+                svg += `<line x1="${sX1b}" y1="${dimY2}" x2="${sX2b}" y2="${dimY2}" stroke="${GRAY}" stroke-width="1.2" marker-start="url(#stc41-grayS)" marker-end="url(#stc41-gray)"/>`;
+                svg += `<text x="${(sX1b + sX2b) / 2}" y="${dimY2 + 14}" text-anchor="middle" font-size="13" fill="${GRAY}" font-weight="600">s</text>`;
+                svg += `</svg></div>`;
+                return svg;
+            }
+
             // 1-9 Stage 2 用の schematic 図: 偶力の典型図（新仕様、問題図と整合）。
             //   左作用点に上向き F、右作用点に下向き F、間の距離 d は腕（水平破線・1-8 と同流儀）。
             //   中央に CW 回転矢印（左↑・右↓ → 時計回りに回転）。
@@ -18996,6 +19456,8 @@
                                            ? (HINTS_3_3_BY_ID[(this.getCalcProblem() || {}).id] || HINTS_3_3_UP)
                                        : (this.currentUnitId === '3-4')
                                            ? (HINTS_3_4_BY_ID[(this.getCalcProblem() || {}).id] || HINTS_3_4_MOMENTUM)
+                                       : (this.currentUnitId === '4-1')
+                                           ? (HINTS_4_1_BY_ID[(this.getCalcProblem() || {}).id] || HINTS_4_1_FLAT)
                                        : HINTS_2_1;
                     const stageHints = hintsTable[stagePart];
                     const levelKeys = ['b', 'a', 'c'];
@@ -19143,6 +19605,9 @@
                 if (this.currentUnitId === '3-4') {
                     return PROBLEMS_3_4[this.currentProblemIndex];
                 }
+                if (this.currentUnitId === '4-1') {
+                    return PROBLEMS_4_1[this.currentProblemIndex];
+                }
                 return null;
             }
 
@@ -19187,7 +19652,8 @@
                 const is3_2 = this.currentUnitId === '3-2';
                 const is3_3 = this.currentUnitId === '3-3';
                 const is3_4 = this.currentUnitId === '3-4';
-                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2 || is3_3 || is3_4;
+                const is4_1 = this.currentUnitId === '4-1';
+                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2 || is3_3 || is3_4 || is4_1;
                 // 1-6〜1-12 / 2-2 / 2-3 / 2-4 / 2-5 / 3-2 / 3-3 / 3-4 は problem.stage0Correct、2-1 は固定値 's'
                 const correct = isForceCalc ? problem.stage0Correct : 's';
                 const isCorrect = (value === correct);
@@ -19270,6 +19736,11 @@
                                 : (problem.formulaType === 'impactForce')
                                 ? '正解。くぎが受ける力（衝撃力）F [N] の大きさを求めます。'
                                 : '正解。飛び込んだあとにボートが動く速さ v₁′ [m/s] の大きさを求めます。';
+                        } else if (is4_1) {
+                            // 4-1: formulaType で求める量が異なる（仕事 A / 力 F）
+                            msg = (problem.formulaType === 'forceFromWork')
+                                ? '正解。荷物を押した力 F [N] の大きさを求めます。'
+                                : '正解。この力がした仕事 A [J] の大きさを求めます。';
                         }
                         feedback.textContent = msg;
                     }
@@ -19461,6 +19932,19 @@
                             } else {
                                 msg = '不正解。問題文の末尾「○○を求めよ」に注目してください。';
                             }
+                        } else if (is4_1) {
+                            // 4-1: 与えられている量を選んだ場合の説明（formulaType ごとに異なる）
+                            if (value === 'work' && problem.formulaType === 'forceFromWork') {
+                                msg = '不正解。仕事 A は問題文に「A ＝ ○○ J」で与えられています。求めるものは力 F です。';
+                            } else if (value === 'force' && problem.formulaType !== 'forceFromWork') {
+                                msg = '不正解。力 F は問題文に「F ＝ ○○ N」で与えられています。求めるものは仕事 A です。';
+                            } else if (value === 'dist') {
+                                msg = '不正解。動いた距離 s は問題文に「s ＝ ○○ m」で与えられています。求めるものは別の量です。';
+                            } else if (value === 'angle') {
+                                msg = '不正解。なす角 α は問題文に「α ＝ ○○°」で与えられています。求めるものは別の量です。';
+                            } else {
+                                msg = '不正解。問題文の末尾「○○を求めよ」に注目してください。';
+                            }
                         } else {
                             msg = (value === 'v')
                                 ? '不正解。速度は問題文に「○○ m/s」の形で数値が与えられています。「求めよ」と書かれている量を探してください。'
@@ -19505,7 +19989,8 @@
                 const is3_2 = this.currentUnitId === '3-2';
                 const is3_3 = this.currentUnitId === '3-3';
                 const is3_4 = this.currentUnitId === '3-4';
-                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2 || is3_3 || is3_4;
+                const is4_1 = this.currentUnitId === '4-1';
+                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2 || is3_3 || is3_4 || is4_1;
                 // 1-6〜1-12 / 2-2 / 2-3 / 2-4 / 2-5 / 3-2 / 3-3 / 3-4 は problem.stage1Correct、2-1 は固定値 'constant'
                 const correct = isForceCalc ? problem.stage1Correct : 'constant';
                 const isCorrect = (value === correct);
@@ -19559,6 +20044,10 @@
                                 : (problem.formulaType === 'momentumConserv')
                                 ? '正解。人とボートがおたがいに力を及ぼし合うだけの、運動量保存の法則の問題です。運動量の和は変化しません（式 2-40）。'
                                 : '正解。質量と速度から運動の大きさ（運動量）を求める問題です。p ＝ m × v が使えます。';
+                        } else if (is4_1) {
+                            msg = (problem.formulaType === 'workAngle')
+                                ? '正解。力の向きと動いた向きが角度をなしています。動いた向きの分力だけが仕事をするので A ＝ F × s × cos α（式 2-42）を使います。'
+                                : '正解。力の向きと動いた向きが同じです。だから A ＝ F × s（式 2-41）で仕事が求められます。';
                         }
                         feedback.textContent = msg;
                     }
@@ -19644,6 +20133,18 @@
                                 : (value === 'impact')
                                 ? '不正解。これは「きわめて短い時間で運動量が変化する衝撃力の問題」ではありません。問題文の状況をもう一度確認してください。'
                                 : '不正解。問題文の状況（運動量を求める／力積で速度を変える／衝撃力／運動量保存）をもう一度確認してください。';
+                        } else if (is4_1) {
+                            msg = (value === 'angleDir')
+                                ? '不正解。問題文には「力と同じ向きに動かした」とあります。力の向きと動いた向きが同じなので、cos を掛けずに A ＝ F × s を使います。'
+                                : (value === 'sameDir')
+                                ? '不正解。問題文には「力の向きは動く向きと 30° の角度をなしている」とあります。同じ向きではなく、角度をなしています。'
+                                : (value === 'noMove')
+                                ? '不正解。問題文には「○○ m 動かした」とあり、物体は動いています。距離が 0 ではありません。'
+                                : (value === 'horizontal')
+                                ? '不正解。問題文には「真上に引き上げた」とあります。水平に横へ動かす問題ではありません。'
+                                : (value === 'lift')
+                                ? '不正解。問題文では物体を真上に引き上げてはいません。水平な床の上で力が動く向きと角度をなしています。'
+                                : '不正解。問題文をもう一度読み、力の向きと動いた向きが同じか、角度をなすかを確かめてください。';
                         }
                         feedback.textContent = msg;
                     }
@@ -19722,7 +20223,8 @@
                     Abx: 'A大', Aby: 'A大', xbs: 'x大', ybs: 'y大', Acx: 'A切', Acy: 'A切', xcs: 'x切', ycs: 'y切', A0x: 'A₀', A0y: 'A₀',
                     v0: 'v₀', t1: 't', t2: 't', a: 'a', s: 's',
                     l: 'l', theta: 'θ', omega: 'ω', pi: 'π', n: 'n',
-                    g: 'g', h: 'h', m: 'm', F: 'F'
+                    g: 'g', h: 'h', m: 'm', F: 'F',
+                    A: 'A', cosα: 'cos α'
                 };
                 slotRoles.forEach(r => { slotEls[r] = document.getElementById('slot-' + r); });
                 // Reset visual state
@@ -19817,6 +20319,15 @@
                             } else {
                                 feedback.textContent = '不正解。単位に注目して入れ直してください。「kg」が質量 m、「m/s²」が加速度 a です（F ＝ m × a）。';
                             }
+                        } else if (this.currentUnitId === '4-1') {
+                            const ft4_1sub = (this.getCalcProblem() || {}).formulaType;
+                            if (ft4_1sub === 'workAngle') {
+                                feedback.textContent = '不正解。単位に注目して入れ直してください。「N」が力 F、「m」が距離 s、cos α には cos 30° の値（0.866）を入れます（A ＝ F × s × cos α）。';
+                            } else if (ft4_1sub === 'forceFromWork') {
+                                feedback.textContent = '不正解。単位に注目して入れ直してください。「J」が仕事 A、「m」が距離 s です（F ＝ A ÷ s）。';
+                            } else {
+                                feedback.textContent = '不正解。単位に注目して入れ直してください。「N」が力 F、「m」が距離 s です（A ＝ F × s）。';
+                            }
                         } else {
                             feedback.textContent = '不正解。単位に注目して入れ直してください。「m/s」が速度 v、「s（秒）」が時間 t です。';
                         }
@@ -19853,7 +20364,8 @@
                 const is3_2 = this.currentUnitId === '3-2';
                 const is3_3 = this.currentUnitId === '3-3';
                 const is3_4 = this.currentUnitId === '3-4';
-                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2 || is3_3 || is3_4;
+                const is4_1 = this.currentUnitId === '4-1';
+                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2 || is3_3 || is3_4 || is4_1;
 
                 // 1-6〜1-12 / 2-2 / 2-3 / 2-4 / 2-5 / 3-2 / 3-3 / 3-4 は小数入力（step=0.1 を許容）し tolerance で判定。
                 const userAnswer = isForceCalc ? parseFloat(answerInput.value) : parseInt(answerInput.value);
@@ -19906,6 +20418,12 @@
                        : problem.formulaType === 'freeFallTime' ? problem.expectedT
                        : problem.expectedV)
                     : null;
+                // 4-1: formulaType ごとに expected を取り出す。
+                //   forceFromWork → expectedF、それ以外（workFlat / workLift / workAngle）→ expectedA
+                const expected4_1 = is4_1
+                    ? (problem.formulaType === 'forceFromWork' ? problem.expectedF
+                       : problem.expectedA)
+                    : null;
                 const expected   = is1_6 ? problem.expectedResultant
                                  : is1_7 ? problem.expectedAnswer
                                  : is1_8 ? problem.expectedMoment
@@ -19920,6 +20438,7 @@
                                  : is3_2 ? expected3_2
                                  : is3_3 ? expected3_3
                                  : is3_4 ? expected3_4
+                                 : is4_1 ? expected4_1
                                  : problem.expectedDisplacement;
                 const tolerance  = isForceCalc ? (problem.tolerance || 1) : 0;
                 // 浮動小数点誤差対策: tolerance 境界（例 tolerance=0.1 で |userAnswer-expected|=0.10000...142）が
@@ -20185,6 +20704,22 @@
                                 ${expl3_4}
                             </div>
                         `;
+                    } else if (is4_1) {
+                        let expl4_1;
+                        if (problem.formulaType === 'workAngle') {
+                            expl4_1 = `A ＝ F × s × cos α ＝ ${problem.F} × ${problem.s} × ${problem.cosValue} ＝ ${expected} [J]`;
+                        } else if (problem.formulaType === 'forceFromWork') {
+                            expl4_1 = `F ＝ A ÷ s ＝ ${problem.A} ÷ ${problem.s} ＝ ${expected} [N]`;
+                        } else {
+                            // workFlat / workLift
+                            expl4_1 = `A ＝ F × s ＝ ${problem.F} × ${problem.s} ＝ ${expected} [J]`;
+                        }
+                        feedback.innerHTML = `
+                            <div style="margin-bottom: 10px;">正解です。</div>
+                            <div class="answer-explanation">
+                                ${expl4_1}
+                            </div>
+                        `;
                     } else {
                         feedback.innerHTML = `
                             <div style="margin-bottom: 10px;">正解です。</div>
@@ -20254,6 +20789,7 @@
                                             : is3_2 ? (problem.unit || 'N')
                                             : is3_3 ? (problem.unit || 'N')
                                             : is3_4 ? (problem.unit || 'kg·m/s')
+                                            : is4_1 ? (problem.unit || 'J')
                                             : 'N';
                             feedback.innerHTML += `<div class="answer-explanation">正解は ${expected} [${unitLabel}] です。計算の手順をもう一度確認してください。</div>`;
                         }
