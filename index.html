@@ -2379,10 +2379,10 @@
         const DASHBOARD_UNIT_COUNTS = {
             '1-1': 4, '1-2': 6, '1-3': 4, '1-4': 4, '1-5': 4,
             '1-6': 4, '1-7': 4, '1-8': 4, '1-9': 4,
-            '1-10': 4, '1-11': 4, '1-12': 4, '2-1': 5, '2-2': 4, '2-3': 4, '2-4': 4, '2-5': 4, '3-1': 6, '3-2': 4, '3-3': 4, '3-4': 4, '4-1': 4, '4-2': 4
+            '1-10': 4, '1-11': 4, '1-12': 4, '2-1': 5, '2-2': 4, '2-3': 4, '2-4': 4, '2-5': 4, '3-1': 6, '3-2': 4, '3-3': 4, '3-4': 4, '4-1': 4, '4-2': 4, '4-3': 4
         };
         // 単元表示順
-        const DASHBOARD_UNIT_ORDER = ['1-1', '1-2', '1-3', '1-4', '1-5', '1-6', '1-7', '1-8', '1-9', '1-10', '1-11', '1-12', '2-1', '2-2', '2-3', '2-4', '2-5', '3-1', '3-2', '3-3', '3-4', '4-1', '4-2'];
+        const DASHBOARD_UNIT_ORDER = ['1-1', '1-2', '1-3', '1-4', '1-5', '1-6', '1-7', '1-8', '1-9', '1-10', '1-11', '1-12', '2-1', '2-2', '2-3', '2-4', '2-5', '3-1', '3-2', '3-3', '3-4', '4-1', '4-2', '4-3'];
 
         // 【校内版では実名ロスターを定義していたが、GitHub Pages 配信のため空に変更】
         // 将来、名簿照合に戻す場合は 1番〜36番 + 40番の形式で復活可能
@@ -2592,6 +2592,15 @@
                 id: '4-2',
                 title: '道具と機械の仕事',
                 subtitle: 'てこ・斜面・動滑車・輪軸 ＝ 仕事の原理',
+                level: '基礎',
+                completed: false,
+                score: 0,
+                total: 0
+            },
+            {
+                id: '4-3',
+                title: 'エネルギー',
+                subtitle: '運動エネルギー・位置エネルギー・力学的エネルギー保存',
                 level: '基礎',
                 completed: false,
                 score: 0,
@@ -7666,6 +7675,104 @@
         };
         const HINTS_4_2_BY_ID = { 1: HINTS_4_2_LEVER, 2: HINTS_4_2_INCLINE, 3: HINTS_4_2_PULLEY, 4: HINTS_4_2_WHEELSET };
 
+        // Problems for sub-unit 4-3: エネルギー（運動エネルギー・位置エネルギー・力学的エネルギー保存）
+        //   4-2 と同じ 6 ステージ計算フロー。問題図は build4_3EnergyCanvas(problem) が canvas.kind で分岐。
+        //   全問 求める量は エネルギー [J]、tolerance:0.1、expectedAns を直接比較。decimals は問ごと（問1〜3=0、問4=1）。
+        const PROBLEMS_4_3 = [
+            {
+                id: 1, formulaType: 'kinetic', m: 3, v: 10,
+                expectedAns: 150, tolerance: 0.1, unit: 'J', decimals: 0, baselineTime: 210,
+                sentence: '質量 m ＝ 3 kg の物体が、速さ v ＝ 10 m/s で水平な床の上をまっすぐ動いている。この物体がもっている運動エネルギー Ek [J] を求めよ。',
+                condition: '基礎（運動エネルギー・式2-50）、Ek=½mv²=½×3×10²=½×300=150 J',
+                canvasType: '2d-static', canvas: { width: 360, height: 180, kind: 'kinetic' },
+                stage0Choices: [ { value: 'ek', label: 'この物体がもっている運動エネルギー Ek [J] の大きさ' }, { value: 'mass', label: '物体の質量 m [kg] の大きさ' }, { value: 'speed', label: '物体の速さ v [m/s] の大きさ' } ],
+                stage0Correct: 'ek',
+                stage1Choices: [ { value: 'moving', label: '物体が運動している（速さをもっている）状態のエネルギーを求める問題である' }, { value: 'high', label: '物体が高いところで止まっている状態のエネルギーを求める問題である' }, { value: 'rest', label: '物体が床の上で完全に止まっていて、まったく動いていない状態のエネルギーを求める問題である' } ],
+                stage1Correct: 'moving',
+                derivationSteps: [ { prompt: '物体が運動しているとき、その速さによってもつエネルギーを運動エネルギーといいます。運動エネルギー Ek は、質量 m と速さ v を使って表します。Ek を求める式はどれですか。', choices: [ { value: 'half_mvv', label: 'Ek ＝ ½ × m × v × v（質量 × 速さ × 速さ を 2 で割る）' }, { value: 'mvv', label: 'Ek ＝ m × v × v（2 で割らない）' }, { value: 'half_mv', label: 'Ek ＝ ½ × m × v（速さは 1 回だけ掛ける）' } ], correct: 'half_mvv', onCorrectText: '運動エネルギーは Ek ＝ ½ × m × v × v です。速さ v は 2 回掛けます（v × v）。そのあと 2 で割る（½ を掛ける）のを忘れないようにしてください。これに数値を代入します。' } ],
+                formula: 'E_k = \\dfrac{1}{2}\\,m\\,v^{2}',
+                substitutions: { slots: ['m', 'v'], cards: [ { role: 'm', label: 'm', value: 3, unit: 'kg' }, { role: 'v', label: 'v', value: 10, unit: 'm/s' } ] }
+            },
+            {
+                id: 2, formulaType: 'potential', m: 5, g: 9.8, H: 4,
+                expectedAns: 196, tolerance: 0.1, unit: 'J', decimals: 0, baselineTime: 210,
+                sentence: '質量 m ＝ 5 kg の物体が、地面から高さ H ＝ 4 m のたなの上に置いてあって止まっている。地面を高さの基準（高さ 0）とするとき、この物体がもっている位置エネルギー Ep [J] を求めよ。重力加速度は g ＝ 9.8 m/s² とする。',
+                condition: '基礎（位置エネルギー・式2-51）、Ep=mgH=5×9.8×4=196 J。基準面は地面（高さ0）',
+                canvasType: '2d-static', canvas: { width: 360, height: 220, kind: 'potential' },
+                stage0Choices: [ { value: 'ep', label: 'この物体がもっている位置エネルギー Ep [J] の大きさ' }, { value: 'mass', label: '物体の質量 m [kg] の大きさ' }, { value: 'height', label: '地面からの高さ H [m] の大きさ' } ],
+                stage0Correct: 'ep',
+                stage1Choices: [ { value: 'high', label: '物体が高いところで止まっている状態のエネルギーを求める問題である' }, { value: 'moving', label: '物体が水平に動いている（速さをもっている）状態のエネルギーを求める問題である' }, { value: 'ground', label: '物体が地面（高さの基準）にあって、高さが 0 の状態のエネルギーを求める問題である' } ],
+                stage1Correct: 'high',
+                derivationSteps: [ { prompt: '高いところにある物体は、その高さによってエネルギーをもっています。これを位置エネルギーといいます。位置エネルギー Ep は、質量 m と重力加速度 g と高さ H を使って表します。Ep を求める式はどれですか。', choices: [ { value: 'mgh', label: 'Ep ＝ m × g × H（質量 × 重力加速度 × 高さ）' }, { value: 'mh', label: 'Ep ＝ m × H（g は掛けない）' }, { value: 'half_mgh', label: 'Ep ＝ ½ × m × g × H（2 で割る）' } ], correct: 'mgh', onCorrectText: '位置エネルギーは Ep ＝ m × g × H です。質量 m に重力加速度 g（9.8）と高さ H を掛けます。g は必ず掛けます。運動エネルギーとちがって 2 で割りません。これに数値を代入します。' } ],
+                formula: 'E_p = m\\,g\\,H',
+                substitutions: { slots: ['m', 'g', 'H'], cards: [ { role: 'm', label: 'm', value: 5, unit: 'kg' }, { role: 'g', label: 'g（重力の強さ。必ず掛ける数）', value: 9.8, unit: 'm/s²' }, { role: 'H', label: 'H', value: 4, unit: 'm' } ] }
+            },
+            {
+                id: 3, formulaType: 'conserveGround', m: 3, g: 9.8, H: 5,
+                expectedAns: 147, tolerance: 0.1, unit: 'J', decimals: 0, baselineTime: 240,
+                sentence: '質量 m ＝ 3 kg の物体を、地面から高さ H ＝ 5 m のところでそっと手をはなして自由に落とした。空気の抵抗は考えないものとする。物体が地面に着いた瞬間にもっている運動エネルギー Ek [J] を求めよ。重力加速度は g ＝ 9.8 m/s² とする。',
+                condition: '基礎（力学的エネルギー保存）、はなした瞬間の位置E mgH が地面で全部運動Eに移る → 地面の Ek = mgH = 3×9.8×5 = 147 J',
+                canvasType: '2d-static', canvas: { width: 320, height: 240, kind: 'conserveGround' },
+                stage0Choices: [ { value: 'ek', label: '地面に着いた瞬間の運動エネルギー Ek [J] の大きさ' }, { value: 'ep', label: '手をはなした高さでの位置エネルギー Ep [J] の大きさ' }, { value: 'height', label: '手をはなした高さ H [m] の大きさ' } ],
+                stage0Correct: 'ek',
+                stage1Choices: [ { value: 'conserve', label: '落ちていくあいだ、運動エネルギーと位置エネルギーの和（力学的エネルギー）は変わらない問題である' }, { value: 'staystill', label: '物体がずっと止まっていて、エネルギーが変わらない問題である' }, { value: 'newforce', label: '落ちていくあいだに、外から新しいエネルギーが加わってふえていく問題である' } ],
+                stage1Correct: 'conserve',
+                derivationSteps: [
+                    { prompt: '空気の抵抗がないとき、落ちていくあいだ「運動エネルギーと位置エネルギーの和」は変わりません（力学的エネルギーが保存される）。手をはなしたときは止まっているので運動エネルギーは 0、もっているのは位置エネルギー Ep ＝ m × g × H だけです。地面に着くと高さが 0 になり、位置エネルギーは 0 になります。このとき、最初の位置エネルギーはどうなりますか。', choices: [ { value: 'allToEk', label: '位置エネルギーが減った分だけ、運動エネルギーがふえる（位置エネルギーがそっくり運動エネルギーに移る）' }, { value: 'disappear', label: '位置エネルギーは消えてなくなり、運動エネルギーはふえない' }, { value: 'extra', label: '位置エネルギーはそのまま残り、その上に運動エネルギーが新しく加わる' } ], correct: 'allToEk', onCorrectText: '位置エネルギーが減った分だけ運動エネルギーがふえます。しかも、エネルギーの量（J）そのものは変わりません。位置エネルギーという入れ物の中身が、そっくり運動エネルギーの入れ物に移るだけです。地面では位置エネルギーが 0 になるので、最初にあった位置エネルギーが全部、運動エネルギーに移ります。' },
+                    { prompt: '最初にあった位置エネルギーが全部、地面での運動エネルギーに移ります。「位置エネルギーという入れ物の中身が、そっくり運動エネルギーの入れ物に移る」ので、量は変わりません。地面に着いた瞬間の運動エネルギー Ek を求める式はどれですか。', choices: [ { value: 'mgh', label: 'Ek ＝ m × g × H（最初の位置エネルギーが全部、運動エネルギーに移る）' }, { value: 'half_mgh', label: 'Ek ＝ ½ × m × g × H（半分だけ運動エネルギーに移る）' }, { value: 'double', label: 'Ek ＝ m × g × H × 2（落ちるあいだに 2 倍にふえる）' } ], correct: 'mgh', onCorrectText: '量は変わらず、そっくり移るだけなので、地面での運動エネルギー Ek は、最初の位置エネルギーと同じ大きさです。だから Ek ＝ m × g × H。半分になることも、2 倍になることもありません。これに数値を代入します。' }
+                ],
+                formula: 'E_k = m\\,g\\,H',
+                substitutions: { slots: ['m', 'g', 'H'], cards: [ { role: 'm', label: 'm', value: 3, unit: 'kg' }, { role: 'g', label: 'g（重力の強さ。必ず掛ける数）', value: 9.8, unit: 'm/s²' }, { role: 'H', label: 'H', value: 5, unit: 'm' } ] }
+            },
+            {
+                id: 4, formulaType: 'conserveMid', m: 2, g: 9.8, H: 10, h: 4,
+                expectedAns: 117.6, tolerance: 0.1, unit: 'J', decimals: 1, baselineTime: 270,
+                sentence: '質量 m ＝ 2 kg の物体を、地面から高さ H ＝ 10 m のところでそっと手をはなして自由に落とした。空気の抵抗は考えないものとする。物体が地面から高さ h ＝ 4 m のところまで落ちてきた瞬間にもっている運動エネルギー Ek [J] を求めよ。重力加速度は g ＝ 9.8 m/s² とする。',
+                condition: '応用（力学的エネルギー保存・途中）、減った高さは H−h=10−4=6 m。Ek=mg(H−h)=2×9.8×6=117.6 J',
+                canvasType: '2d-static', canvas: { width: 320, height: 260, kind: 'conserveMid' },
+                stage0Choices: [ { value: 'ek', label: '高さ 4 m まで落ちてきた瞬間の運動エネルギー Ek [J] の大きさ' }, { value: 'startH', label: '手をはなした高さ H [m] の大きさ' }, { value: 'nowH', label: '今いる高さ h [m] の大きさ' } ],
+                stage0Correct: 'ek',
+                stage1Choices: [ { value: 'midway', label: '落ちている途中（まだ地面に着いていない）の運動エネルギーを求める問題である' }, { value: 'ground', label: '物体が地面に着いて、落ちきった瞬間の運動エネルギーを求める問題である' }, { value: 'top', label: '手をはなした高さで、まだ落ち始めていないときの運動エネルギーを求める問題である' } ],
+                stage1Correct: 'midway',
+                derivationSteps: [
+                    { prompt: '空気の抵抗がないので、落ちるあいだ「運動エネルギーと位置エネルギーの和」は変わりません（力学的エネルギーが保存される）。物体が高さ H から高さ h まで落ちると、その分だけ高さが減ります。運動エネルギーに移ったのは、減った高さの分の位置エネルギーです。減った高さはいくつですか。', choices: [ { value: 'Hminus_h', label: 'H − h（最初の高さから、今いる高さを引く）' }, { value: 'h', label: 'h（今いる高さがそのまま減った高さ）' }, { value: 'Hplus_h', label: 'H ＋ h（最初の高さと今いる高さを足す）' } ], correct: 'Hminus_h', onCorrectText: '減った高さは H − h です。最初の高さ H から、今いる高さ h を引きます。この減った高さの分だけ位置エネルギーが減り、その分が運動エネルギーに移っています。' },
+                    { prompt: '減った高さ（H − h）の分の位置エネルギーが、そっくり運動エネルギーに移ります。位置エネルギーは「質量 × 重力加速度 × 高さ」でした。途中の運動エネルギー Ek を求める式はどれですか。', choices: [ { value: 'mg_Hh', label: 'Ek ＝ m × g ×（H − h）（減った高さの分が運動エネルギーに移る）' }, { value: 'mg_h', label: 'Ek ＝ m × g × h（今いる高さを使う）' }, { value: 'mg_H', label: 'Ek ＝ m × g × H（最初の高さを使う）' } ], correct: 'mg_Hh', onCorrectText: '減った高さ（H − h）の分の位置エネルギーが運動エネルギーに移るので、Ek ＝ m × g ×（H − h）です。まず H − h を計算してから、m と g を掛けます。これに数値を代入します。' }
+                ],
+                formula: 'E_k = m\\,g\\,(H - h)',
+                substitutions: { slots: ['m', 'g', 'H', 'h'], cards: [ { role: 'm', label: 'm', value: 2, unit: 'kg' }, { role: 'g', label: 'g（重力の強さ。必ず掛ける数）', value: 9.8, unit: 'm/s²' }, { role: 'H', label: 'H', value: 10, unit: 'm' }, { role: 'h', label: 'h', value: 4, unit: 'm' } ] }
+            }
+        ];
+
+        const HINTS_4_3_KINETIC = {
+            stage0: { b: '問題文の最後の文に注目してください。質量 m ＝ 3 kg、速さ v ＝ 10 m/s はすでに数値が書かれています。', a: '問題文の末尾に「運動エネルギー Ek [J] を求めよ」とあります。求めるものは運動エネルギー Ek、単位は J です。', c: '教科書61ページ 式(2-50)「Ek ＝ ½mv²」を確認してください。' },
+            stage1: { b: '問題文に「速さ v ＝ 10 m/s で動いている」とあります。物体が動いているか、止まっているかを確かめてください。', a: '物体が動いている（速さをもっている）ときのエネルギーを運動エネルギーといいます。Ek ＝ ½ × m × v × v で求めます。', c: '教科書61ページ 式(2-50)「Ek ＝ ½mv²」を確認してください。' },
+            stage2: { b: '運動エネルギーは速さで決まります。速さ v は 2 回掛けます（v × v）。そのあと 2 で割る（½ を掛ける）のを忘れないでください。', a: 'Ek ＝ ½ × m × v × v に、質量 m ＝ 3 kg と速さ v ＝ 10 m/s を入れます。v は 2 回掛けてから 2 で割ります。', c: '教科書61ページ 式(2-50)を確認してください。' },
+            stage3: { b: '式は Ek ＝ ½ × m × v × v です。m には質量、v には速さを入れます。v は 2 回入れます。', a: '式 Ek ＝ ½ × m × v × v の空欄に、m ＝ 3 kg、v ＝ 10 m/s を入れてください。', c: '教科書61ページ 式(2-50)を確認してください。' },
+            stage4: { b: 'まず速さを 2 回掛けます（v × v ＝ 10 × 10 ＝ 100）。次に質量 3 を掛けます（100 × 3 ＝ 300）。最後に 2 で割ります（300 ÷ 2 ＝ 150）。電卓を使ってかまいません。', a: 'Ek ＝ ½ × 3 × 10 × 10。10 × 10 ＝ 100、これに 3 を掛けて 300、2 で割って 150 [J]。速さを 2 回掛けてから、質量を掛けて、最後に 2 で割ります。', c: '教科書61ページ 式(2-50)を確認してください。' }
+        };
+        const HINTS_4_3_POTENTIAL = {
+            stage0: { b: '問題文の最後の文に注目してください。質量 m ＝ 5 kg、高さ H ＝ 4 m、重力加速度 g ＝ 9.8 m/s² はすでに数値が書かれています。', a: '問題文の末尾に「位置エネルギー Ep [J] を求めよ」とあります。求めるものは位置エネルギー Ep、単位は J です。', c: '教科書62ページ 式(2-51)「Ep ＝ mgH」を確認してください。' },
+            stage1: { b: '問題文に「高さ H ＝ 4 m のたなの上に置いてあって止まっている」とあります。物体が高いところにあるか、地面（高さ0）にあるかを確かめてください。', a: '高いところにある物体が、その高さによってもつエネルギーを位置エネルギーといいます。Ep ＝ m × g × H で求めます。', c: '教科書62ページ 式(2-51)「Ep ＝ mgH」を確認してください。' },
+            stage2: { b: '位置エネルギーは高さで決まります。質量 m に、重力加速度 g（9.8）と高さ H を掛けます。g を掛け忘れないでください。運動エネルギーとちがって 2 で割りません。', a: 'Ep ＝ m × g × H に、質量 m ＝ 5 kg、重力加速度 g ＝ 9.8 m/s²、高さ H ＝ 4 m を入れます。', c: '教科書62ページ 式(2-51)を確認してください。' },
+            stage3: { b: '式は Ep ＝ m × g × H です。m には質量、g には重力加速度（9.8）、H には高さを入れます。', a: '式 Ep ＝ m × g × H の空欄に、m ＝ 5 kg、g ＝ 9.8 m/s²、H ＝ 4 m を入れてください。g は必ず入れます。', c: '教科書62ページ 式(2-51)を確認してください。' },
+            stage4: { b: '質量・重力加速度（9.8）・高さの 3 つを掛け算するだけです。g を掛け忘れないでください。電卓を使ってかまいません。', a: 'Ep ＝ 5 × 9.8 × 4 ＝ 196 [J]。質量に 9.8 と高さを掛けます。高いところにある物体ほど、また重い物体ほど、大きな位置エネルギーをもちます。', c: '教科書62ページ 式(2-51)を確認してください。' }
+        };
+        const HINTS_4_3_FALL = {
+            stage0: { b: '問題文の最後の文に注目してください。質量 m ＝ 3 kg、高さ H ＝ 5 m、重力加速度 g ＝ 9.8 m/s² はすでに数値が書かれています。', a: '問題文の末尾に「地面に着いた瞬間にもっている運動エネルギー Ek [J] を求めよ」とあります。求めるものは地面での運動エネルギー Ek、単位は J です。', c: '教科書62ページ 力学的エネルギー保存則を確認してください。' },
+            stage1: { b: '問題文に「空気の抵抗は考えない」「そっと手をはなして自由に落とした」とあります。落ちるあいだ、運動エネルギーと位置エネルギーの和が変わるか、変わらないかを確かめてください。', a: '空気の抵抗がないとき、運動エネルギーと位置エネルギーの和（力学的エネルギー）は変わりません。これを力学的エネルギー保存といいます。', c: '教科書62ページ 力学的エネルギー保存則を確認してください。' },
+            stage2: { b: '手をはなした瞬間は止まっているので運動エネルギーは 0、もっているのは位置エネルギー m × g × H だけです。地面では高さが 0 になるので位置エネルギーが 0 になります。和は変わらないので、位置エネルギーがそっくり運動エネルギーに移ります。', a: '位置エネルギーが減った分だけ運動エネルギーがふえ、エネルギーの量は変わりません。地面では位置エネルギーが全部運動エネルギーに移るので Ek ＝ m × g × H。半分でも 2 倍でもありません。', c: '教科書62ページ 力学的エネルギー保存則を確認してください。' },
+            stage3: { b: '式は Ek ＝ m × g × H です。m には質量、g には重力加速度（9.8）、H には手をはなした高さを入れます。', a: '式 Ek ＝ m × g × H の空欄に、m ＝ 3 kg、g ＝ 9.8 m/s²、H ＝ 5 m を入れてください。', c: '教科書62ページ 力学的エネルギー保存則を確認してください。' },
+            stage4: { b: '質量・重力加速度（9.8）・高さの 3 つを掛け算するだけです。電卓を使ってかまいません。', a: 'Ek ＝ 3 × 9.8 × 5 ＝ 147 [J]。地面に着いた瞬間の運動エネルギーは、はなした高さでの位置エネルギーと同じ大きさです。', c: '教科書62ページ 力学的エネルギー保存則を確認してください。' }
+        };
+        const HINTS_4_3_SLOPE = {
+            stage0: { b: '問題文の最後の文に注目してください。質量 m ＝ 2 kg、はなした高さ H ＝ 10 m、今いる高さ h ＝ 4 m、重力加速度 g ＝ 9.8 m/s² はすでに数値が書かれています。', a: '問題文の末尾に「高さ 4 m のところまで落ちてきた瞬間にもっている運動エネルギー Ek [J] を求めよ」とあります。求めるものは途中の運動エネルギー Ek、単位は J です。', c: '教科書62ページ 力学的エネルギー保存則を確認してください。' },
+            stage1: { b: '問題文に「高さ 4 m のところまで落ちてきた瞬間」とあります。物体が落ちている途中か、地面に着いた後かを確かめてください。', a: '落ちている途中でも、運動エネルギーと位置エネルギーの和（力学的エネルギー）は変わりません。減った高さの分の位置エネルギーが運動エネルギーに移っています。', c: '教科書62ページ 力学的エネルギー保存則を確認してください。' },
+            stage2: { b: '高さ H から高さ h まで落ちたので、減った高さは H − h です。この減った高さの分だけ位置エネルギーが減り、その分がそっくり運動エネルギーに移ります。今いる高さ h ではなく、減った高さ（H − h）を使います。', a: '減った高さは H − h。位置エネルギーは「質量 × 重力加速度 × 高さ」なので、移った運動エネルギーは Ek ＝ m × g ×（H − h）です。', c: '教科書62ページ 力学的エネルギー保存則を確認してください。' },
+            stage3: { b: '式は Ek ＝ m × g ×（H − h）です。m には質量、g には重力加速度（9.8）、H にははなした高さ、h には今いる高さを入れます。', a: '式 Ek ＝ m × g ×（H − h）の空欄に、m ＝ 2 kg、g ＝ 9.8 m/s²、H ＝ 10 m、h ＝ 4 m を入れてください。', c: '教科書62ページ 力学的エネルギー保存則を確認してください。' },
+            stage4: { b: 'まず減った高さを計算します（H − h ＝ 10 − 4 ＝ 6）。次に質量 2 と重力加速度 9.8 を掛けます。電卓を使ってかまいません。答えは小数第1位までで答えてください。', a: 'Ek ＝ 2 × 9.8 ×（10 − 4）＝ 2 × 9.8 × 6 ＝ 117.6 [J]。先に H − h ＝ 6 を出してから、m と g を掛けます。', c: '教科書62ページ 力学的エネルギー保存則を確認してください。' }
+        };
+        const HINTS_4_3_BY_ID = { 1: HINTS_4_3_KINETIC, 2: HINTS_4_3_POTENTIAL, 3: HINTS_4_3_FALL, 4: HINTS_4_3_SLOPE };
+
         // ==================================================================
         // 考査対策・考査問題マスターデータ（仕様書 §10〜§12）
         // ==================================================================
@@ -9364,6 +9471,7 @@
                 if (unitId === '3-4') return PROBLEMS_3_4.length;
                 if (unitId === '4-1') return PROBLEMS_4_1.length;
                 if (unitId === '4-2') return PROBLEMS_4_2.length;
+                if (unitId === '4-3') return PROBLEMS_4_3.length;
                 return 0;
             }
 
@@ -11850,6 +11958,7 @@
                 else if (this.currentUnitId === '3-4') problems = PROBLEMS_3_4;
                 else if (this.currentUnitId === '4-1') problems = PROBLEMS_4_1;
                 else if (this.currentUnitId === '4-2') problems = PROBLEMS_4_2;
+                else if (this.currentUnitId === '4-3') problems = PROBLEMS_4_3;
 
                 if (this.currentProblemIndex >= problems.length) {
                     this.showSummary();
@@ -11970,6 +12079,7 @@
                     else if (this.currentUnitId === '3-4') problems = PROBLEMS_3_4;
                     else if (this.currentUnitId === '4-1') problems = PROBLEMS_4_1;
                     else if (this.currentUnitId === '4-2') problems = PROBLEMS_4_2;
+                    else if (this.currentUnitId === '4-3') problems = PROBLEMS_4_3;
                     sidebarList.innerHTML = problems.map((p, i) =>
                         `<li class="${i === this.currentProblemIndex ? 'is-active' : ''}">問 ${p.id}</li>`
                     ).join('');
@@ -11997,7 +12107,7 @@
                 const content = document.getElementById('problemContent');
 
                 // Handle different problem types
-                if (this.currentUnitId === '2-1' || this.currentUnitId === '2-2' || this.currentUnitId === '2-3' || this.currentUnitId === '2-4' || this.currentUnitId === '2-5' || this.currentUnitId === '3-2' || this.currentUnitId === '3-3' || this.currentUnitId === '3-4' || this.currentUnitId === '4-1' || this.currentUnitId === '4-2' || this.currentUnitId === '1-6' || this.currentUnitId === '1-7' || this.currentUnitId === '1-8' || this.currentUnitId === '1-9' || this.currentUnitId === '1-10' || this.currentUnitId === '1-11' || this.currentUnitId === '1-12') {
+                if (this.currentUnitId === '2-1' || this.currentUnitId === '2-2' || this.currentUnitId === '2-3' || this.currentUnitId === '2-4' || this.currentUnitId === '2-5' || this.currentUnitId === '3-2' || this.currentUnitId === '3-3' || this.currentUnitId === '3-4' || this.currentUnitId === '4-1' || this.currentUnitId === '4-2' || this.currentUnitId === '4-3' || this.currentUnitId === '1-6' || this.currentUnitId === '1-7' || this.currentUnitId === '1-8' || this.currentUnitId === '1-9' || this.currentUnitId === '1-10' || this.currentUnitId === '1-11' || this.currentUnitId === '1-12') {
                     this.renderCalculationProblem(problem, content);
                 } else if (this.currentUnitId === '1-3' || this.currentUnitId === '1-4' || this.currentUnitId === '1-5') {
                     this.drawingStageIndex = 0;
@@ -12105,9 +12215,11 @@
                 const is3_4 = this.currentUnitId === '3-4';
                 const is4_1 = this.currentUnitId === '4-1';
                 const is4_2 = this.currentUnitId === '4-2';
+                const is4_3 = this.currentUnitId === '4-3';
                 // isForceCalc は「6 ステージ汎用フロー（problem.stage0Choices 等を持つ）」を意味する。
-                //   2-2 / 2-3 / 2-4 / 2-5 / 3-2 / 3-3 / 3-4 / 4-1 も同じデータ schema（sentence / stage0Choices / stage1Choices / substitutions）を採るので含める。
-                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2 || is3_3 || is3_4 || is4_1 || is4_2;
+                //   2-2 / 2-3 / 2-4 / 2-5 / 3-2 / 3-3 / 3-4 / 4-1 / 4-2 / 4-3 も同じデータ schema（sentence / stage0Choices / stage1Choices / substitutions）を採るので含める。
+                //   4-3 はエネルギー [J] を求めるため isForceCalc には含めるが、力ではないので isForceCalc 名は便宜上の流用。
+                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2 || is3_3 || is3_4 || is4_1 || is4_2 || is4_3;
                 // Persistent problem statement shown at the top of every stage
                 const problemText = isForceCalc
                     ? problem.sentence
@@ -12236,7 +12348,7 @@
                         '計算する',
                         '答えの意味を確認'
                     ]
-                    : (is4_1 || is4_2)
+                    : (is4_1 || is4_2 || is4_3)
                     ? [
                         '求める量を確認する',
                         'どんな問題か確認する',
@@ -12286,6 +12398,7 @@
                                       : is3_4 ? this.build3_4MomentumCanvas(problem)
                                       : is4_1 ? this.build4_1WorkCanvas(problem)
                                       : is4_2 ? this.build4_2ToolCanvas(problem)
+                                      : is4_3 ? this.build4_3EnergyCanvas(problem)
                                       : '';
 
                 // 1-7（案B 7 ステージ）は専用ルートで処理し、early return する。
@@ -12370,6 +12483,8 @@
                         ? 'この問題はどのような仕事の問題ですか？'
                         : is4_2
                         ? 'この問題はどの道具・機械を使った問題ですか？'
+                        : is4_3
+                        ? 'この問題はどのようなエネルギーの問題ですか？'
                         : is3_2
                         ? 'この問題はどのような運動の問題ですか？'
                         : '問題文の「一定の速さで運動した」は、どのような運動ですか？';
@@ -12687,8 +12802,8 @@
                         `;
                         this.render1_10DerivAccordion();
                         return;
-                    } else if (is4_1 || is4_2) {
-                        // 4-1（仕事 A=Fs / A=Fs cosα）/ 4-2（道具と機械の仕事）: derivationSteps を 1 ステップずつ
+                    } else if (is4_1 || is4_2 || is4_3) {
+                        // 4-1（仕事 A=Fs / A=Fs cosα）/ 4-2（道具と機械の仕事）/ 4-3（エネルギー）: derivationSteps を 1 ステップずつ
                         //   アコーディオン表示して、生徒自身に式変形を選ばせる（is3_4 と同じパターン、early return）。
                         if (this.calcInputs.derivStepIndex === undefined) {
                             this.calcInputs.derivStepIndex = 0;
@@ -12747,7 +12862,7 @@
                             Abx: 'A大', Aby: 'A大', xbs: 'x大', ybs: 'y大', Acx: 'A切', Acy: 'A切', xcs: 'x切', ycs: 'y切', A0x: 'A₀', A0y: 'A₀',
                             v: 'v', v0: 'v₀', t: 't', t1: 't', t2: 't', a: 'a', s: 's',
                             l: 'l', theta: 'θ', omega: 'ω', pi: 'π', n: 'n',
-                            g: 'g', h: 'h', m: 'm', F: 'F', mg: 'mg', ma: 'ma', net: 'F − mg',
+                            g: 'g', h: 'h', H: 'H', m: 'm', F: 'F', mg: 'mg', ma: 'ma', net: 'F − mg',
                             p: 'p', Ft: 'Ft', mv0: 'mv₀', dv: 'v₀ − v', m2v2: "m₂v₂'", m1: 'm₁',
                             A: 'A', cosα: 'cos α', b: 'b', D: 'D' };
                         const makeSlotSpan = (role, text) =>
@@ -12962,6 +13077,23 @@
                             } else {
                                 // wheelset
                                 formulaHTML = `F ＝ (${slotSpans[0]} × ${slotSpans[1]}) ÷ ${slotSpans[2]}`;
+                            }
+                        } else if (is4_3) {
+                            // 4-3（エネルギー）: formulaType ごとに式の形が異なる。各量は 1 スロットのみ。
+                            //   kinetic        → Ek ＝ (1／2) × [m] × [v]²       （slots: m, v。v² は 2-5 と同じ固定 sup）
+                            //   potential      → Ep ＝ [m] × [g] × [H]           （slots: m, g, H）
+                            //   conserveGround → Ek ＝ [m] × [g] × [H]           （slots: m, g, H）
+                            //   conserveMid    → Ek ＝ [m] × [g] × ([H] − [h])    （slots: m, g, H, h）
+                            const sup2_4_3 = `<sup style="font-size:0.6em; vertical-align:super;">2</sup>`;
+                            if (problem.formulaType === 'kinetic') {
+                                formulaHTML = `Ek ＝ (1／2) × ${slotSpans[0]} × ${slotSpans[1]}${sup2_4_3}`;
+                            } else if (problem.formulaType === 'conserveMid') {
+                                formulaHTML = `Ek ＝ ${slotSpans[0]} × ${slotSpans[1]} × ( ${slotSpans[2]} − ${slotSpans[3]} )`;
+                            } else if (problem.formulaType === 'potential') {
+                                formulaHTML = `Ep ＝ ${slotSpans[0]} × ${slotSpans[1]} × ${slotSpans[2]}`;
+                            } else {
+                                // conserveGround
+                                formulaHTML = `Ek ＝ ${slotSpans[0]} × ${slotSpans[1]} × ${slotSpans[2]}`;
                             }
                         } else if (is2_3) {
                             // 2-3（重力加速度）: formulaType ごとに式の形が異なる
@@ -13543,6 +13675,43 @@
                                 </div>
                             </div>
                         `;
+                    } else if (is4_3) {
+                        // 4-3（エネルギー）: formulaType ごとに数値入りの式を切り替える。全問 単位 [J]。
+                        //   kinetic / potential / conserveGround は整数答え、conserveMid（問4）は小数第 1 位まで（注記ボックス併設）。
+                        let formulaLine_4_3, answerLabel_4_3;
+                        if (problem.formulaType === 'kinetic') {
+                            formulaLine_4_3 = `$E_k = \\dfrac{1}{2} \\times ${problem.m} \\times ${problem.v}^{2} = {\\color{#c62828}?}\\ \\mathrm{[J]}$`;
+                            answerLabel_4_3 = 'Ek ＝';
+                        } else if (problem.formulaType === 'potential') {
+                            formulaLine_4_3 = `$E_p = ${problem.m} \\times ${problem.g} \\times ${problem.H} = {\\color{#c62828}?}\\ \\mathrm{[J]}$`;
+                            answerLabel_4_3 = 'Ep ＝';
+                        } else if (problem.formulaType === 'conserveMid') {
+                            formulaLine_4_3 = `$E_k = ${problem.m} \\times ${problem.g} \\times (${problem.H} - ${problem.h}) = {\\color{#c62828}?}\\ \\mathrm{[J]}$`;
+                            answerLabel_4_3 = 'Ek ＝';
+                        } else {
+                            // conserveGround
+                            formulaLine_4_3 = `$E_k = ${problem.m} \\times ${problem.g} \\times ${problem.H} = {\\color{#c62828}?}\\ \\mathrm{[J]}$`;
+                            answerLabel_4_3 = 'Ek ＝';
+                        }
+                        const note_4_3 = (problem.decimals === 1)
+                            ? `<div style="background:#eef3fa; border-left:3px solid #4a7cbe; padding:8px 12px; border-radius:3px; margin:8px 0 10px; font-size:12px; line-height:1.6; color:#333;">
+                                    <strong>有効数字</strong>：計算結果が小数点以下第 2 位以上になる場合、第 2 位を四捨五入して<strong>小数第 1 位まで</strong>で答えてください。
+                                </div>`
+                            : '';
+                        content.innerHTML = header + staticCanvas1_6 + `
+                            <div class="calc-stage-container">
+                                <div class="calc-question-text">計算結果を入力してください（電卓を使って構いません）。</div>
+                                <div class="calc-formula-display">
+                                    ${formulaLine_4_3}
+                                </div>
+                                ${note_4_3}
+                                <div class="calc-input-row">
+                                    <span class="calc-input-label">答え：${answerLabel_4_3}</span>
+                                    <input type="number" id="answerInput" class="calc-answer-input" placeholder="数値" style="width:120px;" step="0.1">
+                                    <span style="font-size:14px; color:#555; margin-left:6px;">[J]</span>
+                                </div>
+                            </div>
+                        `;
                     } else {
                         content.innerHTML = header + `
                             <div class="calc-stage-container">
@@ -14036,6 +14205,43 @@
                                 </div>
                                 <div style="margin-top:14px; font-size:13px; color:#555;">
                                     次の問題に進む前に、道具の図（力 F と重力 W、距離の関係）を頭の中で思い浮かべてください。
+                                </div>
+                            </div>
+                        `;
+                    } else if (is4_3) {
+                        // 4-3（エネルギー）: 4-1 / 4-2 と同じ 3 行段組み KaTeX（aligned）で
+                        //   「記号式／数値式／答え」を表示し、その下に formulaType ごとの振り返り文を載せる。
+                        //   問1〜3 は整数答え（J）、問4 は小数第 1 位まで。CJK は \mathrm{} / \text{} で囲む。
+                        //   問3（conserveGround）のみ、エネルギーが「位置E → 運動E」へそっくり移ることを示す
+                        //   2 本棒グラフ（同じ高さ・同色）を KaTeX 3 行式・言葉の下に追加する。
+                        let reflFormulaLatex_4_3, reflText_4_3, extraVisual_4_3 = '';
+                        if (problem.formulaType === 'kinetic') {
+                            reflFormulaLatex_4_3 = `\\begin{aligned} E_k &= \\dfrac{1}{2}mv^2 \\\\[6pt] &= \\dfrac{1}{2}\\times${problem.m}\\times${problem.v}\\times${problem.v} \\\\[6pt] &= \\dfrac{1}{2}\\times${problem.m * problem.v * problem.v} \\\\[6pt] &= ${problem.expectedAns}\\ \\mathrm{J} \\end{aligned}`;
+                            reflText_4_3 = '運動エネルギー Ek＝½×3×10×10＝150 J。速さ v は2回掛けます。速さが2倍になると運動エネルギーは4倍になります。';
+                        } else if (problem.formulaType === 'potential') {
+                            reflFormulaLatex_4_3 = `\\begin{aligned} E_p &= mgH \\\\[6pt] &= ${problem.m}\\times${problem.g}\\times${problem.H} \\\\[6pt] &= ${problem.expectedAns}\\ \\mathrm{J} \\end{aligned}`;
+                            reflText_4_3 = '位置エネルギー Ep＝5×9.8×4＝196 J。高いところ・重い物体ほど大きく、地面（高さ0）では0です。';
+                        } else if (problem.formulaType === 'conserveMid') {
+                            reflFormulaLatex_4_3 = `\\begin{aligned} E_k &= mg(H-h) \\\\[6pt] &= ${problem.m}\\times${problem.g}\\times(${problem.H}-${problem.h}) \\\\[6pt] &= ${problem.m}\\times${problem.g}\\times${problem.H - problem.h} \\\\[6pt] &= ${problem.expectedAns}\\ \\mathrm{J} \\end{aligned}`;
+                            reflText_4_3 = '途中の運動エネルギー＝減った高さ（H−h＝6 m）分の位置エネルギーが移ったぶん。残り4 m分（78.4 J）はまだ位置エネルギーです。';
+                        } else {
+                            // conserveGround（問3）: 3 行式 + 言葉 + 2 本棒グラフ
+                            reflFormulaLatex_4_3 = `\\begin{aligned} E_k &= mgH \\\\[6pt] &= ${problem.m}\\times${problem.g}\\times${problem.H} \\\\[6pt] &= ${problem.expectedAns}\\ \\mathrm{J} \\end{aligned}`;
+                            reflText_4_3 = '地面の運動エネルギー＝はなした高さの位置エネルギー mgH＝147 J が、そっくり移っただけ。量（J）は変わりません。';
+                            extraVisual_4_3 = this.build4_3EnergyCanvas({ canvas: { width: 320, height: 220, kind: 'conserveBars' }, value: problem.expectedAns });
+                        }
+                        content.innerHTML = header + staticCanvas1_6 + `
+                            <div class="calc-stage-container">
+                                <div class="calc-question-text">答えの意味を確認しよう。</div>
+                                <div class="calc-formula-display">
+                                    $${reflFormulaLatex_4_3}$
+                                </div>
+                                <div style="background:#eaf1fa; border-left:4px solid #1e5fa8; padding:14px 18px; border-radius:3px; margin-top:18px; font-size:15px; line-height:1.7;">
+                                    ${reflText_4_3}
+                                </div>
+                                ${extraVisual_4_3}
+                                <div style="margin-top:14px; font-size:13px; color:#555;">
+                                    次の問題に進む前に、式とエネルギーの図（高さ・速さとエネルギーの関係）を頭の中で思い浮かべてください。
                                 </div>
                             </div>
                         `;
@@ -17213,6 +17419,191 @@
                 }
             }
 
+            // 4-3（エネルギー）の問題図。build4_2ToolCanvas を雛形に canvas.kind で分岐。
+            //   kinetic / potential / conserveGround / conserveMid / conserveBars。
+            //   重力・速度矢印 RED、エネルギー/分力 COMP、補助線/寸法 GRAY、物体塗り BOXF・線 BOXS。
+            //   縦長（conserveGround/conserveMid）は矢印先端＋ラベルが viewBox を超えないよう余裕配置。
+            build4_3EnergyCanvas(problem) {
+                const c = problem.canvas || { width: 360, height: 180, kind: 'kinetic' };
+                const W = c.width, H = c.height;
+                const kind = c.kind || 'kinetic';
+                const RED = '#d23a2a';
+                const COMP = '#1e5fa8';
+                const GRAY = '#8a8a8a';
+                const BOXF = '#dce9f7';
+                const BOXS = '#1e5fa8';
+
+                let svg = `<div class="drawing-wrapper" style="pointer-events:none;">
+                <svg class="drawing-svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="cursor:default;">
+                <defs>
+                  <marker id="stc43-red" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><polygon points="0,0 9,3.5 0,7" fill="${RED}"/></marker>
+                  <marker id="stc43-comp" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><polygon points="0,0 9,3.5 0,7" fill="${COMP}"/></marker>
+                  <marker id="stc43-gray" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto"><polygon points="0,0 8,3.5 0,7" fill="${GRAY}"/></marker>
+                  <marker id="stc43-grayS" markerWidth="8" markerHeight="7" refX="1" refY="3.5" orient="auto"><polygon points="8,0 0,3.5 8,7" fill="${GRAY}"/></marker>
+                </defs>`;
+
+                if (kind === 'kinetic') {
+                    // 水平な床（ハッチング）の上を右へ動く物体（箱）。右向き速度矢印 v、物体に m。
+                    const floorY = H - 38;
+                    svg += `<line x1="20" y1="${floorY}" x2="${W - 20}" y2="${floorY}" stroke="${GRAY}" stroke-width="1.6"/>`;
+                    for (let hx = 28; hx < W - 18; hx += 16) {
+                        svg += `<line x1="${hx}" y1="${floorY}" x2="${hx - 8}" y2="${floorY + 9}" stroke="#bbb" stroke-width="1"/>`;
+                    }
+                    const boxW = 56, boxH = 40;
+                    const boxX = W / 2 - 70;
+                    const boxY = floorY - boxH;
+                    svg += `<rect x="${boxX}" y="${boxY}" width="${boxW}" height="${boxH}" rx="5" ry="5" fill="${BOXF}" stroke="${BOXS}" stroke-width="1.8"/>`;
+                    svg += `<text x="${boxX + boxW / 2}" y="${boxY + boxH / 2 + 5}" text-anchor="middle" font-size="13" fill="${BOXS}" font-weight="700">m ＝ 3 kg</text>`;
+                    // 速度矢印 v（右向き、赤）：物体の右辺中央から右へ
+                    const vY = boxY + boxH / 2;
+                    const vStart = boxX + boxW + 8;
+                    const vEnd = vStart + 78;
+                    svg += `<line x1="${vStart}" y1="${vY}" x2="${vEnd}" y2="${vY}" stroke="${RED}" stroke-width="2.8" marker-end="url(#stc43-red)"/>`;
+                    svg += `<text x="${(vStart + vEnd) / 2}" y="${vY - 8}" text-anchor="middle" font-size="13" fill="${RED}" font-weight="700">v ＝ 10 m/s</text>`;
+                    svg += `</svg></div>`;
+                    return svg;
+                }
+
+                if (kind === 'potential') {
+                    // 左に地面（高さ0基準、ハッチング）、右にたな（台）。たなの上に物体。高さ寸法 H、物体に m。
+                    const groundY = H - 30;
+                    const shelfX = W / 2 + 18;            // たなの左端
+                    const shelfTopY = 56;                 // たな上面 y
+                    const shelfW = W - shelfX - 22;
+                    // 地面（左半分にハッチング）
+                    svg += `<line x1="20" y1="${groundY}" x2="${W - 20}" y2="${groundY}" stroke="${GRAY}" stroke-width="1.6"/>`;
+                    for (let hx = 28; hx < shelfX - 4; hx += 16) {
+                        svg += `<line x1="${hx}" y1="${groundY}" x2="${hx - 8}" y2="${groundY + 9}" stroke="#bbb" stroke-width="1"/>`;
+                    }
+                    // たな（台）：脚 + 天板
+                    svg += `<rect x="${shelfX}" y="${shelfTopY}" width="${shelfW}" height="${groundY - shelfTopY}" fill="#eef2f6" stroke="${GRAY}" stroke-width="1.4"/>`;
+                    svg += `<line x1="${shelfX}" y1="${shelfTopY}" x2="${shelfX + shelfW}" y2="${shelfTopY}" stroke="${GRAY}" stroke-width="2"/>`;
+                    // 物体（箱）：たな上面の上に
+                    const boxW = 52, boxH = 38;
+                    const boxX = shelfX + shelfW / 2 - boxW / 2;
+                    const boxY = shelfTopY - boxH;
+                    svg += `<rect x="${boxX}" y="${boxY}" width="${boxW}" height="${boxH}" rx="5" ry="5" fill="${BOXF}" stroke="${BOXS}" stroke-width="1.8"/>`;
+                    svg += `<text x="${boxX + boxW / 2}" y="${boxY + boxH / 2 + 5}" text-anchor="middle" font-size="12" fill="${BOXS}" font-weight="700">m ＝ 5 kg</text>`;
+                    // 高さ寸法 H：地面〜たな上面（左寄り、縦寸法線）
+                    const dimX = 44;
+                    svg += `<line x1="${dimX}" y1="${shelfTopY}" x2="${dimX}" y2="${groundY}" stroke="${GRAY}" stroke-width="1.2" marker-start="url(#stc43-grayS)" marker-end="url(#stc43-gray)"/>`;
+                    svg += `<line x1="${dimX}" y1="${shelfTopY}" x2="${shelfX}" y2="${shelfTopY}" stroke="${GRAY}" stroke-width="0.6" stroke-dasharray="3,3"/>`;
+                    svg += `<text x="${dimX + 6}" y="${(shelfTopY + groundY) / 2 + 4}" text-anchor="start" font-size="13" fill="${GRAY}" font-weight="700">H ＝ 4 m</text>`;
+                    // 基準面ラベル
+                    svg += `<text x="${shelfX - 8}" y="${groundY + 18}" text-anchor="end" font-size="10" fill="${GRAY}">高さの基準（高さ0）</text>`;
+                    svg += `</svg></div>`;
+                    return svg;
+                }
+
+                if (kind === 'conserveGround') {
+                    // 縦長：上に物体（手をはなす位置、v=0）、下に地面（ハッチング）。下向き破線の落下矢印。高さ寸法 H、物体に m。地面付近に「ここで Ek ＝ ?」。
+                    const groundY = H - 26;
+                    const topY = 30;                      // 物体上端
+                    const boxW = 46, boxH = 34;
+                    const boxX = W / 2 - boxW / 2 + 14;    // やや右（左に寸法線の余白）
+                    const boxCx = boxX + boxW / 2;
+                    svg += `<rect x="${boxX}" y="${topY}" width="${boxW}" height="${boxH}" rx="5" ry="5" fill="${BOXF}" stroke="${BOXS}" stroke-width="1.8"/>`;
+                    svg += `<text x="${boxCx}" y="${topY + boxH / 2 + 5}" text-anchor="middle" font-size="12" fill="${BOXS}" font-weight="700">m ＝ 3 kg</text>`;
+                    svg += `<text x="${boxX + boxW + 8}" y="${topY + 14}" text-anchor="start" font-size="11" fill="${GRAY}" font-weight="600">v ＝ 0（手をはなす）</text>`;
+                    // 地面（ハッチング）
+                    svg += `<line x1="20" y1="${groundY}" x2="${W - 20}" y2="${groundY}" stroke="${GRAY}" stroke-width="1.6"/>`;
+                    for (let hx = 28; hx < W - 18; hx += 16) {
+                        svg += `<line x1="${hx}" y1="${groundY}" x2="${hx - 8}" y2="${groundY + 9}" stroke="#bbb" stroke-width="1"/>`;
+                    }
+                    // 落下矢印（下向き破線、赤）：物体下端から地面少し上まで
+                    const fallTop = topY + boxH + 6;
+                    const fallBot = groundY - 30;
+                    svg += `<line x1="${boxCx}" y1="${fallTop}" x2="${boxCx}" y2="${fallBot}" stroke="${RED}" stroke-width="2.2" stroke-dasharray="6,4" marker-end="url(#stc43-red)"/>`;
+                    // 高さ寸法 H（左寄り、縦寸法線：物体下端〜地面）
+                    const dimX = 40;
+                    svg += `<line x1="${dimX}" y1="${topY + boxH}" x2="${dimX}" y2="${groundY}" stroke="${GRAY}" stroke-width="1.2" marker-start="url(#stc43-grayS)" marker-end="url(#stc43-gray)"/>`;
+                    svg += `<text x="${dimX + 6}" y="${(topY + boxH + groundY) / 2 + 4}" text-anchor="start" font-size="13" fill="${GRAY}" font-weight="700">H ＝ 5 m</text>`;
+                    // 地面付近のラベル
+                    svg += `<text x="${boxCx}" y="${groundY - 8}" text-anchor="middle" font-size="12" fill="${RED}" font-weight="700">ここで Ek ＝ ?</text>`;
+                    svg += `</svg></div>`;
+                    return svg;
+                }
+
+                if (kind === 'conserveMid') {
+                    // 縦長：上端=手をはなす位置（H=10）、中ほど=高さ h=4 の通過位置（物体）、下端=地面。
+                    //   地面からH・地面からh の2本の縦寸法線、H位置→h位置の落下区間（H−h）を破線矢印。物体に m。
+                    const groundY = H - 26;
+                    const releaseY = 34;                  // 手をはなす位置 y（H）
+                    const boxW = 44, boxH = 30;
+                    const colX = W / 2 + 6;               // 物体・矢印の縦軸 x
+                    // 高さの比率で h 位置を決める（H=10, h=4 → h/H）
+                    const hRatio = (problem.h || 4) / (problem.H || 10);
+                    const midY = groundY - (groundY - releaseY) * hRatio;  // h 通過位置 y
+                    // 物体（h 位置）
+                    const boxX = colX - boxW / 2;
+                    svg += `<rect x="${boxX}" y="${midY - boxH / 2}" width="${boxW}" height="${boxH}" rx="5" ry="5" fill="${BOXF}" stroke="${BOXS}" stroke-width="1.8"/>`;
+                    svg += `<text x="${colX}" y="${midY + 4}" text-anchor="middle" font-size="11" fill="${BOXS}" font-weight="700">m ＝ 2 kg</text>`;
+                    // 手をはなす位置（上端）の印（薄い物体輪郭・破線）
+                    svg += `<rect x="${boxX}" y="${releaseY}" width="${boxW}" height="${boxH}" rx="5" ry="5" fill="none" stroke="${GRAY}" stroke-width="1.2" stroke-dasharray="4,3"/>`;
+                    svg += `<text x="${boxX + boxW + 8}" y="${releaseY + 16}" text-anchor="start" font-size="10" fill="${GRAY}" font-weight="600">手をはなす</text>`;
+                    // 地面（ハッチング）
+                    svg += `<line x1="20" y1="${groundY}" x2="${W - 20}" y2="${groundY}" stroke="${GRAY}" stroke-width="1.6"/>`;
+                    for (let hx = 28; hx < W - 18; hx += 16) {
+                        svg += `<line x1="${hx}" y1="${groundY}" x2="${hx - 8}" y2="${groundY + 9}" stroke="#bbb" stroke-width="1"/>`;
+                    }
+                    // 落下区間（H−h）の破線矢印（赤）：手をはなす位置下端 → h 位置上端
+                    svg += `<line x1="${colX}" y1="${releaseY + boxH + 4}" x2="${colX}" y2="${midY - boxH / 2 - 4}" stroke="${RED}" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#stc43-red)"/>`;
+                    svg += `<text x="${colX + 8}" y="${(releaseY + boxH + midY - boxH / 2) / 2 + 4}" text-anchor="start" font-size="11" fill="${RED}" font-weight="700">H−h 落下</text>`;
+                    // 高さ寸法 H（左外側、地面〜手をはなす位置）
+                    const dimXH = 32;
+                    svg += `<line x1="${dimXH}" y1="${releaseY}" x2="${dimXH}" y2="${groundY}" stroke="${GRAY}" stroke-width="1.2" marker-start="url(#stc43-grayS)" marker-end="url(#stc43-gray)"/>`;
+                    svg += `<line x1="${dimXH}" y1="${releaseY}" x2="${boxX}" y2="${releaseY}" stroke="${GRAY}" stroke-width="0.6" stroke-dasharray="3,3"/>`;
+                    svg += `<text x="${dimXH + 5}" y="${(releaseY + groundY) / 2 - 4}" text-anchor="start" font-size="12" fill="${GRAY}" font-weight="700">H ＝ 10 m</text>`;
+                    // 高さ寸法 h（右内側、地面〜h 位置）
+                    const dimXh = colX + boxW / 2 + 56;
+                    svg += `<line x1="${dimXh}" y1="${midY}" x2="${dimXh}" y2="${groundY}" stroke="${GRAY}" stroke-width="1.2" marker-start="url(#stc43-grayS)" marker-end="url(#stc43-gray)"/>`;
+                    svg += `<line x1="${colX + boxW / 2}" y1="${midY}" x2="${dimXh}" y2="${midY}" stroke="${GRAY}" stroke-width="0.6" stroke-dasharray="3,3"/>`;
+                    svg += `<text x="${dimXh + 5}" y="${(midY + groundY) / 2 + 4}" text-anchor="start" font-size="12" fill="${GRAY}" font-weight="700">h ＝ 4 m</text>`;
+                    svg += `</svg></div>`;
+                    return svg;
+                }
+
+                if (kind === 'conserveBars') {
+                    // 問3 Stage5 専用：同じ高さ・同色の 2 本棒グラフ。
+                    //   左「手をはなした高さでの位置エネルギー mgH ＝ 147 J」、右「地面の運動エネルギー ＝ 147 J」。
+                    //   間に「→ そっくり移る（量は同じ）」の矢印。棒の高さは value（147）を最大値に正規化（＝満杯）。
+                    const val = problem.value || 147;
+                    const maxVal = val;                   // 最大値 = value（両方とも満杯＝同じ高さ）
+                    const baseY = H - 48;                 // 棒の下端（軸）
+                    const topMargin = 40;                 // 棒上端の最小 y
+                    const barMaxH = baseY - topMargin;
+                    const barH = Math.round(barMaxH * (val / maxVal));
+                    const barW = 64;
+                    const leftX = 44;
+                    const rightX = W - 44 - barW;
+                    const BAR = COMP;                     // 両方同色
+                    // 軸（床）
+                    svg += `<line x1="20" y1="${baseY}" x2="${W - 20}" y2="${baseY}" stroke="${GRAY}" stroke-width="1.4"/>`;
+                    // 左棒（位置エネルギー）
+                    svg += `<rect x="${leftX}" y="${baseY - barH}" width="${barW}" height="${barH}" fill="${BAR}" opacity="0.85" stroke="${BOXS}" stroke-width="1.4"/>`;
+                    svg += `<text x="${leftX + barW / 2}" y="${baseY - barH - 8}" text-anchor="middle" font-size="13" fill="${BOXS}" font-weight="700">${val} J</text>`;
+                    svg += `<text x="${leftX + barW / 2}" y="${baseY + 16}" text-anchor="middle" font-size="11" fill="#333">位置E mgH</text>`;
+                    svg += `<text x="${leftX + barW / 2}" y="${baseY + 30}" text-anchor="middle" font-size="10" fill="#666">手をはなした高さ</text>`;
+                    // 右棒（運動エネルギー）
+                    svg += `<rect x="${rightX}" y="${baseY - barH}" width="${barW}" height="${barH}" fill="${BAR}" opacity="0.85" stroke="${BOXS}" stroke-width="1.4"/>`;
+                    svg += `<text x="${rightX + barW / 2}" y="${baseY - barH - 8}" text-anchor="middle" font-size="13" fill="${BOXS}" font-weight="700">${val} J</text>`;
+                    svg += `<text x="${rightX + barW / 2}" y="${baseY + 16}" text-anchor="middle" font-size="11" fill="#333">運動E Ek</text>`;
+                    svg += `<text x="${rightX + barW / 2}" y="${baseY + 30}" text-anchor="middle" font-size="10" fill="#666">地面で</text>`;
+                    // 中央の移動矢印
+                    const arrowY = baseY - barH / 2;
+                    const arrowStart = leftX + barW + 10;
+                    const arrowEnd = rightX - 10;
+                    svg += `<line x1="${arrowStart}" y1="${arrowY}" x2="${arrowEnd}" y2="${arrowY}" stroke="${RED}" stroke-width="2.4" marker-end="url(#stc43-red)"/>`;
+                    svg += `<text x="${(arrowStart + arrowEnd) / 2}" y="${arrowY - 10}" text-anchor="middle" font-size="11" fill="${RED}" font-weight="700">そっくり移る</text>`;
+                    svg += `<text x="${(arrowStart + arrowEnd) / 2}" y="${arrowY + 18}" text-anchor="middle" font-size="10" fill="${RED}">量は同じ</text>`;
+                    svg += `</svg></div>`;
+                    return svg;
+                }
+
+                svg += `</svg></div>`;
+                return svg;
+            }
+
             // 1-9 Stage 2 用の schematic 図: 偶力の典型図（新仕様、問題図と整合）。
             //   左作用点に上向き F、右作用点に下向き F、間の距離 d は腕（水平破線・1-8 と同流儀）。
             //   中央に CW 回転矢印（左↑・右↓ → 時計回りに回転）。
@@ -19869,6 +20260,8 @@
                                            ? (HINTS_4_1_BY_ID[(this.getCalcProblem() || {}).id] || HINTS_4_1_FLAT)
                                        : (this.currentUnitId === '4-2')
                                            ? (HINTS_4_2_BY_ID[(this.getCalcProblem() || {}).id] || HINTS_4_2_LEVER)
+                                       : (this.currentUnitId === '4-3')
+                                           ? (HINTS_4_3_BY_ID[(this.getCalcProblem() || {}).id] || HINTS_4_3_KINETIC)
                                        : HINTS_2_1;
                     const stageHints = hintsTable[stagePart];
                     const levelKeys = ['b', 'a', 'c'];
@@ -20022,6 +20415,9 @@
                 if (this.currentUnitId === '4-2') {
                     return PROBLEMS_4_2[this.currentProblemIndex];
                 }
+                if (this.currentUnitId === '4-3') {
+                    return PROBLEMS_4_3[this.currentProblemIndex];
+                }
                 return null;
             }
 
@@ -20068,7 +20464,8 @@
                 const is3_4 = this.currentUnitId === '3-4';
                 const is4_1 = this.currentUnitId === '4-1';
                 const is4_2 = this.currentUnitId === '4-2';
-                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2 || is3_3 || is3_4 || is4_1 || is4_2;
+                const is4_3 = this.currentUnitId === '4-3';
+                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2 || is3_3 || is3_4 || is4_1 || is4_2 || is4_3;
                 // 1-6〜1-12 / 2-2 / 2-3 / 2-4 / 2-5 / 3-2 / 3-3 / 3-4 は problem.stage0Correct、2-1 は固定値 's'
                 const correct = isForceCalc ? problem.stage0Correct : 's';
                 const isCorrect = (value === correct);
@@ -20161,6 +20558,15 @@
                             msg = (problem.formulaType === 'lever')
                                 ? '正解。手で押す力 F [N] の大きさを求めます。'
                                 : '正解。手で引く（加える）力 F [N] の大きさを求めます。';
+                        } else if (is4_3) {
+                            // 4-3: formulaType で求める量が異なる（運動E Ek / 位置E Ep）
+                            msg = (problem.formulaType === 'potential')
+                                ? '正解。物体がもっている位置エネルギー Ep [J] の大きさを求めます。'
+                                : (problem.formulaType === 'kinetic')
+                                ? '正解。物体がもっている運動エネルギー Ek [J] の大きさを求めます。'
+                                : (problem.formulaType === 'conserveMid')
+                                ? '正解。落ちている途中の運動エネルギー Ek [J] の大きさを求めます。'
+                                : '正解。地面に着いた瞬間の運動エネルギー Ek [J] の大きさを求めます。';
                         }
                         feedback.textContent = msg;
                     }
@@ -20380,6 +20786,23 @@
                             } else {
                                 msg = '不正解。問題文の末尾「○○を求めよ」に注目してください。';
                             }
+                        } else if (is4_3) {
+                            // 4-3: 与えられている量を選んだ場合の説明（求めるものはエネルギー Ek / Ep）
+                            if (value === 'mass') {
+                                msg = '不正解。質量 m は問題文に「m ＝ ○○ kg」で与えられています。求めるものはエネルギーです。';
+                            } else if (value === 'speed') {
+                                msg = '不正解。速さ v は問題文に「v ＝ ○○ m/s」で与えられています。求めるものは運動エネルギー Ek です。';
+                            } else if (value === 'height') {
+                                msg = '不正解。高さ H は問題文に「H ＝ ○○ m」で与えられています。求めるものはエネルギーです。';
+                            } else if (value === 'ep') {
+                                msg = '不正解。問題文の末尾は「地面に着いた瞬間の運動エネルギー Ek を求めよ」です。位置エネルギー Ep ではありません。';
+                            } else if (value === 'startH') {
+                                msg = '不正解。手をはなした高さ H は問題文に「H ＝ ○○ m」で与えられています。求めるものは運動エネルギー Ek です。';
+                            } else if (value === 'nowH') {
+                                msg = '不正解。今いる高さ h は問題文に「h ＝ ○○ m」で与えられています。求めるものは運動エネルギー Ek です。';
+                            } else {
+                                msg = '不正解。問題文の末尾「○○を求めよ」に注目してください。';
+                            }
                         } else {
                             msg = (value === 'v')
                                 ? '不正解。速度は問題文に「○○ m/s」の形で数値が与えられています。「求めよ」と書かれている量を探してください。'
@@ -20426,7 +20849,8 @@
                 const is3_4 = this.currentUnitId === '3-4';
                 const is4_1 = this.currentUnitId === '4-1';
                 const is4_2 = this.currentUnitId === '4-2';
-                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2 || is3_3 || is3_4 || is4_1 || is4_2;
+                const is4_3 = this.currentUnitId === '4-3';
+                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2 || is3_3 || is3_4 || is4_1 || is4_2 || is4_3;
                 // 1-6〜1-12 / 2-2 / 2-3 / 2-4 / 2-5 / 3-2 / 3-3 / 3-4 は problem.stage1Correct、2-1 は固定値 'constant'
                 const correct = isForceCalc ? problem.stage1Correct : 'constant';
                 const isCorrect = (value === correct);
@@ -20492,6 +20916,14 @@
                                 : (problem.formulaType === 'pulley')
                                 ? '正解。動滑車の問題です。物体は 2 本のロープで支えられるので、引く力は重力の半分 F ＝ W ÷ 2 になります。'
                                 : '正解。輪軸の問題です。回転のつり合い F × D ＝ W × d から、手で引く力 F を求めます（式 2-46）。';
+                        } else if (is4_3) {
+                            msg = (problem.formulaType === 'kinetic')
+                                ? '正解。物体が運動している（速さをもっている）ときのエネルギーを求める問題です。Ek ＝ ½ × m × v × v が使えます（式 2-50）。'
+                                : (problem.formulaType === 'potential')
+                                ? '正解。物体が高いところにあるときのエネルギーを求める問題です。Ep ＝ m × g × H が使えます（式 2-51）。'
+                                : (problem.formulaType === 'conserveMid')
+                                ? '正解。落ちている途中の運動エネルギーを求める問題です。減った高さ（H − h）の分の位置エネルギーがそっくり運動エネルギーに移ります（力学的エネルギー保存）。'
+                                : '正解。落ちていくあいだ、運動エネルギーと位置エネルギーの和は変わりません（力学的エネルギー保存）。はなした高さの位置エネルギーが地面で全部運動エネルギーに移ります。';
                         }
                         feedback.textContent = msg;
                     }
@@ -20603,6 +21035,24 @@
                                 : (value === 'pulley')
                                 ? '不正解。問題文には「輪軸（大きい輪と小さい軸）」とあります。動滑車ではありません。'
                                 : '不正解。問題文をもう一度読み、どの道具・機械（てこ・斜面・動滑車・輪軸）を使っているか確かめてください。';
+                        } else if (is4_3) {
+                            msg = (value === 'high' && problem.formulaType === 'kinetic')
+                                ? '不正解。問題文には「速さ v ＝ 10 m/s で動いている」とあります。高いところで止まっているのではなく、運動している状態です。'
+                                : (value === 'rest')
+                                ? '不正解。問題文には「速さ v ＝ 10 m/s で動いている」とあります。完全に止まっているのではありません。'
+                                : (value === 'moving' && problem.formulaType === 'potential')
+                                ? '不正解。問題文には「たなの上に置いてあって止まっている」とあります。水平に動いているのではなく、高いところで止まっています。'
+                                : (value === 'ground')
+                                ? '不正解。問題文では物体は高さ H のたなの上にあります。地面（高さ0）にあるのではありません。'
+                                : (value === 'staystill')
+                                ? '不正解。問題文には「そっと手をはなして自由に落とした」とあります。物体は止まっておらず、落ちています。'
+                                : (value === 'newforce')
+                                ? '不正解。空気の抵抗がなければ、外から新しいエネルギーは加わりません。運動エネルギーと位置エネルギーの和は変わりません。'
+                                : (value === 'ground' && problem.formulaType === 'conserveMid')
+                                ? '不正解。問題文には「高さ 4 m のところまで落ちてきた瞬間」とあります。まだ地面に着いていない、落ちている途中です。'
+                                : (value === 'top')
+                                ? '不正解。問題文には「高さ 4 m のところまで落ちてきた瞬間」とあります。まだ落ち始めていないときではありません。'
+                                : '不正解。問題文をもう一度読み、どのようなエネルギー（運動している・高いところにある・落ちている途中／地面）の問題か確かめてください。';
                         }
                         feedback.textContent = msg;
                     }
@@ -20681,7 +21131,7 @@
                     Abx: 'A大', Aby: 'A大', xbs: 'x大', ybs: 'y大', Acx: 'A切', Acy: 'A切', xcs: 'x切', ycs: 'y切', A0x: 'A₀', A0y: 'A₀',
                     v0: 'v₀', t1: 't', t2: 't', a: 'a', s: 's',
                     l: 'l', theta: 'θ', omega: 'ω', pi: 'π', n: 'n',
-                    g: 'g', h: 'h', m: 'm', F: 'F',
+                    g: 'g', h: 'h', H: 'H', m: 'm', F: 'F',
                     A: 'A', cosα: 'cos α', b: 'b', D: 'D'
                 };
                 slotRoles.forEach(r => { slotEls[r] = document.getElementById('slot-' + r); });
@@ -20835,7 +21285,8 @@
                 const is3_4 = this.currentUnitId === '3-4';
                 const is4_1 = this.currentUnitId === '4-1';
                 const is4_2 = this.currentUnitId === '4-2';
-                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2 || is3_3 || is3_4 || is4_1 || is4_2;
+                const is4_3 = this.currentUnitId === '4-3';
+                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2 || is3_3 || is3_4 || is4_1 || is4_2 || is4_3;
 
                 // 1-6〜1-12 / 2-2 / 2-3 / 2-4 / 2-5 / 3-2 / 3-3 / 3-4 は小数入力（step=0.1 を許容）し tolerance で判定。
                 const userAnswer = isForceCalc ? parseFloat(answerInput.value) : parseInt(answerInput.value);
@@ -20910,6 +21361,7 @@
                                  : is3_4 ? expected3_4
                                  : is4_1 ? expected4_1
                                  : is4_2 ? problem.expectedF
+                                 : is4_3 ? problem.expectedAns
                                  : problem.expectedDisplacement;
                 const tolerance  = isForceCalc ? (problem.tolerance || 1) : 0;
                 // 浮動小数点誤差対策: tolerance 境界（例 tolerance=0.1 で |userAnswer-expected|=0.10000...142）が
@@ -21209,6 +21661,24 @@
                                 ${expl4_2}
                             </div>
                         `;
+                    } else if (is4_3) {
+                        let expl4_3;
+                        if (problem.formulaType === 'kinetic') {
+                            expl4_3 = `Ek ＝ ½ × m × v × v ＝ ½ × ${problem.m} × ${problem.v} × ${problem.v} ＝ ${expected} [J]`;
+                        } else if (problem.formulaType === 'potential') {
+                            expl4_3 = `Ep ＝ m × g × H ＝ ${problem.m} × ${problem.g} × ${problem.H} ＝ ${expected} [J]`;
+                        } else if (problem.formulaType === 'conserveMid') {
+                            expl4_3 = `Ek ＝ m × g ×（H − h）＝ ${problem.m} × ${problem.g} ×（${problem.H} − ${problem.h}）＝ ${expected} [J]`;
+                        } else {
+                            // conserveGround
+                            expl4_3 = `Ek ＝ m × g × H ＝ ${problem.m} × ${problem.g} × ${problem.H} ＝ ${expected} [J]`;
+                        }
+                        feedback.innerHTML = `
+                            <div style="margin-bottom: 10px;">正解です。</div>
+                            <div class="answer-explanation">
+                                ${expl4_3}
+                            </div>
+                        `;
                     } else {
                         feedback.innerHTML = `
                             <div style="margin-bottom: 10px;">正解です。</div>
@@ -21280,6 +21750,7 @@
                                             : is3_4 ? (problem.unit || 'kg·m/s')
                                             : is4_1 ? (problem.unit || 'J')
                                             : is4_2 ? (problem.unit || 'N')
+                                            : is4_3 ? (problem.unit || 'J')
                                             : 'N';
                             feedback.innerHTML += `<div class="answer-explanation">正解は ${expected} [${unitLabel}] です。計算の手順をもう一度確認してください。</div>`;
                         }
