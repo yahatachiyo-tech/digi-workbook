@@ -4801,7 +4801,7 @@
                 stage1Correct: 'uniformLinear',
                 derivationSteps: [
                     { prompt: '速さ v とは、何を表す量ですか？', choices: [ { value: 'perSec', label: '1 秒あたりに進む距離' }, { value: 'total', label: '全部で進んだ距離' }, { value: 'sumST', label: '距離と時間を足したもの' } ], correct: 'perSec', onCorrectText: '速さは「1 秒あたりに進む距離」です。だから 100 m を 20 秒で「1 秒あたり何 m か」に直せば速さが出ます。' },
-                    { prompt: '20 秒間で 100 m 進んだとき、「1 秒あたりに進む距離（速さ）」を求める計算はどれですか？', choices: [ { value: 'divST', label: 's ÷ t（距離 ÷ 時間）' }, { value: 'mulST', label: 's × t（距離と時間を掛けてしまう）' }, { value: 'divTS', label: 't ÷ s（時間 ÷ 距離。逆に割ってしまう）' } ], correct: 'divST', onCorrectText: '100 m を 20 秒で割れば「1 秒あたりに進む距離」＝速さです。v ＝ s ÷ t です。割れるのは、すでに分かっている量だけ。求める量どうしを逆にしないこと。（き・は・じ では「き ÷ じ」が「は」）' }
+                    { prompt: '20 秒間で 100 m 進んだとき、「1 秒あたりに進む距離（速さ）」を求める計算はどれですか？', choices: [ { value: 'divST', label: 's ÷ t（距離 ÷ 時間）' }, { value: 'mulST', label: 's × t（距離 × 時間）' }, { value: 'divTS', label: 't ÷ s（時間 ÷ 距離）' } ], correct: 'divST', onCorrectText: '100 m を 20 秒で割れば「1 秒あたりに進む距離」＝速さです。v ＝ s ÷ t です。割れるのは、すでに分かっている量だけ。求める量どうしを逆にしないこと。（き・は・じ では「き ÷ じ」が「は」）' }
                 ],
                 formula: 'v = \\dfrac{s}{t}',
                 substitutions: { slots: ['s', 't'], cards: [ { role: 's', label: 's', value: 100, unit: 'm' }, { role: 't', label: 't', value: 20, unit: 's' } ] }
@@ -4818,7 +4818,7 @@
                 stage1Correct: 'uniformLinear',
                 derivationSteps: [
                     { prompt: '速度 8 m/s が表す意味はどれですか？', choices: [ { value: 'perSec', label: '1 秒あたりに 8 m 進む' }, { value: 'total', label: '全部で 8 m 進む' }, { value: 'perM', label: '1 m あたり 8 秒かかる' } ], correct: 'perSec', onCorrectText: '速さ 8 m/s は「1 秒あたりに 8 m 進む」という意味です。' },
-                    { prompt: '速さ 8 m/s は 1 秒に 8 m 進みます。240 m 進むには「8 m ずつ何回ぶん」必要ですか。その計算はどれですか？', choices: [ { value: 'divSV', label: 's ÷ v（距離 ÷ 速さ）' }, { value: 'mulSV', label: 's × v（距離と速さを掛けてしまう）' }, { value: 'divVS', label: 'v ÷ s（速さ ÷ 距離。逆に割ってしまう）' } ], correct: 'divSV', onCorrectText: '240 m を「8 m ずつ何回ぶん」かは 240 ÷ 8 です。これは v-t グラフの長方形の「よこ（時間 t）」を求めることにあたります。t ＝ s ÷ v です。割れるのは、すでに分かっている量だけ。求める量どうしを逆にしないこと。（き・は・じ では「き ÷ は」が「じ」）' }
+                    { prompt: '速さ 8 m/s は 1 秒に 8 m 進みます。240 m 進むには「8 m ずつ何回ぶん」必要ですか。その計算はどれですか？', choices: [ { value: 'divSV', label: 's ÷ v（距離 ÷ 速さ）' }, { value: 'mulSV', label: 's × v（距離 × 速さ）' }, { value: 'divVS', label: 'v ÷ s（速さ ÷ 距離）' } ], correct: 'divSV', onCorrectText: '240 m を「8 m ずつ何回ぶん」かは 240 ÷ 8 です。これは v-t グラフの長方形の「よこ（時間 t）」を求めることにあたります。t ＝ s ÷ v です。割れるのは、すでに分かっている量だけ。求める量どうしを逆にしないこと。（き・は・じ では「き ÷ は」が「じ」）' }
                 ],
                 formula: 't = \\dfrac{s}{v}',
                 substitutions: { slots: ['s', 'v'], cards: [ { role: 's', label: 's', value: 240, unit: 'm' }, { role: 'v', label: 'v', value: 8, unit: 'm/s' } ] }
@@ -4852,7 +4852,7 @@
                 stage1Correct: 'uniformLinear',
                 derivationSteps: [
                     { prompt: '速さ v とは、何を表す量ですか？', choices: [ { value: 'perSec', label: '1 秒あたりに進む距離' }, { value: 'total', label: '全部で進んだ距離' }, { value: 'sumST', label: '距離と時間を足したもの' } ], correct: 'perSec', onCorrectText: '速さは「1 秒あたりに進む距離」です。180 m を 30 秒で「1 秒あたり何 m か」に直せば速さが出ます。' },
-                    { prompt: '30 秒間で 180 m 進んだとき、「1 秒あたりに進む距離（速さ）」を求める計算はどれですか？', choices: [ { value: 'divST', label: 's ÷ t（距離 ÷ 時間）' }, { value: 'mulST', label: 's × t（距離と時間を掛けてしまう）' }, { value: 'divTS', label: 't ÷ s（時間 ÷ 距離。逆に割ってしまう）' } ], correct: 'divST', onCorrectText: '180 m を 30 秒で割れば「1 秒あたりに進む距離」＝速さです。v ＝ s ÷ t です。割れるのは、すでに分かっている量だけ。求める量どうしを逆にしないこと。（き・は・じ では「き ÷ じ」が「は」）' }
+                    { prompt: '30 秒間で 180 m 進んだとき、「1 秒あたりに進む距離（速さ）」を求める計算はどれですか？', choices: [ { value: 'divST', label: 's ÷ t（距離 ÷ 時間）' }, { value: 'mulST', label: 's × t（距離 × 時間）' }, { value: 'divTS', label: 't ÷ s（時間 ÷ 距離）' } ], correct: 'divST', onCorrectText: '180 m を 30 秒で割れば「1 秒あたりに進む距離」＝速さです。v ＝ s ÷ t です。割れるのは、すでに分かっている量だけ。求める量どうしを逆にしないこと。（き・は・じ では「き ÷ じ」が「は」）' }
                 ],
                 formula: 'v = \\dfrac{s}{t}',
                 substitutions: { slots: ['s', 't'], cards: [ { role: 's', label: 's', value: 180, unit: 'm' }, { role: 't', label: 't', value: 30, unit: 's' } ] }
@@ -4987,7 +4987,7 @@
                         prompt: '初速度 v₀ から、t 秒間で速度はどれだけ増えますか？',
                         choices: [
                             { value: 'mul',   label: 'a × t（1 秒あたり a m/s ずつの増加が t 秒ぶん）' },
-                            { value: 'sq',    label: 'a × t²（時間を 2 乗してしまう）' },
+                            { value: 'sq',    label: 'a × t²（加速度 × 時間の 2 乗）' },
                             { value: 'aonly', label: 'a だけ（時間に関係なく、加速度ぶんだけ増える）' }
                         ],
                         correct: 'mul',
@@ -5040,7 +5040,7 @@
                         prompt: '速度が一定でないとき、t 秒間に進む距離は「速度 × 時間」だけでは求められません。距離を求めるとき、はじめの速度 v₀ と t 秒後の速度 v を、どう使うのがよいですか？',
                         choices: [
                             { value: 'avg', label: 'はじめとあとの平均、(v₀ ＋ v) ÷ 2（平均速度）' },
-                            { value: 'sum', label: 'はじめとあとの合計、v₀ ＋ v（平均にしない）' },
+                            { value: 'sum', label: 'はじめとあとの合計、v₀ ＋ v' },
                             { value: 'v0',  label: 'はじめの速度 v₀ だけを使う' }
                         ],
                         correct: 'avg',
@@ -5060,8 +5060,8 @@
                         prompt: 'v ＝ v₀ ＋ a × t を s ＝ ((v₀ ＋ v) ÷ 2) × t に代入して整理すると、距離 s はどう表せますか？',
                         choices: [
                             { value: 'eq22',   label: 's ＝ v₀ × t ＋ (1/2) × a × t²' },
-                            { value: 'noHalf', label: 's ＝ v₀ × t ＋ a × t²（½ を忘れる）' },
-                            { value: 'sub',    label: 's ＝ v₀ × t − (1/2) × a × t²（符号を取り違える）' }
+                            { value: 'noHalf', label: 's ＝ v₀ × t ＋ a × t²' },
+                            { value: 'sub',    label: 's ＝ v₀ × t − (1/2) × a × t²' }
                         ],
                         correct: 'eq22',
                         onCorrectText: '整理すると s ＝ v₀ × t ＋ (1/2) × a × t²（式 2-22）が得られます。第1項 v₀t は等速ぶん、第2項 ½at² は加速で増えるぶんです。'
@@ -5124,8 +5124,8 @@
                         prompt: 'v² − v₀² ＝ 2 × a × s を、求めたい v について解くとどうなりますか？',
                         choices: [
                             { value: 'solved', label: 'v ＝ √(v₀² ＋ 2 × a × s)' },
-                            { value: 'minus',  label: 'v ＝ √(v₀² − 2 × a × s)（符号を取り違える）' },
-                            { value: 'noSqrt', label: 'v ＝ v₀² ＋ 2 × a × s（√ を忘れる）' }
+                            { value: 'minus',  label: 'v ＝ √(v₀² − 2 × a × s)' },
+                            { value: 'noSqrt', label: 'v ＝ v₀² ＋ 2 × a × s' }
                         ],
                         correct: 'solved',
                         onCorrectText: '両辺に v₀² を足して v² ＝ v₀² ＋ 2 × a × s。両辺の √ をとって v ＝ √(v₀² ＋ 2 × a × s) と求まります。'
@@ -5320,7 +5320,7 @@
                         choices: [
                             { value: 'vEqGt',  label: 'v₀ ＝ 0 m/s なので、v ＝ g × t（式 2-26）' },
                             { value: 'keepV0', label: 'v₀ は問題にあると考えて、v ＝ v₀ ＋ g × t のまま使う' },
-                            { value: 'sq',     label: 'v ＝ g × t²（時間を 2 乗してしまう）' }
+                            { value: 'sq',     label: 'v ＝ g × t²（重力加速度 × 時間の 2 乗）' }
                         ],
                         correct: 'vEqGt',
                         onCorrectText: '「そっと手をはなす」とははじめの速度 v₀ ＝ 0 m/s ということです。v ＝ v₀ ＋ g × t に v₀ ＝ 0 を入れて、v ＝ g × t（式 2-26）になります。時間は 2 乗しません。'
@@ -5371,7 +5371,7 @@
                         prompt: '速度が一定でないので h ＝ 速度 × 時間 だけでは求められません。等加速度運動の距離の式 s ＝ v₀ × t ＋ (1/2) × a × t² を、自由落下にあてはめるとどうなりますか？',
                         choices: [
                             { value: 'aToG',   label: 'a を g に、s を h に置きかえる（h ＝ v₀ × t ＋ (1/2) × g × t²）' },
-                            { value: 'noHalf', label: '½ を忘れて h ＝ v₀ × t ＋ g × t² にする' },
+                            { value: 'noHalf', label: 'h ＝ v₀ × t ＋ g × t²' },
                             { value: 'keepA',  label: '式はそのまま、a も s も変えない' }
                         ],
                         correct: 'aToG',
@@ -5382,7 +5382,7 @@
                         choices: [
                             { value: 'hHalfGt2', label: 'v₀ ＝ 0 m/s なので、h ＝ (1/2) × g × t²（式 2-27）' },
                             { value: 'keepV0',   label: 'v₀ は問題にあると考えて、h ＝ v₀ × t ＋ (1/2) × g × t² のまま使う' },
-                            { value: 'noSq',     label: 'h ＝ (1/2) × g × t（時間を 2 乗しない）' }
+                            { value: 'noSq',     label: 'h ＝ (1/2) × g × t' }
                         ],
                         correct: 'hHalfGt2',
                         onCorrectText: 'v₀ ＝ 0 を入れて h ＝ (1/2) × g × t²（式 2-27）になります。時間は 2 乗するので注意してください。'
@@ -5434,7 +5434,7 @@
                         choices: [
                             { value: 'eq27',   label: 'h ＝ (1/2) × g × t²（式 2-27）' },
                             { value: 'vEqGt',  label: 'v ＝ g × t（速度の式。距離 h は出てこない）' },
-                            { value: 'noHalf', label: 'h ＝ g × t²（½ を忘れる）' }
+                            { value: 'noHalf', label: 'h ＝ g × t²' }
                         ],
                         correct: 'eq27',
                         onCorrectText: '「そっと手をはなした」のではじめの速度 v₀ ＝ 0 m/s。だから落下距離は h ＝ (1/2) × g × t²（式 2-27）で表されます。'
@@ -5443,8 +5443,8 @@
                         prompt: 'h ＝ (1/2) × g × t² を t について解くと、どうなりますか？',
                         choices: [
                             { value: 'sqrt2hg', label: 't ＝ √(2 × h ÷ g)（両辺に 2 を掛けて g で割り、√ をとる）' },
-                            { value: 'noSqrt',  label: 't ＝ 2 × h ÷ g（√ をとり忘れる）' },
-                            { value: 'wrongDiv', label: 't ＝ √(h ÷ (2 × g))（2 を掛けるところを割ってしまう）' }
+                            { value: 'noSqrt',  label: 't ＝ 2 × h ÷ g' },
+                            { value: 'wrongDiv', label: 't ＝ √(h ÷ (2 × g))' }
                         ],
                         correct: 'sqrt2hg',
                         onCorrectText: '両辺に 2 を掛けて 2h ＝ g × t²。両辺を g で割って t² ＝ 2 × h ÷ g。最後に √ をとって（2 乗するまえの数にもどして）t ＝ √(2 × h ÷ g) になります。'
@@ -5871,7 +5871,7 @@
                         choices: [
                             { value: 'piDN',      label: 'π × d × n [mm/min]' },
                             { value: 'piDdivN',   label: 'π × d ÷ n（1 回の長さを n で割る）' },
-                            { value: 'piDplusN',  label: 'π × d ＋ n（足し算してしまう）' }
+                            { value: 'piDplusN',  label: 'π × d ＋ n' }
                         ],
                         correct: 'piDN',
                         onCorrectText: '「1 回ぶん π × d」を「n 回ぶん」だけ掛ければ、1 分間に動いた長さになります。π × d × n [mm/min]。'
@@ -6749,7 +6749,7 @@
                         choices: [
                             { value: 'right',  label: 'mg ＝ 60 × 9.8 ＝ 588 N、ma ＝ 60 × 2 ＝ 120 N' },
                             { value: 'swap',   label: 'mg ＝ 60 × 2 ＝ 120 N、ma ＝ 60 × 9.8 ＝ 588 N' },
-                            { value: 'nomass', label: 'mg ＝ 9.8 N、ma ＝ 2 N（質量をかけ忘れる）' }
+                            { value: 'nomass', label: 'mg ＝ 9.8 N、ma ＝ 2 N' }
                         ],
                         correct: 'right',
                         onCorrectText: '重力 mg ＝ 60 × 9.8 ＝ 588 N、加速度ぶんの力 ma ＝ 60 × 2 ＝ 120 N。あとはこの 2 つを足せば F が求まります。'
@@ -6811,7 +6811,7 @@
                         choices: [
                             { value: 'right',  label: 'mg ＝ 50 × 9.8 ＝ 490 N、ma ＝ 50 × 1.5 ＝ 75 N' },
                             { value: 'swap',   label: 'mg ＝ 50 × 1.5 ＝ 75 N、ma ＝ 50 × 9.8 ＝ 490 N' },
-                            { value: 'nomass', label: 'mg ＝ 9.8 N、ma ＝ 1.5 N（質量をかけ忘れる）' }
+                            { value: 'nomass', label: 'mg ＝ 9.8 N、ma ＝ 1.5 N' }
                         ],
                         correct: 'right',
                         onCorrectText: '重力 mg ＝ 50 × 9.8 ＝ 490 N、加速度ぶんの力 ma ＝ 50 × 1.5 ＝ 75 N。あとは重力から慣性力ぶんを引けば F が求まります。'
@@ -6873,7 +6873,7 @@
                         choices: [
                             { value: 'right',  label: 'mg ＝ 20 × 9.8 ＝ 196 N、ma ＝ 20 × 2 ＝ 40 N' },
                             { value: 'swap',   label: 'mg ＝ 20 × 2 ＝ 40 N、ma ＝ 20 × 9.8 ＝ 196 N' },
-                            { value: 'nomass', label: 'mg ＝ 9.8 N、ma ＝ 2 N（質量をかけ忘れる）' }
+                            { value: 'nomass', label: 'mg ＝ 9.8 N、ma ＝ 2 N' }
                         ],
                         correct: 'right',
                         onCorrectText: '重力 mg ＝ 20 × 9.8 ＝ 196 N、加速度ぶんの力 ma ＝ 20 × 2 ＝ 40 N。あとはこの 2 つを足せば張力 S が求まります。'
@@ -6934,7 +6934,7 @@
                         prompt: '重力 mg と、物体を動かす残りの力 F − mg を数値にします。重力は「質量 × 9.8」で求めます。それぞれいくつですか。',
                         choices: [
                             { value: 'right',  label: 'mg ＝ 10 × 9.8 ＝ 98 N、F − mg ＝ 170 − 98 ＝ 72 N' },
-                            { value: 'nomass', label: 'mg ＝ 9.8 N（質量をかけ忘れる）、F − mg ＝ 170 − 9.8 ＝ 160.2 N' },
+                            { value: 'nomass', label: 'mg ＝ 9.8 N、F − mg ＝ 170 − 9.8 ＝ 160.2 N' },
                             { value: 'subm',   label: 'mg ＝ 170 − 10 ＝ 160 N、F − mg ＝ 170 − 160 ＝ 10 N' }
                         ],
                         correct: 'right',
@@ -7553,7 +7553,7 @@
                         choices: [
                             { value: 'split',    label: '力 F を「動いた向き（水平）」と「それに直角な向き」の 2 つの分力に分ける' },
                             { value: 'asis',     label: '角度は気にせず、力 F をそのまま使う' },
-                            { value: 'mulFirst', label: '先に力 F と距離 s を掛けてしまう' }
+                            { value: 'mulFirst', label: '先に力 F と距離 s を掛ける' }
                         ],
                         correct: 'split',
                         onCorrectText: '力 F を「動いた向き（水平）」と「それに直角な向き」の 2 つに分けます。仕事をするのは動いた向きの分力だけで、直角な向きの分力はその向きに動いていないので仕事をしません。'
@@ -7573,7 +7573,7 @@
                         choices: [
                             { value: 'fscos', label: 'A ＝ F × s × cos α（式 2-42）' },
                             { value: 'fssin', label: 'A ＝ F × s × sin α' },
-                            { value: 'fs',    label: 'A ＝ F × s（cos α を掛けない）' }
+                            { value: 'fs',    label: 'A ＝ F × s' }
                         ],
                         correct: 'fscos',
                         onCorrectText: '動いた向きの分力 F × cos α に距離 s を掛けて A ＝ F × s × cos α（式 2-42）です。cos α を掛け忘れないようにしてください。'
@@ -7788,7 +7788,7 @@
                 stage0Correct: 'ek',
                 stage1Choices: [ { value: 'moving', label: '物体が運動している（速さをもっている）状態のエネルギーを求める問題である' }, { value: 'high', label: '物体が高いところで止まっている状態のエネルギーを求める問題である' }, { value: 'rest', label: '物体が床の上で完全に止まっていて、まったく動いていない状態のエネルギーを求める問題である' } ],
                 stage1Correct: 'moving',
-                derivationSteps: [ { prompt: '物体が運動しているとき、その速さによってもつエネルギーを運動エネルギーといいます。運動エネルギー Ek は、質量 m と速さ v を使って表します。Ek を求める式はどれですか。', choices: [ { value: 'half_mvv', label: 'Ek ＝ ½ × m × v × v（質量 × 速さ × 速さ を 2 で割る）' }, { value: 'mvv', label: 'Ek ＝ m × v × v（2 で割らない）' }, { value: 'half_mv', label: 'Ek ＝ ½ × m × v（速さは 1 回だけ掛ける）' } ], correct: 'half_mvv', onCorrectText: '運動エネルギーは Ek ＝ ½ × m × v × v です。速さ v は 2 回掛けます（v × v）。そのあと 2 で割る（½ を掛ける）のを忘れないようにしてください。これに数値を代入します。' } ],
+                derivationSteps: [ { prompt: '物体が運動しているとき、その速さによってもつエネルギーを運動エネルギーといいます。運動エネルギー Ek は、質量 m と速さ v を使って表します。Ek を求める式はどれですか。', choices: [ { value: 'half_mvv', label: 'Ek ＝ ½ × m × v × v（質量 × 速さ × 速さ を 2 で割る）' }, { value: 'mvv', label: 'Ek ＝ m × v × v（質量 × 速さ × 速さ）' }, { value: 'half_mv', label: 'Ek ＝ ½ × m × v（速さは 1 回だけ掛ける）' } ], correct: 'half_mvv', onCorrectText: '運動エネルギーは Ek ＝ ½ × m × v × v です。速さ v は 2 回掛けます（v × v）。そのあと 2 で割る（½ を掛ける）のを忘れないようにしてください。これに数値を代入します。' } ],
                 formula: 'E_k = \\dfrac{1}{2}\\,m\\,v^{2}',
                 substitutions: { slots: ['m', 'v'], cards: [ { role: 'm', label: 'm', value: 3, unit: 'kg' }, { role: 'v', label: 'v', value: 10, unit: 'm/s' } ] }
             },
@@ -7802,7 +7802,7 @@
                 stage0Correct: 'ep',
                 stage1Choices: [ { value: 'high', label: '物体が高いところで止まっている状態のエネルギーを求める問題である' }, { value: 'moving', label: '物体が水平に動いている（速さをもっている）状態のエネルギーを求める問題である' }, { value: 'ground', label: '物体が地面（高さの基準）にあって、高さが 0 の状態のエネルギーを求める問題である' } ],
                 stage1Correct: 'high',
-                derivationSteps: [ { prompt: '高いところにある物体は、その高さによってエネルギーをもっています。これを位置エネルギーといいます。位置エネルギー Ep は、質量 m と重力加速度 g と高さ H を使って表します。Ep を求める式はどれですか。', choices: [ { value: 'mgh', label: 'Ep ＝ m × g × H（質量 × 重力加速度 × 高さ）' }, { value: 'mh', label: 'Ep ＝ m × H（g は掛けない）' }, { value: 'half_mgh', label: 'Ep ＝ ½ × m × g × H（2 で割る）' } ], correct: 'mgh', onCorrectText: '位置エネルギーは Ep ＝ m × g × H です。質量 m に重力加速度 g（9.8）と高さ H を掛けます。g は必ず掛けます。運動エネルギーとちがって 2 で割りません。これに数値を代入します。' } ],
+                derivationSteps: [ { prompt: '高いところにある物体は、その高さによってエネルギーをもっています。これを位置エネルギーといいます。位置エネルギー Ep は、質量 m と重力加速度 g と高さ H を使って表します。Ep を求める式はどれですか。', choices: [ { value: 'mgh', label: 'Ep ＝ m × g × H（質量 × 重力加速度 × 高さ）' }, { value: 'mh', label: 'Ep ＝ m × H（質量 × 高さ）' }, { value: 'half_mgh', label: 'Ep ＝ ½ × m × g × H（2 で割る）' } ], correct: 'mgh', onCorrectText: '位置エネルギーは Ep ＝ m × g × H です。質量 m に重力加速度 g（9.8）と高さ H を掛けます。g は必ず掛けます。運動エネルギーとちがって 2 で割りません。これに数値を代入します。' } ],
                 formula: 'E_p = m\\,g\\,H',
                 substitutions: { slots: ['m', 'g', 'H'], cards: [ { role: 'm', label: 'm', value: 5, unit: 'kg' }, { role: 'g', label: 'g（重力の強さ。必ず掛ける数）', value: 9.8, unit: 'm/s²' }, { role: 'H', label: 'H', value: 4, unit: 'm' } ] }
             },
@@ -7934,7 +7934,7 @@
                 stage1Choices: [ { value: 'liftPerTime', label: '質量 m の荷物を高さ h 持ち上げるのにかかる仕事をまず求めて、それを時間 t で割る問題である' }, { value: 'workGiven', label: '仕事 A がそのまま分かっていて、時間で割るだけの問題である' }, { value: 'forceSpeed', label: '力 F と速さ v が分かっていて、掛けるだけの問題である' } ],
                 stage1Correct: 'liftPerTime',
                 derivationSteps: [
-                    { prompt: '動力は1秒あたりの仕事 P ＝ A ÷ t です。仕事 A がそのまま書かれていないので、まず持ち上げる仕事を求めます。質量 m の荷物を持ち上げる力は重さ（m × g）で、それで高さ h 持ち上げるので、仕事は A ＝ m × g × h です（4-3 で学んだ位置エネルギーと同じ大きさ）。まずすることはどれですか。', choices: [ { value: 'mghFirst', label: 'まず持ち上げる仕事 A ＝ m × g × h を計算する（質量 × 重力加速度 × 高さ）' }, { value: 'mhFirst', label: 'まず A ＝ m × h を計算する（g は掛けない）' }, { value: 'powerFirst', label: 'まず P ＝ m × g × h を計算して、それを動力とする' } ], correct: 'mghFirst', onCorrectText: '先に持ち上げる仕事 A ＝ m × g × h を出します。質量 m ＝ 1000 kg に重力加速度 g ＝ 9.8 と高さ h ＝ 1.2 m を掛けて A ＝ 11760 J。g（9.8）を掛け忘れないようにしてください。' },
+                    { prompt: '動力は1秒あたりの仕事 P ＝ A ÷ t です。仕事 A がそのまま書かれていないので、まず持ち上げる仕事を求めます。質量 m の荷物を持ち上げる力は重さ（m × g）で、それで高さ h 持ち上げるので、仕事は A ＝ m × g × h です（4-3 で学んだ位置エネルギーと同じ大きさ）。まずすることはどれですか。', choices: [ { value: 'mghFirst', label: 'まず持ち上げる仕事 A ＝ m × g × h を計算する（質量 × 重力加速度 × 高さ）' }, { value: 'mhFirst', label: 'まず A ＝ m × h を計算する' }, { value: 'powerFirst', label: 'まず P ＝ m × g × h を計算して、それを動力とする' } ], correct: 'mghFirst', onCorrectText: '先に持ち上げる仕事 A ＝ m × g × h を出します。質量 m ＝ 1000 kg に重力加速度 g ＝ 9.8 と高さ h ＝ 1.2 m を掛けて A ＝ 11760 J。g（9.8）を掛け忘れないようにしてください。' },
                     { prompt: '持ち上げる仕事 A ＝ m × g × h ＝ 11760 J が分かりました。動力は1秒あたりの仕事なので、これを時間 t で割ります。P を m・g・h・t でまとめて書いた式はどれですか。', choices: [ { value: 'mgh_div_t', label: 'P ＝ m × g × h ÷ t（仕事 m × g × h を時間 t で割る）' }, { value: 'mgh_mul_t', label: 'P ＝ m × g × h × t（仕事に時間を掛ける）' }, { value: 'mgh_no_g', label: 'P ＝ m × h ÷ t（g を掛けずに時間で割る）' } ], correct: 'mgh_div_t', onCorrectText: '仕事 A ＝ m × g × h を時間 t で割るので、P ＝ m × g × h ÷ t です。先に m × g × h ＝ 11760 を出してから、t ＝ 2 で割ります。時間は割る数です。これに数値を代入します。' }
                 ],
                 formula: 'P = \\dfrac{mgh}{t}',
@@ -7988,7 +7988,7 @@
                 stage1Correct: 'static',
                 derivationSteps: [
                     { prompt: 'Stage 1 で「まだ止まっている物体を動かし始める静摩擦の問題」と分かりました。動かし始めるのに必要な力（最大静摩擦力 f₀）は、面を垂直に押しつける力 R に静摩擦係数 μ₀ を掛けて求めます（式 2-56：f₀ ＝ μ₀ × R）。式に入れる R は、この場面では何と同じ大きさですか。', choices: [ { value: 'R_eq_W', label: '水平な床なので、床が物体を押し返す力 R は重力 W と同じ大きさ。R ＝ 100 N' }, { value: 'R_eq_f', label: 'R は最大静摩擦力 f₀ と同じ大きさ' }, { value: 'R_eq_mu', label: 'R は静摩擦係数 μ₀（＝0.4）と同じ大きさ' } ], correct: 'R_eq_W', onCorrectText: '物体は水平な床に置かれているので、床が物体を押し返す力 R は、物体に働く重力 W とつり合っています。だから R ＝ W ＝ 100 N。これを式に入れます。' },
-                    { prompt: '面を垂直に押しつける力 R ＝ 100 N と、静摩擦係数 μ₀ ＝ 0.4 が分かりました。最大静摩擦力 f₀ を求める式はどれですか。', choices: [ { value: 'mu_mul_R', label: 'f₀ ＝ μ₀ × R（静摩擦係数に R を掛ける）' }, { value: 'mu_only', label: 'f₀ ＝ μ₀（係数だけ。R は掛けない）' }, { value: 'R_div_mu', label: 'f₀ ＝ R ÷ μ₀（R を係数で割る）' } ], correct: 'mu_mul_R', onCorrectText: '最大静摩擦力は f₀ ＝ μ₀ × R（式 2-56）です。静摩擦係数 0.4 に、面を垂直に押しつける力 R ＝ 100 N を掛けます。係数だけで終わらせず、必ず R を掛けてください。これに数値を代入します。' }
+                    { prompt: '面を垂直に押しつける力 R ＝ 100 N と、静摩擦係数 μ₀ ＝ 0.4 が分かりました。最大静摩擦力 f₀ を求める式はどれですか。', choices: [ { value: 'mu_mul_R', label: 'f₀ ＝ μ₀ × R（静摩擦係数に R を掛ける）' }, { value: 'mu_only', label: 'f₀ ＝ μ₀（係数だけ）' }, { value: 'R_div_mu', label: 'f₀ ＝ R ÷ μ₀（R を係数で割る）' } ], correct: 'mu_mul_R', onCorrectText: '最大静摩擦力は f₀ ＝ μ₀ × R（式 2-56）です。静摩擦係数 0.4 に、面を垂直に押しつける力 R ＝ 100 N を掛けます。係数だけで終わらせず、必ず R を掛けてください。これに数値を代入します。' }
                 ],
                 formula: 'f_0 = \\mu_0 R',
                 substitutions: { slots: ['μ₀', 'R'], cards: [ { role: 'μ₀', label: 'μ₀', value: 0.4, unit: '' }, { role: 'R', label: 'R（床が物体を押し返す力。水平面では重力 W と同じ）', value: 100, unit: 'N' } ] }
@@ -8005,7 +8005,7 @@
                 stage1Correct: 'kinetic',
                 derivationSteps: [
                     { prompt: 'Stage 1 で「すでに滑っている物体を一定の速さで滑らせ続ける動摩擦の問題」と分かりました。動摩擦力 f′ は、面を垂直に押しつける力 R に動摩擦係数 μ を掛けて求めます（式 2-58：f′ ＝ μ × R）。問1 と同じく、式に入れる R はこの場面では何と同じ大きさですか。', choices: [ { value: 'R_eq_W', label: '水平な床なので、床が物体を押し返す力 R は重力 W と同じ大きさ。R ＝ 200 N' }, { value: 'R_eq_f', label: 'R は動摩擦力 f′ と同じ大きさ' }, { value: 'R_eq_mu', label: 'R は動摩擦係数 μ（＝0.25）と同じ大きさ' } ], correct: 'R_eq_W', onCorrectText: '問1 と同じく、水平な床なので床が物体を押し返す力 R は重力 W とつり合います。R ＝ W ＝ 200 N。これを式に入れます。' },
-                    { prompt: '面を垂直に押しつける力 R ＝ 200 N と、動摩擦係数 μ ＝ 0.25 が分かりました。動摩擦力 f′ を求める式はどれですか。', choices: [ { value: 'mu_mul_R', label: 'f′ ＝ μ × R（動摩擦係数に R を掛ける）' }, { value: 'mu_only', label: 'f′ ＝ μ（係数だけ。R は掛けない）' }, { value: 'R_div_mu', label: 'f′ ＝ R ÷ μ（R を係数で割る）' } ], correct: 'mu_mul_R', onCorrectText: '動摩擦力は f′ ＝ μ × R（式 2-58）です。動摩擦係数 0.25 に R ＝ 200 N を掛けます。必ず R を掛けてください。これに数値を代入します。' }
+                    { prompt: '面を垂直に押しつける力 R ＝ 200 N と、動摩擦係数 μ ＝ 0.25 が分かりました。動摩擦力 f′ を求める式はどれですか。', choices: [ { value: 'mu_mul_R', label: 'f′ ＝ μ × R（動摩擦係数に R を掛ける）' }, { value: 'mu_only', label: 'f′ ＝ μ（係数だけ）' }, { value: 'R_div_mu', label: 'f′ ＝ R ÷ μ（R を係数で割る）' } ], correct: 'mu_mul_R', onCorrectText: '動摩擦力は f′ ＝ μ × R（式 2-58）です。動摩擦係数 0.25 に R ＝ 200 N を掛けます。必ず R を掛けてください。これに数値を代入します。' }
                 ],
                 formula: 'f\' = \\mu R',
                 substitutions: { slots: ['μ', 'R'], cards: [ { role: 'μ', label: 'μ', value: 0.25, unit: '' }, { role: 'R', label: 'R（床が物体を押し返す力。水平面では重力 W と同じ）', value: 200, unit: 'N' } ] }
@@ -8091,7 +8091,7 @@
                 stage0Correct: 'eta',
                 stage1Choices: [ { value: 'effPerGiven', label: '与えた仕事 A と、役に立った仕事 A_E が分かっていて、その比（割合）を求める問題である' }, { value: 'lossSub', label: '損失（消耗仕事）が分かっていて、まず引き算で有効仕事を出す問題である' }, { value: 'powerCase', label: '動力 P と速さ v が分かっていて、まず動力を求める問題である' } ],
                 stage1Correct: 'effPerGiven',
-                derivationSteps: [ { prompt: '効率とは、外部から与えた仕事 A のうち、役に立つことに使えた有効仕事 A_E がどれだけの割合かを表すものです（式 2-59）。割合なので、有効仕事 A_E を、与えた仕事 A で割ります。さらに「割合を % で表す」ので 100 を掛けます。η を求める式はどれですか。', choices: [ { value: 'AE_div_A', label: 'η ＝ A_E ÷ A × 100（役に立った仕事を、与えた仕事で割って、100 を掛ける）' }, { value: 'A_div_AE', label: 'η ＝ A ÷ A_E × 100（与えた仕事を、役に立った仕事で割る）' }, { value: 'AE_div_A_no100', label: 'η ＝ A_E ÷ A（割るだけで、100 を掛けない）' } ], correct: 'AE_div_A', onCorrectText: '効率は η ＝ A_E ÷ A × 100 です。A_E ÷ A は「1 のうちどれだけ役に立ったか」という割合（この問題では 0.75）。それを「100 のうちどれだけか（％）」に直すために 100 を掛けます。割る順番（A_E が割られる数、A が割る数）と × 100 の両方に気をつけてください。これに数値を代入します。' } ],
+                derivationSteps: [ { prompt: '効率とは、外部から与えた仕事 A のうち、役に立つことに使えた有効仕事 A_E がどれだけの割合かを表すものです（式 2-59）。割合なので、有効仕事 A_E を、与えた仕事 A で割ります。さらに「割合を % で表す」ので 100 を掛けます。η を求める式はどれですか。', choices: [ { value: 'AE_div_A', label: 'η ＝ A_E ÷ A × 100（役に立った仕事を、与えた仕事で割って、100 を掛ける）' }, { value: 'A_div_AE', label: 'η ＝ A ÷ A_E × 100（与えた仕事を、役に立った仕事で割る）' }, { value: 'AE_div_A_no100', label: 'η ＝ A_E ÷ A（割るだけ）' } ], correct: 'AE_div_A', onCorrectText: '効率は η ＝ A_E ÷ A × 100 です。A_E ÷ A は「1 のうちどれだけ役に立ったか」という割合（この問題では 0.75）。それを「100 のうちどれだけか（％）」に直すために 100 を掛けます。割る順番（A_E が割られる数、A が割る数）と × 100 の両方に気をつけてください。これに数値を代入します。' } ],
                 formula: '\\eta = \\dfrac{A_E}{A}\\times 100',
                 substitutions: { slots: ['A_E', 'A'], cards: [ { role: 'A_E', label: 'A_E（役に立った仕事）', value: 1500, unit: 'J' }, { role: 'A', label: 'A（与えた仕事）', value: 2000, unit: 'J' } ] }
             },
@@ -8107,7 +8107,7 @@
                 stage1Correct: 'lossSub',
                 derivationSteps: [
                     { prompt: 'この問題では、役に立った有効仕事 A_E がそのまま書かれていません。書いてあるのは「与えた仕事 A」と「なくなった仕事（消耗仕事）A_C」です。全体の仕事から、むだになった分を引いた残りが、役に立った仕事です。まずすることはどれですか。', choices: [ { value: 'AE_eq_A_minus_AC', label: 'まず有効仕事 A_E ＝ A − A_C を計算する（与えた仕事 − なくなった仕事）' }, { value: 'AE_eq_A_plus_AC', label: 'まず A_E ＝ A ＋ A_C を計算する（与えた仕事 ＋ なくなった仕事）' }, { value: 'AE_eq_AC', label: 'なくなった仕事 A_C をそのまま有効仕事とする' } ], correct: 'AE_eq_A_minus_AC', onCorrectText: '与えた仕事 A ＝ 2000 J から、むだになった仕事 A_C ＝ 500 J を引きます。A_E ＝ 2000 − 500 ＝ 1500 J。これが役に立った仕事です。なくなった分は足すのではなく引きます。' },
-                    { prompt: '有効仕事 A_E ＝ A − A_C ＝ 1500 J が分かりました。効率は「役に立った仕事 ÷ 与えた仕事 × 100」です（式 2-59）。η を求める式はどれですか。', choices: [ { value: 'AE_div_A', label: 'η ＝ A_E ÷ A × 100（役に立った仕事を、与えた仕事で割って、100 を掛ける）' }, { value: 'AC_div_A', label: 'η ＝ A_C ÷ A × 100（なくなった仕事を、与えた仕事で割る）' }, { value: 'AE_div_A_no100', label: 'η ＝ A_E ÷ A（割るだけで、100 を掛けない）' } ], correct: 'AE_div_A', onCorrectText: '効率は η ＝ A_E ÷ A × 100。さきほど出した有効仕事 1500 J を、与えた仕事 2000 J で割ると 0.75（1 のうち 0.75）。100 を掛けて 75%。なくなった仕事 A_C を割ってはいけません。これに数値を代入します。' }
+                    { prompt: '有効仕事 A_E ＝ A − A_C ＝ 1500 J が分かりました。効率は「役に立った仕事 ÷ 与えた仕事 × 100」です（式 2-59）。η を求める式はどれですか。', choices: [ { value: 'AE_div_A', label: 'η ＝ A_E ÷ A × 100（役に立った仕事を、与えた仕事で割って、100 を掛ける）' }, { value: 'AC_div_A', label: 'η ＝ A_C ÷ A × 100（なくなった仕事を、与えた仕事で割る）' }, { value: 'AE_div_A_no100', label: 'η ＝ A_E ÷ A（割るだけ）' } ], correct: 'AE_div_A', onCorrectText: '効率は η ＝ A_E ÷ A × 100。さきほど出した有効仕事 1500 J を、与えた仕事 2000 J で割ると 0.75（1 のうち 0.75）。100 を掛けて 75%。なくなった仕事 A_C を割ってはいけません。これに数値を代入します。' }
                 ],
                 formula: '\\eta = \\dfrac{A_E}{A}\\times 100 \\;\\;(A_E = A - A_C)',
                 substitutions: { slots: ['A', 'A_C'], cards: [ { role: 'A', label: 'A（与えた仕事）', value: 2000, unit: 'J' }, { role: 'A_C', label: 'A_C（なくなった仕事）', value: 500, unit: 'J' } ] }
@@ -8123,7 +8123,7 @@
                 stage1Choices: [ { value: 'powerEff', label: 'つり上げに使えた有効動力 P_E をまず物理から求めて、与えた動力 P との比をとる問題である' }, { value: 'workEff', label: '有効仕事 A_E と与えた仕事 A がそのまま分かっていて、比をとるだけの問題である' }, { value: 'lossSub', label: '消耗動力 P_C が分かっていて、まず引き算する問題である' } ],
                 stage1Correct: 'powerEff',
                 derivationSteps: [
-                    { prompt: '効率は「役に立った分 ÷ 与えた分 × 100」です。与えた動力 P ＝ 5 kW は書いてありますが、役に立った有効動力 P_E が書かれていません。物体をつり上げる力は重さ（m × g）で、その向きに速さ v で動かしているので、つり上げに使えた動力は P_E ＝ mg × v で求められます（4-4 で学んだ P ＝ F × v の F を、重さ mg にしたもの）。まずすることはどれですか。', choices: [ { value: 'PE_eq_mgv', label: 'まず有効動力 P_E ＝ m × g × v を計算する（質量 × 重力加速度 × 速さ）' }, { value: 'PE_eq_mv', label: 'まず P_E ＝ m × v を計算する（g は掛けない）' }, { value: 'PE_eq_Pv', label: 'まず P_E ＝ P × v を計算する（与えた動力に速さを掛ける）' } ], correct: 'PE_eq_mgv', onCorrectText: 'つり上げる力は重さ m × g、それで速さ v で動かすので、有効動力 P_E ＝ m × g × v です。800 × 9.8 × 0.5 ＝ 3920 W。g（9.8）を掛け忘れないでください。' },
+                    { prompt: '効率は「役に立った分 ÷ 与えた分 × 100」です。与えた動力 P ＝ 5 kW は書いてありますが、役に立った有効動力 P_E が書かれていません。物体をつり上げる力は重さ（m × g）で、その向きに速さ v で動かしているので、つり上げに使えた動力は P_E ＝ mg × v で求められます（4-4 で学んだ P ＝ F × v の F を、重さ mg にしたもの）。まずすることはどれですか。', choices: [ { value: 'PE_eq_mgv', label: 'まず有効動力 P_E ＝ m × g × v を計算する（質量 × 重力加速度 × 速さ）' }, { value: 'PE_eq_mv', label: 'まず P_E ＝ m × v を計算する' }, { value: 'PE_eq_Pv', label: 'まず P_E ＝ P × v を計算する（与えた動力に速さを掛ける）' } ], correct: 'PE_eq_mgv', onCorrectText: 'つり上げる力は重さ m × g、それで速さ v で動かすので、有効動力 P_E ＝ m × g × v です。800 × 9.8 × 0.5 ＝ 3920 W。g（9.8）を掛け忘れないでください。' },
                     { prompt: '有効動力 P_E ＝ m × g × v ＝ 3920 W が出ました。与えた動力は P ＝ 5 kW です。効率は P_E ÷ P × 100 ですが、その前に単位をそろえます。kW は W の 1000 倍です（1 kW ＝ 1000 W）。次にすることはどれですか。', choices: [ { value: 'to_kW', label: '3920 W を kW に直す（3920 ÷ 1000 ＝ 3.92 kW）。そろえてから η ＝ P_E ÷ P × 100' }, { value: 'as_is', label: 'そのまま 3920 ÷ 5 × 100 を計算する（単位はそろえない）' }, { value: 'to_W', label: '5 kW を 5 W として 3920 ÷ 5 × 100 を計算する' } ], correct: 'to_kW', onCorrectText: '効率は同じ単位どうしの比なので、まず単位をそろえます。3920 W ＝ 3.92 kW。そろえたら η ＝ P_E ÷ P × 100 ＝ 3.92 ÷ 5 × 100（式 2-59）。W と kW を混ぜて計算しないでください。これに数値を代入します。' }
                 ],
                 formula: '\\eta = \\dfrac{P_E}{P}\\times 100 \\;\\;(P_E = mgv)',
@@ -8139,7 +8139,7 @@
                 stage0Correct: 'effPower',
                 stage1Choices: [ { value: 'reverse', label: '効率 η と与えた動力 P が分かっていて、効率の式を有効動力 P_E について解く問題である' }, { value: 'forward', label: '有効動力 P_E と与えた動力 P が分かっていて、効率を求める問題である' }, { value: 'lossSub', label: '消耗動力 P_C が分かっていて、引き算する問題である' } ],
                 stage1Correct: 'reverse',
-                derivationSteps: [ { prompt: '効率の式は η ＝ P_E ÷ P × 100 です（式 2-59）。今回は効率 η ＝ 80 % と与えた動力 P ＝ 5 kW が分かっていて、有効動力 P_E を求めます。この式を P_E について解くと、どうなりますか。（両辺を 100 で割り、両辺に P を掛けるとほどけます。）', choices: [ { value: 'PE_eq_etaP_div_100', label: 'P_E ＝ η × P ÷ 100（効率に与えた動力を掛けて、100 で割る）' }, { value: 'PE_eq_100_div_etaP', label: 'P_E ＝ 100 ÷（η × P）' }, { value: 'PE_eq_etaP', label: 'P_E ＝ η × P（100 で割らない）' } ], correct: 'PE_eq_etaP_div_100', onCorrectText: 'η ＝ P_E ÷ P × 100 を P_E について解くと P_E ＝ η × P ÷ 100。効率 η に与えた動力 P を掛けて、% を元に戻すため 100 で割ります。100 で割るのを忘れないでください。これに数値を代入します。' } ],
+                derivationSteps: [ { prompt: '効率の式は η ＝ P_E ÷ P × 100 です（式 2-59）。今回は効率 η ＝ 80 % と与えた動力 P ＝ 5 kW が分かっていて、有効動力 P_E を求めます。この式を P_E について解くと、どうなりますか。（両辺を 100 で割り、両辺に P を掛けるとほどけます。）', choices: [ { value: 'PE_eq_etaP_div_100', label: 'P_E ＝ η × P ÷ 100（効率に与えた動力を掛けて、100 で割る）' }, { value: 'PE_eq_100_div_etaP', label: 'P_E ＝ 100 ÷（η × P）' }, { value: 'PE_eq_etaP', label: 'P_E ＝ η × P' } ], correct: 'PE_eq_etaP_div_100', onCorrectText: 'η ＝ P_E ÷ P × 100 を P_E について解くと P_E ＝ η × P ÷ 100。効率 η に与えた動力 P を掛けて、% を元に戻すため 100 で割ります。100 で割るのを忘れないでください。これに数値を代入します。' } ],
                 formula: 'P_E = \\dfrac{\\eta \\times P}{100}',
                 substitutions: { slots: ['eta', 'P'], cards: [ { role: 'eta', label: 'η（効率。%）', value: 80, unit: '%' }, { role: 'P', label: 'P（与えた動力）', value: 5, unit: 'kW' } ] }
             }
