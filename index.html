@@ -2379,10 +2379,10 @@
         const DASHBOARD_UNIT_COUNTS = {
             '1-1': 4, '1-2': 6, '1-3': 4, '1-4': 4, '1-5': 4,
             '1-6': 4, '1-7': 4, '1-8': 4, '1-9': 4,
-            '1-10': 4, '1-11': 4, '1-12': 4, '2-1': 5, '2-2': 4, '2-3': 4, '2-4': 4, '2-5': 4, '3-1': 6, '3-2': 4, '3-3': 4, '3-4': 4, '4-1': 4, '4-2': 4, '4-3': 4, '4-4': 4
+            '1-10': 4, '1-11': 4, '1-12': 4, '2-1': 5, '2-2': 4, '2-3': 4, '2-4': 4, '2-5': 4, '3-1': 6, '3-2': 4, '3-3': 4, '3-4': 4, '4-1': 4, '4-2': 4, '4-3': 4, '4-4': 4, '5-1': 4, '5-2': 4
         };
         // 単元表示順
-        const DASHBOARD_UNIT_ORDER = ['1-1', '1-2', '1-3', '1-4', '1-5', '1-6', '1-7', '1-8', '1-9', '1-10', '1-11', '1-12', '2-1', '2-2', '2-3', '2-4', '2-5', '3-1', '3-2', '3-3', '3-4', '4-1', '4-2', '4-3', '4-4'];
+        const DASHBOARD_UNIT_ORDER = ['1-1', '1-2', '1-3', '1-4', '1-5', '1-6', '1-7', '1-8', '1-9', '1-10', '1-11', '1-12', '2-1', '2-2', '2-3', '2-4', '2-5', '3-1', '3-2', '3-3', '3-4', '4-1', '4-2', '4-3', '4-4', '5-1', '5-2'];
 
         // 【校内版では実名ロスターを定義していたが、GitHub Pages 配信のため空に変更】
         // 将来、名簿照合に戻す場合は 1番〜36番 + 40番の形式で復活可能
@@ -2610,6 +2610,24 @@
                 id: '4-4',
                 title: '動力',
                 subtitle: 'P＝仕事÷時間・P＝力×速さ',
+                level: '基礎',
+                completed: false,
+                score: 0,
+                total: 0
+            },
+            {
+                id: '5-1',
+                title: '摩擦',
+                subtitle: '静摩擦・動摩擦・摩擦角',
+                level: '基礎',
+                completed: false,
+                score: 0,
+                total: 0
+            },
+            {
+                id: '5-2',
+                title: '機械の効率',
+                subtitle: '効率 η＝有効÷与えた×100',
                 level: '基礎',
                 completed: false,
                 score: 0,
@@ -7882,6 +7900,209 @@
         };
         const HINTS_4_4_BY_ID = { 1: HINTS_4_4_WORK, 2: HINTS_4_4_LIFT, 3: HINTS_4_4_SPEED, 4: HINTS_4_4_FORKLIFT };
 
+        // Problems for sub-unit 5-1: 摩擦（静摩擦 f₀=μ₀R・動摩擦 f′=μR・静摩擦係数 μ₀=f₀÷R・摩擦角 μ₀=tanρ）
+        //   4-4 と同じ 6 ステージ計算フロー。問題図は build5_1FrictionCanvas(problem) が canvas.kind で分岐。
+        //   求める量は問ごとに異なるため expectedAns を直接比較。単位は problem.unit（'N' または ''）、桁は problem.decimals。
+        const PROBLEMS_5_1 = [
+            {
+                id: 1, formulaType: 'staticFric', W: 100, R: 100, mu0: 0.4,
+                expectedAns: 40, tolerance: 0.1, unit: 'N', decimals: 0, baselineTime: 180,
+                sentence: '水平な床の上に、100 N の重力が働く物体が置いてある。この床と物体の間の静摩擦係数（すべりにくさを表す数。大きいほどすべりにくい）は μ₀ ＝ 0.4 である。この物体を動かし始めるのに、ちょうど必要な水平の力（＝最大静摩擦力 f₀）を求めよ。',
+                condition: '基礎（静摩擦・式2-56）、水平面なので R＝W＝100 N、f₀＝μ₀×R＝0.4×100＝40 N',
+                canvasType: '2d-static', canvas: { width: 360, height: 200, kind: 'staticFric' },
+                stage0Choices: [ { value: 'f0', label: '物体を動かし始めるのに必要な力（最大静摩擦力 f₀）[N] の大きさ' }, { value: 'mu0', label: '床と物体の間の静摩擦係数 μ₀ の大きさ' }, { value: 'R', label: '面を垂直に押しつける力 R [N] の大きさ' } ],
+                stage0Correct: 'f0',
+                stage1Choices: [ { value: 'static', label: 'まだ止まっている物体を動かし始める、静摩擦の問題である' }, { value: 'kinetic', label: 'すでに滑っている物体を滑らせ続ける、動摩擦の問題である' }, { value: 'angle', label: '斜面の傾きを大きくして物体が滑り出す、摩擦角の問題である' } ],
+                stage1Correct: 'static',
+                derivationSteps: [
+                    { prompt: 'Stage 1 で「まだ止まっている物体を動かし始める静摩擦の問題」と分かりました。動かし始めるのに必要な力（最大静摩擦力 f₀）は、面を垂直に押しつける力 R に静摩擦係数 μ₀ を掛けて求めます（式 2-56：f₀ ＝ μ₀ × R）。式に入れる R は、この場面では何と同じ大きさですか。', choices: [ { value: 'R_eq_W', label: '水平な床なので、床が物体を押し返す力 R は重力 W と同じ大きさ。R ＝ 100 N' }, { value: 'R_eq_f', label: 'R は最大静摩擦力 f₀ と同じ大きさ' }, { value: 'R_eq_mu', label: 'R は静摩擦係数 μ₀（＝0.4）と同じ大きさ' } ], correct: 'R_eq_W', onCorrectText: '物体は水平な床に置かれているので、床が物体を押し返す力 R は、物体に働く重力 W とつり合っています。だから R ＝ W ＝ 100 N。これを式に入れます。' },
+                    { prompt: '面を垂直に押しつける力 R ＝ 100 N と、静摩擦係数 μ₀ ＝ 0.4 が分かりました。最大静摩擦力 f₀ を求める式はどれですか。', choices: [ { value: 'mu_mul_R', label: 'f₀ ＝ μ₀ × R（静摩擦係数に R を掛ける）' }, { value: 'mu_only', label: 'f₀ ＝ μ₀（係数だけ。R は掛けない）' }, { value: 'R_div_mu', label: 'f₀ ＝ R ÷ μ₀（R を係数で割る）' } ], correct: 'mu_mul_R', onCorrectText: '最大静摩擦力は f₀ ＝ μ₀ × R（式 2-56）です。静摩擦係数 0.4 に、面を垂直に押しつける力 R ＝ 100 N を掛けます。係数だけで終わらせず、必ず R を掛けてください。これに数値を代入します。' }
+                ],
+                formula: 'f_0 = \\mu_0 R',
+                substitutions: { slots: ['μ₀', 'R'], cards: [ { role: 'μ₀', label: 'μ₀', value: 0.4, unit: '' }, { role: 'R', label: 'R（床が物体を押し返す力。水平面では重力 W と同じ）', value: 100, unit: 'N' } ] }
+            },
+            {
+                id: 2, formulaType: 'kineticFric', W: 200, R: 200, mu: 0.25,
+                expectedAns: 50, tolerance: 0.1, unit: 'N', decimals: 0, baselineTime: 180,
+                sentence: '水平な床の上で、200 N の重力が働く物体を、一定の速さですべらせ続けている。この床と物体の間の動摩擦係数（すべっているときのすべりにくさを表す数）は μ ＝ 0.25 である。一定の速さですべらせ続けるのにちょうど必要な力（＝動摩擦力 f′）を求めよ。',
+                condition: '基礎（動摩擦・式2-58）、水平面なので R＝W＝200 N、f′＝μ×R＝0.25×200＝50 N',
+                canvasType: '2d-static', canvas: { width: 360, height: 200, kind: 'kineticFric' },
+                stage0Choices: [ { value: 'fp', label: 'すべらせ続けるのに必要な力（動摩擦力 f′）[N] の大きさ' }, { value: 'mu', label: '床と物体の間の動摩擦係数 μ の大きさ' }, { value: 'R', label: '面を垂直に押しつける力 R [N] の大きさ' } ],
+                stage0Correct: 'fp',
+                stage1Choices: [ { value: 'kinetic', label: 'すでに滑っている物体を一定の速さで滑らせ続ける、動摩擦の問題である' }, { value: 'static', label: 'まだ止まっている物体を動かし始める、静摩擦の問題である' }, { value: 'angle', label: '斜面の傾きを大きくして物体が滑り出す、摩擦角の問題である' } ],
+                stage1Correct: 'kinetic',
+                derivationSteps: [
+                    { prompt: 'Stage 1 で「すでに滑っている物体を一定の速さで滑らせ続ける動摩擦の問題」と分かりました。動摩擦力 f′ は、面を垂直に押しつける力 R に動摩擦係数 μ を掛けて求めます（式 2-58：f′ ＝ μ × R）。問1 と同じく、式に入れる R はこの場面では何と同じ大きさですか。', choices: [ { value: 'R_eq_W', label: '水平な床なので、床が物体を押し返す力 R は重力 W と同じ大きさ。R ＝ 200 N' }, { value: 'R_eq_f', label: 'R は動摩擦力 f′ と同じ大きさ' }, { value: 'R_eq_mu', label: 'R は動摩擦係数 μ（＝0.25）と同じ大きさ' } ], correct: 'R_eq_W', onCorrectText: '問1 と同じく、水平な床なので床が物体を押し返す力 R は重力 W とつり合います。R ＝ W ＝ 200 N。これを式に入れます。' },
+                    { prompt: '面を垂直に押しつける力 R ＝ 200 N と、動摩擦係数 μ ＝ 0.25 が分かりました。動摩擦力 f′ を求める式はどれですか。', choices: [ { value: 'mu_mul_R', label: 'f′ ＝ μ × R（動摩擦係数に R を掛ける）' }, { value: 'mu_only', label: 'f′ ＝ μ（係数だけ。R は掛けない）' }, { value: 'R_div_mu', label: 'f′ ＝ R ÷ μ（R を係数で割る）' } ], correct: 'mu_mul_R', onCorrectText: '動摩擦力は f′ ＝ μ × R（式 2-58）です。動摩擦係数 0.25 に R ＝ 200 N を掛けます。必ず R を掛けてください。これに数値を代入します。' }
+                ],
+                formula: 'f\' = \\mu R',
+                substitutions: { slots: ['μ', 'R'], cards: [ { role: 'μ', label: 'μ', value: 0.25, unit: '' }, { role: 'R', label: 'R（床が物体を押し返す力。水平面では重力 W と同じ）', value: 200, unit: 'N' } ] }
+            },
+            {
+                id: 3, formulaType: 'coeffFric', W: 60, R: 60, f0: 18,
+                expectedAns: 0.3, tolerance: 0.05, unit: '', decimals: 1, baselineTime: 210,
+                sentence: '水平な床の上に、60 N の重力が働く物体が置いてある。この物体を動かし始めるのに、ちょうど f₀ ＝ 18 N の水平の力が必要であった。この床と物体の間の静摩擦係数 μ₀ を求めよ。',
+                condition: '基礎（例題22型・逆算・式2-56）、水平面なので R＝W＝60 N、μ₀＝f₀÷R＝18÷60＝0.3。求める量＝μ₀（無単位）',
+                canvasType: '2d-static', canvas: { width: 360, height: 200, kind: 'coeffFric' },
+                stage0Choices: [ { value: 'mu0', label: '床と物体の間の静摩擦係数 μ₀ の大きさ' }, { value: 'f0', label: '物体を動かし始めるのに必要な力（最大静摩擦力 f₀）[N] の大きさ' }, { value: 'R', label: '面を垂直に押しつける力 R [N] の大きさ' } ],
+                stage0Correct: 'mu0',
+                stage1Choices: [ { value: 'static', label: 'まだ止まっている物体を動かし始める、静摩擦の問題である' }, { value: 'kinetic', label: 'すでに滑っている物体を滑らせ続ける、動摩擦の問題である' }, { value: 'angle', label: '斜面の傾きを大きくして物体が滑り出す、摩擦角の問題である' } ],
+                stage1Correct: 'static',
+                derivationSteps: [
+                    { prompt: 'Stage 1 で「まだ止まっている物体を動かし始める静摩擦の問題」と分かりました。今回は動かし始めに必要な力 f₀ ＝ 18 N が分かっていて、静摩擦係数 μ₀ を逆に求めます。f₀ ＝ μ₀ × R（式 2-56）で、式に入れる R はこの場面では何と同じ大きさですか。', choices: [ { value: 'R_eq_W', label: '水平な床なので、床が物体を押し返す力 R は重力 W と同じ大きさ。R ＝ 60 N' }, { value: 'R_eq_f', label: 'R は最大静摩擦力 f₀（＝18 N）と同じ大きさ' }, { value: 'R_zero', label: 'R は分からないので 0 として計算する' } ], correct: 'R_eq_W', onCorrectText: '水平な床なので、床が物体を押し返す力 R は重力 W とつり合います。R ＝ W ＝ 60 N。これを使います。' },
+                    { prompt: 'f₀ ＝ μ₀ × R では、静摩擦係数 μ₀ に R が掛け算でついています。μ₀ だけを残すには、両辺をどうすればよいですか。', choices: [ { value: 'divR', label: '両辺を R で割る（→ μ₀ ＝ f₀ ÷ R。最大静摩擦力を R で割る）' }, { value: 'divf', label: '両辺を f₀ で割る（→ μ₀ ＝ R ÷ f₀）' }, { value: 'mulR', label: '両辺に R を掛ける（→ μ₀ ＝ f₀ × R）' } ], correct: 'divR', onCorrectText: 'f₀ ＝ μ₀ × R では μ₀ に R が掛け算でついています。両辺を R で割って R を消すと μ₀ ＝ f₀ ÷ R。最大静摩擦力 18 N を R ＝ 60 N で割ります。割る順番を逆にしないでください。これに数値を代入します。' }
+                ],
+                formula: '\\mu_0 = \\dfrac{f_0}{R}',
+                substitutions: { slots: ['f₀', 'R'], cards: [ { role: 'f₀', label: 'f₀', value: 18, unit: 'N' }, { role: 'R', label: 'R（床が物体を押し返す力。水平面では重力 W と同じ）', value: 60, unit: 'N' } ] }
+            },
+            {
+                id: 4, formulaType: 'frictionAngle', rho: 30, tanValue: 0.58,
+                expectedAns: 0.58, tolerance: 0.05, unit: '', decimals: 2, baselineTime: 300,
+                sentence: '水平に置いた板の上に物体をのせ、板の傾きを少しずつ大きくしていった。傾きが ρ ＝ 30°（この角を摩擦角という）になったとき、物体がすべり出した。この板と物体の間の静摩擦係数 μ₀ を求めよ。tan 30° ＝ 0.58 を使ってよい。',
+                condition: '基礎（摩擦角・式2-57・3ステップ導出）、すべり出す瞬間 W sinρ ＝ μ₀ W cosρ → μ₀＝tanρ＝tan30°≒0.58。求める量＝μ₀（無単位）。4-2 斜面の分解を再利用',
+                canvasType: '2d-static', canvas: { width: 380, height: 240, kind: 'frictionAngle' },
+                stage0Choices: [ { value: 'mu0', label: '板と物体の間の静摩擦係数 μ₀ の大きさ' }, { value: 'rho', label: 'すべり出したときの傾き（摩擦角）ρ [°] の大きさ' }, { value: 'W', label: '物体に働く重力 W [N] の大きさ' } ],
+                stage0Correct: 'mu0',
+                stage1Choices: [ { value: 'angle', label: '斜面の傾きを大きくして物体がちょうど滑り出す、摩擦角の問題である' }, { value: 'static', label: '水平な床の上で、止まっている物体を動かし始める静摩擦の問題である' }, { value: 'kinetic', label: '水平な床の上で、滑っている物体を滑らせ続ける動摩擦の問題である' } ],
+                stage1Correct: 'angle',
+                derivationSteps: [
+                    { prompt: 'Stage 1 で「斜面の傾きを大きくして物体がちょうど滑り出す摩擦角の問題」と分かりました。4-2 でやったように、斜面の上の重力 W は「斜面に平行な向き（すべり落ちようとする向き）」と「斜面に垂直な向き（面を押しつける向き）」の 2 つに分けられます。傾きが ρ のとき、それぞれの大きさはどう表せますか。', choices: [ { value: 'split_ok', label: '斜面に平行な分力 ＝ W × sin ρ、斜面に垂直な分力 ＝ W × cos ρ' }, { value: 'split_rev', label: '斜面に平行な分力 ＝ W × cos ρ、斜面に垂直な分力 ＝ W × sin ρ' }, { value: 'no_split', label: '斜面でも分けず、重力 W をそのまま使う' } ], correct: 'split_ok', onCorrectText: '4-2 の斜面と同じです。すべり落とそうとする（斜面に平行な）分力が W × sin ρ、面を垂直に押しつける（斜面に垂直な）分力 R が W × cos ρ です。' },
+                    { prompt: 'ちょうど滑り出す瞬間は、すべり落とそうとする力（W × sin ρ）と、それをふみとどまらせる最大静摩擦力（f₀ ＝ μ₀ × R ＝ μ₀ × W × cos ρ）がちょうどつり合っています。つり合いの式はどれですか。', choices: [ { value: 'balance', label: 'W × sin ρ ＝ μ₀ × W × cos ρ' }, { value: 'wrong1', label: 'W × cos ρ ＝ μ₀ × W × sin ρ' }, { value: 'wrong2', label: 'W × sin ρ ＝ μ₀（W は関係ない）' } ], correct: 'balance', onCorrectText: '滑り出す瞬間は、すべり落とそうとする W × sin ρ と、最大静摩擦力 μ₀ × W × cos ρ がつり合います。W × sin ρ ＝ μ₀ × W × cos ρ。両辺に同じ W があることに注目してください。' },
+                    { prompt: 'W × sin ρ ＝ μ₀ × W × cos ρ から μ₀ を求めます。μ₀ には W × cos ρ が掛け算でついているので、両辺を W × cos ρ で割ると、両辺の W が消えて μ₀ ＝ sin ρ ÷ cos ρ になります。この「sin ρ ÷ cos ρ（高さ ÷ 底辺）」は何と書けますか。', choices: [ { value: 'tan', label: 'tan ρ（sin ÷ cos ＝ tan、つまり 高さ ÷ 底辺）。だから μ₀ ＝ tan ρ' }, { value: 'sin', label: 'sin ρ のまま（cos ρ は消えてなくなる）' }, { value: 'one', label: '1（sin と cos は同じなので 1 になる）' } ], correct: 'tan', onCorrectText: '両辺を W × cos ρ で割ると W が消えて μ₀ ＝ sin ρ ÷ cos ρ。sin ρ ÷ cos ρ（高さ ÷ 底辺）は tan ρ なので、μ₀ ＝ tan ρ（式 2-57）です。あとは tan 30° の値を入れます。' }
+                ],
+                formula: '\\mu_0 = \\tan\\rho',
+                substitutions: { slots: ['tanρ'], cards: [ { role: 'tanρ', label: 'tan 30°', value: 0.58, unit: '' } ] }
+            }
+        ];
+
+        const HINTS_5_1_STATIC = {
+            stage0: { b: '問題文の最後の文に注目してください。重力 100 N、静摩擦係数 0.4 はすでに数値が書かれています。', a: '問題文の末尾に「動かし始めるのにちょうど必要な水平の力（最大静摩擦力 f₀）を求めよ」とあります。求めるものは最大静摩擦力 f₀、単位は N です。', c: '教科書66ページ「1 摩擦」と最大静摩擦力 f₀ の説明を確認してください。' },
+            stage1: { b: '物体はまだ止まっていて、これから「動かし始める」場面です。止まっている物体を動かし始めるまでの摩擦か、すでに滑っている物体の摩擦か、斜面で滑り出す摩擦か、確かめてください。', a: 'まだ止まっている物体を動かし始めるまでの摩擦を「静摩擦」といいます。動かし始めにちょうど必要な力が最大静摩擦力 f₀ で、f₀ ＝ μ₀ × R で求めます。', c: '教科書66ページ 静摩擦・式(2-56)「f₀ ＝ μ₀ R」を確認してください。' },
+            stage2: { b: '水平な床の上では、床が物体を押し返す力 R は、物体の重力 W とつり合っています。だから R は重力と同じ大きさ（100 N）。係数 μ₀ にこの R を掛けます。', a: 'f₀ ＝ μ₀ × R（式 2-56）。水平面なので R ＝ W ＝ 100 N。静摩擦係数 0.4 に R ＝ 100 N を掛けます。必ず R を掛けてください。', c: '教科書66ページ 式(2-56)と、水平面で R＝W となることを確認してください。' },
+            stage3: { b: '式は f₀ ＝ μ₀ × R です。μ₀ には静摩擦係数、R には床が物体を押し返す力（重力と同じ 100 N）を入れます。', a: '式 f₀ ＝ μ₀ × R の空欄に、μ₀ ＝ 0.4、R ＝ 100 N を入れてください。', c: '教科書66ページ 式(2-56)を確認してください。' },
+            stage4: { b: '係数 0.4 に、力 100 を掛けるだけです。電卓を使ってかまいません。', a: 'f₀ ＝ 0.4 × 100 ＝ 40 [N]。係数に、面を垂直に押しつける力を掛けると最大静摩擦力が出ます。', c: '教科書66ページ 式(2-56)を確認してください。' }
+        };
+        const HINTS_5_1_KINETIC = {
+            stage0: { b: '問題文の最後の文に注目してください。重力 200 N、動摩擦係数 0.25 はすでに数値が書かれています。', a: '問題文の末尾に「すべらせ続けるのにちょうど必要な力（動摩擦力 f′）を求めよ」とあります。求めるものは動摩擦力 f′、単位は N です。', c: '教科書67ページ 動摩擦・動摩擦力の説明を確認してください。' },
+            stage1: { b: '物体はすでに滑っていて、それを「一定の速さですべらせ続ける」場面です。動かし始めまでの摩擦か、滑っている物体の摩擦か、斜面で滑り出す摩擦か、確かめてください。', a: 'すでに滑っている物体にはたらく摩擦を「動摩擦」といいます。動摩擦力は f′ ＝ μ × R で求めます。動摩擦係数 μ は静摩擦係数の半分くらいです。', c: '教科書67ページ 式(2-58)「f′ ＝ μ R」を確認してください。' },
+            stage2: { b: '水平な床の上をすべっているとき、床が物体を押し返す力 R は重力 W とつり合っています。R は重力と同じ大きさ（200 N）。係数 μ にこの R を掛けます。', a: 'f′ ＝ μ × R（式 2-58）。水平面なので R ＝ W ＝ 200 N。動摩擦係数 0.25 に R ＝ 200 N を掛けます。必ず R を掛けてください。', c: '教科書67ページ 式(2-58)と、水平面で R＝W となることを確認してください。' },
+            stage3: { b: '式は f′ ＝ μ × R です。μ には動摩擦係数、R には床が物体を押し返す力（重力と同じ 200 N）を入れます。', a: '式 f′ ＝ μ × R の空欄に、μ ＝ 0.25、R ＝ 200 N を入れてください。', c: '教科書67ページ 式(2-58)を確認してください。' },
+            stage4: { b: '係数 0.25 に、力 200 を掛けるだけです。電卓を使ってかまいません。', a: 'f′ ＝ 0.25 × 200 ＝ 50 [N]。係数に、面を垂直に押しつける力を掛けると動摩擦力が出ます。', c: '教科書67ページ 式(2-58)を確認してください。' }
+        };
+        const HINTS_5_1_COEFF = {
+            stage0: { b: '問題文の最後の文に注目してください。重力 60 N、動かし始めに必要な力 18 N はすでに数値が書かれています。', a: '問題文の末尾に「静摩擦係数 μ₀ を求めよ」とあります。求めるものは静摩擦係数 μ₀、単位はありません（数だけ）。', c: '教科書66ページ 式(2-56)・例題22 を確認してください。' },
+            stage1: { b: '物体はまだ止まっていて「動かし始める」場面です。今回はその力が分かっていて、係数を逆に求めます。静摩擦か動摩擦か摩擦角か、確かめてください。', a: 'まだ止まっている物体を動かし始める静摩擦の問題です。f₀ ＝ μ₀ × R を使い、f₀ と R から μ₀ を逆に求めます。μ₀ ＝ f₀ ÷ R です。', c: '教科書66ページ 式(2-56)・例題22 を確認してください。' },
+            stage2: { b: '水平な床なので R は重力 W と同じ大きさ（60 N）。f₀ ＝ μ₀ × R では μ₀ に R が掛け算でついているので、両辺を R で割ります。', a: 'f₀ ＝ μ₀ × R の両辺を R で割ると μ₀ ＝ f₀ ÷ R。18 N を R ＝ 60 N で割ります。割る順番を逆にしないでください。', c: '教科書66ページ 例題22（μ₀＝f₀÷R）を確認してください。' },
+            stage3: { b: '式は μ₀ ＝ f₀ ÷ R です。f₀ には動かし始めに必要な力、R には床が物体を押し返す力（重力と同じ 60 N）を入れます。', a: '式 μ₀ ＝ f₀ ÷ R の空欄に、f₀ ＝ 18 N、R ＝ 60 N を入れてください。', c: '教科書66ページ 例題22 を確認してください。' },
+            stage4: { b: '力 18 を、力 60 で割るだけです。電卓を使ってかまいません。答えに単位はつきません。', a: 'μ₀ ＝ 18 ÷ 60 ＝ 0.3。最大静摩擦力を、面を垂直に押しつける力で割ると静摩擦係数が出ます。例題22 と同じです。', c: '教科書66ページ 例題22 を確認してください。' }
+        };
+        const HINTS_5_1_ANGLE = {
+            stage0: { b: '問題文の最後の文に注目してください。すべり出したときの傾き 30°、tan 30° ＝ 0.58 はすでに数値が書かれています。', a: '問題文の末尾に「静摩擦係数 μ₀ を求めよ」とあります。求めるものは静摩擦係数 μ₀、単位はありません（数だけ）。', c: '教科書67ページ 摩擦角の説明を確認してください。' },
+            stage1: { b: '板の傾きを少しずつ大きくして、ある傾きでちょうど物体が滑り出した場面です。斜面で滑り出す傾き（摩擦角）の問題か、水平面の静摩擦・動摩擦か、確かめてください。', a: '斜面の傾きを大きくして物体がちょうど滑り出すときの傾きを「摩擦角 ρ」といいます。このとき静摩擦係数は μ₀ ＝ tan ρ で求めます。', c: '教科書67ページ 摩擦角・式(2-57)「μ₀ ＝ tan ρ」を確認してください。' },
+            stage2: { b: '4-2 の斜面と同じく、重力 W を「すべり落とそうとする＝W sin ρ」と「面を押しつける＝W cos ρ」に分けます。滑り出す瞬間、W sin ρ と最大静摩擦力 μ₀ × W cos ρ がつり合います。', a: 'W × sin ρ ＝ μ₀ × W × cos ρ の両辺を W × cos ρ で割ると、W が消えて μ₀ ＝ sin ρ ÷ cos ρ ＝ tan ρ（式 2-57）。あとは tan 30° ＝ 0.58 を入れます。', c: '教科書67ページ 式(2-57)と、4-2 斜面の分解（W sin・W cos）を確認してください。' },
+            stage3: { b: '式は μ₀ ＝ tan ρ です。tan ρ には、傾き 30° の tan の値を入れます。', a: '式 μ₀ ＝ tan ρ の空欄に、tan 30° ＝ 0.58 を入れてください。', c: '教科書67ページ 式(2-57)を確認してください。' },
+            stage4: { b: '今回は tan 30° の値（0.58）がそのまま静摩擦係数になります。計算らしい計算はありません。', a: 'μ₀ ＝ tan 30° ＝ 0.58。摩擦角の tan が、そのまま静摩擦係数になります。答えに単位はつきません。', c: '教科書67ページ 式(2-57)を確認してください。' }
+        };
+        const HINTS_5_1_BY_ID = { 1: HINTS_5_1_STATIC, 2: HINTS_5_1_KINETIC, 3: HINTS_5_1_COEFF, 4: HINTS_5_1_ANGLE };
+
+        // Problems for sub-unit 5-2: 機械の効率（効率 η＝有効÷与えた×100・式2-59）
+        //   5-1 と同じ 6 ステージ計算フロー。問題図は build5_2EfficiencyCanvas(problem) が canvas.kind で分岐。
+        //   求める量は問ごとに異なるため expectedAns を直接比較。単位は problem.unit（'%' または 'kW'）、桁は problem.decimals。
+        const PROBLEMS_5_2 = [
+            {
+                id: 1, formulaType: 'effWork', A: 2000, A_E: 1500,
+                expectedAns: 75, tolerance: 0.1, unit: '%', decimals: 0, baselineTime: 180,
+                sentence: 'ある機械に、外部から仕事 A ＝ 2000 J を与えた。そのうち、機械が役に立つことに使えた仕事（有効仕事）A_E ＝ 1500 J であった。この機械の効率 η [%] を求めよ。',
+                condition: '基礎（効率・式2-59）、η = A_E ÷ A × 100 = 1500 ÷ 2000 × 100 = 75 %',
+                canvasType: '2d-static', canvas: { width: 380, height: 200, kind: 'effWork' },
+                stage0Choices: [ { value: 'eta', label: 'この機械の効率 η [%] の大きさ' }, { value: 'work', label: '外部から与えた仕事 A [J] の大きさ' }, { value: 'eff', label: '役に立つことに使えた仕事 A_E [J] の大きさ' } ],
+                stage0Correct: 'eta',
+                stage1Choices: [ { value: 'effPerGiven', label: '与えた仕事 A と、役に立った仕事 A_E が分かっていて、その比（割合）を求める問題である' }, { value: 'lossSub', label: '損失（消耗仕事）が分かっていて、まず引き算で有効仕事を出す問題である' }, { value: 'powerCase', label: '動力 P と速さ v が分かっていて、まず動力を求める問題である' } ],
+                stage1Correct: 'effPerGiven',
+                derivationSteps: [ { prompt: '効率とは、外部から与えた仕事 A のうち、役に立つことに使えた有効仕事 A_E がどれだけの割合かを表すものです（式 2-59）。割合なので、有効仕事 A_E を、与えた仕事 A で割ります。さらに「割合を % で表す」ので 100 を掛けます。η を求める式はどれですか。', choices: [ { value: 'AE_div_A', label: 'η ＝ A_E ÷ A × 100（役に立った仕事を、与えた仕事で割って、100 を掛ける）' }, { value: 'A_div_AE', label: 'η ＝ A ÷ A_E × 100（与えた仕事を、役に立った仕事で割る）' }, { value: 'AE_div_A_no100', label: 'η ＝ A_E ÷ A（割るだけで、100 を掛けない）' } ], correct: 'AE_div_A', onCorrectText: '効率は η ＝ A_E ÷ A × 100 です。A_E ÷ A は「1 のうちどれだけ役に立ったか」という割合（この問題では 0.75）。それを「100 のうちどれだけか（％）」に直すために 100 を掛けます。割る順番（A_E が割られる数、A が割る数）と × 100 の両方に気をつけてください。これに数値を代入します。' } ],
+                formula: '\\eta = \\dfrac{A_E}{A}\\times 100',
+                substitutions: { slots: ['A_E', 'A'], cards: [ { role: 'A_E', label: 'A_E（役に立った仕事）', value: 1500, unit: 'J' }, { role: 'A', label: 'A（与えた仕事）', value: 2000, unit: 'J' } ] }
+            },
+            {
+                id: 2, formulaType: 'effLoss', A: 2000, A_C: 500,
+                expectedAns: 75, tolerance: 0.1, unit: '%', decimals: 0, baselineTime: 220,
+                sentence: 'ある機械に、外部から仕事 A ＝ 2000 J を与えた。このうち、摩擦などのために役に立たずになくなった仕事（消耗仕事）A_C ＝ 500 J であった。この機械の効率 η [%] を求めよ。',
+                condition: '応用（2段階・式2-59）、まず A_E = A − A_C = 2000 − 500 = 1500 J、次に η = A_E ÷ A × 100 = 75 %',
+                canvasType: '2d-static', canvas: { width: 380, height: 200, kind: 'effLoss' },
+                stage0Choices: [ { value: 'eta', label: 'この機械の効率 η [%] の大きさ' }, { value: 'work', label: '外部から与えた仕事 A [J] の大きさ' }, { value: 'loss', label: 'なくなった仕事（消耗仕事）A_C [J] の大きさ' } ],
+                stage0Correct: 'eta',
+                stage1Choices: [ { value: 'lossSub', label: '与えた仕事 A と、なくなった仕事 A_C が分かっていて、まず引き算で有効仕事 A_E を出してから、比を求める問題である' }, { value: 'effPerGiven', label: '有効仕事 A_E がそのまま分かっていて、A で割るだけの問題である' }, { value: 'powerCase', label: '動力 P と速さ v が分かっていて、まず動力を求める問題である' } ],
+                stage1Correct: 'lossSub',
+                derivationSteps: [
+                    { prompt: 'この問題では、役に立った有効仕事 A_E がそのまま書かれていません。書いてあるのは「与えた仕事 A」と「なくなった仕事（消耗仕事）A_C」です。全体の仕事から、むだになった分を引いた残りが、役に立った仕事です。まずすることはどれですか。', choices: [ { value: 'AE_eq_A_minus_AC', label: 'まず有効仕事 A_E ＝ A − A_C を計算する（与えた仕事 − なくなった仕事）' }, { value: 'AE_eq_A_plus_AC', label: 'まず A_E ＝ A ＋ A_C を計算する（与えた仕事 ＋ なくなった仕事）' }, { value: 'AE_eq_AC', label: 'なくなった仕事 A_C をそのまま有効仕事とする' } ], correct: 'AE_eq_A_minus_AC', onCorrectText: '与えた仕事 A ＝ 2000 J から、むだになった仕事 A_C ＝ 500 J を引きます。A_E ＝ 2000 − 500 ＝ 1500 J。これが役に立った仕事です。なくなった分は足すのではなく引きます。' },
+                    { prompt: '有効仕事 A_E ＝ A − A_C ＝ 1500 J が分かりました。効率は「役に立った仕事 ÷ 与えた仕事 × 100」です（式 2-59）。η を求める式はどれですか。', choices: [ { value: 'AE_div_A', label: 'η ＝ A_E ÷ A × 100（役に立った仕事を、与えた仕事で割って、100 を掛ける）' }, { value: 'AC_div_A', label: 'η ＝ A_C ÷ A × 100（なくなった仕事を、与えた仕事で割る）' }, { value: 'AE_div_A_no100', label: 'η ＝ A_E ÷ A（割るだけで、100 を掛けない）' } ], correct: 'AE_div_A', onCorrectText: '効率は η ＝ A_E ÷ A × 100。さきほど出した有効仕事 1500 J を、与えた仕事 2000 J で割ると 0.75（1 のうち 0.75）。100 を掛けて 75%。なくなった仕事 A_C を割ってはいけません。これに数値を代入します。' }
+                ],
+                formula: '\\eta = \\dfrac{A_E}{A}\\times 100 \\;\\;(A_E = A - A_C)',
+                substitutions: { slots: ['A', 'A_C'], cards: [ { role: 'A', label: 'A（与えた仕事）', value: 2000, unit: 'J' }, { role: 'A_C', label: 'A_C（なくなった仕事）', value: 500, unit: 'J' } ] }
+            },
+            {
+                id: 3, formulaType: 'effWinch', m: 800, g: 9.8, v: 0.5, P: 5,
+                expectedAns: 78.4, tolerance: 0.1, unit: '%', decimals: 1, baselineTime: 300,
+                sentence: '電動ウインチで、質量 m ＝ 800 kg の物体を、速さ v ＝ 0.5 m/s でまっすぐつり上げている。この電動機の動力（与えた動力）P ＝ 5 kW である。このウインチの効率 η [%] を求めよ。重力加速度は g ＝ 9.8 m/s² とする。',
+                condition: '応用（例題24・2段階・式2-59）、まず P_E = mg×v = 800×9.8×0.5 = 3920 W = 3.92 kW、単位を kW にそろえ、次に η = P_E ÷ P × 100 = 3.92 ÷ 5 × 100 = 78.4 %',
+                canvasType: '2d-static', canvas: { width: 320, height: 300, kind: 'effWinch' },
+                stage0Choices: [ { value: 'eta', label: 'このウインチの効率 η [%] の大きさ' }, { value: 'power', label: '電動機の動力（与えた動力）P [kW] の大きさ' }, { value: 'mass', label: 'つり上げる物体の質量 m [kg] の大きさ' } ],
+                stage0Correct: 'eta',
+                stage1Choices: [ { value: 'powerEff', label: 'つり上げに使えた有効動力 P_E をまず物理から求めて、与えた動力 P との比をとる問題である' }, { value: 'workEff', label: '有効仕事 A_E と与えた仕事 A がそのまま分かっていて、比をとるだけの問題である' }, { value: 'lossSub', label: '消耗動力 P_C が分かっていて、まず引き算する問題である' } ],
+                stage1Correct: 'powerEff',
+                derivationSteps: [
+                    { prompt: '効率は「役に立った分 ÷ 与えた分 × 100」です。与えた動力 P ＝ 5 kW は書いてありますが、役に立った有効動力 P_E が書かれていません。物体をつり上げる力は重さ（m × g）で、その向きに速さ v で動かしているので、つり上げに使えた動力は P_E ＝ mg × v で求められます（4-4 で学んだ P ＝ F × v の F を、重さ mg にしたもの）。まずすることはどれですか。', choices: [ { value: 'PE_eq_mgv', label: 'まず有効動力 P_E ＝ m × g × v を計算する（質量 × 重力加速度 × 速さ）' }, { value: 'PE_eq_mv', label: 'まず P_E ＝ m × v を計算する（g は掛けない）' }, { value: 'PE_eq_Pv', label: 'まず P_E ＝ P × v を計算する（与えた動力に速さを掛ける）' } ], correct: 'PE_eq_mgv', onCorrectText: 'つり上げる力は重さ m × g、それで速さ v で動かすので、有効動力 P_E ＝ m × g × v です。800 × 9.8 × 0.5 ＝ 3920 W。g（9.8）を掛け忘れないでください。' },
+                    { prompt: '有効動力 P_E ＝ m × g × v ＝ 3920 W が出ました。与えた動力は P ＝ 5 kW です。効率は P_E ÷ P × 100 ですが、その前に単位をそろえます。kW は W の 1000 倍です（1 kW ＝ 1000 W）。次にすることはどれですか。', choices: [ { value: 'to_kW', label: '3920 W を kW に直す（3920 ÷ 1000 ＝ 3.92 kW）。そろえてから η ＝ P_E ÷ P × 100' }, { value: 'as_is', label: 'そのまま 3920 ÷ 5 × 100 を計算する（単位はそろえない）' }, { value: 'to_W', label: '5 kW を 5 W として 3920 ÷ 5 × 100 を計算する' } ], correct: 'to_kW', onCorrectText: '効率は同じ単位どうしの比なので、まず単位をそろえます。3920 W ＝ 3.92 kW。そろえたら η ＝ P_E ÷ P × 100 ＝ 3.92 ÷ 5 × 100（式 2-59）。W と kW を混ぜて計算しないでください。これに数値を代入します。' }
+                ],
+                formula: '\\eta = \\dfrac{P_E}{P}\\times 100 \\;\\;(P_E = mgv)',
+                substitutions: { slots: ['m', 'g', 'v', 'P'], cards: [ { role: 'm', label: 'm（物体の質量）', value: 800, unit: 'kg' }, { role: 'g', label: 'g（重力の強さ。必ず掛ける数）', value: 9.8, unit: 'm/s²' }, { role: 'v', label: 'v（つり上げる速さ）', value: 0.5, unit: 'm/s' }, { role: 'P', label: 'P（与えた動力）', value: 5, unit: 'kW' } ] }
+            },
+            {
+                id: 4, formulaType: 'effReverse', eta: 80, P: 5,
+                expectedAns: 4, tolerance: 0.1, unit: 'kW', decimals: 0, baselineTime: 260,
+                sentence: '効率 η ＝ 80 % のウインチに、動力 P ＝ 5 kW を与えた。このウインチが取り出せる有効動力 P_E [kW] を求めよ。',
+                condition: '応用（逆算・式2-59）、η = P_E ÷ P × 100 を P_E について解く。P_E = η × P ÷ 100 = 80 × 5 ÷ 100 = 4 kW',
+                canvasType: '2d-static', canvas: { width: 380, height: 200, kind: 'effReverse' },
+                stage0Choices: [ { value: 'effPower', label: '取り出せる有効動力 P_E [kW] の大きさ' }, { value: 'eta', label: 'ウインチの効率 η [%] の大きさ' }, { value: 'power', label: '与えた動力 P [kW] の大きさ' } ],
+                stage0Correct: 'effPower',
+                stage1Choices: [ { value: 'reverse', label: '効率 η と与えた動力 P が分かっていて、効率の式を有効動力 P_E について解く問題である' }, { value: 'forward', label: '有効動力 P_E と与えた動力 P が分かっていて、効率を求める問題である' }, { value: 'lossSub', label: '消耗動力 P_C が分かっていて、引き算する問題である' } ],
+                stage1Correct: 'reverse',
+                derivationSteps: [ { prompt: '効率の式は η ＝ P_E ÷ P × 100 です（式 2-59）。今回は効率 η ＝ 80 % と与えた動力 P ＝ 5 kW が分かっていて、有効動力 P_E を求めます。この式を P_E について解くと、どうなりますか。（両辺を 100 で割り、両辺に P を掛けるとほどけます。）', choices: [ { value: 'PE_eq_etaP_div_100', label: 'P_E ＝ η × P ÷ 100（効率に与えた動力を掛けて、100 で割る）' }, { value: 'PE_eq_100_div_etaP', label: 'P_E ＝ 100 ÷（η × P）' }, { value: 'PE_eq_etaP', label: 'P_E ＝ η × P（100 で割らない）' } ], correct: 'PE_eq_etaP_div_100', onCorrectText: 'η ＝ P_E ÷ P × 100 を P_E について解くと P_E ＝ η × P ÷ 100。効率 η に与えた動力 P を掛けて、% を元に戻すため 100 で割ります。100 で割るのを忘れないでください。これに数値を代入します。' } ],
+                formula: 'P_E = \\dfrac{\\eta \\times P}{100}',
+                substitutions: { slots: ['eta', 'P'], cards: [ { role: 'eta', label: 'η（効率。%）', value: 80, unit: '%' }, { role: 'P', label: 'P（与えた動力）', value: 5, unit: 'kW' } ] }
+            }
+        ];
+
+        const HINTS_5_2_WORK = {
+            stage0: { b: '問題文に注目してください。与えた仕事 A ＝ 2000 J、役に立った仕事 A_E ＝ 1500 J はすでに数値が書かれています。', a: '問題文の末尾に「効率 η [%] を求めよ」とあります。求めるものは効率 η、単位は %（パーセント）です。', c: '教科書69ページ「1 仕事と効率」式(2-59)を確認してください。' },
+            stage1: { b: '問題文には、与えた仕事 A ＝ 2000 J と、役に立った仕事 A_E ＝ 1500 J が書かれています。何が分かっているかを確かめてください。', a: '効率とは、与えた仕事のうち、役に立った仕事がどれだけの割合かを表すものです。A_E を A で割り、100 を掛けて % にします。', c: '教科書69ページ 式(2-59)を確認してください。' },
+            stage2: { b: '効率は「役に立った仕事 ÷ 与えた仕事」の割合です。1500÷2000＝0.75（1 のうち 0.75）。割合を % で表すために 100 を掛けます。', a: 'η ＝ A_E ÷ A × 100 に、A_E ＝ 1500 J、A ＝ 2000 J を入れます。A_E が割られる数、A が割る数です。', c: '教科書69ページ 式(2-59)を確認してください。' },
+            stage3: { b: '式は η ＝ A_E ÷ A × 100 です。A_E には役に立った仕事、A には与えた仕事を入れます。', a: '式 η ＝ A_E ÷ A × 100 の空欄に、A_E ＝ 1500 J、A ＝ 2000 J を入れてください。', c: '教科書69ページ 式(2-59)を確認してください。' },
+            stage4: { b: '1500 を 2000 で割って（＝0.75）、100 を掛けるだけです。電卓を使ってかまいません。', a: 'η ＝ 1500 ÷ 2000 × 100 ＝ 75 [%]。役に立った仕事を与えた仕事で割り、100 を掛けると効率（%）が出ます。', c: '教科書69ページ 式(2-59)を確認してください。' }
+        };
+        const HINTS_5_2_LOSS = {
+            stage0: { b: '問題文に注目してください。与えた仕事 A ＝ 2000 J、なくなった仕事（消耗仕事）A_C ＝ 500 J はすでに数値が書かれています。', a: '問題文の末尾に「効率 η [%] を求めよ」とあります。求めるものは効率 η、単位は %（パーセント）です。', c: '教科書69ページ「1 仕事と効率」式(2-59)を確認してください。' },
+            stage1: { b: '問題文には、与えた仕事 A と、なくなった仕事 A_C が書かれています。役に立った仕事 A_E がそのまま書かれているか、確かめてください。', a: '有効仕事 A_E がそのまま無いので、まず A_E ＝ A − A_C（与えた仕事 − なくなった仕事）で出し、それから η ＝ A_E ÷ A × 100 で効率を求めます。', c: '教科書69ページ 式(2-59)を確認してください。' },
+            stage2: { b: '与えた仕事のうち、むだになった分を引いた残りが役に立った仕事です。まず A_E ＝ 2000 − 500 ＝ 1500 J を出してから、割合を求めます。', a: 'まず A_E ＝ A − A_C ＝ 1500 J。次に η ＝ A_E ÷ A × 100 ＝ 1500 ÷ 2000 × 100。なくなった分は足すのではなく引きます。', c: '教科書69ページ 式(2-59)を確認してください。' },
+            stage3: { b: '式は η ＝ A_E ÷ A × 100 です。A_E には引き算で出した有効仕事、A には与えた仕事を入れます。', a: '先に A_E ＝ 2000 − 500 ＝ 1500 J を出し、式 η ＝ A_E ÷ A × 100 に A_E ＝ 1500 J、A ＝ 2000 J を入れてください。', c: '教科書69ページ 式(2-59)を確認してください。' },
+            stage4: { b: 'まず有効仕事を出します（2000 − 500 ＝ 1500）。次に 1500 を 2000 で割って 100 を掛けます。電卓を使ってかまいません。', a: 'η ＝ (2000 − 500) ÷ 2000 × 100 ＝ 1500 ÷ 2000 × 100 ＝ 75 [%]。先に引き算で有効仕事を出し、与えた仕事で割って 100 を掛けます。', c: '教科書69ページ 式(2-59)を確認してください。' }
+        };
+        const HINTS_5_2_WINCH = {
+            stage0: { b: '問題文に注目してください。質量 m ＝ 800 kg、速さ v ＝ 0.5 m/s、与えた動力 P ＝ 5 kW、重力加速度 g ＝ 9.8 m/s² はすでに数値が書かれています。', a: '問題文の末尾に「効率 η [%] を求めよ」とあります。求めるものは効率 η、単位は %（パーセント）です。', c: '教科書69ページ 例題24（電動ウインチ）を確認してください。' },
+            stage1: { b: '問題文には質量 m と速さ v、与えた動力 P が書かれています。つり上げに使えた有効動力 P_E がそのまま書かれているか、確かめてください。', a: '有効動力 P_E がそのまま無いので、まず P_E ＝ mg × v（重さ × 速さ）で出し、それから η ＝ P_E ÷ P × 100 で効率を求めます。', c: '教科書69ページ 例題24（電動ウインチ）を確認してください。' },
+            stage2: { b: 'つり上げる力は重さ（m × g）。その向きに速さ v で動かすので、つり上げに使えた動力は「重さ × 速さ」。与えた動力 P との単位（kW）もそろえます。', a: 'まず P_E ＝ m × g × v ＝ 800 × 9.8 × 0.5 ＝ 3920 W ＝ 3.92 kW。次に η ＝ P_E ÷ P × 100。g（9.8）を掛け忘れず、W は kW に直してそろえます。', c: '教科書69ページ 例題24（電動ウインチ）を確認してください。' },
+            stage3: { b: '式は η ＝ P_E ÷ P × 100 です。P_E には重さ × 速さで出した有効動力、P には与えた動力を入れます。単位は kW にそろえます。', a: '先に P_E ＝ 800 × 9.8 × 0.5 ＝ 3920 W ＝ 3.92 kW を出し、式 η ＝ P_E ÷ P × 100 に P_E ＝ 3.92 kW、P ＝ 5 kW を入れてください。', c: '教科書69ページ 例題24（電動ウインチ）を確認してください。' },
+            stage4: { b: 'まず有効動力を出します（800 × 9.8 × 0.5 ＝ 3920 W ＝ 3.92 kW）。次に 3.92 を 5 で割って 100 を掛けます。電卓を使ってかまいません。', a: 'η ＝ 3.92 ÷ 5 × 100 ＝ 78.4 [%]。重さ × 速さで有効動力（3.92 kW）を出し、与えた動力 5 kW で割って 100 を掛けます。W と kW を混ぜないでください。', c: '教科書69ページ 例題24（電動ウインチ）を確認してください。' }
+        };
+        const HINTS_5_2_REVERSE = {
+            stage0: { b: '問題文に注目してください。効率 η ＝ 80 %、与えた動力 P ＝ 5 kW はすでに数値が書かれています。', a: '問題文の末尾に「有効動力 P_E [kW] を求めよ」とあります。求めるものは有効動力 P_E、単位は kW（キロワット）です。', c: '教科書69ページ「1 仕事と効率」式(2-59)を確認してください。' },
+            stage1: { b: '問題文には効率 η と与えた動力 P が書かれています。これまでとは逆に、効率から有効動力を求めることを確かめてください。', a: '効率の式 η ＝ P_E ÷ P × 100 を、求めたい P_E について解きます。', c: '教科書69ページ 式(2-59)を確認してください。' },
+            stage2: { b: '効率 80 % は「与えた動力の 80 % しか役に立たない」という意味です。役に立つ動力は、与えた動力に効率を掛けて、% を元に戻すため 100 で割ります。', a: 'η ＝ P_E ÷ P × 100 を P_E について解くと P_E ＝ η × P ÷ 100。η ＝ 80、P ＝ 5 kW を入れます。100 で割るのを忘れないでください。', c: '教科書69ページ 式(2-59)を確認してください。' },
+            stage3: { b: '式は P_E ＝ η × P ÷ 100 です。η には効率（80）、P には与えた動力（5）を入れます。', a: '式 P_E ＝ η × P ÷ 100 の空欄に、η ＝ 80、P ＝ 5 kW を入れてください。', c: '教科書69ページ 式(2-59)を確認してください。' },
+            stage4: { b: '80 に 5 を掛けて、100 で割るだけです。電卓を使ってかまいません。', a: 'P_E ＝ 80 × 5 ÷ 100 ＝ 400 ÷ 100 ＝ 4 [kW]。効率に与えた動力を掛けて 100 で割ると、取り出せる有効動力が出ます。', c: '教科書69ページ 式(2-59)を確認してください。' }
+        };
+        const HINTS_5_2_BY_ID = { 1: HINTS_5_2_WORK, 2: HINTS_5_2_LOSS, 3: HINTS_5_2_WINCH, 4: HINTS_5_2_REVERSE };
+
         // ==================================================================
         // 考査対策・考査問題マスターデータ（仕様書 §10〜§12）
         // ==================================================================
@@ -9582,6 +9803,8 @@
                 if (unitId === '4-2') return PROBLEMS_4_2.length;
                 if (unitId === '4-3') return PROBLEMS_4_3.length;
                 if (unitId === '4-4') return PROBLEMS_4_4.length;
+                if (unitId === '5-1') return PROBLEMS_5_1.length;
+                if (unitId === '5-2') return PROBLEMS_5_2.length;
                 return 0;
             }
 
@@ -12070,6 +12293,8 @@
                 else if (this.currentUnitId === '4-2') problems = PROBLEMS_4_2;
                 else if (this.currentUnitId === '4-3') problems = PROBLEMS_4_3;
                 else if (this.currentUnitId === '4-4') problems = PROBLEMS_4_4;
+                else if (this.currentUnitId === '5-1') problems = PROBLEMS_5_1;
+                else if (this.currentUnitId === '5-2') problems = PROBLEMS_5_2;
 
                 if (this.currentProblemIndex >= problems.length) {
                     this.showSummary();
@@ -12192,6 +12417,8 @@
                     else if (this.currentUnitId === '4-2') problems = PROBLEMS_4_2;
                     else if (this.currentUnitId === '4-3') problems = PROBLEMS_4_3;
                     else if (this.currentUnitId === '4-4') problems = PROBLEMS_4_4;
+                    else if (this.currentUnitId === '5-1') problems = PROBLEMS_5_1;
+                    else if (this.currentUnitId === '5-2') problems = PROBLEMS_5_2;
                     sidebarList.innerHTML = problems.map((p, i) =>
                         `<li class="${i === this.currentProblemIndex ? 'is-active' : ''}">問 ${p.id}</li>`
                     ).join('');
@@ -12219,7 +12446,7 @@
                 const content = document.getElementById('problemContent');
 
                 // Handle different problem types
-                if (this.currentUnitId === '2-1' || this.currentUnitId === '2-2' || this.currentUnitId === '2-3' || this.currentUnitId === '2-4' || this.currentUnitId === '2-5' || this.currentUnitId === '3-2' || this.currentUnitId === '3-3' || this.currentUnitId === '3-4' || this.currentUnitId === '4-1' || this.currentUnitId === '4-2' || this.currentUnitId === '4-3' || this.currentUnitId === '4-4' || this.currentUnitId === '1-6' || this.currentUnitId === '1-7' || this.currentUnitId === '1-8' || this.currentUnitId === '1-9' || this.currentUnitId === '1-10' || this.currentUnitId === '1-11' || this.currentUnitId === '1-12') {
+                if (this.currentUnitId === '2-1' || this.currentUnitId === '2-2' || this.currentUnitId === '2-3' || this.currentUnitId === '2-4' || this.currentUnitId === '2-5' || this.currentUnitId === '3-2' || this.currentUnitId === '3-3' || this.currentUnitId === '3-4' || this.currentUnitId === '4-1' || this.currentUnitId === '4-2' || this.currentUnitId === '4-3' || this.currentUnitId === '4-4' || this.currentUnitId === '5-1' || this.currentUnitId === '5-2' || this.currentUnitId === '1-6' || this.currentUnitId === '1-7' || this.currentUnitId === '1-8' || this.currentUnitId === '1-9' || this.currentUnitId === '1-10' || this.currentUnitId === '1-11' || this.currentUnitId === '1-12') {
                     this.renderCalculationProblem(problem, content);
                 } else if (this.currentUnitId === '1-3' || this.currentUnitId === '1-4' || this.currentUnitId === '1-5') {
                     this.drawingStageIndex = 0;
@@ -12329,10 +12556,12 @@
                 const is4_2 = this.currentUnitId === '4-2';
                 const is4_3 = this.currentUnitId === '4-3';
                 const is4_4 = this.currentUnitId === '4-4';
+                const is5_1 = this.currentUnitId === '5-1';
+                const is5_2 = this.currentUnitId === '5-2';
                 // isForceCalc は「6 ステージ汎用フロー（problem.stage0Choices 等を持つ）」を意味する。
                 //   2-2 / 2-3 / 2-4 / 2-5 / 3-2 / 3-3 / 3-4 / 4-1 / 4-2 / 4-3 も同じデータ schema（sentence / stage0Choices / stage1Choices / substitutions）を採るので含める。
                 //   4-3 はエネルギー [J] を求めるため isForceCalc には含めるが、力ではないので isForceCalc 名は便宜上の流用。
-                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2 || is3_3 || is3_4 || is4_1 || is4_2 || is4_3 || is4_4;
+                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2 || is3_3 || is3_4 || is4_1 || is4_2 || is4_3 || is4_4 || is5_1 || is5_2;
                 // Persistent problem statement shown at the top of every stage
                 const problemText = isForceCalc
                     ? problem.sentence
@@ -12461,7 +12690,7 @@
                         '計算する',
                         '答えの意味を確認'
                     ]
-                    : (is4_1 || is4_2 || is4_3 || is4_4)
+                    : (is4_1 || is4_2 || is4_3 || is4_4 || is5_1 || is5_2)
                     ? [
                         '求める量を確認する',
                         'どんな問題か確認する',
@@ -12513,6 +12742,8 @@
                                       : is4_2 ? this.build4_2ToolCanvas(problem)
                                       : is4_3 ? this.build4_3EnergyCanvas(problem)
                                       : is4_4 ? this.build4_4PowerCanvas(problem)
+                                      : is5_1 ? this.build5_1FrictionCanvas(problem)
+                                      : is5_2 ? this.build5_2EfficiencyCanvas(problem)
                                       : '';
 
                 // 1-7（案B 7 ステージ）は専用ルートで処理し、early return する。
@@ -12601,6 +12832,10 @@
                         ? 'この問題はどのようなエネルギーの問題ですか？'
                         : is4_4
                         ? 'この問題はどのように動力を求める問題ですか？'
+                        : is5_1
+                        ? 'この問題はどのような摩擦の問題ですか？'
+                        : is5_2
+                        ? 'この問題はどのように効率を求める問題ですか？'
                         : is3_2
                         ? 'この問題はどのような運動の問題ですか？'
                         : '問題文の「一定の速さで運動した」は、どのような運動ですか？';
@@ -12918,8 +13153,8 @@
                         `;
                         this.render1_10DerivAccordion();
                         return;
-                    } else if (is4_1 || is4_2 || is4_3 || is4_4) {
-                        // 4-1（仕事 A=Fs / A=Fs cosα）/ 4-2（道具と機械の仕事）/ 4-3（エネルギー）/ 4-4（動力）: derivationSteps を 1 ステップずつ
+                    } else if (is4_1 || is4_2 || is4_3 || is4_4 || is5_1 || is5_2) {
+                        // 4-1（仕事 A=Fs / A=Fs cosα）/ 4-2（道具と機械の仕事）/ 4-3（エネルギー）/ 4-4（動力）/ 5-1（摩擦）/ 5-2（機械の効率）: derivationSteps を 1 ステップずつ
                         //   アコーディオン表示して、生徒自身に式変形を選ばせる（is3_4 と同じパターン、early return）。
                         if (this.calcInputs.derivStepIndex === undefined) {
                             this.calcInputs.derivStepIndex = 0;
@@ -12980,7 +13215,9 @@
                             l: 'l', theta: 'θ', omega: 'ω', pi: 'π', n: 'n',
                             g: 'g', h: 'h', H: 'H', m: 'm', F: 'F', mg: 'mg', ma: 'ma', net: 'F − mg',
                             p: 'p', Ft: 'Ft', mv0: 'mv₀', dv: 'v₀ − v', m2v2: "m₂v₂'", m1: 'm₁',
-                            A: 'A', cosα: 'cos α', b: 'b', D: 'D' };
+                            A: 'A', cosα: 'cos α', b: 'b', D: 'D',
+                            'μ₀': 'μ₀', 'μ': 'μ', R: 'R', 'f₀': 'f₀', 'tanρ': 'tan ρ',
+                            A_E: 'A_E', A_C: 'A_C', P_E: 'P_E', P: 'P', eta: 'η' };
                         const makeSlotSpan = (role, text) =>
                             `<span class="calc-formula-input empty" data-slot="${role}" id="slot-${role}">${text || slotLabel[role] || role}</span>`;
                         const slotSpans = slots.map(role => makeSlotSpan(role));
@@ -13226,6 +13463,40 @@
                             } else {
                                 // powerForklift
                                 formulaHTML = `P ＝ ${slotSpans[0]} × ${slotSpans[1]} × ${slotSpans[2]} ÷ ${slotSpans[3]}`;
+                            }
+                        } else if (is5_1) {
+                            // 5-1（摩擦）: formulaType ごとに式の形が異なる。
+                            //   staticFric  → f₀ ＝ [μ₀] × [R]   （slots: μ₀, R）
+                            //   kineticFric → f′ ＝ [μ] × [R]      （slots: μ, R）
+                            //   coeffFric   → μ₀ ＝ [f₀] ÷ [R]     （slots: f₀, R）
+                            //   frictionAngle → μ₀ ＝ [tanρ]       （slots: tanρ）
+                            if (problem.formulaType === 'staticFric') {
+                                formulaHTML = `f₀ ＝ ${slotSpans[0]} × ${slotSpans[1]}`;
+                            } else if (problem.formulaType === 'kineticFric') {
+                                formulaHTML = `f′ ＝ ${slotSpans[0]} × ${slotSpans[1]}`;
+                            } else if (problem.formulaType === 'coeffFric') {
+                                formulaHTML = `μ₀ ＝ ${slotSpans[0]} ÷ ${slotSpans[1]}`;
+                            } else {
+                                // frictionAngle
+                                formulaHTML = `μ₀ ＝ ${slotSpans[0]}`;
+                            }
+                        } else if (is5_2) {
+                            // 5-2（機械の効率）: formulaType ごとに式の形が異なる。
+                            //   effWork    → η ＝ [A_E] ÷ [A] × 100             （slots: A_E, A）
+                            //   effLoss    → η ＝ ( [A] − [A_C] ) ÷ A × 100      （slots: A, A_C）
+                            //                  ※分母 A は同じ slot を 2 度描くと id が重複するため、
+                            //                    分母側は非対話の静的ラベル「A」で表示する（対話 slot は分子の A・A_C）
+                            //   effWinch   → η ＝ [m] × [g] × [v] ÷ [P] × 100    （slots: m, g, v, P）
+                            //   effReverse → P_E ＝ [η] × [P] ÷ 100              （slots: eta, P）
+                            if (problem.formulaType === 'effWork') {
+                                formulaHTML = `η ＝ ${slotSpans[0]} ÷ ${slotSpans[1]} × 100`;
+                            } else if (problem.formulaType === 'effLoss') {
+                                formulaHTML = `η ＝ ( ${slotSpans[0]} − ${slotSpans[1]} ) ÷ A × 100`;
+                            } else if (problem.formulaType === 'effWinch') {
+                                formulaHTML = `η ＝ ${slotSpans[0]} × ${slotSpans[1]} × ${slotSpans[2]} ÷ ${slotSpans[3]} × 100`;
+                            } else {
+                                // effReverse
+                                formulaHTML = `P_E ＝ ${slotSpans[0]} × ${slotSpans[1]} ÷ 100`;
                             }
                         } else if (is2_3) {
                             // 2-3（重力加速度）: formulaType ごとに式の形が異なる
@@ -13874,6 +14145,82 @@
                                 </div>
                             </div>
                         `;
+                    } else if (is5_1) {
+                        // 5-1（摩擦）: formulaType ごとに数値入りの式を切り替える。求める量・単位は問ごとに異なる。
+                        //   staticFric    → f₀ ＝ μ₀ × R          答え f₀ [N]
+                        //   kineticFric   → f′ ＝ μ × R            答え f′ [N]
+                        //   coeffFric     → μ₀ ＝ f₀ ÷ R           答え μ₀（無単位）
+                        //   frictionAngle → μ₀ ＝ tan 30°          答え μ₀（無単位）
+                        const unitTeX_5_1 = problem.unit ? `\\ \\mathrm{[${problem.unit}]}` : '';
+                        const unitHTML_5_1 = problem.unit ? `[${problem.unit}]` : '';
+                        let formulaLine_5_1, ansLabel_5_1;
+                        if (problem.formulaType === 'staticFric') {
+                            formulaLine_5_1 = `$f_0 = ${problem.mu0} \\times ${problem.R} = {\\color{#c62828}?}${unitTeX_5_1}$`;
+                            ansLabel_5_1 = 'f₀';
+                        } else if (problem.formulaType === 'kineticFric') {
+                            formulaLine_5_1 = `$f' = ${problem.mu} \\times ${problem.R} = {\\color{#c62828}?}${unitTeX_5_1}$`;
+                            ansLabel_5_1 = 'f′';
+                        } else if (problem.formulaType === 'coeffFric') {
+                            formulaLine_5_1 = `$\\mu_0 = ${problem.f0} \\div ${problem.R} = {\\color{#c62828}?}${unitTeX_5_1}$`;
+                            ansLabel_5_1 = 'μ₀';
+                        } else {
+                            // frictionAngle
+                            formulaLine_5_1 = `$\\mu_0 = \\tan ${problem.rho}° = {\\color{#c62828}?}${unitTeX_5_1}$`;
+                            ansLabel_5_1 = 'μ₀';
+                        }
+                        content.innerHTML = header + staticCanvas1_6 + `
+                            <div class="calc-stage-container">
+                                <div class="calc-question-text">計算結果を入力してください（電卓を使って構いません）。</div>
+                                <div class="calc-formula-display">
+                                    ${formulaLine_5_1}
+                                </div>
+                                <div class="calc-input-row">
+                                    <span class="calc-input-label">答え：${ansLabel_5_1} ＝</span>
+                                    <input type="number" id="answerInput" class="calc-answer-input" placeholder="数値" style="width:120px;">
+                                    ${unitHTML_5_1 ? `<span style="font-size:14px; color:#555; margin-left:6px;">${unitHTML_5_1}</span>` : ''}
+                                </div>
+                            </div>
+                        `;
+                    } else if (is5_2) {
+                        // 5-2（機械の効率）: formulaType ごとに数値入りの式を切り替える。求める量・単位は問ごとに異なる。
+                        //   effWork    → η ＝ 1500 ÷ 2000 × 100              答え η [%]
+                        //   effLoss    → η ＝ (2000 − 500) ÷ 2000 × 100      答え η [%]
+                        //   effWinch   → η ＝ 3.92 ÷ 5 × 100                答え η [%]（P_E＝mgv＝3920W＝3.92kW の補足を添える）
+                        //   effReverse → P_E ＝ 80 × 5 ÷ 100               答え P_E [kW]
+                        // ％ は KaTeX のコメント文字なのでエスケープする（\% にしないと以降が無視されパース失敗）
+                        const unitTeXraw_5_2 = (problem.unit || '').replace(/%/g, '\\%');
+                        const unitTeX_5_2 = unitTeXraw_5_2 ? `\\ \\mathrm{[${unitTeXraw_5_2}]}` : '';
+                        const unitHTML_5_2 = problem.unit ? `[${problem.unit}]` : '';
+                        let formulaLine_5_2, ansLabel_5_2, noteHTML_5_2 = '';
+                        if (problem.formulaType === 'effWork') {
+                            formulaLine_5_2 = `$\\eta = ${problem.A_E} \\div ${problem.A} \\times 100 = {\\color{#c62828}?}${unitTeX_5_2}$`;
+                            ansLabel_5_2 = 'η';
+                        } else if (problem.formulaType === 'effLoss') {
+                            formulaLine_5_2 = `$\\eta = (${problem.A} - ${problem.A_C}) \\div ${problem.A} \\times 100 = {\\color{#c62828}?}${unitTeX_5_2}$`;
+                            ansLabel_5_2 = 'η';
+                        } else if (problem.formulaType === 'effWinch') {
+                            formulaLine_5_2 = `$\\eta = 3.92 \\div ${problem.P} \\times 100 = {\\color{#c62828}?}${unitTeX_5_2}$`;
+                            ansLabel_5_2 = 'η';
+                            noteHTML_5_2 = `<div style="background:#eef3fa; border-left:3px solid #4a7cbe; padding:8px 12px; border-radius:3px; margin:8px 0 10px; font-size:12px; line-height:1.6; color:#333;">有効動力 P_E ＝ m × g × v ＝ ${problem.m} × ${problem.g} × ${problem.v} ＝ 3920 W ＝ <strong>3.92 kW</strong>（単位を kW にそろえてあります）。</div>`;
+                        } else {
+                            // effReverse
+                            formulaLine_5_2 = `$P_E = ${problem.eta} \\times ${problem.P} \\div 100 = {\\color{#c62828}?}${unitTeX_5_2}$`;
+                            ansLabel_5_2 = 'P_E';
+                        }
+                        content.innerHTML = header + staticCanvas1_6 + `
+                            <div class="calc-stage-container">
+                                <div class="calc-question-text">計算結果を入力してください（電卓を使って構いません）。</div>
+                                ${noteHTML_5_2}
+                                <div class="calc-formula-display">
+                                    ${formulaLine_5_2}
+                                </div>
+                                <div class="calc-input-row">
+                                    <span class="calc-input-label">答え：${ansLabel_5_2} ＝</span>
+                                    <input type="number" id="answerInput" class="calc-answer-input" placeholder="数値" style="width:120px;" step="0.1">
+                                    ${unitHTML_5_2 ? `<span style="font-size:14px; color:#555; margin-left:6px;">${unitHTML_5_2}</span>` : ''}
+                                </div>
+                            </div>
+                        `;
                     } else {
                         content.innerHTML = header + `
                             <div class="calc-stage-container">
@@ -14437,6 +14784,74 @@
                                 </div>
                                 <div style="margin-top:14px; font-size:13px; color:#555;">
                                     次の問題に進む前に、式と場面（仕事と時間、または力と速さの関係）を頭の中で思い浮かべてください。
+                                </div>
+                            </div>
+                        `;
+                    } else if (is5_1) {
+                        // 5-1（摩擦）: 4-4 と同じ 3 行段組み KaTeX（aligned）で「記号式／数値式／答え」を表示し、
+                        //   その下に formulaType ごとの振り返り文を載せる。CJK は \mathrm{}。
+                        let reflFormulaLatex_5_1, reflText_5_1;
+                        if (problem.formulaType === 'staticFric') {
+                            reflFormulaLatex_5_1 = `\\begin{aligned} f_0 &= \\mu_0 R \\\\[6pt] &= ${problem.mu0}\\times${problem.R} \\\\[6pt] &= ${problem.expectedAns}\\ \\mathrm{N} \\end{aligned}`;
+                            reflText_5_1 = '最大静摩擦力＝静摩擦係数×（面を垂直に押しつける力）。水平面では R＝重力 W です。係数だけで終わらせず、必ず R を掛けてください。';
+                        } else if (problem.formulaType === 'kineticFric') {
+                            reflFormulaLatex_5_1 = `\\begin{aligned} f' &= \\mu R \\\\[6pt] &= ${problem.mu}\\times${problem.R} \\\\[6pt] &= ${problem.expectedAns}\\ \\mathrm{N} \\end{aligned}`;
+                            reflText_5_1 = '動摩擦力＝動摩擦係数×R。動摩擦係数は静摩擦係数より小さいことが多いです。';
+                        } else if (problem.formulaType === 'coeffFric') {
+                            reflFormulaLatex_5_1 = `\\begin{aligned} \\mu_0 &= \\dfrac{f_0}{R} \\\\[6pt] &= \\dfrac{${problem.f0}}{${problem.R}} \\\\[6pt] &= ${problem.expectedAns} \\end{aligned}`;
+                            reflText_5_1 = '静摩擦係数は、動かし始めに必要な力 ÷（面を垂直に押しつける力）。単位はつきません（数だけ）。例題22 と同じです。';
+                        } else {
+                            // frictionAngle（問4）
+                            reflFormulaLatex_5_1 = `\\begin{aligned} \\mu_0 &= \\tan\\rho \\\\[6pt] &= \\tan ${problem.rho}° \\\\[6pt] &= ${problem.expectedAns} \\end{aligned}`;
+                            reflText_5_1 = '斜面で物体がちょうど滑り出す傾きを摩擦角といいます。その tan が静摩擦係数になります（μ₀＝tanρ）。坂を急にしていって滑り出した角度から、すべりにくさが分かります。';
+                        }
+                        content.innerHTML = header + staticCanvas1_6 + `
+                            <div class="calc-stage-container">
+                                <div class="calc-question-text">答えの意味を確認しよう。</div>
+                                <div class="calc-formula-display">
+                                    $${reflFormulaLatex_5_1}$
+                                </div>
+                                <div style="background:#eaf1fa; border-left:4px solid #1e5fa8; padding:14px 18px; border-radius:3px; margin-top:18px; font-size:15px; line-height:1.7;">
+                                    ${reflText_5_1}
+                                </div>
+                                <div style="margin-top:14px; font-size:13px; color:#555;">
+                                    次の問題に進む前に、式と場面（摩擦力と面を押しつける力の関係）を頭の中で思い浮かべてください。
+                                </div>
+                            </div>
+                        `;
+                    } else if (is5_2) {
+                        // 5-2（機械の効率）: 4-4 と同じ 3 行段組み KaTeX（aligned）で「記号式／数値式／答え」を表示し、
+                        //   その下に formulaType ごとの振り返り文を載せる。CJK は \mathrm{}。
+                        //   問1・問2 は「割合 → 百分率」を視覚化する比率バー（与えた仕事を全体、有効仕事を濃色で塗る）を添える。
+                        let reflFormulaLatex_5_2, reflText_5_2, ratioBar_5_2 = '';
+                        if (problem.formulaType === 'effWork') {
+                            reflFormulaLatex_5_2 = `\\begin{aligned} \\eta &= \\dfrac{A_E}{A}\\times 100 \\\\[6pt] &= \\dfrac{${problem.A_E}}{${problem.A}}\\times 100 \\\\[6pt] &= ${problem.expectedAns}\\ \\% \\end{aligned}`;
+                            reflText_5_2 = '効率は「役に立った仕事 ÷ 与えた仕事」の割合（1500÷2000＝0.75、つまり 1 のうち 0.75）。それを「100 のうちどれだけか（％）」に直すため 100 を掛けて 75%。';
+                            ratioBar_5_2 = this.build5_2EfficiencyCanvas({ canvas: { kind: 'effBar', width: 360, height: 96, total: 2000, eff: 1500, loss: 0, pct: 75 } });
+                        } else if (problem.formulaType === 'effLoss') {
+                            reflFormulaLatex_5_2 = `\\begin{aligned} \\eta &= \\dfrac{A_E}{A}\\times 100 \\\\[6pt] &= \\dfrac{${problem.A}-${problem.A_C}}{${problem.A}}\\times 100 \\\\[6pt] &= \\dfrac{${problem.A - problem.A_C}}{${problem.A}}\\times 100 \\\\[6pt] &= ${problem.expectedAns}\\ \\% \\end{aligned}`;
+                            reflText_5_2 = '全体の仕事から、むだになった分（損失 500J）を引くと、役に立った仕事 1500J。それが与えた仕事のうち 0.75（75%）。';
+                            ratioBar_5_2 = this.build5_2EfficiencyCanvas({ canvas: { kind: 'effBar', width: 360, height: 96, total: 2000, eff: 1500, loss: 500, pct: 75 } });
+                        } else if (problem.formulaType === 'effWinch') {
+                            reflFormulaLatex_5_2 = `\\begin{aligned} \\eta &= \\dfrac{P_E}{P}\\times 100 \\\\[6pt] P_E &= ${problem.m}\\times ${problem.g}\\times ${problem.v} = 3920\\ \\mathrm{W} = 3.92\\ \\mathrm{kW} \\\\[6pt] &= \\dfrac{3.92}{${problem.P}}\\times 100 \\\\[6pt] &= ${problem.expectedAns}\\ \\% \\end{aligned}`;
+                            reflText_5_2 = 'つり上げに使えた動力 P_E＝mg×v＝3.92kW を、与えた動力 5kW で割って 100 倍。電動機の力の 78.4% がつり上げに使えた、ということです。';
+                        } else {
+                            // effReverse
+                            reflFormulaLatex_5_2 = `\\begin{aligned} P_E &= \\dfrac{\\eta \\times P}{100} \\\\[6pt] &= \\dfrac{${problem.eta}\\times ${problem.P}}{100} \\\\[6pt] &= ${problem.expectedAns}\\ \\mathrm{kW} \\end{aligned}`;
+                            reflText_5_2 = '効率80%なら、与えた動力 5kW のうち 80% の 4kW しか取り出せません。残り 1kW は損失になります。';
+                        }
+                        content.innerHTML = header + staticCanvas1_6 + `
+                            <div class="calc-stage-container">
+                                <div class="calc-question-text">答えの意味を確認しよう。</div>
+                                <div class="calc-formula-display">
+                                    $${reflFormulaLatex_5_2}$
+                                </div>
+                                ${ratioBar_5_2}
+                                <div style="background:#eaf1fa; border-left:4px solid #1e5fa8; padding:14px 18px; border-radius:3px; margin-top:18px; font-size:15px; line-height:1.7;">
+                                    ${reflText_5_2}
+                                </div>
+                                <div style="margin-top:14px; font-size:13px; color:#555;">
+                                    次の問題に進む前に、式と場面（与えた仕事・動力のうち、どれだけが役に立ったか）を頭の中で思い浮かべてください。
                                 </div>
                             </div>
                         `;
@@ -17968,6 +18383,253 @@
                 return svg;
             }
 
+            // 5-1（摩擦）の問題図。build4_4PowerCanvas を雛形に canvas.kind で分岐。
+            //   marker 接頭辞は stc51-。色は既存パレット。
+            //   staticFric / kineticFric / coeffFric：水平な床の上の物体に W↓・R↑・水平の駆動力 f₀／f′。
+            //   frictionAngle：傾き ρ＝30° の斜面の上の物体に W↓を W sinρ（斜面平行・点線）と W cosρ（斜面垂直・点線）に分解。
+            build5_1FrictionCanvas(problem) {
+                const c = problem.canvas || { width: 360, height: 200, kind: 'staticFric' };
+                const W = c.width, H = c.height;
+                const kind = c.kind || 'staticFric';
+                const RED = '#d23a2a';
+                const COMP = '#1e5fa8';
+                const GRAY = '#8a8a8a';
+                const BOXF = '#dce9f7';
+                const BOXS = '#1e5fa8';
+
+                let svg = `<div class="drawing-wrapper" style="pointer-events:none;">
+                <svg class="drawing-svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="cursor:default;">
+                <defs>
+                  <marker id="stc51-red" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><polygon points="0,0 9,3.5 0,7" fill="${RED}"/></marker>
+                  <marker id="stc51-comp" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><polygon points="0,0 9,3.5 0,7" fill="${COMP}"/></marker>
+                  <marker id="stc51-gray" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto"><polygon points="0,0 8,3.5 0,7" fill="${GRAY}"/></marker>
+                </defs>`;
+
+                if (kind === 'staticFric' || kind === 'kineticFric' || kind === 'coeffFric') {
+                    // 水平な床（ハッチング）の上に物体（箱）。W↓・R↑・水平の駆動力（赤）。
+                    //   駆動力ラベルは静摩擦 f₀、動摩擦 f′。W の値ラベルを添える。
+                    const floorY = H - 40;
+                    svg += `<line x1="20" y1="${floorY}" x2="${W - 20}" y2="${floorY}" stroke="${GRAY}" stroke-width="1.6"/>`;
+                    for (let hx = 28; hx < W - 18; hx += 16) {
+                        svg += `<line x1="${hx}" y1="${floorY}" x2="${hx - 8}" y2="${floorY + 9}" stroke="#bbb" stroke-width="1"/>`;
+                    }
+                    // 物体（箱、中央やや左）
+                    const boxW = 56, boxH = 42;
+                    const boxX = W / 2 - boxW / 2 - 18;
+                    const boxY = floorY - boxH;
+                    const cx = boxX + boxW / 2;
+                    svg += `<rect x="${boxX}" y="${boxY}" width="${boxW}" height="${boxH}" rx="5" ry="5" fill="${BOXF}" stroke="${BOXS}" stroke-width="1.8"/>`;
+                    // 重力 W（箱の中心から下へ、グレー）。floorY の下に出ないよう短めに。
+                    const wLabel = (kind === 'staticFric') ? 'W ＝ 100 N' : (kind === 'kineticFric') ? 'W ＝ 200 N' : 'W ＝ 60 N';
+                    const wStartY = boxY + boxH / 2;
+                    const wEndY = floorY - 4;
+                    svg += `<line x1="${cx}" y1="${wStartY}" x2="${cx}" y2="${wEndY}" stroke="${GRAY}" stroke-width="2.4" marker-end="url(#stc51-gray)"/>`;
+                    svg += `<text x="${cx - 8}" y="${(wStartY + wEndY) / 2 + 4}" text-anchor="end" font-size="12" fill="${GRAY}" font-weight="700">${wLabel}</text>`;
+                    // 面を垂直に押しつける力 R（箱中心から上へ、青）。canvas 上端を超えないよう y=20 で止める。
+                    const rTop = 22;
+                    svg += `<line x1="${cx}" y1="${boxY - 2}" x2="${cx}" y2="${rTop}" stroke="${COMP}" stroke-width="2.4" marker-end="url(#stc51-comp)"/>`;
+                    svg += `<text x="${cx + 8}" y="${rTop + 14}" text-anchor="start" font-size="12" fill="${COMP}" font-weight="700">面を垂直に押しつける力 R</text>`;
+                    // 水平の駆動力（赤、右向き）。箱右端から右へ。
+                    const fLabel = (kind === 'kineticFric') ? "動かす力 f′" : '動かす力 f₀';
+                    const fY = boxY + boxH / 2;
+                    const fStart = boxX + boxW + 6;
+                    const fEnd = Math.min(fStart + 84, W - 18);
+                    svg += `<line x1="${fStart}" y1="${fY}" x2="${fEnd}" y2="${fY}" stroke="${RED}" stroke-width="2.8" marker-end="url(#stc51-red)"/>`;
+                    svg += `<text x="${(fStart + fEnd) / 2}" y="${fY - 9}" text-anchor="middle" font-size="13" fill="${RED}" font-weight="700">${fLabel}</text>`;
+                    svg += `</svg></div>`;
+                    return svg;
+                }
+
+                if (kind === 'frictionAngle') {
+                    // 斜面（傾き ρ＝30°、右下が直角、左下が角 ρ）。斜面上に物体。
+                    //   重力 W↓を斜面平行 W sinρ（点線・すべり落ちる向き）と斜面垂直 W cosρ（点線・押しつけ）に分解。4-2 incline と同流儀。
+                    const baseY = H - 34;
+                    const x0 = 36;                    // 左下頂点（角 ρ）
+                    const baseLen = 250;
+                    const x1 = x0 + baseLen;          // 右下頂点（直角）
+                    const rho = (problem.rho || 30) * Math.PI / 180;
+                    const apexY = baseY - baseLen * Math.tan(rho);
+                    // 斜面の三角形
+                    svg += `<polygon points="${x0},${baseY} ${x1},${baseY} ${x1},${apexY.toFixed(1)}" fill="#eef2f6" stroke="${GRAY}" stroke-width="1.6"/>`;
+                    // 直角マーク（右下）
+                    svg += `<rect x="${x1 - 12}" y="${baseY - 12}" width="12" height="12" fill="none" stroke="${GRAY}" stroke-width="1"/>`;
+                    // 角 ρ の弧（左下）
+                    const arcR = 36;
+                    const arcEndX = x0 + arcR * Math.cos(-rho);
+                    const arcEndY = baseY + arcR * Math.sin(-rho);
+                    svg += `<path d="M ${x0 + arcR} ${baseY} A ${arcR} ${arcR} 0 0 0 ${arcEndX.toFixed(1)} ${arcEndY.toFixed(1)}" fill="none" stroke="${GRAY}" stroke-width="1.2"/>`;
+                    svg += `<text x="${x0 + arcR + 8}" y="${baseY - 8}" text-anchor="start" font-size="13" fill="${GRAY}" font-weight="700">ρ ＝ 30°</text>`;
+                    // 物体（箱）：斜面の中央付近に、斜面に沿って傾けて置く
+                    const t = 0.5;
+                    const px = x0 + baseLen * t;
+                    const py = baseY - baseLen * Math.tan(rho) * t;
+                    const boxW = 42, boxH = 28;
+                    const deg = (problem.rho || 30);
+                    svg += `<g transform="translate(${px.toFixed(1)},${py.toFixed(1)}) rotate(${-deg})">`;
+                    svg += `<rect x="${-boxW / 2}" y="${-boxH - 2}" width="${boxW}" height="${boxH}" rx="4" ry="4" fill="${BOXF}" stroke="${BOXS}" stroke-width="1.8"/>`;
+                    svg += `</g>`;
+                    // 重力 W（真下、グレー）：箱の中心から下へ
+                    const gx = px, gy = py - 14;
+                    const wLen = 52;
+                    svg += `<line x1="${gx.toFixed(1)}" y1="${gy.toFixed(1)}" x2="${gx.toFixed(1)}" y2="${(gy + wLen).toFixed(1)}" stroke="${GRAY}" stroke-width="2.4" marker-end="url(#stc51-gray)"/>`;
+                    svg += `<text x="${(gx + 6).toFixed(1)}" y="${(gy + wLen).toFixed(1)}" text-anchor="start" font-size="12" fill="${GRAY}" font-weight="700">W</text>`;
+                    // 分力（青点線）: 斜面に平行（W sinρ、すべり落ちる＝左下）と斜面に垂直（W cosρ、押しつけ＝右下）
+                    const par = { x: -Math.cos(rho), y: Math.sin(rho) };
+                    const perp = { x: Math.sin(rho), y: Math.cos(rho) };
+                    const pl = 40;
+                    const parX = gx + par.x * pl, parY = gy + par.y * pl;
+                    svg += `<line x1="${gx.toFixed(1)}" y1="${gy.toFixed(1)}" x2="${parX.toFixed(1)}" y2="${parY.toFixed(1)}" stroke="${COMP}" stroke-width="2" stroke-dasharray="6,3" marker-end="url(#stc51-comp)"/>`;
+                    svg += `<text x="${(parX - 6).toFixed(1)}" y="${(parY + 12).toFixed(1)}" text-anchor="end" font-size="10" fill="${COMP}" font-weight="600">W sinρ</text>`;
+                    const perpX = gx + perp.x * pl, perpY = gy + perp.y * pl;
+                    svg += `<line x1="${gx.toFixed(1)}" y1="${gy.toFixed(1)}" x2="${perpX.toFixed(1)}" y2="${perpY.toFixed(1)}" stroke="${COMP}" stroke-width="2" stroke-dasharray="6,3" marker-end="url(#stc51-comp)"/>`;
+                    svg += `<text x="${(perpX + 6).toFixed(1)}" y="${(perpY + 4).toFixed(1)}" text-anchor="start" font-size="10" fill="${COMP}" font-weight="600">W cosρ</text>`;
+                    svg += `</svg></div>`;
+                    return svg;
+                }
+
+                svg += `</svg></div>`;
+                return svg;
+            }
+
+            // 5-2（機械の効率）の問題図。build5_1FrictionCanvas を雛形に canvas.kind で分岐。
+            //   marker 接頭辞は stc52-。色は既存パレット。教科書 図2-86 の流れ図がモチーフ。
+            //   effWork：与えた仕事 A → 機械の箱 → 有効仕事 A_E（太い矢印）。下に細く損失。A・A_E を強調。
+            //   effLoss：同じ流れ図。与えた仕事 A・損失 A_C（下向き）を明示、有効仕事の箱を「？」に。
+            //   effWinch：図2-87 の電動ウインチ。上にモーター P、ロープ、下に物体 m、上向き速さ矢印 v。
+            //   effReverse：流れ図の逆算版。与えた動力 P・効率 η を入力、出口の有効動力 P_E を「？kW」に。
+            //   effBar：振り返り用の比率バー（与えた仕事を全体、有効仕事を濃色、損失を薄色で塗る）。
+            build5_2EfficiencyCanvas(problem) {
+                const c = problem.canvas || { width: 380, height: 200, kind: 'effWork' };
+                const W = c.width, H = c.height;
+                const kind = c.kind || 'effWork';
+                const RED = '#d23a2a';
+                const COMP = '#1e5fa8';
+                const GRAY = '#8a8a8a';
+                const GREEN = '#3a8a4a';
+                const BOXF = '#dce9f7';
+                const BOXS = '#1e5fa8';
+
+                // 比率バー（振り返り問1・問2用）。流れ図の defs を必要としないため独立に組む。
+                if (kind === 'effBar') {
+                    const total = c.total || 2000;
+                    const eff = c.eff || 1500;
+                    const loss = c.loss || 0;
+                    const pct = (c.pct != null) ? c.pct : Math.round(eff / total * 100);
+                    const barX = 24, barY = 30, barW = W - 110, barH = 30;
+                    const effW = barW * (eff / total);
+                    const lossW = barW * (loss / total);
+                    let s = `<div class="drawing-wrapper" style="pointer-events:none;">
+                    <svg class="drawing-svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="cursor:default;">`;
+                    // 全体（与えた仕事）の枠
+                    s += `<rect x="${barX}" y="${barY}" width="${barW}" height="${barH}" fill="#eef2f6" stroke="${GRAY}" stroke-width="1.4"/>`;
+                    // 有効仕事（濃い緑）
+                    s += `<rect x="${barX}" y="${barY}" width="${effW.toFixed(1)}" height="${barH}" fill="${GREEN}" stroke="${GREEN}" stroke-width="1"/>`;
+                    // 損失（薄い赤）。effW の右隣に。
+                    if (loss > 0) {
+                        s += `<rect x="${(barX + effW).toFixed(1)}" y="${barY}" width="${lossW.toFixed(1)}" height="${barH}" fill="#f3c4bd" stroke="#e0a59c" stroke-width="1"/>`;
+                    }
+                    // % ラベル（バー右）
+                    s += `<text x="${barX + barW + 10}" y="${barY + barH / 2 + 5}" text-anchor="start" font-size="16" fill="${GREEN}" font-weight="700">${pct}%</text>`;
+                    // 全体の長さラベル（バー上）
+                    s += `<text x="${barX}" y="${barY - 8}" text-anchor="start" font-size="11" fill="${GRAY}" font-weight="600">与えた仕事 A ＝ ${total} J（全体）</text>`;
+                    // 有効・損失のラベル（バー下）
+                    s += `<text x="${barX + effW / 2}" y="${barY + barH + 16}" text-anchor="middle" font-size="11" fill="${GREEN}" font-weight="700">有効 ${eff} J</text>`;
+                    if (loss > 0) {
+                        s += `<text x="${(barX + effW + lossW / 2).toFixed(1)}" y="${barY + barH + 16}" text-anchor="middle" font-size="11" fill="${RED}" font-weight="600">損失 ${loss} J</text>`;
+                    }
+                    s += `<text x="${barX}" y="${barY + barH + 34}" text-anchor="start" font-size="11" fill="#555">全体 1 のうち ${(eff / total).toFixed(2)} ＝ 100 のうち ${pct}（％）が役に立った分</text>`;
+                    s += `</svg></div>`;
+                    return s;
+                }
+
+                let svg = `<div class="drawing-wrapper" style="pointer-events:none;">
+                <svg class="drawing-svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="cursor:default;">
+                <defs>
+                  <marker id="stc52-red" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><polygon points="0,0 9,3.5 0,7" fill="${RED}"/></marker>
+                  <marker id="stc52-comp" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><polygon points="0,0 9,3.5 0,7" fill="${COMP}"/></marker>
+                  <marker id="stc52-green" markerWidth="11" markerHeight="9" refX="9" refY="4.5" orient="auto"><polygon points="0,0 11,4.5 0,9" fill="${GREEN}"/></marker>
+                  <marker id="stc52-gray" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto"><polygon points="0,0 8,3.5 0,7" fill="${GRAY}"/></marker>
+                </defs>`;
+
+                if (kind === 'effWork' || kind === 'effLoss') {
+                    // 流れ図：左から「与えた仕事 A」→ 中央「機械」の箱 →（太い緑矢印）右へ「有効仕事 A_E」。下に細く「損失」。
+                    const midY = 96;
+                    const boxX = W / 2 - 38, boxY = midY - 26, boxW = 76, boxH = 52;
+                    // 機械の箱
+                    svg += `<rect x="${boxX}" y="${boxY}" width="${boxW}" height="${boxH}" rx="6" ry="6" fill="${BOXF}" stroke="${BOXS}" stroke-width="2"/>`;
+                    svg += `<text x="${W / 2}" y="${midY + 5}" text-anchor="middle" font-size="14" fill="${BOXS}" font-weight="700">機械</text>`;
+                    // 左：与えた仕事 A（赤、右向き）→ 箱へ
+                    const inStart = 28, inEnd = boxX - 6;
+                    svg += `<line x1="${inStart}" y1="${midY}" x2="${inEnd}" y2="${midY}" stroke="${RED}" stroke-width="3" marker-end="url(#stc52-red)"/>`;
+                    svg += `<text x="${(inStart + inEnd) / 2}" y="${midY - 10}" text-anchor="middle" font-size="12" fill="${RED}" font-weight="700">与えた仕事</text>`;
+                    svg += `<text x="${(inStart + inEnd) / 2}" y="${midY - 24}" text-anchor="middle" font-size="13" fill="${RED}" font-weight="700">A ＝ ${problem.A} J</text>`;
+                    // 右：有効仕事 A_E（太い緑、右向き）。effWork は値、effLoss は「？」
+                    const outStart = boxX + boxW + 6, outEnd = W - 28;
+                    svg += `<line x1="${outStart}" y1="${midY}" x2="${outEnd}" y2="${midY}" stroke="${GREEN}" stroke-width="5" marker-end="url(#stc52-green)"/>`;
+                    const aeLabel = (kind === 'effWork') ? `A_E ＝ ${problem.A_E} J` : 'A_E ＝ ？';
+                    svg += `<text x="${(outStart + outEnd) / 2}" y="${midY - 24}" text-anchor="middle" font-size="13" fill="${GREEN}" font-weight="700">${aeLabel}</text>`;
+                    svg += `<text x="${(outStart + outEnd) / 2}" y="${midY - 10}" text-anchor="middle" font-size="12" fill="${GREEN}" font-weight="700">有効仕事</text>`;
+                    // 下：損失（細い、下向き）。effLoss は値、effWork は「損失」のみ。
+                    const lossX = W / 2, lossTop = boxY + boxH + 2, lossBot = lossTop + 38;
+                    svg += `<line x1="${lossX}" y1="${lossTop}" x2="${lossX}" y2="${lossBot}" stroke="${GRAY}" stroke-width="2" marker-end="url(#stc52-gray)"/>`;
+                    const lossLabel = (kind === 'effLoss') ? `損失 A_C ＝ ${problem.A_C} J` : '損失';
+                    svg += `<text x="${lossX + 8}" y="${lossBot}" text-anchor="start" font-size="11" fill="${GRAY}" font-weight="600">${lossLabel}</text>`;
+                    svg += `</svg></div>`;
+                    return svg;
+                }
+
+                if (kind === 'effWinch') {
+                    // 電動ウインチ（図2-87）：上にモーター P、ロープ、下に物体 m、上向き速さ矢印 v。
+                    const motorX = W / 2 - 36, motorY = 24, motorW = 72, motorH = 40;
+                    // モーター（箱）
+                    svg += `<rect x="${motorX}" y="${motorY}" width="${motorW}" height="${motorH}" rx="6" ry="6" fill="${BOXF}" stroke="${BOXS}" stroke-width="2"/>`;
+                    svg += `<text x="${W / 2}" y="${motorY + motorH / 2 + 4}" text-anchor="middle" font-size="12" fill="${BOXS}" font-weight="700">モーター</text>`;
+                    svg += `<text x="${W / 2}" y="${motorY - 6}" text-anchor="middle" font-size="13" fill="${COMP}" font-weight="700">P ＝ ${problem.P} kW</text>`;
+                    // ロープ（モーター下端 → 物体上端）
+                    const ropeTop = motorY + motorH;
+                    const objW = 64, objH = 46;
+                    const objX = W / 2 - objW / 2, objY = H - objH - 26;
+                    svg += `<line x1="${W / 2}" y1="${ropeTop}" x2="${W / 2}" y2="${objY}" stroke="${GRAY}" stroke-width="2.2"/>`;
+                    // 物体（箱）
+                    svg += `<rect x="${objX}" y="${objY}" width="${objW}" height="${objH}" rx="5" ry="5" fill="#eef2f6" stroke="${BOXS}" stroke-width="1.8"/>`;
+                    svg += `<text x="${W / 2}" y="${objY + objH / 2 + 5}" text-anchor="middle" font-size="12" fill="${BOXS}" font-weight="700">m ＝ ${problem.m} kg</text>`;
+                    // 上向き速さ矢印 v（物体の右側、上向き）
+                    const vX = objX + objW + 22, vBot = objY + objH, vTop = objY - 6;
+                    svg += `<line x1="${vX}" y1="${vBot}" x2="${vX}" y2="${vTop}" stroke="${RED}" stroke-width="2.8" marker-end="url(#stc52-red)"/>`;
+                    svg += `<text x="${vX + 8}" y="${(vBot + vTop) / 2}" text-anchor="start" font-size="12" fill="${RED}" font-weight="700">v ＝ ${problem.v} m/s</text>`;
+                    // 重力 W（物体の中心から下へ、グレー）
+                    const wTop = objY + objH / 2, wBot = objY + objH + 18;
+                    svg += `<line x1="${objX + objW / 2 - 14}" y1="${wTop}" x2="${objX + objW / 2 - 14}" y2="${wBot}" stroke="${GRAY}" stroke-width="2.2" marker-end="url(#stc52-gray)"/>`;
+                    svg += `<text x="${objX + objW / 2 - 20}" y="${wBot}" text-anchor="end" font-size="11" fill="${GRAY}" font-weight="600">重さ mg</text>`;
+                    svg += `</svg></div>`;
+                    return svg;
+                }
+
+                if (kind === 'effReverse') {
+                    // 流れ図の逆算版：入力側に「与えた動力 P」と「効率 η」、出口の有効動力 P_E を「？kW」に。
+                    const midY = 96;
+                    const boxX = W / 2 - 40, boxY = midY - 26, boxW = 80, boxH = 52;
+                    svg += `<rect x="${boxX}" y="${boxY}" width="${boxW}" height="${boxH}" rx="6" ry="6" fill="${BOXF}" stroke="${BOXS}" stroke-width="2"/>`;
+                    svg += `<text x="${W / 2}" y="${midY - 2}" text-anchor="middle" font-size="13" fill="${BOXS}" font-weight="700">ウインチ</text>`;
+                    svg += `<text x="${W / 2}" y="${midY + 14}" text-anchor="middle" font-size="12" fill="${GREEN}" font-weight="700">η ＝ ${problem.eta} %</text>`;
+                    // 左：与えた動力 P（赤、右向き）→ 箱へ
+                    const inStart = 28, inEnd = boxX - 6;
+                    svg += `<line x1="${inStart}" y1="${midY}" x2="${inEnd}" y2="${midY}" stroke="${RED}" stroke-width="3" marker-end="url(#stc52-red)"/>`;
+                    svg += `<text x="${(inStart + inEnd) / 2}" y="${midY - 24}" text-anchor="middle" font-size="13" fill="${RED}" font-weight="700">P ＝ ${problem.P} kW</text>`;
+                    svg += `<text x="${(inStart + inEnd) / 2}" y="${midY - 10}" text-anchor="middle" font-size="12" fill="${RED}" font-weight="700">与えた動力</text>`;
+                    // 右：有効動力 P_E（太い緑、右向き、？）
+                    const outStart = boxX + boxW + 6, outEnd = W - 28;
+                    svg += `<line x1="${outStart}" y1="${midY}" x2="${outEnd}" y2="${midY}" stroke="${GREEN}" stroke-width="5" marker-end="url(#stc52-green)"/>`;
+                    svg += `<text x="${(outStart + outEnd) / 2}" y="${midY - 24}" text-anchor="middle" font-size="13" fill="${GREEN}" font-weight="700">P_E ＝ ？ kW</text>`;
+                    svg += `<text x="${(outStart + outEnd) / 2}" y="${midY - 10}" text-anchor="middle" font-size="12" fill="${GREEN}" font-weight="700">有効動力</text>`;
+                    svg += `</svg></div>`;
+                    return svg;
+                }
+
+                svg += `</svg></div>`;
+                return svg;
+            }
+
             // 1-9 Stage 2 用の schematic 図: 偶力の典型図（新仕様、問題図と整合）。
             //   左作用点に上向き F、右作用点に下向き F、間の距離 d は腕（水平破線・1-8 と同流儀）。
             //   中央に CW 回転矢印（左↑・右↓ → 時計回りに回転）。
@@ -20628,6 +21290,10 @@
                                            ? (HINTS_4_3_BY_ID[(this.getCalcProblem() || {}).id] || HINTS_4_3_KINETIC)
                                        : (this.currentUnitId === '4-4')
                                            ? (HINTS_4_4_BY_ID[(this.getCalcProblem() || {}).id] || HINTS_4_4_WORK)
+                                       : (this.currentUnitId === '5-1')
+                                           ? (HINTS_5_1_BY_ID[(this.getCalcProblem() || {}).id] || HINTS_5_1_STATIC)
+                                       : (this.currentUnitId === '5-2')
+                                           ? (HINTS_5_2_BY_ID[(this.getCalcProblem() || {}).id] || HINTS_5_2_WORK)
                                        : HINTS_2_1;
                     const stageHints = hintsTable[stagePart];
                     const levelKeys = ['b', 'a', 'c'];
@@ -20787,6 +21453,12 @@
                 if (this.currentUnitId === '4-4') {
                     return PROBLEMS_4_4[this.currentProblemIndex];
                 }
+                if (this.currentUnitId === '5-1') {
+                    return PROBLEMS_5_1[this.currentProblemIndex];
+                }
+                if (this.currentUnitId === '5-2') {
+                    return PROBLEMS_5_2[this.currentProblemIndex];
+                }
                 return null;
             }
 
@@ -20835,7 +21507,9 @@
                 const is4_2 = this.currentUnitId === '4-2';
                 const is4_3 = this.currentUnitId === '4-3';
                 const is4_4 = this.currentUnitId === '4-4';
-                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2 || is3_3 || is3_4 || is4_1 || is4_2 || is4_3 || is4_4;
+                const is5_1 = this.currentUnitId === '5-1';
+                const is5_2 = this.currentUnitId === '5-2';
+                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2 || is3_3 || is3_4 || is4_1 || is4_2 || is4_3 || is4_4 || is5_1 || is5_2;
                 // 1-6〜1-12 / 2-2 / 2-3 / 2-4 / 2-5 / 3-2 / 3-3 / 3-4 は problem.stage0Correct、2-1 は固定値 's'
                 const correct = isForceCalc ? problem.stage0Correct : 's';
                 const isCorrect = (value === correct);
@@ -20940,6 +21614,18 @@
                         } else if (is4_4) {
                             // 4-4: 全問 求める量は動力 P [W]
                             msg = '正解。この場面の動力 P [W] の大きさを求めます。';
+                        } else if (is5_1) {
+                            // 5-1: formulaType で求める量が異なる（f₀ / f′ / μ₀）
+                            msg = (problem.formulaType === 'staticFric')
+                                ? '正解。物体を動かし始めるのに必要な力（最大静摩擦力 f₀）[N] の大きさを求めます。'
+                                : (problem.formulaType === 'kineticFric')
+                                ? '正解。すべらせ続けるのに必要な力（動摩擦力 f′）[N] の大きさを求めます。'
+                                : '正解。床（板）と物体の間の静摩擦係数 μ₀ の大きさを求めます（単位はつきません）。';
+                        } else if (is5_2) {
+                            // 5-2: 問1〜3 は効率 η [%]、問4（effReverse）は有効動力 P_E [kW]
+                            msg = (problem.formulaType === 'effReverse')
+                                ? '正解。このウインチが取り出せる有効動力 P_E [kW] の大きさを求めます。'
+                                : '正解。この機械（ウインチ）の効率 η [%] の大きさを求めます。';
                         }
                         feedback.textContent = msg;
                     }
@@ -21195,6 +21881,44 @@
                             } else {
                                 msg = '不正解。問題文の末尾「○○を求めよ」に注目してください。';
                             }
+                        } else if (is5_1) {
+                            // 5-1: 与えられている量を選んだ場合の説明（求めるものは問により f₀ / f′ / μ₀）
+                            const target5_1 = (problem.formulaType === 'staticFric')
+                                ? '最大静摩擦力 f₀'
+                                : (problem.formulaType === 'kineticFric')
+                                ? '動摩擦力 f′'
+                                : '静摩擦係数 μ₀';
+                            if (value === 'mu0' || value === 'mu') {
+                                msg = `不正解。摩擦係数は問題文に数値で与えられています。求めるものは${target5_1}です。`;
+                            } else if (value === 'R') {
+                                msg = `不正解。R（面を垂直に押しつける力）は計算で求める途中の量で、最後に求めたいものではありません。求めるものは${target5_1}です。`;
+                            } else if (value === 'f0') {
+                                msg = `不正解。f₀（動かし始めに必要な力）は問題文に数値で与えられています。求めるものは${target5_1}です。`;
+                            } else if (value === 'rho') {
+                                msg = `不正解。すべり出したときの傾き（摩擦角）ρ は問題文に「30°」で与えられています。求めるものは${target5_1}です。`;
+                            } else if (value === 'W') {
+                                msg = `不正解。重力 W は問題文に数値で与えられています。求めるものは${target5_1}です。`;
+                            } else {
+                                msg = '不正解。問題文の末尾「○○を求めよ」に注目してください。';
+                            }
+                        } else if (is5_2) {
+                            // 5-2: 与えられている量を選んだ場合の説明（問1〜3 の求めるものは効率 η、問4 は有効動力 P_E）
+                            const target5_2 = (problem.formulaType === 'effReverse') ? '有効動力 P_E' : '効率 η';
+                            if (value === 'work') {
+                                msg = `不正解。与えた仕事 A は問題文に数値で与えられています。求めるものは${target5_2}です。`;
+                            } else if (value === 'eff') {
+                                msg = `不正解。役に立った仕事（有効仕事）A_E は問題文に数値で与えられています。求めるものは${target5_2}です。`;
+                            } else if (value === 'loss') {
+                                msg = `不正解。なくなった仕事（消耗仕事）A_C は問題文に数値で与えられています。求めるものは${target5_2}です。`;
+                            } else if (value === 'power') {
+                                msg = `不正解。与えた動力 P は問題文に数値で与えられています。求めるものは${target5_2}です。`;
+                            } else if (value === 'mass') {
+                                msg = `不正解。物体の質量 m は問題文に数値で与えられています。求めるものは${target5_2}です。`;
+                            } else if (value === 'eta') {
+                                msg = `不正解。効率 η は問題文に「80 %」で与えられています。求めるものは${target5_2}です。`;
+                            } else {
+                                msg = '不正解。問題文の末尾「○○を求めよ」に注目してください。';
+                            }
                         } else {
                             msg = (value === 'v')
                                 ? '不正解。速度は問題文に「○○ m/s」の形で数値が与えられています。「求めよ」と書かれている量を探してください。'
@@ -21243,7 +21967,9 @@
                 const is4_2 = this.currentUnitId === '4-2';
                 const is4_3 = this.currentUnitId === '4-3';
                 const is4_4 = this.currentUnitId === '4-4';
-                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2 || is3_3 || is3_4 || is4_1 || is4_2 || is4_3 || is4_4;
+                const is5_1 = this.currentUnitId === '5-1';
+                const is5_2 = this.currentUnitId === '5-2';
+                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2 || is3_3 || is3_4 || is4_1 || is4_2 || is4_3 || is4_4 || is5_1 || is5_2;
                 // 1-6〜1-12 / 2-2 / 2-3 / 2-4 / 2-5 / 3-2 / 3-3 / 3-4 は problem.stage1Correct、2-1 は固定値 'constant'
                 const correct = isForceCalc ? problem.stage1Correct : 'constant';
                 const isCorrect = (value === correct);
@@ -21325,6 +22051,22 @@
                                 : (problem.formulaType === 'powerSpeed')
                                 ? '正解。力 F と保っている速さ v が分かっています。1秒間に v 進むので P ＝ F × v で動力が求められます（式 2-53）。'
                                 : '正解。仕事 A がそのまま無いので、まず持ち上げる仕事 A ＝ m × g × h を出してから、時間 t で割ります。P ＝ m × g × h ÷ t です。';
+                        } else if (is5_1) {
+                            msg = (problem.formulaType === 'staticFric')
+                                ? '正解。まだ止まっている物体を動かし始めるまでの摩擦（静摩擦）の問題です。動かし始めにちょうど必要な最大静摩擦力は f₀ ＝ μ₀ × R で求めます（式 2-56）。'
+                                : (problem.formulaType === 'kineticFric')
+                                ? '正解。すでに滑っている物体を一定の速さで滑らせ続ける摩擦（動摩擦）の問題です。動摩擦力は f′ ＝ μ × R で求めます（式 2-58）。'
+                                : (problem.formulaType === 'coeffFric')
+                                ? '正解。静摩擦の問題で、動かし始めに必要な力 f₀ が分かっているので、f₀ ＝ μ₀ × R から静摩擦係数 μ₀ を逆に求めます。μ₀ ＝ f₀ ÷ R です（式 2-56・例題22）。'
+                                : '正解。斜面の傾きを大きくして物体がちょうど滑り出す摩擦角の問題です。このとき静摩擦係数は μ₀ ＝ tan ρ で求めます（式 2-57）。';
+                        } else if (is5_2) {
+                            msg = (problem.formulaType === 'effWork')
+                                ? '正解。与えた仕事 A と、役に立った仕事 A_E が分かっています。効率はその割合なので η ＝ A_E ÷ A × 100 で求めます（式 2-59）。'
+                                : (problem.formulaType === 'effLoss')
+                                ? '正解。有効仕事 A_E がそのまま無いので、まず A_E ＝ A − A_C（与えた仕事 − なくなった仕事）で出し、それから η ＝ A_E ÷ A × 100 で効率を求めます（式 2-59）。'
+                                : (problem.formulaType === 'effWinch')
+                                ? '正解。有効動力 P_E がそのまま無いので、まず P_E ＝ mg × v（重さ × 速さ）で出し、単位を kW にそろえてから η ＝ P_E ÷ P × 100 で効率を求めます（式 2-59・例題24）。'
+                                : '正解。効率 η と与えた動力 P が分かっています。効率の式 η ＝ P_E ÷ P × 100 を、求めたい有効動力 P_E について解きます（P_E ＝ η × P ÷ 100、式 2-59）。';
                         }
                         feedback.textContent = msg;
                     }
@@ -21462,6 +22204,30 @@
                                 : (problem.formulaType === 'powerSpeed')
                                 ? '不正解。この問題では距離 h や時間 t は別々に書かれていません。力 F と保っている速さ v が分かっているので P ＝ F × v を使います。'
                                 : '不正解。仕事 A はそのまま書かれていません。まず持ち上げる仕事 A ＝ m × g × h を出してから、時間 t で割ります。';
+                        } else if (is5_1) {
+                            if (value === 'static') {
+                                msg = '不正解。この問題は水平な床ではなく、斜面（または滑っている物体）の場面です。問題文をもう一度読み、止まっている物体を動かし始める静摩擦か、滑っている物体の動摩擦か、斜面で滑り出す摩擦角か確かめてください。';
+                            } else if (value === 'kinetic') {
+                                msg = '不正解。この物体はまだ動いていない（または斜面で滑り出す）場面です。すでに滑っている物体の動摩擦ではありません。問題文をもう一度読んで確かめてください。';
+                            } else if (value === 'angle') {
+                                msg = '不正解。この問題は斜面の傾きを大きくして滑り出す場面ではなく、水平な床の上の摩擦です。問題文をもう一度読んで確かめてください。';
+                            } else {
+                                msg = '不正解。問題文をもう一度読み、止まっている物体を動かし始める静摩擦か、滑っている物体の動摩擦か、斜面で滑り出す摩擦角か確かめてください。';
+                            }
+                        } else if (is5_2) {
+                            if (value === 'effPerGiven') {
+                                msg = '不正解。この問題では、役に立った仕事（有効仕事）A_E がそのまま書かれていません。まず引き算（A − A_C）や物理（mg × v）で有効分を出す必要があります。問題文をもう一度読んで確かめてください。';
+                            } else if (value === 'lossSub') {
+                                msg = '不正解。この問題では、なくなった仕事（消耗仕事）や引き算は使いません。問題文をもう一度読み、何が分かっていて何を求めるかを確かめてください。';
+                            } else if (value === 'powerCase' || value === 'powerEff') {
+                                msg = '不正解。この問題には動力 P と速さ v は出てきません。仕事 A と有効仕事 A_E（または消耗仕事 A_C）の関係です。問題文をもう一度読んで確かめてください。';
+                            } else if (value === 'workEff') {
+                                msg = '不正解。この問題では有効仕事 A_E や与えた仕事 A はそのまま書かれていません。質量・速さ・与えた動力から、まず有効動力 P_E を物理で出します。問題文をもう一度読んで確かめてください。';
+                            } else if (value === 'forward') {
+                                msg = '不正解。この問題は逆向きです。効率 η と与えた動力 P が分かっていて、有効動力 P_E を求めます。問題文をもう一度読んで確かめてください。';
+                            } else {
+                                msg = '不正解。問題文をもう一度読み、何が分かっていて何を求めるか（割合をとるのか、まず引き算・物理で有効分を出すのか、逆算するのか）を確かめてください。';
+                            }
                         }
                         feedback.textContent = msg;
                     }
@@ -21541,7 +22307,9 @@
                     v0: 'v₀', t1: 't', t2: 't', a: 'a', s: 's',
                     l: 'l', theta: 'θ', omega: 'ω', pi: 'π', n: 'n',
                     g: 'g', h: 'h', H: 'H', m: 'm', F: 'F',
-                    A: 'A', cosα: 'cos α', b: 'b', D: 'D'
+                    A: 'A', cosα: 'cos α', b: 'b', D: 'D',
+                    'μ₀': 'μ₀', 'μ': 'μ', R: 'R', 'f₀': 'f₀', 'tanρ': 'tan ρ',
+                    A_E: 'A_E', A_C: 'A_C', P_E: 'P_E', P: 'P', eta: 'η'
                 };
                 slotRoles.forEach(r => { slotEls[r] = document.getElementById('slot-' + r); });
                 // Reset visual state
@@ -21667,6 +22435,28 @@
                             } else {
                                 feedback.textContent = '不正解。単位に注目して入れ直してください。「kg」が質量 m、「m/s²」が重力加速度 g、「m」が高さ h、「秒」が時間 t です（P ＝ m × g × h ÷ t）。';
                             }
+                        } else if (this.currentUnitId === '5-1') {
+                            const ft5_1sub = (this.getCalcProblem() || {}).formulaType;
+                            if (ft5_1sub === 'staticFric') {
+                                feedback.textContent = '不正解。入れ直してください。μ₀ が静摩擦係数（単位なし）、R が面を垂直に押しつける力（N。水平面では重力と同じ）です（f₀ ＝ μ₀ × R）。';
+                            } else if (ft5_1sub === 'kineticFric') {
+                                feedback.textContent = '不正解。入れ直してください。μ が動摩擦係数（単位なし）、R が面を垂直に押しつける力（N。水平面では重力と同じ）です（f′ ＝ μ × R）。';
+                            } else if (ft5_1sub === 'coeffFric') {
+                                feedback.textContent = '不正解。入れ直してください。f₀ が動かし始めに必要な力（N）、R が面を垂直に押しつける力（N。水平面では重力と同じ）です（μ₀ ＝ f₀ ÷ R）。割る順番に注意してください。';
+                            } else {
+                                feedback.textContent = '不正解。入れ直してください。空欄には tan 30° の値（0.58）を入れます（μ₀ ＝ tan ρ）。';
+                            }
+                        } else if (this.currentUnitId === '5-2') {
+                            const ft5_2sub = (this.getCalcProblem() || {}).formulaType;
+                            if (ft5_2sub === 'effWork') {
+                                feedback.textContent = '不正解。入れ直してください。A_E が役に立った仕事（J）、A が与えた仕事（J）です。A_E が割られる数、A が割る数です（η ＝ A_E ÷ A × 100）。';
+                            } else if (ft5_2sub === 'effLoss') {
+                                feedback.textContent = '不正解。入れ直してください。A が与えた仕事（J）、A_C がなくなった仕事（J）です。まず A − A_C で有効仕事を出します（η ＝ ( A − A_C ) ÷ A × 100）。';
+                            } else if (ft5_2sub === 'effWinch') {
+                                feedback.textContent = '不正解。単位に注目して入れ直してください。「kg」が質量 m、「m/s²」が重力加速度 g、「m/s」が速さ v、「kW」が与えた動力 P です（η ＝ m × g × v ÷ P × 100）。';
+                            } else {
+                                feedback.textContent = '不正解。入れ直してください。η が効率（%）、P が与えた動力（kW）です（P_E ＝ η × P ÷ 100）。';
+                            }
                         } else {
                             feedback.textContent = '不正解。単位に注目して入れ直してください。「m/s」が速度 v、「s（秒）」が時間 t です。';
                         }
@@ -21707,7 +22497,9 @@
                 const is4_2 = this.currentUnitId === '4-2';
                 const is4_3 = this.currentUnitId === '4-3';
                 const is4_4 = this.currentUnitId === '4-4';
-                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2 || is3_3 || is3_4 || is4_1 || is4_2 || is4_3 || is4_4;
+                const is5_1 = this.currentUnitId === '5-1';
+                const is5_2 = this.currentUnitId === '5-2';
+                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2 || is3_3 || is3_4 || is4_1 || is4_2 || is4_3 || is4_4 || is5_1 || is5_2;
 
                 // 1-6〜1-12 / 2-2 / 2-3 / 2-4 / 2-5 / 3-2 / 3-3 / 3-4 は小数入力（step=0.1 を許容）し tolerance で判定。
                 const userAnswer = isForceCalc ? parseFloat(answerInput.value) : parseInt(answerInput.value);
@@ -21784,6 +22576,8 @@
                                  : is4_2 ? problem.expectedF
                                  : is4_3 ? problem.expectedAns
                                  : is4_4 ? problem.expectedAns
+                                 : is5_1 ? problem.expectedAns
+                                 : is5_2 ? problem.expectedAns
                                  : problem.expectedDisplacement;
                 const tolerance  = isForceCalc ? (problem.tolerance || 1) : 0;
                 // 浮動小数点誤差対策: tolerance 境界（例 tolerance=0.1 で |userAnswer-expected|=0.10000...142）が
@@ -22119,6 +22913,44 @@
                                 ${expl4_4}
                             </div>
                         `;
+                    } else if (is5_1) {
+                        const unitSuffix5_1 = problem.unit ? ` [${problem.unit}]` : '';
+                        let expl5_1;
+                        if (problem.formulaType === 'staticFric') {
+                            expl5_1 = `f₀ ＝ μ₀ × R ＝ ${problem.mu0} × ${problem.R} ＝ ${expected}${unitSuffix5_1}`;
+                        } else if (problem.formulaType === 'kineticFric') {
+                            expl5_1 = `f′ ＝ μ × R ＝ ${problem.mu} × ${problem.R} ＝ ${expected}${unitSuffix5_1}`;
+                        } else if (problem.formulaType === 'coeffFric') {
+                            expl5_1 = `μ₀ ＝ f₀ ÷ R ＝ ${problem.f0} ÷ ${problem.R} ＝ ${expected}${unitSuffix5_1}`;
+                        } else {
+                            // frictionAngle
+                            expl5_1 = `μ₀ ＝ tan ρ ＝ tan ${problem.rho}° ＝ ${expected}${unitSuffix5_1}`;
+                        }
+                        feedback.innerHTML = `
+                            <div style="margin-bottom: 10px;">正解です。</div>
+                            <div class="answer-explanation">
+                                ${expl5_1}
+                            </div>
+                        `;
+                    } else if (is5_2) {
+                        const unitSuffix5_2 = problem.unit ? ` [${problem.unit}]` : '';
+                        let expl5_2;
+                        if (problem.formulaType === 'effWork') {
+                            expl5_2 = `η ＝ A_E ÷ A × 100 ＝ ${problem.A_E} ÷ ${problem.A} × 100 ＝ ${expected}${unitSuffix5_2}`;
+                        } else if (problem.formulaType === 'effLoss') {
+                            expl5_2 = `η ＝ ( A − A_C ) ÷ A × 100 ＝ ( ${problem.A} − ${problem.A_C} ) ÷ ${problem.A} × 100 ＝ ${expected}${unitSuffix5_2}`;
+                        } else if (problem.formulaType === 'effWinch') {
+                            expl5_2 = `P_E ＝ m × g × v ＝ ${problem.m} × ${problem.g} × ${problem.v} ＝ 3920 W ＝ 3.92 kW、η ＝ P_E ÷ P × 100 ＝ 3.92 ÷ ${problem.P} × 100 ＝ ${expected}${unitSuffix5_2}`;
+                        } else {
+                            // effReverse
+                            expl5_2 = `P_E ＝ η × P ÷ 100 ＝ ${problem.eta} × ${problem.P} ÷ 100 ＝ ${expected}${unitSuffix5_2}`;
+                        }
+                        feedback.innerHTML = `
+                            <div style="margin-bottom: 10px;">正解です。</div>
+                            <div class="answer-explanation">
+                                ${expl5_2}
+                            </div>
+                        `;
                     } else {
                         feedback.innerHTML = `
                             <div style="margin-bottom: 10px;">正解です。</div>
@@ -22192,8 +23024,11 @@
                                             : is4_2 ? (problem.unit || 'N')
                                             : is4_3 ? (problem.unit || 'J')
                                             : is4_4 ? (problem.unit || 'W')
+                                            : is5_1 ? (problem.unit || '')
+                                            : is5_2 ? (problem.unit || '')
                                             : 'N';
-                            feedback.innerHTML += `<div class="answer-explanation">正解は ${expected} [${unitLabel}] です。計算の手順をもう一度確認してください。</div>`;
+                            const revealUnit = unitLabel ? ` [${unitLabel}]` : '';
+                            feedback.innerHTML += `<div class="answer-explanation">正解は ${expected}${revealUnit} です。計算の手順をもう一度確認してください。</div>`;
                         }
                     }
                     feedback.classList.add('active');
