@@ -2379,10 +2379,10 @@
         const DASHBOARD_UNIT_COUNTS = {
             '1-1': 4, '1-2': 6, '1-3': 4, '1-4': 4, '1-5': 4,
             '1-6': 4, '1-7': 4, '1-8': 4, '1-9': 4,
-            '1-10': 4, '1-11': 4, '1-12': 4, '2-1': 5, '2-2': 4, '2-3': 4, '2-4': 4, '2-5': 4, '3-1': 6, '3-2': 4, '3-3': 4, '3-4': 4, '4-1': 4
+            '1-10': 4, '1-11': 4, '1-12': 4, '2-1': 5, '2-2': 4, '2-3': 4, '2-4': 4, '2-5': 4, '3-1': 6, '3-2': 4, '3-3': 4, '3-4': 4, '4-1': 4, '4-2': 4
         };
         // 単元表示順
-        const DASHBOARD_UNIT_ORDER = ['1-1', '1-2', '1-3', '1-4', '1-5', '1-6', '1-7', '1-8', '1-9', '1-10', '1-11', '1-12', '2-1', '2-2', '2-3', '2-4', '2-5', '3-1', '3-2', '3-3', '3-4', '4-1'];
+        const DASHBOARD_UNIT_ORDER = ['1-1', '1-2', '1-3', '1-4', '1-5', '1-6', '1-7', '1-8', '1-9', '1-10', '1-11', '1-12', '2-1', '2-2', '2-3', '2-4', '2-5', '3-1', '3-2', '3-3', '3-4', '4-1', '4-2'];
 
         // 【校内版では実名ロスターを定義していたが、GitHub Pages 配信のため空に変更】
         // 将来、名簿照合に戻す場合は 1番〜36番 + 40番の形式で復活可能
@@ -2583,6 +2583,15 @@
                 id: '4-1',
                 title: '仕事',
                 subtitle: 'A=Fs / A=Fs cosα（力と変位が同じ向き・角度をなす）',
+                level: '基礎',
+                completed: false,
+                score: 0,
+                total: 0
+            },
+            {
+                id: '4-2',
+                title: '道具と機械の仕事',
+                subtitle: 'てこ・斜面・動滑車・輪軸 ＝ 仕事の原理',
                 level: '基礎',
                 completed: false,
                 score: 0,
@@ -7540,6 +7549,123 @@
         };
         const HINTS_4_1_BY_ID = { 1: HINTS_4_1_FLAT, 2: HINTS_4_1_LIFT, 3: HINTS_4_1_ANGLE, 4: HINTS_4_1_FORCE };
 
+        // Problems for sub-unit 4-2: 道具と機械の仕事（てこ・斜面・動滑車・輪軸／仕事の原理）
+        //   4-1 と同じ 6 ステージ計算フロー。問題図は build4_2ToolCanvas(problem) が canvas.kind で分岐。
+        //   全問 求める量は 力 F [N]、decimals:0、tolerance:0.1、expectedF を直接比較。
+        const PROBLEMS_4_2 = [
+            {
+                id: 1, formulaType: 'lever', W: 240, a: 2, b: 1,
+                expectedF: 120, tolerance: 0.1, unit: 'N', decimals: 0, baselineTime: 210,
+                sentence: 'てこを使って、240 N の重力が働く物体を持ち上げる。支点から手で押す力点までの距離は a ＝ 2 m、支点から物体がぶら下がる作用点までの距離は b ＝ 1 m である。物体を持ち上げるために手で押す力 F [N] を求めよ。',
+                condition: '基礎（てこ）、W×b=F×a → F=W×b÷a=240×1÷2=120 N',
+                canvasType: '2d-static', canvas: { width: 380, height: 200, kind: 'lever' },
+                stage0Choices: [ { value: 'force', label: '手で押す力 F [N] の大きさ' }, { value: 'weight', label: '物体に働く重力 W [N] の大きさ' }, { value: 'dist', label: '支点から力点までの距離 a [m] の大きさ' } ],
+                stage0Correct: 'force',
+                stage1Choices: [ { value: 'lever', label: 'てこを使って、小さい力で重い物体を持ち上げる問題である' }, { value: 'incline', label: '斜面を使って物体を引き上げる問題である' }, { value: 'flat', label: '水平な床の上を物体を横に動かす問題である' } ],
+                stage1Correct: 'lever',
+                derivationSteps: [
+                    { prompt: 'てこでは、手で押す力点は支点から遠い距離 a、物体側の作用点は支点から近い距離 b にある。支点から遠いところを押すほど、小さい力で持ち上げられる。支点のまわりで「右回りに回そうとする働き」と「左回りに回そうとする働き」がつり合っている。つり合いの式はどれですか。',
+                      choices: [ { value: 'balance', label: 'W × b ＝ F × a（重力 × 近い距離 ＝ 手の力 × 遠い距離）' }, { value: 'swap', label: 'W × a ＝ F × b（重力に遠い距離、手の力に近い距離をかける）' }, { value: 'noDist', label: 'W ＝ F（距離は気にせず、力だけがつり合う）' } ],
+                      correct: 'balance', onCorrectText: '物体側は近い距離 b、手側は遠い距離 a なので、つり合いの式は W × b ＝ F × a です。支点から遠いところ（a が大きい側）を押すほど、小さい力 F で持ち上げられます。' },
+                    { prompt: 'つり合いの式 W × b ＝ F × a で、求めたいのは手で押す力 F です。F には遠い距離 a が掛け算でついています。F だけを残すには両辺をどうすればよいですか。',
+                      choices: [ { value: 'divA', label: '両辺を a で割る（→ F ＝ W × b ÷ a）' }, { value: 'mulA', label: '両辺に a を掛ける（→ F ＝ W × b × a）' }, { value: 'divB', label: '両辺を b で割る（→ F ＝ W × a ÷ b）' } ],
+                      correct: 'divA', onCorrectText: 'F に距離 a が掛け算でついているので、両辺を a で割って a を消します。F ＝ W × b ÷ a。これに数値を代入します。' }
+                ],
+                formula: 'F = \\dfrac{W \\times b}{a}',
+                substitutions: { slots: ['W', 'b', 'a'], cards: [ { role: 'W', label: 'W', value: 240, unit: 'N' }, { role: 'b', label: 'b', value: 1, unit: 'm' }, { role: 'a', label: 'a', value: 2, unit: 'm' } ] }
+            },
+            {
+                id: 2, formulaType: 'incline', W: 100, theta: 30, sinValue: 0.5,
+                expectedF: 50, tolerance: 0.1, unit: 'N', decimals: 0, baselineTime: 240,
+                sentence: 'なめらかな斜面（傾きの角度 θ ＝ 30°）の上に、100 N の重力が働く物体がある。この物体を斜面に沿って引き上げるために、斜面に平行な力 F [N] を加える。物体を引き上げるのに必要な力 F [N] を求めよ。',
+                condition: '基礎（斜面・式2-48）、F=W sinθ=100×0.5=50 N。摩擦なし',
+                canvasType: '2d-static', canvas: { width: 380, height: 220, kind: 'incline' },
+                stage0Choices: [ { value: 'force', label: '斜面に平行に加える力 F [N] の大きさ' }, { value: 'weight', label: '物体に働く重力 W [N] の大きさ' }, { value: 'angle', label: '斜面の傾きの角度 θ [°] の大きさ' } ],
+                stage0Correct: 'force',
+                stage1Choices: [ { value: 'incline', label: '斜面を使って、斜面に沿って物体を引き上げる問題である' }, { value: 'lever', label: 'てこを使って物体を持ち上げる問題である' }, { value: 'lift', label: '物体を真上にまっすぐ引き上げる問題である' } ],
+                stage1Correct: 'incline',
+                derivationSteps: [
+                    { prompt: '斜面の上の物体には重力 W が真下に働いている。この重力 W を、斜面に平行な向きと、斜面に垂直な向きの 2 つの分力に分ける。物体を斜面に沿って滑り落とそうとするのは、どちらの分力ですか。',
+                      choices: [ { value: 'parallel', label: '斜面に平行な分力（滑り落とそうとする力）' }, { value: 'perpend', label: '斜面に垂直な分力（斜面に押しつける力）' }, { value: 'whole', label: '重力 W そのもの（分けなくてよい）' } ],
+                      correct: 'parallel', onCorrectText: '物体を斜面に沿って滑り落とそうとするのは、斜面に平行な分力です。斜面に垂直な分力は物体を斜面に押しつけているだけで、滑り落とす向きには働きません。引き上げる力 F は、この平行な分力とつり合います。' },
+                    { prompt: '重力 W を分けてできた直角三角形を取り出して、向きを整える。斜辺は重力 W にあたる。このとき、斜面に平行な分力は「高さ」「底辺」のどちらにあたり、どう表せますか。',
+                      choices: [ { value: 'sin', label: '高さ。高さ ＝ 斜辺 × sin なので、平行な分力 ＝ W × sin θ' }, { value: 'cos', label: '底辺。底辺 ＝ 斜辺 × cos なので、平行な分力 ＝ W × cos θ' }, { value: 'tan', label: '高さ ÷ 底辺 にあたるので、平行な分力 ＝ W × tan θ' } ],
+                      correct: 'sin', onCorrectText: '斜面に平行な分力は直角三角形の「高さ」にあたります。高さ ＝ 斜辺 × sin なので、斜辺が重力 W のとき、平行な分力 ＝ W × sin θ です。引き上げる力もこれと同じ大きさで F ＝ W × sin θ。' }
+                ],
+                formula: 'F = W\\sin\\theta',
+                substitutions: { slots: ['W', 'sinθ'], cards: [ { role: 'W', label: 'W', value: 100, unit: 'N' }, { role: 'sinθ', label: 'sin 30°', value: 0.5, unit: '' } ] }
+            },
+            {
+                id: 3, formulaType: 'pulley', W: 400,
+                expectedF: 200, tolerance: 0.1, unit: 'N', decimals: 0, baselineTime: 180,
+                sentence: '1 つの動滑車に、400 N の重力が働く物体をつるした。ロープの一方の端は天井に固定されていて、もう一方の端を手で下に引いて物体を引き上げる。物体を引き上げるために手で引く力 F [N] を求めよ。',
+                condition: '基礎（動滑車・図2-67）、2本のロープが W を等分 → F=W÷2=400÷2=200 N。滑車の重さ・摩擦は0',
+                canvasType: '2d-static', canvas: { width: 300, height: 240, kind: 'pulley' },
+                stage0Choices: [ { value: 'force', label: '手で引く力 F [N] の大きさ' }, { value: 'weight', label: '物体に働く重力 W [N] の大きさ' }, { value: 'rope', label: 'ロープの本数' } ],
+                stage0Correct: 'force',
+                stage1Choices: [ { value: 'movable', label: '動滑車を使って、小さい力で物体を引き上げる問題である' }, { value: 'fixed', label: '定滑車を使って、力の向きだけをかえる問題である' }, { value: 'lever', label: 'てこを使って物体を持ち上げる問題である' } ],
+                stage1Correct: 'movable',
+                derivationSteps: [
+                    { prompt: '動滑車では、物体は 2 本のロープでぶら下がっている。この 2 本のロープが、物体に働く重力 W を等しく分けて支えている。手で引く力 F は、ロープ 1 本にかかる力と同じである。F はどう表せますか。',
+                      choices: [ { value: 'half', label: 'F ＝ W ÷ 2（2 本で等しく分けるので、1 本ぶんは重力の半分）' }, { value: 'same', label: 'F ＝ W（ロープが何本でも、引く力は重力と同じ）' }, { value: 'double', label: 'F ＝ W × 2（ロープが 2 本あるので 2 倍の力がいる）' } ],
+                      correct: 'half', onCorrectText: '2 本のロープが重力 W を等しく分けて支えるので、ロープ 1 本にかかる力は W ÷ 2 です。手で引く力はこのロープ 1 本ぶんと同じなので、F ＝ W ÷ 2。これに数値を代入します。' }
+                ],
+                formula: 'F = \\dfrac{W}{2}',
+                substitutions: { slots: ['W'], cards: [ { role: 'W', label: 'W', value: 400, unit: 'N' } ] }
+            },
+            {
+                id: 4, formulaType: 'wheelset', W: 400, D: 200, d: 80,
+                expectedF: 160, tolerance: 0.1, unit: 'N', decimals: 0, baselineTime: 240,
+                sentence: '輪軸（大きい輪と小さい軸を組み合わせて回るようにしたもの）がある。輪の直径は D ＝ 200 mm、軸の直径は d ＝ 80 mm である。軸に巻いたロープに 400 N の重力が働く物体をつるし、輪に巻いたロープを手で引いて物体を引き上げる。物体を引き上げるために手で引く力 F [N] を求めよ。',
+                condition: '基礎（輪軸・式2-46）、F×D=W×d → F=W×d÷D=400×80÷200=160 N。D・d は mm のまま',
+                canvasType: '2d-static', canvas: { width: 320, height: 262, kind: 'wheelset' },
+                stage0Choices: [ { value: 'force', label: '手で引く力 F [N] の大きさ' }, { value: 'weight', label: '物体に働く重力 W [N] の大きさ' }, { value: 'diam', label: '輪の直径 D [mm] の大きさ' } ],
+                stage0Correct: 'force',
+                stage1Choices: [ { value: 'wheelset', label: '輪軸を使って、小さい力で物体を引き上げる問題である' }, { value: 'pulley', label: '動滑車を使って物体を引き上げる問題である' }, { value: 'lever', label: 'てこを使って物体を持ち上げる問題である' } ],
+                stage1Correct: 'wheelset',
+                derivationSteps: [
+                    { prompt: '輪軸では、輪に手で引く力 F が加わり、軸に物体の重力 W が加わる。輪は直径 D、軸は直径 d が回す働きの長さになる。回転がつり合うとき、「輪に加わる力の回す働き」と「軸に加わる力の回す働き」が等しい。つり合いの式はどれですか。',
+                      choices: [ { value: 'balance', label: 'F × D ＝ W × d（手の力 × 輪の直径 ＝ 重力 × 軸の直径）' }, { value: 'swap', label: 'F × d ＝ W × D（手の力に軸の直径、重力に輪の直径をかける）' }, { value: 'noDiam', label: 'F ＝ W（直径は気にせず、力だけがつり合う）' } ],
+                      correct: 'balance', onCorrectText: 'つり合いの式は F × D ＝ W × d です。輪は直径 D、軸は直径 d。半径（D/2・d/2）で考えても、両辺を 2 で割るのは同じなので 2 が消えて、この式と同じになります。' },
+                    { prompt: 'つり合いの式 F × D ＝ W × d で、求めたいのは手で引く力 F です。F には輪の直径 D が掛け算でついています。F だけを残すには両辺をどうすればよいですか。',
+                      choices: [ { value: 'divD', label: '両辺を D で割る（→ F ＝ W × d ÷ D）' }, { value: 'mulD', label: '両辺に D を掛ける（→ F ＝ W × d × D）' }, { value: 'divd', label: '両辺を d で割る（→ F ＝ W × D ÷ d）' } ],
+                      correct: 'divD', onCorrectText: 'F に輪の直径 D が掛け算でついているので、両辺を D で割って D を消します。F ＝ W × d ÷ D。D と d は同じ単位（mm）どうしの割り算なので、mm のまま計算してかまいません。' }
+                ],
+                formula: 'F = \\dfrac{W \\times d}{D}',
+                substitutions: { slots: ['W', 'd', 'D'], cards: [ { role: 'W', label: 'W', value: 400, unit: 'N' }, { role: 'd', label: 'd', value: 80, unit: 'mm' }, { role: 'D', label: 'D', value: 200, unit: 'mm' } ] }
+            }
+        ];
+
+        const HINTS_4_2_LEVER = {
+            stage0: { b: '問題文の最後の文に注目してください。重力 240 N、距離 a ＝ 2 m、b ＝ 1 m はすでに数値が書かれています。', a: '問題文の末尾に「手で押す力 F [N] を求めよ」とあります。求めるものは手で押す力 F、単位は N です。', c: '教科書55ページ「2 道具や機械の仕事」と図2-63「てこの原理」を確認してください。' },
+            stage1: { b: '問題文に「てこを使って物体を持ち上げる」とあります。支点・力点・作用点があるてこの問題かを確かめてください。', a: 'てこの問題です。支点のまわりの力のつり合いを使って、手で押す力 F を求めます。', c: '教科書55ページ「1 てこ」と図2-64を確認してください。' },
+            stage2: { b: '手で押す力点は支点から遠い距離 a、物体側の作用点は支点から近い距離 b。支点から遠いところを押すほど小さい力で持ち上げられます。つり合いは W × b ＝ F × a。F には距離 a が掛け算でついているので、両辺を a で割って消します。', a: 'つり合いの式 W × b ＝ F × a の両辺を a で割ると F ＝ W × b ÷ a。重力に近い距離 b をかけ、遠い距離 a で割ります。', c: '教科書55ページ 式(2-43)「W／F ＝ a／b」とその上のつり合いの式を確認してください。' },
+            stage3: { b: '式は F ＝ W × b ÷ a です。W には重力、b には作用点側の距離、a には力点側の距離を入れます。', a: '式 F ＝ W × b ÷ a の空欄に、W ＝ 240 N、b ＝ 1 m、a ＝ 2 m を入れてください。', c: '教科書55ページ 式(2-43)を確認してください。' },
+            stage4: { b: '重力に b をかけて、a で割るだけです。電卓を使ってかまいません。', a: 'F ＝ 240 × 1 ÷ 2 ＝ 120 [N]。支点から遠いところ（a が大きい側）を押すほど、小さい力で持ち上げられます。', c: '教科書55ページ 式(2-43)と図2-64を確認してください。' }
+        };
+        const HINTS_4_2_INCLINE = {
+            stage0: { b: '問題文の最後の文に注目してください。重力 100 N、傾きの角度 30° はすでに数値が書かれています。', a: '問題文の末尾に「必要な力 F [N] を求めよ」とあります。求めるものは斜面に平行に加える力 F、単位は N です。', c: '教科書59ページ「4 斜面」と図2-72「摩擦のない斜面」を確認してください。' },
+            stage1: { b: '問題文に「斜面に沿って引き上げる」とあります。斜面を使って物体を引き上げる問題かを確かめてください。', a: '斜面の問題です。重力 W を斜面に平行・垂直な 2 つの分力に分けて考えます。', c: '教科書59ページ「4 斜面」と図2-72を確認してください。' },
+            stage2: { b: '重力 W を、斜面に平行な向きと垂直な向きに分けます。物体を滑り落とそうとするのは平行な分力です。重力 W を分けてできた直角三角形は、斜辺が W、平行な分力が「高さ」にあたります。高さ ＝ 斜辺 × sin です。', a: '直角三角形で斜辺が重力 W、斜面に平行な分力（高さ）が W × sin θ。引き上げる力もこれと同じで F ＝ W × sin θ（式2-48）。', c: '教科書59ページ 式(2-48)「F ＝ W sin θ」と図2-72の分力を確認してください。' },
+            stage3: { b: '式は F ＝ W × sin θ です。W には重力、sin θ には sin 30° の値（0.5）を入れます。', a: '式 F ＝ W × sin θ の空欄に、W ＝ 100 N、sin 30° ＝ 0.5 を入れてください。', c: '教科書59ページ 式(2-48)を確認してください。' },
+            stage4: { b: '重力に sin 30°（0.5）をかけるだけです。電卓を使ってかまいません。', a: 'F ＝ 100 × 0.5 ＝ 50 [N]。坂がゆるい（θ が小さい）ほど、小さい力ですみます。', c: '教科書59ページ 式(2-48)と図2-72を確認してください。' }
+        };
+        const HINTS_4_2_PULLEY = {
+            stage0: { b: '問題文の最後の文に注目してください。重力 400 N はすでに数値が書かれています。', a: '問題文の末尾に「手で引く力 F [N] を求めよ」とあります。求めるものは手で引く力 F、単位は N です。', c: '教科書57ページ「3 滑車」と図2-67「動滑車」を確認してください。' },
+            stage1: { b: '問題文に「動滑車に物体をつるし、ロープの端を引く」とあります。物体が 2 本のロープでぶら下がっている動滑車かを確かめてください。', a: '動滑車の問題です。物体は 2 本のロープで支えられているので、引く力は重力より小さくなります。', c: '教科書57ページ「3 滑車」の動滑車の説明を確認してください。' },
+            stage2: { b: '動滑車では、物体は 2 本のロープでぶら下がっています。この 2 本が重力 W を等しく分けて支えるので、ロープ 1 本にかかる力は W の半分です。手で引く力はロープ 1 本ぶんと同じです。', a: '2 本のロープが重力 W を等しく分けるので、ロープ 1 本＝ W ÷ 2。手で引く力もこれと同じで F ＝ W ÷ 2。', c: '教科書57ページ 図2-67(a)、「ロープにはそれぞれ W／2 の張力が働く」の説明を確認してください。' },
+            stage3: { b: '式は F ＝ W ÷ 2 です。W には重力を入れます。', a: '式 F ＝ W ÷ 2 の空欄に、W ＝ 400 N を入れてください。', c: '教科書57ページ 動滑車の説明を確認してください。' },
+            stage4: { b: '重力を 2 で割るだけです。電卓を使ってかまいません。', a: 'F ＝ 400 ÷ 2 ＝ 200 [N]。ロープ 2 本で支えるから、力は半分ですみます。', c: '教科書57ページ 図2-67(a)を確認してください。' }
+        };
+        const HINTS_4_2_WHEELSET = {
+            stage0: { b: '問題文の最後の文に注目してください。重力 400 N、輪の直径 D ＝ 200 mm、軸の直径 d ＝ 80 mm はすでに数値が書かれています。', a: '問題文の末尾に「手で引く力 F [N] を求めよ」とあります。求めるものは手で引く力 F、単位は N です。', c: '教科書56ページ「2 輪軸」と図2-65「輪軸」を確認してください。' },
+            stage1: { b: '問題文に「輪軸（大きい輪と小さい軸）」とあります。大きい輪と小さい軸を組み合わせた輪軸の問題かを確かめてください。', a: '輪軸の問題です。輪に手の力 F、軸に重力 W が加わり、回転のつり合いから F を求めます。', c: '教科書56ページ「2 輪軸」と図2-65を確認してください。' },
+            stage2: { b: '輪には手の力 F が直径 D で、軸には重力 W が直径 d で回す働きをします。回転がつり合うとき、輪に加わる力の回す働き ＝ 軸に加わる力の回す働き、つまり F × D ＝ W × d。F には D が掛け算でついているので、両辺を D で割って消します。', a: 'つり合いの式 F × D ＝ W × d の両辺を D で割ると F ＝ W × d ÷ D。重力に軸の直径 d をかけ、輪の直径 D で割ります。', c: '教科書56ページ 式(2-46)「F ＝ W d／D」とその上のつり合いの式を確認してください。' },
+            stage3: { b: '式は F ＝ W × d ÷ D です。W には重力、d には軸の直径、D には輪の直径を入れます。D と d は同じ単位（mm）どうしの割り算なので、mm のまま入れてかまいません。', a: '式 F ＝ W × d ÷ D の空欄に、W ＝ 400 N、d ＝ 80 mm、D ＝ 200 mm を入れてください。', c: '教科書56ページ 式(2-46)を確認してください。' },
+            stage4: { b: '重力に軸の直径 d をかけて、輪の直径 D で割るだけです。直径は mm のままで計算できます。電卓を使ってかまいません。', a: 'F ＝ 400 × 80 ÷ 200 ＝ 160 [N]。輪が軸より大きいほど、小さい力ですみます。', c: '教科書56ページ 式(2-46)と図2-65を確認してください。' }
+        };
+        const HINTS_4_2_BY_ID = { 1: HINTS_4_2_LEVER, 2: HINTS_4_2_INCLINE, 3: HINTS_4_2_PULLEY, 4: HINTS_4_2_WHEELSET };
+
         // ==================================================================
         // 考査対策・考査問題マスターデータ（仕様書 §10〜§12）
         // ==================================================================
@@ -9237,6 +9363,7 @@
                 if (unitId === '3-3') return PROBLEMS_3_3.length;
                 if (unitId === '3-4') return PROBLEMS_3_4.length;
                 if (unitId === '4-1') return PROBLEMS_4_1.length;
+                if (unitId === '4-2') return PROBLEMS_4_2.length;
                 return 0;
             }
 
@@ -11722,6 +11849,7 @@
                 else if (this.currentUnitId === '3-3') problems = PROBLEMS_3_3;
                 else if (this.currentUnitId === '3-4') problems = PROBLEMS_3_4;
                 else if (this.currentUnitId === '4-1') problems = PROBLEMS_4_1;
+                else if (this.currentUnitId === '4-2') problems = PROBLEMS_4_2;
 
                 if (this.currentProblemIndex >= problems.length) {
                     this.showSummary();
@@ -11841,6 +11969,7 @@
                     else if (this.currentUnitId === '3-3') problems = PROBLEMS_3_3;
                     else if (this.currentUnitId === '3-4') problems = PROBLEMS_3_4;
                     else if (this.currentUnitId === '4-1') problems = PROBLEMS_4_1;
+                    else if (this.currentUnitId === '4-2') problems = PROBLEMS_4_2;
                     sidebarList.innerHTML = problems.map((p, i) =>
                         `<li class="${i === this.currentProblemIndex ? 'is-active' : ''}">問 ${p.id}</li>`
                     ).join('');
@@ -11868,7 +11997,7 @@
                 const content = document.getElementById('problemContent');
 
                 // Handle different problem types
-                if (this.currentUnitId === '2-1' || this.currentUnitId === '2-2' || this.currentUnitId === '2-3' || this.currentUnitId === '2-4' || this.currentUnitId === '2-5' || this.currentUnitId === '3-2' || this.currentUnitId === '3-3' || this.currentUnitId === '3-4' || this.currentUnitId === '4-1' || this.currentUnitId === '1-6' || this.currentUnitId === '1-7' || this.currentUnitId === '1-8' || this.currentUnitId === '1-9' || this.currentUnitId === '1-10' || this.currentUnitId === '1-11' || this.currentUnitId === '1-12') {
+                if (this.currentUnitId === '2-1' || this.currentUnitId === '2-2' || this.currentUnitId === '2-3' || this.currentUnitId === '2-4' || this.currentUnitId === '2-5' || this.currentUnitId === '3-2' || this.currentUnitId === '3-3' || this.currentUnitId === '3-4' || this.currentUnitId === '4-1' || this.currentUnitId === '4-2' || this.currentUnitId === '1-6' || this.currentUnitId === '1-7' || this.currentUnitId === '1-8' || this.currentUnitId === '1-9' || this.currentUnitId === '1-10' || this.currentUnitId === '1-11' || this.currentUnitId === '1-12') {
                     this.renderCalculationProblem(problem, content);
                 } else if (this.currentUnitId === '1-3' || this.currentUnitId === '1-4' || this.currentUnitId === '1-5') {
                     this.drawingStageIndex = 0;
@@ -11975,9 +12104,10 @@
                 const is3_3 = this.currentUnitId === '3-3';
                 const is3_4 = this.currentUnitId === '3-4';
                 const is4_1 = this.currentUnitId === '4-1';
+                const is4_2 = this.currentUnitId === '4-2';
                 // isForceCalc は「6 ステージ汎用フロー（problem.stage0Choices 等を持つ）」を意味する。
                 //   2-2 / 2-3 / 2-4 / 2-5 / 3-2 / 3-3 / 3-4 / 4-1 も同じデータ schema（sentence / stage0Choices / stage1Choices / substitutions）を採るので含める。
-                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2 || is3_3 || is3_4 || is4_1;
+                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2 || is3_3 || is3_4 || is4_1 || is4_2;
                 // Persistent problem statement shown at the top of every stage
                 const problemText = isForceCalc
                     ? problem.sentence
@@ -12106,7 +12236,7 @@
                         '計算する',
                         '答えの意味を確認'
                     ]
-                    : is4_1
+                    : (is4_1 || is4_2)
                     ? [
                         '求める量を確認する',
                         'どんな問題か確認する',
@@ -12155,6 +12285,7 @@
                                       : is3_3 ? this.build3_3InertiaCanvas(problem)
                                       : is3_4 ? this.build3_4MomentumCanvas(problem)
                                       : is4_1 ? this.build4_1WorkCanvas(problem)
+                                      : is4_2 ? this.build4_2ToolCanvas(problem)
                                       : '';
 
                 // 1-7（案B 7 ステージ）は専用ルートで処理し、early return する。
@@ -12237,6 +12368,8 @@
                         ? 'この問題はどのような問題ですか？'
                         : is4_1
                         ? 'この問題はどのような仕事の問題ですか？'
+                        : is4_2
+                        ? 'この問題はどの道具・機械を使った問題ですか？'
                         : is3_2
                         ? 'この問題はどのような運動の問題ですか？'
                         : '問題文の「一定の速さで運動した」は、どのような運動ですか？';
@@ -12554,10 +12687,9 @@
                         `;
                         this.render1_10DerivAccordion();
                         return;
-                    } else if (is4_1) {
-                        // 4-1（仕事 A=Fs / A=Fs cosα）: derivationSteps を 1 ステップずつアコーディオン表示して
-                        //   生徒自身に「力と変位の向きの関係／分力 F cos α／式変形」を選ばせる
-                        //   （is3_4 と同じパターン、early return）。
+                    } else if (is4_1 || is4_2) {
+                        // 4-1（仕事 A=Fs / A=Fs cosα）/ 4-2（道具と機械の仕事）: derivationSteps を 1 ステップずつ
+                        //   アコーディオン表示して、生徒自身に式変形を選ばせる（is3_4 と同じパターン、early return）。
                         if (this.calcInputs.derivStepIndex === undefined) {
                             this.calcInputs.derivStepIndex = 0;
                         }
@@ -12617,7 +12749,7 @@
                             l: 'l', theta: 'θ', omega: 'ω', pi: 'π', n: 'n',
                             g: 'g', h: 'h', m: 'm', F: 'F', mg: 'mg', ma: 'ma', net: 'F − mg',
                             p: 'p', Ft: 'Ft', mv0: 'mv₀', dv: 'v₀ − v', m2v2: "m₂v₂'", m1: 'm₁',
-                            A: 'A', cosα: 'cos α' };
+                            A: 'A', cosα: 'cos α', b: 'b', D: 'D' };
                         const makeSlotSpan = (role, text) =>
                             `<span class="calc-formula-input empty" data-slot="${role}" id="slot-${role}">${text || slotLabel[role] || role}</span>`;
                         const slotSpans = slots.map(role => makeSlotSpan(role));
@@ -12814,6 +12946,22 @@
                             } else {
                                 // workFlat / workLift
                                 formulaHTML = `A ＝ ${slotSpans[0]} × ${slotSpans[1]}`;
+                            }
+                        } else if (is4_2) {
+                            // 4-2（道具と機械の仕事）: formulaType ごとに式の形が異なる。
+                            //   lever    → F ＝ ([W] × [b]) ÷ [a]      （slots: W, b, a）
+                            //   incline  → F ＝ [W] × [sin θ]          （slots: W, sinθ）
+                            //   pulley   → F ＝ [W] ÷ 2                 （slots: W）
+                            //   wheelset → F ＝ ([W] × [d]) ÷ [D]      （slots: W, d, D）
+                            if (problem.formulaType === 'lever') {
+                                formulaHTML = `F ＝ (${slotSpans[0]} × ${slotSpans[1]}) ÷ ${slotSpans[2]}`;
+                            } else if (problem.formulaType === 'incline') {
+                                formulaHTML = `F ＝ ${slotSpans[0]} × ${slotSpans[1]}`;
+                            } else if (problem.formulaType === 'pulley') {
+                                formulaHTML = `F ＝ ${slotSpans[0]} ÷ 2`;
+                            } else {
+                                // wheelset
+                                formulaHTML = `F ＝ (${slotSpans[0]} × ${slotSpans[1]}) ÷ ${slotSpans[2]}`;
                             }
                         } else if (is2_3) {
                             // 2-3（重力加速度）: formulaType ごとに式の形が異なる
@@ -13369,6 +13517,32 @@
                                 </div>
                             </div>
                         `;
+                    } else if (is4_2) {
+                        // 4-2（道具と機械の仕事）: formulaType ごとに数値入りの式を切り替える。全問 整数答え・単位 [N]。
+                        let formulaLine_4_2;
+                        if (problem.formulaType === 'lever') {
+                            formulaLine_4_2 = `$F = \\dfrac{${problem.W} \\times ${problem.b}}{${problem.a}} = {\\color{#c62828}?}\\ \\mathrm{[N]}$`;
+                        } else if (problem.formulaType === 'incline') {
+                            formulaLine_4_2 = `$F = ${problem.W} \\times ${problem.sinValue} = {\\color{#c62828}?}\\ \\mathrm{[N]}$`;
+                        } else if (problem.formulaType === 'pulley') {
+                            formulaLine_4_2 = `$F = \\dfrac{${problem.W}}{2} = {\\color{#c62828}?}\\ \\mathrm{[N]}$`;
+                        } else {
+                            // wheelset
+                            formulaLine_4_2 = `$F = \\dfrac{${problem.W} \\times ${problem.d}}{${problem.D}} = {\\color{#c62828}?}\\ \\mathrm{[N]}$`;
+                        }
+                        content.innerHTML = header + staticCanvas1_6 + `
+                            <div class="calc-stage-container">
+                                <div class="calc-question-text">計算結果を入力してください（電卓を使って構いません）。</div>
+                                <div class="calc-formula-display">
+                                    ${formulaLine_4_2}
+                                </div>
+                                <div class="calc-input-row">
+                                    <span class="calc-input-label">答え：F ＝</span>
+                                    <input type="number" id="answerInput" class="calc-answer-input" placeholder="数値" style="width:120px;">
+                                    <span style="font-size:14px; color:#555; margin-left:6px;">[N]</span>
+                                </div>
+                            </div>
+                        `;
                     } else {
                         content.innerHTML = header + `
                             <div class="calc-stage-container">
@@ -13829,6 +14003,39 @@
                                 </div>
                                 <div style="margin-top:14px; font-size:13px; color:#555;">
                                     次の問題に進む前に、式と仕事の図（力と動いた向き）を頭の中で思い浮かべてください。
+                                </div>
+                            </div>
+                        `;
+                    } else if (is4_2) {
+                        // 4-2（道具と機械の仕事）: 4-1 と同じ 3 行段組み KaTeX（aligned）で
+                        //   「記号式／数値式／答え」を表示し、その下に formulaType ごとの振り返り文（仕事の原理）を載せる。
+                        //   全問 整数答え・単位 N。CJK は \text{} で囲む。
+                        let reflFormulaLatex_4_2, reflText_4_2;
+                        if (problem.formulaType === 'lever') {
+                            reflFormulaLatex_4_2 = `\\begin{aligned} F &= \\dfrac{W \\times b}{a} \\\\[6pt] &= \\dfrac{${problem.W} \\times ${problem.b}}{${problem.a}} \\\\[6pt] &= ${problem.expectedF} \\ \\text{N} \\end{aligned}`;
+                            reflText_4_2 = '手がした仕事 A ＝ F × a ＝ 120 × 2 ＝ 240、物体にした仕事 A ＝ W × b ＝ 240 × 1 ＝ 240 で同じです。支点から遠いところを押すほど小さい力で持ち上げられますが、そのぶん手を長く動かします。';
+                        } else if (problem.formulaType === 'incline') {
+                            reflFormulaLatex_4_2 = `\\begin{aligned} F &= W\\sin\\theta \\\\[6pt] &= ${problem.W} \\times ${problem.sinValue} \\\\[6pt] &= ${problem.expectedF} \\ \\text{N} \\end{aligned}`;
+                            reflText_4_2 = '坂がゆるい（θ が小さい）ほど小さい力ですみますが、そのぶん斜面が長くなり、引く距離が長くなります。';
+                        } else if (problem.formulaType === 'pulley') {
+                            reflFormulaLatex_4_2 = `\\begin{aligned} F &= \\dfrac{W}{2} \\\\[6pt] &= \\dfrac{${problem.W}}{2} \\\\[6pt] &= ${problem.expectedF} \\ \\text{N} \\end{aligned}`;
+                            reflText_4_2 = '力 F ＝ W ÷ 2 で長さ 2h 引くと、手がした仕事 A ＝ F × 2h ＝ W × h で、物体を h 持ち上げた仕事と同じです。力が半分のかわり、引く距離が 2 倍です。';
+                        } else {
+                            // wheelset
+                            reflFormulaLatex_4_2 = `\\begin{aligned} F &= \\dfrac{W \\times d}{D} \\\\[6pt] &= \\dfrac{${problem.W} \\times ${problem.d}}{${problem.D}} \\\\[6pt] &= ${problem.expectedF} \\ \\text{N} \\end{aligned}`;
+                            reflText_4_2 = '輪が軸より大きいほど小さい力ですみますが、そのぶん輪のロープを長く引きます。';
+                        }
+                        content.innerHTML = header + staticCanvas1_6 + `
+                            <div class="calc-stage-container">
+                                <div class="calc-question-text">答えの意味を確認しよう。</div>
+                                <div class="calc-formula-display">
+                                    $${reflFormulaLatex_4_2}$
+                                </div>
+                                <div style="background:#eaf1fa; border-left:4px solid #1e5fa8; padding:14px 18px; border-radius:3px; margin-top:18px; font-size:15px; line-height:1.7;">
+                                    ${reflText_4_2}
+                                </div>
+                                <div style="margin-top:14px; font-size:13px; color:#555;">
+                                    次の問題に進む前に、道具の図（力 F と重力 W、距離の関係）を頭の中で思い浮かべてください。
                                 </div>
                             </div>
                         `;
@@ -16804,6 +17011,208 @@
                 return svg;
             }
 
+            // 4-2（道具と機械の仕事）の問題図。canvas.kind で 4 種（lever / incline / pulley / wheelset）を描き分ける。
+            //   配色：力 F（赤 #d23a2a）／分力（青 #4a7fc8 点線）／補助線・寸法（グレー #8a8a8a）／物体 塗り #dce9f7・線 #1e5fa8。
+            //   マーカー id は他キャンバスと衝突しないよう接頭辞 stc42- を使う。
+            build4_2ToolCanvas(problem) {
+                const c = problem.canvas || { width: 380, height: 200, kind: 'lever' };
+                const W = c.width, H = c.height;
+                const kind = c.kind || 'lever';
+                const RED = '#d23a2a';
+                const COMP = '#4a7fc8';
+                const GRAY = '#8a8a8a';
+                const BOXF = '#dce9f7';
+                const BOXS = '#1e5fa8';
+
+                let svg = `<div class="drawing-wrapper" style="pointer-events:none;">
+                <svg class="drawing-svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="cursor:default;">
+                <defs>
+                  <marker id="stc42-red" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><polygon points="0,0 9,3.5 0,7" fill="${RED}"/></marker>
+                  <marker id="stc42-comp" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><polygon points="0,0 9,3.5 0,7" fill="${COMP}"/></marker>
+                  <marker id="stc42-gray" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto"><polygon points="0,0 8,3.5 0,7" fill="${GRAY}"/></marker>
+                  <marker id="stc42-grayS" markerWidth="8" markerHeight="7" refX="1" refY="3.5" orient="auto"><polygon points="8,0 0,3.5 8,7" fill="${GRAY}"/></marker>
+                </defs>`;
+
+                if (kind === 'lever') {
+                    // てこ：中央に三角形の支点（▲）、その上に水平な棒。支点から近い距離 b の左側に物体（箱）＋重力 W↓、
+                    //   支点から遠い距離 a の右側に手の押し力 F↓。支点から左右に b・a の寸法線。
+                    const fulX = W / 2 - 30;          // 支点 x
+                    const barY = 78;                  // 棒の高さ
+                    const bLen = 80;                  // 支点から物体側（近い b）
+                    const aLen = 150;                 // 支点から手側（遠い a）
+                    const leftEnd = fulX - bLen;
+                    const rightEnd = fulX + aLen;
+                    // 棒（水平）
+                    svg += `<line x1="${leftEnd}" y1="${barY}" x2="${rightEnd}" y2="${barY}" stroke="#7a5a30" stroke-width="6" stroke-linecap="round"/>`;
+                    // 支点（三角形 ▲）
+                    const triH = 30, triW = 26;
+                    svg += `<polygon points="${fulX},${barY + 3} ${fulX - triW / 2},${barY + 3 + triH} ${fulX + triW / 2},${barY + 3 + triH}" fill="#9a9a9a" stroke="#666" stroke-width="1.5"/>`;
+                    svg += `<text x="${fulX}" y="${barY + 3 + triH + 16}" text-anchor="middle" font-size="11" fill="${GRAY}" font-weight="600">支点</text>`;
+                    // 物体（箱）：左側、棒からロープで下げる
+                    const boxW = 42, boxH = 34;
+                    const boxCx = leftEnd + 6;
+                    const ropeTop = barY;
+                    const boxY = barY + 26;
+                    svg += `<line x1="${boxCx}" y1="${ropeTop}" x2="${boxCx}" y2="${boxY}" stroke="#555" stroke-width="1.6"/>`;
+                    svg += `<rect x="${boxCx - boxW / 2}" y="${boxY}" width="${boxW}" height="${boxH}" rx="5" ry="5" fill="${BOXF}" stroke="${BOXS}" stroke-width="1.8"/>`;
+                    // 重力 W（下向き、グレー）
+                    const wLen = 30;
+                    svg += `<line x1="${boxCx}" y1="${boxY + boxH}" x2="${boxCx}" y2="${boxY + boxH + wLen}" stroke="${GRAY}" stroke-width="2" marker-end="url(#stc42-gray)"/>`;
+                    svg += `<text x="${boxCx}" y="${boxY + boxH + wLen + 13}" text-anchor="middle" font-size="11" fill="${GRAY}" font-weight="600">W</text>`;
+                    // 手で押す力 F（右端、下向き、赤）
+                    const fLen = 44;
+                    svg += `<line x1="${rightEnd}" y1="${barY - fLen}" x2="${rightEnd}" y2="${barY}" stroke="${RED}" stroke-width="2.8" marker-end="url(#stc42-red)"/>`;
+                    svg += `<text x="${rightEnd + 8}" y="${barY - fLen + 12}" text-anchor="start" font-size="14" fill="${RED}" font-weight="700">F</text>`;
+                    // 寸法線 b（支点〜物体側）と a（支点〜手側）
+                    const dimY = barY + 3 + triH + 30;
+                    svg += `<line x1="${leftEnd}" y1="${dimY}" x2="${fulX}" y2="${dimY}" stroke="${GRAY}" stroke-width="1.2" marker-start="url(#stc42-grayS)" marker-end="url(#stc42-gray)"/>`;
+                    svg += `<text x="${(leftEnd + fulX) / 2}" y="${dimY + 14}" text-anchor="middle" font-size="13" fill="${GRAY}" font-weight="600">b</text>`;
+                    svg += `<line x1="${fulX}" y1="${dimY}" x2="${rightEnd}" y2="${dimY}" stroke="${GRAY}" stroke-width="1.2" marker-start="url(#stc42-grayS)" marker-end="url(#stc42-gray)"/>`;
+                    svg += `<text x="${(fulX + rightEnd) / 2}" y="${dimY + 14}" text-anchor="middle" font-size="13" fill="${GRAY}" font-weight="600">a</text>`;
+                    svg += `</svg></div>`;
+                    return svg;
+                }
+
+                if (kind === 'incline') {
+                    // 斜面：直角三角形（左下に角 θ、底辺水平、斜辺が斜面）。斜面上に物体。重力 W↓を斜面平行・垂直分力（青点線）に分解。
+                    //   斜面に平行に上向きの力 F（赤）。角 θ の弧。
+                    const baseY = H - 32;
+                    const x0 = 40;                    // 左下頂点（角 θ）
+                    const baseLen = 280;
+                    const x1 = x0 + baseLen;          // 右下頂点（直角）
+                    const theta = (problem.theta || 30) * Math.PI / 180;
+                    const apexY = baseY - baseLen * Math.tan(theta);
+                    // 斜面の三角形
+                    svg += `<polygon points="${x0},${baseY} ${x1},${baseY} ${x1},${apexY.toFixed(1)}" fill="#eef2f6" stroke="${GRAY}" stroke-width="1.6"/>`;
+                    // 直角マーク（右下）
+                    svg += `<rect x="${x1 - 12}" y="${baseY - 12}" width="12" height="12" fill="none" stroke="${GRAY}" stroke-width="1"/>`;
+                    // 角 θ の弧（左下）
+                    const arcR = 34;
+                    const arcEndX = x0 + arcR * Math.cos(-theta);
+                    const arcEndY = baseY + arcR * Math.sin(-theta);
+                    svg += `<path d="M ${x0 + arcR} ${baseY} A ${arcR} ${arcR} 0 0 0 ${arcEndX.toFixed(1)} ${arcEndY.toFixed(1)}" fill="none" stroke="${GRAY}" stroke-width="1.2"/>`;
+                    svg += `<text x="${x0 + arcR + 8}" y="${baseY - 8}" text-anchor="start" font-size="13" fill="${GRAY}" font-weight="600">θ</text>`;
+                    // 物体（箱）：斜面の中央付近に、斜面に沿って傾けて置く
+                    const t = 0.5;                    // 斜辺上の位置（0:左下 1:右上）
+                    const px = x0 + baseLen * t;
+                    const py = baseY - baseLen * Math.tan(theta) * t;
+                    const boxW = 40, boxH = 28;
+                    const deg = (problem.theta || 30);
+                    svg += `<g transform="translate(${px.toFixed(1)},${py.toFixed(1)}) rotate(${-deg})">`;
+                    svg += `<rect x="${-boxW / 2}" y="${-boxH - 2}" width="${boxW}" height="${boxH}" rx="4" ry="4" fill="${BOXF}" stroke="${BOXS}" stroke-width="1.8"/>`;
+                    svg += `</g>`;
+                    // 重力 W（真下、グレー）：箱の中心から下へ
+                    const gx = px, gy = py - 14;      // おおよそ箱の中心
+                    const wLen = 56;
+                    svg += `<line x1="${gx.toFixed(1)}" y1="${gy.toFixed(1)}" x2="${gx.toFixed(1)}" y2="${(gy + wLen).toFixed(1)}" stroke="${GRAY}" stroke-width="2.4" marker-end="url(#stc42-gray)"/>`;
+                    svg += `<text x="${(gx + 6).toFixed(1)}" y="${(gy + wLen).toFixed(1)}" text-anchor="start" font-size="12" fill="${GRAY}" font-weight="700">W</text>`;
+                    // 分力（青点線）: 斜面に平行（W sinθ、斜面に沿って下向き）と斜面に垂直（W cosθ、斜面に押しつける）
+                    const compLen = wLen;
+                    // 斜面に沿って下向き（左下方向）の単位ベクトル: (-cosθ, +sinθ)
+                    const par = { x: -Math.cos(theta), y: Math.sin(theta) };
+                    // 斜面に垂直で押しつける向き（斜面下側へ）: (-sinθ, -cosθ) を反転して (sinθ, cosθ) → 斜面に押しつける（右下）
+                    const perp = { x: Math.sin(theta), y: Math.cos(theta) };
+                    const pl = 38;
+                    const parX = gx + par.x * pl, parY = gy + par.y * pl;
+                    svg += `<line x1="${gx.toFixed(1)}" y1="${gy.toFixed(1)}" x2="${parX.toFixed(1)}" y2="${parY.toFixed(1)}" stroke="${COMP}" stroke-width="2" stroke-dasharray="6,3" marker-end="url(#stc42-comp)"/>`;
+                    svg += `<text x="${(parX - 6).toFixed(1)}" y="${(parY + 12).toFixed(1)}" text-anchor="end" font-size="10" fill="${COMP}" font-weight="600">W sinθ</text>`;
+                    const perpX = gx + perp.x * pl, perpY = gy + perp.y * pl;
+                    svg += `<line x1="${gx.toFixed(1)}" y1="${gy.toFixed(1)}" x2="${perpX.toFixed(1)}" y2="${perpY.toFixed(1)}" stroke="${COMP}" stroke-width="2" stroke-dasharray="6,3" marker-end="url(#stc42-comp)"/>`;
+                    svg += `<text x="${(perpX + 6).toFixed(1)}" y="${(perpY + 4).toFixed(1)}" text-anchor="start" font-size="10" fill="${COMP}" font-weight="600">W cosθ</text>`;
+                    // 引き上げる力 F（赤、斜面に平行に上向き＝右上方向）：箱の上端付近から斜面に沿って上へ
+                    const up = { x: Math.cos(theta), y: -Math.sin(theta) };
+                    const fStartX = px + up.x * 6, fStartY = (py - boxH) + up.y * 6;
+                    const fl = 46;
+                    const fEndX = fStartX + up.x * fl, fEndY = fStartY + up.y * fl;
+                    svg += `<line x1="${fStartX.toFixed(1)}" y1="${fStartY.toFixed(1)}" x2="${fEndX.toFixed(1)}" y2="${fEndY.toFixed(1)}" stroke="${RED}" stroke-width="2.8" marker-end="url(#stc42-red)"/>`;
+                    svg += `<text x="${(fEndX + 6).toFixed(1)}" y="${(fEndY - 4).toFixed(1)}" text-anchor="start" font-size="14" fill="${RED}" font-weight="700">F</text>`;
+                    svg += `</svg></div>`;
+                    return svg;
+                }
+
+                if (kind === 'pulley') {
+                    // 動滑車：上に天井（ハッチング）。天井からロープが下りて動滑車（円）にかかり、もう一端が手へ。
+                    //   動滑車の下に物体（箱）＋重力 W↓。ロープ 2 本に張力 W/2 を小さく示し、手で引く側に F↓。
+                    const ceilY = 16;
+                    const cx = W / 2 - 24;            // 滑車中心 x（少し左にして手側の余白）
+                    const pulleyY = 118;             // 滑車中心 y
+                    const pr = 22;                   // 滑車半径
+                    const fixX = cx - pr;            // 天井固定側ロープ x（左）
+                    const handX = cx + pr;           // 手で引く側ロープ x（右）
+                    // 天井（ハッチング）
+                    svg += `<line x1="16" y1="${ceilY}" x2="${W - 16}" y2="${ceilY}" stroke="${GRAY}" stroke-width="1.5"/>`;
+                    for (let hx = 24; hx < W - 18; hx += 14) {
+                        svg += `<line x1="${hx}" y1="${ceilY}" x2="${hx - 7}" y2="${ceilY - 8}" stroke="#bbb" stroke-width="1"/>`;
+                    }
+                    // 左ロープ：天井固定 → 滑車左
+                    svg += `<line x1="${fixX}" y1="${ceilY}" x2="${fixX}" y2="${pulleyY}" stroke="#555" stroke-width="2"/>`;
+                    // 右ロープ：滑車右 → 手（上へ伸ばし、手で引く）
+                    const handTopY = ceilY + 6;
+                    svg += `<line x1="${handX}" y1="${pulleyY}" x2="${handX}" y2="${handTopY}" stroke="#555" stroke-width="2"/>`;
+                    // 張力ラベル（2 本それぞれ W/2）
+                    svg += `<text x="${fixX - 6}" y="${pulleyY - 26}" text-anchor="end" font-size="10" fill="${GRAY}" font-weight="600">W／2</text>`;
+                    svg += `<text x="${handX + 6}" y="${pulleyY - 26}" text-anchor="start" font-size="10" fill="${GRAY}" font-weight="600">W／2</text>`;
+                    // 動滑車（円）
+                    svg += `<circle cx="${cx}" cy="${pulleyY}" r="${pr}" fill="#f0f0f0" stroke="#555" stroke-width="2"/>`;
+                    svg += `<circle cx="${cx}" cy="${pulleyY}" r="3" fill="#555"/>`;
+                    // 滑車から物体へのつり棒
+                    const boxW = 50, boxH = 36;
+                    const boxY = pulleyY + pr + 16;
+                    svg += `<line x1="${cx}" y1="${pulleyY + pr}" x2="${cx}" y2="${boxY}" stroke="#555" stroke-width="1.6"/>`;
+                    svg += `<rect x="${cx - boxW / 2}" y="${boxY}" width="${boxW}" height="${boxH}" rx="5" ry="5" fill="${BOXF}" stroke="${BOXS}" stroke-width="1.8"/>`;
+                    // 重力 W（下向き、グレー）
+                    const wLen = 28;
+                    svg += `<line x1="${cx}" y1="${boxY + boxH}" x2="${cx}" y2="${boxY + boxH + wLen}" stroke="${GRAY}" stroke-width="2.2" marker-end="url(#stc42-gray)"/>`;
+                    svg += `<text x="${cx}" y="${boxY + boxH + wLen + 13}" text-anchor="middle" font-size="11" fill="${GRAY}" font-weight="700">W</text>`;
+                    // 手で引く力 F（右ロープ上端、下向き＝引く向き、赤）
+                    const fLen = 40;
+                    svg += `<line x1="${handX}" y1="${handTopY}" x2="${handX}" y2="${handTopY + fLen}" stroke="${RED}" stroke-width="2.8" marker-end="url(#stc42-red)"/>`;
+                    svg += `<text x="${handX + 8}" y="${handTopY + fLen / 2 + 4}" text-anchor="start" font-size="14" fill="${RED}" font-weight="700">F</text>`;
+                    svg += `</svg></div>`;
+                    return svg;
+                }
+
+                // wheelset（輪軸）: 同心の大円（輪 D）と小円（軸 d）。軸のロープに物体＋W、輪のロープに手の力 F。直径 D・d の寸法。
+                {
+                    const cx = W / 2 - 6;
+                    const cy = 96;
+                    const RD = 60;                   // 輪（大円）半径
+                    const rd = 26;                   // 軸（小円）半径
+                    // 同心円
+                    svg += `<circle cx="${cx}" cy="${cy}" r="${RD}" fill="#f0f4f8" stroke="#555" stroke-width="2"/>`;
+                    svg += `<circle cx="${cx}" cy="${cy}" r="${rd}" fill="#e2e8ee" stroke="#555" stroke-width="2"/>`;
+                    svg += `<circle cx="${cx}" cy="${cy}" r="3" fill="#555"/>`;
+                    // 軸（小円）に巻いたロープ → 物体（左側に下げる）
+                    const wx = cx - rd;
+                    const boxW = 44, boxH = 32;
+                    const boxY = cy + RD + 18;
+                    svg += `<line x1="${wx}" y1="${cy}" x2="${wx}" y2="${boxY}" stroke="#555" stroke-width="1.6"/>`;
+                    svg += `<rect x="${wx - boxW / 2}" y="${boxY}" width="${boxW}" height="${boxH}" rx="5" ry="5" fill="${BOXF}" stroke="${BOXS}" stroke-width="1.8"/>`;
+                    const wLen = 26;
+                    svg += `<line x1="${wx}" y1="${boxY + boxH}" x2="${wx}" y2="${boxY + boxH + wLen}" stroke="${GRAY}" stroke-width="2.2" marker-end="url(#stc42-gray)"/>`;
+                    svg += `<text x="${wx}" y="${boxY + boxH + wLen + 13}" text-anchor="middle" font-size="11" fill="${GRAY}" font-weight="700">W</text>`;
+                    // 輪（大円）に巻いたロープ → 手の力 F（右側に下げて引く）
+                    const fx = cx + RD;
+                    const fTop = cy;
+                    const fBottom = boxY + 30;
+                    svg += `<line x1="${fx}" y1="${fTop}" x2="${fx}" y2="${fBottom}" stroke="#555" stroke-width="1.6"/>`;
+                    const fLen = 36;
+                    svg += `<line x1="${fx}" y1="${fBottom - fLen}" x2="${fx}" y2="${fBottom}" stroke="${RED}" stroke-width="2.8" marker-end="url(#stc42-red)"/>`;
+                    svg += `<text x="${fx + 8}" y="${fBottom - fLen / 2 + 4}" text-anchor="start" font-size="14" fill="${RED}" font-weight="700">F</text>`;
+                    // 直径 d の寸法（軸の中、横）
+                    svg += `<line x1="${cx - rd}" y1="${cy}" x2="${cx + rd}" y2="${cy}" stroke="${GRAY}" stroke-width="1" marker-start="url(#stc42-grayS)" marker-end="url(#stc42-gray)"/>`;
+                    svg += `<text x="${cx}" y="${cy - 5}" text-anchor="middle" font-size="11" fill="${GRAY}" font-weight="600">d</text>`;
+                    // 直径 D の寸法（輪の上端〜下端は混むため、輪の上に横寸法線）
+                    const dimY = cy - RD - 12;
+                    svg += `<line x1="${cx - RD}" y1="${dimY}" x2="${cx + RD}" y2="${dimY}" stroke="${GRAY}" stroke-width="1.2" marker-start="url(#stc42-grayS)" marker-end="url(#stc42-gray)"/>`;
+                    svg += `<line x1="${cx - RD}" y1="${dimY}" x2="${cx - RD}" y2="${cy}" stroke="${GRAY}" stroke-width="0.6" stroke-dasharray="3,3"/>`;
+                    svg += `<line x1="${cx + RD}" y1="${dimY}" x2="${cx + RD}" y2="${cy}" stroke="${GRAY}" stroke-width="0.6" stroke-dasharray="3,3"/>`;
+                    svg += `<text x="${cx}" y="${dimY - 4}" text-anchor="middle" font-size="13" fill="${GRAY}" font-weight="600">D</text>`;
+                    svg += `</svg></div>`;
+                    return svg;
+                }
+            }
+
             // 1-9 Stage 2 用の schematic 図: 偶力の典型図（新仕様、問題図と整合）。
             //   左作用点に上向き F、右作用点に下向き F、間の距離 d は腕（水平破線・1-8 と同流儀）。
             //   中央に CW 回転矢印（左↑・右↓ → 時計回りに回転）。
@@ -19458,6 +19867,8 @@
                                            ? (HINTS_3_4_BY_ID[(this.getCalcProblem() || {}).id] || HINTS_3_4_MOMENTUM)
                                        : (this.currentUnitId === '4-1')
                                            ? (HINTS_4_1_BY_ID[(this.getCalcProblem() || {}).id] || HINTS_4_1_FLAT)
+                                       : (this.currentUnitId === '4-2')
+                                           ? (HINTS_4_2_BY_ID[(this.getCalcProblem() || {}).id] || HINTS_4_2_LEVER)
                                        : HINTS_2_1;
                     const stageHints = hintsTable[stagePart];
                     const levelKeys = ['b', 'a', 'c'];
@@ -19608,6 +20019,9 @@
                 if (this.currentUnitId === '4-1') {
                     return PROBLEMS_4_1[this.currentProblemIndex];
                 }
+                if (this.currentUnitId === '4-2') {
+                    return PROBLEMS_4_2[this.currentProblemIndex];
+                }
                 return null;
             }
 
@@ -19653,7 +20067,8 @@
                 const is3_3 = this.currentUnitId === '3-3';
                 const is3_4 = this.currentUnitId === '3-4';
                 const is4_1 = this.currentUnitId === '4-1';
-                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2 || is3_3 || is3_4 || is4_1;
+                const is4_2 = this.currentUnitId === '4-2';
+                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2 || is3_3 || is3_4 || is4_1 || is4_2;
                 // 1-6〜1-12 / 2-2 / 2-3 / 2-4 / 2-5 / 3-2 / 3-3 / 3-4 は problem.stage0Correct、2-1 は固定値 's'
                 const correct = isForceCalc ? problem.stage0Correct : 's';
                 const isCorrect = (value === correct);
@@ -19741,6 +20156,11 @@
                             msg = (problem.formulaType === 'forceFromWork')
                                 ? '正解。荷物を押した力 F [N] の大きさを求めます。'
                                 : '正解。この力がした仕事 A [J] の大きさを求めます。';
+                        } else if (is4_2) {
+                            // 4-2: 全問 求める量は手で押す／引く力 F [N]
+                            msg = (problem.formulaType === 'lever')
+                                ? '正解。手で押す力 F [N] の大きさを求めます。'
+                                : '正解。手で引く（加える）力 F [N] の大きさを求めます。';
                         }
                         feedback.textContent = msg;
                     }
@@ -19945,6 +20365,21 @@
                             } else {
                                 msg = '不正解。問題文の末尾「○○を求めよ」に注目してください。';
                             }
+                        } else if (is4_2) {
+                            // 4-2: 与えられている量を選んだ場合の説明（全問 求めるものは 力 F）
+                            if (value === 'weight') {
+                                msg = '不正解。物体に働く重力 W は問題文に「○○ N の重力」で与えられています。求めるものは力 F です。';
+                            } else if (value === 'dist') {
+                                msg = '不正解。距離 a は問題文に「a ＝ ○○ m」で与えられています。求めるものは力 F です。';
+                            } else if (value === 'angle') {
+                                msg = '不正解。傾きの角度 θ は問題文に「θ ＝ ○○°」で与えられています。求めるものは力 F です。';
+                            } else if (value === 'rope') {
+                                msg = '不正解。ロープの本数は問題のしくみで決まっています。求めるものは手で引く力 F です。';
+                            } else if (value === 'diam') {
+                                msg = '不正解。輪の直径 D は問題文に「D ＝ ○○ mm」で与えられています。求めるものは力 F です。';
+                            } else {
+                                msg = '不正解。問題文の末尾「○○を求めよ」に注目してください。';
+                            }
                         } else {
                             msg = (value === 'v')
                                 ? '不正解。速度は問題文に「○○ m/s」の形で数値が与えられています。「求めよ」と書かれている量を探してください。'
@@ -19990,7 +20425,8 @@
                 const is3_3 = this.currentUnitId === '3-3';
                 const is3_4 = this.currentUnitId === '3-4';
                 const is4_1 = this.currentUnitId === '4-1';
-                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2 || is3_3 || is3_4 || is4_1;
+                const is4_2 = this.currentUnitId === '4-2';
+                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2 || is3_3 || is3_4 || is4_1 || is4_2;
                 // 1-6〜1-12 / 2-2 / 2-3 / 2-4 / 2-5 / 3-2 / 3-3 / 3-4 は problem.stage1Correct、2-1 は固定値 'constant'
                 const correct = isForceCalc ? problem.stage1Correct : 'constant';
                 const isCorrect = (value === correct);
@@ -20048,6 +20484,14 @@
                             msg = (problem.formulaType === 'workAngle')
                                 ? '正解。力の向きと動いた向きが角度をなしています。動いた向きの分力だけが仕事をするので A ＝ F × s × cos α（式 2-42）を使います。'
                                 : '正解。力の向きと動いた向きが同じです。だから A ＝ F × s（式 2-41）で仕事が求められます。';
+                        } else if (is4_2) {
+                            msg = (problem.formulaType === 'lever')
+                                ? '正解。てこの問題です。支点のまわりの力のつり合い W × b ＝ F × a から、手で押す力 F を求めます。'
+                                : (problem.formulaType === 'incline')
+                                ? '正解。斜面の問題です。重力 W を斜面に平行・垂直な分力に分け、平行な分力 W × sin θ とつり合う力 F を求めます（式 2-48）。'
+                                : (problem.formulaType === 'pulley')
+                                ? '正解。動滑車の問題です。物体は 2 本のロープで支えられるので、引く力は重力の半分 F ＝ W ÷ 2 になります。'
+                                : '正解。輪軸の問題です。回転のつり合い F × D ＝ W × d から、手で引く力 F を求めます（式 2-46）。';
                         }
                         feedback.textContent = msg;
                     }
@@ -20145,6 +20589,20 @@
                                 : (value === 'lift')
                                 ? '不正解。問題文では物体を真上に引き上げてはいません。水平な床の上で力が動く向きと角度をなしています。'
                                 : '不正解。問題文をもう一度読み、力の向きと動いた向きが同じか、角度をなすかを確かめてください。';
+                        } else if (is4_2) {
+                            msg = (value === 'incline')
+                                ? '不正解。問題文には「てこを使って」とあります。斜面ではなく、支点・力点・作用点があるてこの問題です。'
+                                : (value === 'flat')
+                                ? '不正解。問題文には「てこを使って物体を持ち上げる」とあります。水平な床の上を横に動かす問題ではありません。'
+                                : (value === 'lift' && problem.formulaType === 'incline')
+                                ? '不正解。問題文には「斜面に沿って引き上げる」とあります。真上にまっすぐ引き上げる問題ではありません。'
+                                : (value === 'lever')
+                                ? '不正解。問題文にてこは出てきません。問題文の道具（斜面・動滑車・輪軸のいずれか）をもう一度確認してください。'
+                                : (value === 'fixed')
+                                ? '不正解。問題文の動滑車は物体といっしょに動き、2 本のロープで支えます。力の向きをかえるだけの定滑車ではありません。'
+                                : (value === 'pulley')
+                                ? '不正解。問題文には「輪軸（大きい輪と小さい軸）」とあります。動滑車ではありません。'
+                                : '不正解。問題文をもう一度読み、どの道具・機械（てこ・斜面・動滑車・輪軸）を使っているか確かめてください。';
                         }
                         feedback.textContent = msg;
                     }
@@ -20224,7 +20682,7 @@
                     v0: 'v₀', t1: 't', t2: 't', a: 'a', s: 's',
                     l: 'l', theta: 'θ', omega: 'ω', pi: 'π', n: 'n',
                     g: 'g', h: 'h', m: 'm', F: 'F',
-                    A: 'A', cosα: 'cos α'
+                    A: 'A', cosα: 'cos α', b: 'b', D: 'D'
                 };
                 slotRoles.forEach(r => { slotEls[r] = document.getElementById('slot-' + r); });
                 // Reset visual state
@@ -20328,6 +20786,17 @@
                             } else {
                                 feedback.textContent = '不正解。単位に注目して入れ直してください。「N」が力 F、「m」が距離 s です（A ＝ F × s）。';
                             }
+                        } else if (this.currentUnitId === '4-2') {
+                            const ft4_2sub = (this.getCalcProblem() || {}).formulaType;
+                            if (ft4_2sub === 'lever') {
+                                feedback.textContent = '不正解。入れ直してください。W が重力（N）、b が作用点側の近い距離、a が力点側の遠い距離です（F ＝ W × b ÷ a）。';
+                            } else if (ft4_2sub === 'incline') {
+                                feedback.textContent = '不正解。入れ直してください。W が重力（N）、sin θ には sin 30° の値（0.5）を入れます（F ＝ W × sin θ）。';
+                            } else if (ft4_2sub === 'wheelset') {
+                                feedback.textContent = '不正解。入れ直してください。W が重力（N）、d が軸の直径、D が輪の直径です（F ＝ W × d ÷ D）。';
+                            } else {
+                                feedback.textContent = '不正解。入れ直してください。W が重力（N）です（F ＝ W ÷ 2）。';
+                            }
                         } else {
                             feedback.textContent = '不正解。単位に注目して入れ直してください。「m/s」が速度 v、「s（秒）」が時間 t です。';
                         }
@@ -20365,7 +20834,8 @@
                 const is3_3 = this.currentUnitId === '3-3';
                 const is3_4 = this.currentUnitId === '3-4';
                 const is4_1 = this.currentUnitId === '4-1';
-                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2 || is3_3 || is3_4 || is4_1;
+                const is4_2 = this.currentUnitId === '4-2';
+                const isForceCalc = is1_6 || is1_7 || is1_8 || is1_9 || is1_10 || is1_11 || is1_12 || is2_2 || is2_3 || is2_4 || is2_5 || is3_2 || is3_3 || is3_4 || is4_1 || is4_2;
 
                 // 1-6〜1-12 / 2-2 / 2-3 / 2-4 / 2-5 / 3-2 / 3-3 / 3-4 は小数入力（step=0.1 を許容）し tolerance で判定。
                 const userAnswer = isForceCalc ? parseFloat(answerInput.value) : parseInt(answerInput.value);
@@ -20439,6 +20909,7 @@
                                  : is3_3 ? expected3_3
                                  : is3_4 ? expected3_4
                                  : is4_1 ? expected4_1
+                                 : is4_2 ? problem.expectedF
                                  : problem.expectedDisplacement;
                 const tolerance  = isForceCalc ? (problem.tolerance || 1) : 0;
                 // 浮動小数点誤差対策: tolerance 境界（例 tolerance=0.1 で |userAnswer-expected|=0.10000...142）が
@@ -20720,6 +21191,24 @@
                                 ${expl4_1}
                             </div>
                         `;
+                    } else if (is4_2) {
+                        let expl4_2;
+                        if (problem.formulaType === 'lever') {
+                            expl4_2 = `F ＝ W × b ÷ a ＝ ${problem.W} × ${problem.b} ÷ ${problem.a} ＝ ${expected} [N]`;
+                        } else if (problem.formulaType === 'incline') {
+                            expl4_2 = `F ＝ W × sin θ ＝ ${problem.W} × ${problem.sinValue} ＝ ${expected} [N]`;
+                        } else if (problem.formulaType === 'pulley') {
+                            expl4_2 = `F ＝ W ÷ 2 ＝ ${problem.W} ÷ 2 ＝ ${expected} [N]`;
+                        } else {
+                            // wheelset
+                            expl4_2 = `F ＝ W × d ÷ D ＝ ${problem.W} × ${problem.d} ÷ ${problem.D} ＝ ${expected} [N]`;
+                        }
+                        feedback.innerHTML = `
+                            <div style="margin-bottom: 10px;">正解です。</div>
+                            <div class="answer-explanation">
+                                ${expl4_2}
+                            </div>
+                        `;
                     } else {
                         feedback.innerHTML = `
                             <div style="margin-bottom: 10px;">正解です。</div>
@@ -20790,6 +21279,7 @@
                                             : is3_3 ? (problem.unit || 'N')
                                             : is3_4 ? (problem.unit || 'kg·m/s')
                                             : is4_1 ? (problem.unit || 'J')
+                                            : is4_2 ? (problem.unit || 'N')
                                             : 'N';
                             feedback.innerHTML += `<div class="answer-explanation">正解は ${expected} [${unitLabel}] です。計算の手順をもう一度確認してください。</div>`;
                         }
