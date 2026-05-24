@@ -13234,7 +13234,10 @@
                         if (this.calcInputs.derivStepIndex === undefined) {
                             this.calcInputs.derivStepIndex = 0;
                         }
-                        content.innerHTML = header + staticCanvas1_6 + `
+                        // 問1・問2 では「a＝vω の意味」ステップ以降で、問題図の右に補助図（速度の矢印が回るようす）を出す。
+                        //   表示の出し入れは render1_10DerivAccordion 内で derivStepIndex を見て #velRotSlot を更新する。
+                        const canvasBlock2_5 = `<div class="vt-kihaji-row" style="display:flex; flex-wrap:wrap; gap:8px 24px; align-items:flex-start; justify-content:center;">${staticCanvas1_6}<div id="velRotSlot" data-on="0"></div></div>`;
+                        content.innerHTML = header + canvasBlock2_5 + `
                             <div class="calc-stage-container">
                                 <div class="calc-question-text">使う式を、一段ずつ自分で導いてください。</div>
                                 <div id="derivAccordion"></div>
@@ -15817,6 +15820,18 @@
                         figSlot.setAttribute('data-decomposed', wantDecomposed ? '1' : '0');
                     }
                 }
+                // 2-5 問1・問2: 「a＝vω の意味」を考えるステップ（'vomega' を選ぶ段）以降で、
+                //   問題図の右に補助図（速度の矢印が回るようす）を表示する。それ以前は出さない。
+                const velSlot = document.getElementById('velRotSlot');
+                if (velSlot) {
+                    const vth = steps.findIndex(s => (s.choices || []).some(c => c.value === 'vomega'));
+                    const wantVel = (vth >= 0) && (cur >= vth);
+                    const hasVel = velSlot.getAttribute('data-on') === '1';
+                    if (wantVel !== hasVel) {
+                        velSlot.innerHTML = wantVel ? this.build2_5VelocityRotationFigure() : '';
+                        velSlot.setAttribute('data-on', wantVel ? '1' : '0');
+                    }
+                }
                 // 全ステップ完了 → 「次へ」ボタンを表示
                 const nextSlot = document.getElementById('stage2NextSlot');
                 if (cur >= steps.length && nextSlot) {
@@ -17753,6 +17768,47 @@
                     svg += `<text x="${(pX + 14).toFixed(1)}" y="${(pY + 4).toFixed(1)}" text-anchor="start" font-size="12" fill="${BLUE}" font-weight="700">m ＝ ${problem.m} kg</text>`;
                 }
 
+                svg += `</svg></div>`;
+                return svg;
+            }
+
+            // 2-5 Stage 2 補助図（問1・問2 の「a＝vω の意味」ステップ以降でのみ表示）。
+            //   「速度の矢印（長さ v）が角速度 ω で回る → 先の動く速さ＝向心加速度 a＝v×ω」を、
+            //   2-4 の周速度（半径 r の点が ω で回ると速さ rω）と同じ図の形で見せる。
+            //   半径のかわりに『速度の矢印の長さ v』を置いた“速度の円”。
+            build2_5VelocityRotationFigure() {
+                const BLUE = '#1e5fa8', RED = '#c62828';
+                const W = 226, H = 188;
+                const cx = 86, cy = 78, vR = 50;
+                const ang = -42 * Math.PI / 180;              // 速度ベクトルの向き（右上）
+                const tipX = cx + vR * Math.cos(ang), tipY = cy + vR * Math.sin(ang);
+                let svg = `<div class="drawing-wrapper" style="pointer-events:none;">
+                <svg class="drawing-svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="cursor:default;">
+                <defs>
+                  <marker id="vrf-blue" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><polygon points="0,0 9,3.5 0,7" fill="${BLUE}"/></marker>
+                  <marker id="vrf-red" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><polygon points="0,0 9,3.5 0,7" fill="${RED}"/></marker>
+                  <marker id="vrf-rot" markerWidth="10" markerHeight="8" refX="7" refY="4" orient="auto"><polygon points="0,0 10,4 0,8" fill="${RED}"/></marker>
+                </defs>`;
+                // 見出し
+                svg += `<text x="${W / 2}" y="14" text-anchor="middle" font-size="11" fill="#333" font-weight="700">速度の矢印が回るようす</text>`;
+                // 先がえがく円（破線・速度の円）
+                svg += `<circle cx="${cx}" cy="${cy}" r="${vR}" fill="none" stroke="#bbb" stroke-width="1" stroke-dasharray="4,3"/>`;
+                svg += `<circle cx="${cx}" cy="${cy}" r="2.5" fill="#555"/>`;
+                // 回転 ω（中心まわり・時計まわり・marker-end）
+                const rotR = 19, a1 = 145 * Math.PI / 180, a2 = 250 * Math.PI / 180;
+                svg += `<path d="M ${(cx + rotR * Math.cos(a1)).toFixed(1)} ${(cy + rotR * Math.sin(a1)).toFixed(1)} A ${rotR} ${rotR} 0 0 1 ${(cx + rotR * Math.cos(a2)).toFixed(1)} ${(cy + rotR * Math.sin(a2)).toFixed(1)}" fill="none" stroke="${RED}" stroke-width="1.8" marker-end="url(#vrf-rot)"/>`;
+                svg += `<text x="${cx - 30}" y="${cy + 5}" font-size="12" fill="${RED}" font-weight="700">ω</text>`;
+                // 速度ベクトル v（青・中心→先。回転する“半径”）
+                svg += `<line x1="${cx}" y1="${cy}" x2="${tipX.toFixed(1)}" y2="${tipY.toFixed(1)}" stroke="${BLUE}" stroke-width="2.4" marker-end="url(#vrf-blue)"/>`;
+                svg += `<text x="${((cx + tipX) / 2 - 13).toFixed(1)}" y="${((cy + tipY) / 2 - 7).toFixed(1)}" font-size="13" fill="${BLUE}" font-weight="700">v</text>`;
+                // 先の動く速さ a＝v×ω（接線・赤）
+                const tx = -Math.sin(ang), ty = Math.cos(ang);
+                const aTipX = tipX + tx * 28, aTipY = tipY + ty * 28;
+                svg += `<line x1="${tipX.toFixed(1)}" y1="${tipY.toFixed(1)}" x2="${aTipX.toFixed(1)}" y2="${aTipY.toFixed(1)}" stroke="${RED}" stroke-width="2.4" marker-end="url(#vrf-red)"/>`;
+                svg += `<text x="${(aTipX + 5).toFixed(1)}" y="${(aTipY + 4).toFixed(1)}" text-anchor="start" font-size="12" fill="${RED}" font-weight="700">a＝v×ω</text>`;
+                // 注記（2-4 との対応）
+                svg += `<text x="${W / 2}" y="${H - 20}" text-anchor="middle" font-size="10" fill="#666">長さ v の矢印が ω で回ると、先は v×ω で動く</text>`;
+                svg += `<text x="${W / 2}" y="${H - 7}" text-anchor="middle" font-size="10" fill="#888">（2-4 の「半径 × 角速度」の半径を v にした形）</text>`;
                 svg += `</svg></div>`;
                 return svg;
             }
