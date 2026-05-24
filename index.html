@@ -17778,37 +17778,39 @@
             //   半径のかわりに『速度の矢印の長さ v』を置いた“速度の円”。
             build2_5VelocityRotationFigure() {
                 const BLUE = '#1e5fa8', RED = '#c62828';
-                const W = 226, H = 188;
-                const cx = 86, cy = 78, vR = 50;
+                const W = 290, H = 226;
+                const cx = 108, cy = 100, vR = 62;
                 const ang = -42 * Math.PI / 180;              // 速度ベクトルの向き（右上）
                 const tipX = cx + vR * Math.cos(ang), tipY = cy + vR * Math.sin(ang);
                 let svg = `<div class="drawing-wrapper" style="pointer-events:none;">
                 <svg class="drawing-svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="cursor:default;">
                 <defs>
-                  <marker id="vrf-blue" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><polygon points="0,0 9,3.5 0,7" fill="${BLUE}"/></marker>
-                  <marker id="vrf-red" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><polygon points="0,0 9,3.5 0,7" fill="${RED}"/></marker>
-                  <marker id="vrf-rot" markerWidth="10" markerHeight="8" refX="7" refY="4" orient="auto"><polygon points="0,0 10,4 0,8" fill="${RED}"/></marker>
+                  <marker id="vrf-blue" markerWidth="10" markerHeight="8" refX="8.5" refY="4" orient="auto"><polygon points="0,0 10,4 0,8" fill="${BLUE}"/></marker>
+                  <marker id="vrf-red" markerWidth="10" markerHeight="8" refX="8.5" refY="4" orient="auto"><polygon points="0,0 10,4 0,8" fill="${RED}"/></marker>
+                  <marker id="vrf-rot" markerWidth="11" markerHeight="9" refX="7.5" refY="4.5" orient="auto"><polygon points="0,0 11,4.5 0,9" fill="${RED}"/></marker>
                 </defs>`;
+                // 背景（クリーム色＋枠）— 問題図（白）と見分けがつくよう「考え方の図」であることを示す
+                svg += `<rect x="3" y="3" width="${W - 6}" height="${H - 6}" rx="8" ry="8" fill="#fffdf4" stroke="#e0d4a8" stroke-width="1.5"/>`;
                 // 見出し
-                svg += `<text x="${W / 2}" y="14" text-anchor="middle" font-size="11" fill="#333" font-weight="700">速度の矢印が回るようす</text>`;
+                svg += `<text x="${W / 2}" y="25" text-anchor="middle" font-size="13.5" fill="#7a5c00" font-weight="700">考え方：速度の矢印が回るようす</text>`;
                 // 先がえがく円（破線・速度の円）
-                svg += `<circle cx="${cx}" cy="${cy}" r="${vR}" fill="none" stroke="#bbb" stroke-width="1" stroke-dasharray="4,3"/>`;
-                svg += `<circle cx="${cx}" cy="${cy}" r="2.5" fill="#555"/>`;
+                svg += `<circle cx="${cx}" cy="${cy}" r="${vR}" fill="none" stroke="#c8bd97" stroke-width="1.3" stroke-dasharray="5,4"/>`;
+                svg += `<circle cx="${cx}" cy="${cy}" r="3" fill="#555"/>`;
                 // 回転 ω（中心まわり・時計まわり・marker-end）
-                const rotR = 19, a1 = 145 * Math.PI / 180, a2 = 250 * Math.PI / 180;
-                svg += `<path d="M ${(cx + rotR * Math.cos(a1)).toFixed(1)} ${(cy + rotR * Math.sin(a1)).toFixed(1)} A ${rotR} ${rotR} 0 0 1 ${(cx + rotR * Math.cos(a2)).toFixed(1)} ${(cy + rotR * Math.sin(a2)).toFixed(1)}" fill="none" stroke="${RED}" stroke-width="1.8" marker-end="url(#vrf-rot)"/>`;
-                svg += `<text x="${cx - 30}" y="${cy + 5}" font-size="12" fill="${RED}" font-weight="700">ω</text>`;
-                // 速度ベクトル v（青・中心→先。回転する“半径”）
-                svg += `<line x1="${cx}" y1="${cy}" x2="${tipX.toFixed(1)}" y2="${tipY.toFixed(1)}" stroke="${BLUE}" stroke-width="2.4" marker-end="url(#vrf-blue)"/>`;
-                svg += `<text x="${((cx + tipX) / 2 - 13).toFixed(1)}" y="${((cy + tipY) / 2 - 7).toFixed(1)}" font-size="13" fill="${BLUE}" font-weight="700">v</text>`;
+                const rotR = 24, a1 = 145 * Math.PI / 180, a2 = 252 * Math.PI / 180;
+                svg += `<path d="M ${(cx + rotR * Math.cos(a1)).toFixed(1)} ${(cy + rotR * Math.sin(a1)).toFixed(1)} A ${rotR} ${rotR} 0 0 1 ${(cx + rotR * Math.cos(a2)).toFixed(1)} ${(cy + rotR * Math.sin(a2)).toFixed(1)}" fill="none" stroke="${RED}" stroke-width="2" marker-end="url(#vrf-rot)"/>`;
+                svg += `<text x="${cx - 36}" y="${cy + 6}" font-size="15" fill="${RED}" font-weight="700">ω</text>`;
+                // 速度ベクトル v（青・中心→先。回転する“半径”）— 太く描いて主役を強調
+                svg += `<line x1="${cx}" y1="${cy}" x2="${tipX.toFixed(1)}" y2="${tipY.toFixed(1)}" stroke="${BLUE}" stroke-width="3.2" marker-end="url(#vrf-blue)"/>`;
+                svg += `<text x="${((cx + tipX) / 2 - 12).toFixed(1)}" y="${((cy + tipY) / 2 - 8).toFixed(1)}" font-size="16" fill="${BLUE}" font-weight="700">v</text>`;
                 // 先の動く速さ a＝v×ω（接線・赤）
                 const tx = -Math.sin(ang), ty = Math.cos(ang);
-                const aTipX = tipX + tx * 28, aTipY = tipY + ty * 28;
-                svg += `<line x1="${tipX.toFixed(1)}" y1="${tipY.toFixed(1)}" x2="${aTipX.toFixed(1)}" y2="${aTipY.toFixed(1)}" stroke="${RED}" stroke-width="2.4" marker-end="url(#vrf-red)"/>`;
-                svg += `<text x="${(aTipX + 5).toFixed(1)}" y="${(aTipY + 4).toFixed(1)}" text-anchor="start" font-size="12" fill="${RED}" font-weight="700">a＝v×ω</text>`;
-                // 注記（2-4 との対応）
-                svg += `<text x="${W / 2}" y="${H - 20}" text-anchor="middle" font-size="10" fill="#666">長さ v の矢印が ω で回ると、先は v×ω で動く</text>`;
-                svg += `<text x="${W / 2}" y="${H - 7}" text-anchor="middle" font-size="10" fill="#888">（2-4 の「半径 × 角速度」の半径を v にした形）</text>`;
+                const aTipX = tipX + tx * 36, aTipY = tipY + ty * 36;
+                svg += `<line x1="${tipX.toFixed(1)}" y1="${tipY.toFixed(1)}" x2="${aTipX.toFixed(1)}" y2="${aTipY.toFixed(1)}" stroke="${RED}" stroke-width="3.2" marker-end="url(#vrf-red)"/>`;
+                svg += `<text x="${(aTipX + 6).toFixed(1)}" y="${(aTipY + 5).toFixed(1)}" text-anchor="start" font-size="14.5" fill="${RED}" font-weight="700">a＝v×ω</text>`;
+                // 注記（大きめ・読みやすく）
+                svg += `<text x="${W / 2}" y="${H - 26}" text-anchor="middle" font-size="12" fill="#555">破線の円 ＝ 速度の矢印の先が動く道</text>`;
+                svg += `<text x="${W / 2}" y="${H - 9}" text-anchor="middle" font-size="12" fill="#555">長さ v の矢印が ω で回ると、先は v×ω ＝ a</text>`;
                 svg += `</svg></div>`;
                 return svg;
             }
