@@ -17567,56 +17567,36 @@
                     // ω ラベル（円の下、中央。半径線・v とも分離した空き領域）
                     svg += `<text x="${cx}" y="${cy + R + 22}" text-anchor="middle" font-size="14" fill="${RED}" font-weight="700">ω ＝ ${problem.omega} rad/s</text>`;
                 } else if (kind === 'lathe') {
-                    // 問4: 旋盤チャック + 丸棒（直径 d）+ 外周のバイトと接線 v + ω/n 弧。
-                    //   左側にチャック（縦長台形 + 縦の溝 3 本）、その右に丸棒（中央水平の長方形）。
-                    //   丸棒の右端正面（円）に外周バイトと接線方向 v を描く。
-                    const chuckX = 24, chuckY = H / 2 - 60, chuckW = 56, chuckH = 120;
-                    // チャック本体
-                    svg += `<rect x="${chuckX}" y="${chuckY}" width="${chuckW}" height="${chuckH}" fill="#dfe5ee" stroke="#555" stroke-width="1.2"/>`;
-                    // チャックの掴み爪（3 本の溝）
-                    for (let i = 1; i <= 3; i++) {
-                        const sy = chuckY + (chuckH * i) / 4;
-                        svg += `<line x1="${chuckX + chuckW - 8}" y1="${sy}" x2="${chuckX + chuckW}" y2="${sy}" stroke="#555" stroke-width="1.2"/>`;
-                    }
-                    svg += `<text x="${chuckX + chuckW / 2}" y="${chuckY - 6}" text-anchor="middle" font-size="11" fill="#666">チャック</text>`;
-                    // 丸棒（水平長方形、直径 d をスケールで反映）
-                    //   描画スケール: 1 mm = 1.0 px（最大限）。問題の d=50 → 50 px。
-                    const rodScale = 1.0;
-                    const rodH = problem.d * rodScale;  // 50 px
-                    const rodCY = H / 2;
-                    const rodX1 = chuckX + chuckW;
-                    const rodX2 = W - 90;   // 右側に寸法線＋ラベル「d ＝ 50 mm」(~70px) を収めるための余白
-                    svg += `<rect x="${rodX1}" y="${rodCY - rodH / 2}" width="${rodX2 - rodX1}" height="${rodH}" fill="#e8e2d5" stroke="#666" stroke-width="1.2"/>`;
-                    // 中心軸（破線、回転軸）
-                    svg += `<line x1="${chuckX - 10}" y1="${rodCY}" x2="${rodX2 + 16}" y2="${rodCY}" stroke="#888" stroke-width="0.8" stroke-dasharray="6,3"/>`;
-                    // 直径 d の寸法線（丸棒の右側、外側）— 寸法線とラベルを canvas 幅内に収める
-                    const dimX = rodX2 + 14;
-                    svg += `<line x1="${rodX2 + 2}" y1="${rodCY - rodH / 2}" x2="${dimX + 4}" y2="${rodCY - rodH / 2}" stroke="#888" stroke-width="0.8" stroke-dasharray="3,3"/>`;
-                    svg += `<line x1="${rodX2 + 2}" y1="${rodCY + rodH / 2}" x2="${dimX + 4}" y2="${rodCY + rodH / 2}" stroke="#888" stroke-width="0.8" stroke-dasharray="3,3"/>`;
-                    svg += `<line x1="${dimX}" y1="${rodCY - rodH / 2}" x2="${dimX}" y2="${rodCY + rodH / 2}" stroke="#777" stroke-width="1" marker-start="url(#stc24-grayS)" marker-end="url(#stc24-gray)"/>`;
-                    svg += `<text x="${dimX + 6}" y="${rodCY + 4}" font-size="12" fill="#555" font-weight="600">d ＝ ${problem.d} mm</text>`;
-                    // 回転の向き（丸棒が軸まわりに回る）→ チャック上部に弧＋矢じり（赤・時計まわり）。
-                    //   n ラベルはチャックの下に置き、回転弧・中心軸の破線と重ならないようにする。
-                    const arcCX = chuckX + chuckW / 2;
-                    const arcCY = chuckY + 30;            // 中心軸より上（チャック上部）
-                    const arcR = 16;
-                    const na1 = 200 * Math.PI / 180, na2 = 340 * Math.PI / 180;  // 上側を左→右（時計まわり）
-                    const nx1 = (arcCX + arcR * Math.cos(na1)).toFixed(1), ny1 = (arcCY + arcR * Math.sin(na1)).toFixed(1);
-                    const nx2 = (arcCX + arcR * Math.cos(na2)).toFixed(1), ny2 = (arcCY + arcR * Math.sin(na2)).toFixed(1);
-                    svg += `<path d="M ${nx1} ${ny1} A ${arcR} ${arcR} 0 0 1 ${nx2} ${ny2}" fill="none" stroke="${RED}" stroke-width="2" marker-end="url(#stc24-rotR)"/>`;
-                    svg += `<text x="${arcCX}" y="${chuckY + chuckH + 16}" text-anchor="middle" font-size="11.5" fill="${RED}" font-weight="600">n ＝ ${problem.n} min⁻¹</text>`;
-                    // バイト（外周の上に三角の刃物）と接線 v 矢印
-                    const cutX = rodX1 + (rodX2 - rodX1) * 0.55;
-                    const cutTopY = rodCY - rodH / 2;
-                    // バイト本体（三角）
-                    svg += `<polygon points="${cutX - 8},${cutTopY - 18} ${cutX + 8},${cutTopY - 18} ${cutX},${cutTopY - 2}" fill="#777" stroke="#333" stroke-width="1"/>`;
-                    svg += `<text x="${cutX}" y="${cutTopY - 24}" text-anchor="middle" font-size="11" fill="#444">バイト</text>`;
-                    // 外周点 P（バイトの直下、円筒の上端）。回転で奥から手前に動く → 紙面上は左向きの矢印で表す。
-                    svg += `<circle cx="${cutX}" cy="${cutTopY}" r="3.5" fill="${BLUE}"/>`;
-                    // 接線方向 v 矢印（左向き、長さ 50）
-                    const vTipX = cutX - 50;
-                    svg += `<line x1="${cutX}" y1="${cutTopY}" x2="${vTipX}" y2="${cutTopY}" stroke="${BLUE}" stroke-width="2.5" marker-end="url(#stc24-blue)"/>`;
-                    svg += `<text x="${vTipX - 4}" y="${cutTopY - 6}" text-anchor="end" font-size="13" fill="${BLUE}" font-weight="700">v ＝ ?</text>`;
+                    // 問4: 丸棒の「断面（正面から見た円）」で周速度 v を見せる。
+                    //   横からの側面図だと v が「送り（刃物の移動）方向」に見えて誤解を生むため、
+                    //   問1・問3 と同じく v を円の接線方向に描く正面図に統一した。
+                    //   円周＝π×d。1 回転で外周の点が π×d 進み、1 分で n 回まわる → v＝π×d×n（÷1000 で m/min）。
+                    const cx = 150, cy = 114, R = 60;
+                    // 丸棒の断面（円）
+                    svg += `<circle cx="${cx}" cy="${cy}" r="${R}" fill="#ece6d8" stroke="#8a7f63" stroke-width="1.6"/>`;
+                    svg += `<circle cx="${cx}" cy="${cy}" r="3" fill="#555"/>`;
+                    // 回転の向き（中心まわり・時計まわり）＋矢じり（接線方向に自動整列）
+                    const rotR = 22;
+                    const la1 = 200 * Math.PI / 180, la2 = 340 * Math.PI / 180;  // 上側を左→右（時計まわり）
+                    svg += `<path d="M ${(cx + rotR * Math.cos(la1)).toFixed(1)} ${(cy + rotR * Math.sin(la1)).toFixed(1)} A ${rotR} ${rotR} 0 0 1 ${(cx + rotR * Math.cos(la2)).toFixed(1)} ${(cy + rotR * Math.sin(la2)).toFixed(1)}" fill="none" stroke="${RED}" stroke-width="2" marker-end="url(#stc24-rotR)"/>`;
+                    // 外周点 P（円の上）＋ バイト（上から当てる刃物）
+                    const pX = cx, pY = cy - R;
+                    svg += `<polygon points="${pX - 11},${pY - 24} ${pX + 11},${pY - 24} ${pX},${pY - 3}" fill="#8a8a8a" stroke="#333" stroke-width="1"/>`;
+                    svg += `<text x="${pX}" y="${pY - 30}" text-anchor="middle" font-size="11" fill="#444">バイト</text>`;
+                    svg += `<circle cx="${pX}" cy="${pY}" r="4" fill="${BLUE}"/>`;
+                    // 接線方向 v 矢印（時計まわり→上端は右向き＝外周が刃物の前を通り過ぎる速さ）
+                    svg += `<line x1="${pX}" y1="${pY}" x2="${pX + 52}" y2="${pY}" stroke="${BLUE}" stroke-width="2.6" marker-end="url(#stc24-blue)"/>`;
+                    svg += `<text x="${pX + 58}" y="${pY + 5}" text-anchor="start" font-size="14" fill="${BLUE}" font-weight="700">v ＝ ?</text>`;
+                    // 直径 d の寸法線（円の下、横方向の両矢印）。円周 π×d の元になる直径を示す。
+                    const dY = cy + R + 18;
+                    svg += `<line x1="${cx - R}" y1="${cy}" x2="${cx - R}" y2="${dY + 4}" stroke="#999" stroke-width="0.8" stroke-dasharray="3,3"/>`;
+                    svg += `<line x1="${cx + R}" y1="${cy}" x2="${cx + R}" y2="${dY + 4}" stroke="#999" stroke-width="0.8" stroke-dasharray="3,3"/>`;
+                    svg += `<line x1="${cx - R}" y1="${dY}" x2="${cx + R}" y2="${dY}" stroke="#777" stroke-width="1" marker-start="url(#stc24-grayS)" marker-end="url(#stc24-gray)"/>`;
+                    svg += `<text x="${cx}" y="${dY + 16}" text-anchor="middle" font-size="12.5" fill="#555" font-weight="600">d ＝ ${problem.d} mm</text>`;
+                    // n ラベル（右側の空き領域、回転弧の延長として）
+                    svg += `<text x="${cx + R + 16}" y="${cy + 5}" text-anchor="start" font-size="13" fill="${RED}" font-weight="600">n ＝ ${problem.n} min⁻¹</text>`;
+                    // 断面であることの注記
+                    svg += `<text x="${cx}" y="${H - 6}" text-anchor="middle" font-size="10.5" fill="#999">丸棒の断面（正面から見た図）</text>`;
                 }
 
                 svg += `</svg></div>`;
