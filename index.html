@@ -6075,14 +6075,14 @@
                         onCorrectText: '円運動を続けるには、たえず中心 O に向かって引っぱる力（向心力）が必要です。この向心力を生じさせる加速度を向心加速度といいます。'
                     },
                     {
-                        prompt: '向心加速度を求める式には a ＝ v² ÷ r、a ＝ r × ω²、a ＝ v × ω の 3 つがあります。この問題で与えられた量（周速度 v と半径 r）だけで計算できるのはどれですか？',
+                        prompt: '向心加速度の大きさは、周速度 v と半径 r を組み合わせて表します（教科書 p.45 式 2-33）。速さ v が速いほど大きく、半径 r が大きい（ゆるいカーブ）ほど小さくなります。正しい式はどれですか？',
                         choices: [
-                            { value: 'v2r',     label: 'a ＝ v² ÷ r' },
-                            { value: 'romega2', label: 'a ＝ r × ω²' },
-                            { value: 'vomega',  label: 'a ＝ v × ω' }
+                            { value: 'v2r',   label: 'a ＝ v² ÷ r' },
+                            { value: 'vr',    label: 'a ＝ v ÷ r' },
+                            { value: 'vmulr', label: 'a ＝ v × r' }
                         ],
                         correct: 'v2r',
-                        onCorrectText: '与えられているのは v と r です。a ＝ v² ÷ r ならこの 2 つだけで計算できます（式 2-33）。ほかの式は角速度 ω が必要です。'
+                        onCorrectText: '向心加速度の大きさは a ＝ v² ÷ r（式 2-33）です。速さ v は 2 乗で効き、それを半径 r で割ります。'
                     }
                 ],
                 formula: 'a = \\dfrac{v^2}{r}',
@@ -6127,14 +6127,34 @@
                         onCorrectText: '円運動を続けるには、たえず中心 O に向かって引っぱる力（向心力）が必要です。この向心力を生じさせる加速度を向心加速度といいます。'
                     },
                     {
-                        prompt: '向心加速度を求める式 a ＝ v² ÷ r、a ＝ r × ω²、a ＝ v × ω のうち、この問題で与えられた量（半径 r と角速度 ω）だけで計算できるのはどれですか？',
+                        prompt: '向心加速度の大きさは a ＝ v² ÷ r（式 2-33）で表されます。でも、この問題では周速度 v が与えられていません。与えられているのはどれですか？',
+                        choices: [
+                            { value: 'rOmega', label: '半径 r と角速度 ω' },
+                            { value: 'vr',     label: '周速度 v と半径 r' },
+                            { value: 'vOmega', label: '周速度 v と角速度 ω' }
+                        ],
+                        correct: 'rOmega',
+                        onCorrectText: '与えられているのは半径 r と角速度 ω です。周速度 v がないので、a ＝ v² ÷ r はこのままでは使えません。まず v を r と ω で表します。'
+                    },
+                    {
+                        prompt: '半径 r と角速度 ω から、周速度 v はどう表せますか？（2-4／教科書43ページ 式 2-30）',
+                        choices: [
+                            { value: 'rOmega', label: 'v ＝ r × ω' },
+                            { value: 'divR',   label: 'v ＝ r ÷ ω' },
+                            { value: 'plus',   label: 'v ＝ r ＋ ω' }
+                        ],
+                        correct: 'rOmega',
+                        onCorrectText: '周速度は v ＝ r × ω（式 2-30）。半径と角速度を掛ければ求められます。これを a ＝ v² ÷ r の v に入れます。'
+                    },
+                    {
+                        prompt: 'a ＝ v² ÷ r の v に v ＝ r × ω を入れて整理すると、向心加速度 a は r と ω でどう表せますか？',
                         choices: [
                             { value: 'romega2', label: 'a ＝ r × ω²' },
-                            { value: 'v2r',     label: 'a ＝ v² ÷ r' },
-                            { value: 'vomega',  label: 'a ＝ v × ω' }
+                            { value: 'r2omega', label: 'a ＝ r² × ω' },
+                            { value: 'romega',  label: 'a ＝ r × ω' }
                         ],
                         correct: 'romega2',
-                        onCorrectText: '与えられているのは r と ω です。a ＝ r × ω² ならこの 2 つだけで計算できます（式 2-33）。これは a ＝ v² ÷ r に v ＝ r × ω を入れても導けます。'
+                        onCorrectText: 'a ＝ v² ÷ r に v ＝ r × ω を入れると、a ＝ (r × ω)² ÷ r ＝ r² × ω² ÷ r。ここで r が 2 つのうち 1 つは ÷ r で消えて r が 1 つ残るので、a ＝ r × ω²（式 2-33 を角速度 ω で表した形）。半径 r が大きいほど、また角速度 ω（2 乗で効く）が大きいほど、向心加速度は大きくなります。'
                     }
                 ],
                 formula: 'a = r\\,\\omega^2',
@@ -6179,14 +6199,24 @@
                         onCorrectText: '円運動を続けるには、たえず中心 O に向かって引っぱる力が必要です。この力を向心力といいます。向心力は F ＝ 質量 m × 向心加速度 a で求められます。'
                     },
                     {
-                        prompt: '向心力 F ＝ m × a の a を式で表すと、向心力の式は F ＝ m × v² ÷ r、F ＝ m × r × ω²、F ＝ m × v × ω の 3 つになります。この問題で与えられた量（質量 m・周速度 v・半径 r）だけで計算できるのはどれですか？',
+                        prompt: '向心力は F ＝ m × a で求められます（m は質量、a は向心加速度）。向心加速度 a は、周速度 v と半径 r を使ってどう表しますか？（式 2-33）',
+                        choices: [
+                            { value: 'v2r',   label: 'a ＝ v² ÷ r' },
+                            { value: 'vr',    label: 'a ＝ v ÷ r' },
+                            { value: 'vmulr', label: 'a ＝ v × r' }
+                        ],
+                        correct: 'v2r',
+                        onCorrectText: '向心加速度は a ＝ v² ÷ r（式 2-33）。これを F ＝ m × a の a に入れます。'
+                    },
+                    {
+                        prompt: 'F ＝ m × a の a に a ＝ v² ÷ r を入れると、向心力 F はどう表せますか？',
                         choices: [
                             { value: 'mv2r',     label: 'F ＝ m × v² ÷ r' },
-                            { value: 'mromega2', label: 'F ＝ m × r × ω²' },
-                            { value: 'mvomega',  label: 'F ＝ m × v × ω' }
+                            { value: 'mvr',      label: 'F ＝ m × v ÷ r' },
+                            { value: 'mdivv2r',  label: 'F ＝ m ÷ v² × r' }
                         ],
                         correct: 'mv2r',
-                        onCorrectText: '与えられているのは m, v, r です。F ＝ m × v² ÷ r ならこの 3 つで計算できます（式 2-34、F ＝ m × a に a ＝ v² ÷ r を入れた形）。'
+                        onCorrectText: 'F ＝ m × a に a ＝ v² ÷ r を入れて、F ＝ m × v² ÷ r（式 2-34）。質量 m に「速さの 2 乗 ÷ 半径」を掛けます。'
                     }
                 ],
                 formula: 'F = m\\,\\dfrac{v^2}{r}',
@@ -6232,14 +6262,24 @@
                         onCorrectText: '円運動を続けるには、たえず中心 O に向かって引っぱる力が必要です。この力を向心力といいます。向心力は F ＝ 質量 m × 向心加速度 a で求められます。'
                     },
                     {
-                        prompt: '向心力の式 F ＝ m × v² ÷ r、F ＝ m × r × ω²、F ＝ m × v × ω のうち、この問題で与えられた量（質量 m・半径 r・角速度 ω）だけで計算できるのはどれですか？',
+                        prompt: 'この問題では周速度 v がなく、半径 r と角速度 ω が分かっています。向心加速度 a を r と ω で表すとどうなりますか？（問 2 で導いた式）',
+                        choices: [
+                            { value: 'romega2', label: 'a ＝ r × ω²' },
+                            { value: 'romega',  label: 'a ＝ r × ω' },
+                            { value: 'r2omega', label: 'a ＝ r² × ω' }
+                        ],
+                        correct: 'romega2',
+                        onCorrectText: '問 2 で導いたように、半径 r と角速度 ω では向心加速度は a ＝ r × ω²（教科書45ページ）。これを F ＝ m × a の a に入れます。'
+                    },
+                    {
+                        prompt: 'F ＝ m × a の a に a ＝ r × ω² を入れると、向心力 F はどう表せますか？',
                         choices: [
                             { value: 'mromega2', label: 'F ＝ m × r × ω²' },
-                            { value: 'mv2r',     label: 'F ＝ m × v² ÷ r' },
-                            { value: 'mvomega',  label: 'F ＝ m × v × ω' }
+                            { value: 'mromega',  label: 'F ＝ m × r × ω' },
+                            { value: 'mdivr',    label: 'F ＝ m ÷ r × ω²' }
                         ],
                         correct: 'mromega2',
-                        onCorrectText: '与えられているのは m, r, ω です。F ＝ m × r × ω² ならこの 3 つで計算できます（式 2-34、F ＝ m × a に a ＝ r × ω² を入れた形）。'
+                        onCorrectText: 'F ＝ m × a に a ＝ r × ω² を入れて、F ＝ m × r × ω²（式 2-34 を角速度 ω で表した形）。質量 m に「半径 × 角速度の 2 乗」を掛けます。'
                     }
                 ],
                 formula: 'F = m\\,r\\,\\omega^2',
@@ -6296,7 +6336,7 @@
                 c: '教科書45ページ「4 向心加速度」と図2-48 を確認してください。'
             },
             stage2: {
-                b: 'この問題には周速度 v が書かれていません。半径 r と角速度 ω だけから向心加速度を出せる式があります。',
+                b: 'この問題には周速度 v が書かれていません。a ＝ v² ÷ r をそのまま使えないので、まず周速度を v ＝ r × ω（2-4 で学んだ式）で表してから、a ＝ v² ÷ r の v に入れて考えます。',
                 a: '向心加速度の式は a ＝ r × ω²（式 2-33）。手順は ①角速度 ω を 2 乗、②それに半径 r を掛ける。これは a ＝ v² ÷ r に v ＝ r × ω を入れて導かれます。',
                 c: '教科書45ページ 式(2-33)「a ＝ r ω²」を確認してください。'
             },
@@ -6354,7 +6394,7 @@
                 c: '教科書45ページ「5 向心力と遠心力」と図2-49 を確認してください。'
             },
             stage2: {
-                b: 'この問題には周速度 v が書かれていません。向心力は「質量 × 向心加速度」で、向心加速度は半径 r と角速度 ω から a ＝ r × ω² で出せます。',
+                b: 'この問題には周速度 v が書かれていません。向心力は F ＝ 質量 m × 向心加速度 a です。まず向心加速度 a を、半径 r と角速度 ω で表すこと（問 2 で導いた a ＝ r × ω²）を思い出しましょう。',
                 a: '向心力の式は F ＝ m × r × ω²（式 2-34）。F ＝ m × a の a に a ＝ r × ω² を入れた形です。',
                 c: '教科書45ページ 式(2-34)「F ＝ m r ω²」を確認してください。'
             },
