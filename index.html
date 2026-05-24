@@ -17457,53 +17457,39 @@
                 </defs>`;
 
                 if (kind === 'rotationCylinder') {
-                    // 問1: 円筒を斜視で描き、外周に点 P と接線方向の v 矢印、ほどけた糸の長さ l。
-                    //   円筒の正面円（左側）と背面円（右側、楕円で）を描く。
-                    const cx1 = 110, cy1 = 130;  // 正面円の中心
-                    const R = 56;                 // 円筒の半径（描画スケール）
-                    const rxEll = 18;             // 背面の楕円水平半径
-                    const cylLen = 90;            // 円筒の奥行き
-                    const cx2 = cx1 + cylLen;     // 背面円の中心
-                    // 円筒側面（上下の線）
-                    svg += `<line x1="${cx1}" y1="${cy1 - R}" x2="${cx2}" y2="${cy1 - R}" stroke="#777" stroke-width="1.2"/>`;
-                    svg += `<line x1="${cx1}" y1="${cy1 + R}" x2="${cx2}" y2="${cy1 + R}" stroke="#777" stroke-width="1.2"/>`;
-                    // 背面円（楕円、薄め）
-                    svg += `<ellipse cx="${cx2}" cy="${cy1}" rx="${rxEll}" ry="${R}" fill="#f3f6fb" stroke="#999" stroke-width="1"/>`;
-                    // 正面円（前面）
+                    // 問1: 円筒を正面（円）で描き、外周の点 P から接線方向に糸がまっすぐほどけていく様子を示す。
+                    //   ほどけた糸の長さ l は、点 P が周にそって進んだ距離に等しい（l ＝ v × t）。
+                    //   v 矢印と糸を同じ向き（点 P から右）にそろえ、「点 P の速さ＝糸のほどける速さ」を見せる。
+                    //   ※以前は斜視（円＋背面の楕円）で分かりにくかったため、正面の円のみの 2D に作り直し。
+                    const cx1 = 90, cy1 = 146, R = 50;
+                    const pX = cx1, pY = cy1 - R;          // 点 P＝円のいちばん上（糸がほどけて出ていく点）
+                    const sxEnd = W - 18;                  // ほどけた糸の右端
+                    // 円筒（正面の円）
                     svg += `<circle cx="${cx1}" cy="${cy1}" r="${R}" fill="#fbfcfe" stroke="#444" stroke-width="1.5"/>`;
+                    // 巻きついている糸（外周にそった赤い破線の輪）
+                    svg += `<circle cx="${cx1}" cy="${cy1}" r="${R - 3}" fill="none" stroke="${RED}" stroke-width="1.6" stroke-dasharray="3,3" opacity="0.6"/>`;
                     // 中心 O
                     svg += `<circle cx="${cx1}" cy="${cy1}" r="3" fill="#333"/>`;
-                    svg += `<text x="${cx1 - 12}" y="${cy1 + 4}" font-size="12" fill="#333">O</text>`;
-                    // 点 P（円周の上、角度 60°）
-                    const pAng = -Math.PI / 3;  // 上ななめ右
-                    const pX = cx1 + R * Math.cos(pAng);
-                    const pY = cy1 + R * Math.sin(pAng);
+                    svg += `<text x="${cx1 - 14}" y="${cy1 + 4}" font-size="12" fill="#333">O</text>`;
+                    svg += `<text x="${cx1}" y="${cy1 + R + 17}" text-anchor="middle" font-size="11" fill="#888">円筒（正面から見た図）</text>`;
+                    // 回転矢印（中心まわり・時計まわり＝上が右へ動く）
+                    svg += `<path d="M ${cx1 - 15} ${cy1 - 19} A 24 24 0 0 1 ${cx1 + 15} ${cy1 - 19}" fill="none" stroke="#555" stroke-width="1.6"/>`;
+                    svg += `<path d="M ${cx1 + 9} ${cy1 - 25} L ${cx1 + 20} ${cy1 - 18} L ${cx1 + 7} ${cy1 - 12} Z" fill="#555"/>`;
+                    // ほどけた糸（赤・点 P から右へまっすぐ）。長さ l。
+                    svg += `<line x1="${pX}" y1="${pY}" x2="${sxEnd}" y2="${pY}" stroke="${RED}" stroke-width="2.2"/>`;
+                    // 点 P と v 矢印（接線方向＝水平右。糸のほどける向きと同じ）
                     svg += `<circle cx="${pX}" cy="${pY}" r="4" fill="${BLUE}"/>`;
-                    svg += `<text x="${pX + 6}" y="${pY - 6}" font-size="13" fill="${BLUE}" font-weight="600">P</text>`;
-                    // 接線方向 v 矢印（点 P から接線方向、回転は反時計まわりとする）
-                    //   接線方向ベクトル = (-sin a, cos a)
-                    const tx = -Math.sin(pAng), ty = Math.cos(pAng);
-                    const vLen = 36;
-                    const vx2 = pX + tx * vLen, vy2 = pY + ty * vLen;
-                    svg += `<line x1="${pX}" y1="${pY}" x2="${vx2}" y2="${vy2}" stroke="${BLUE}" stroke-width="2.5" marker-end="url(#stc24-blue)"/>`;
-                    svg += `<text x="${vx2 + 4}" y="${vy2 + 4}" font-size="13" fill="${BLUE}" font-weight="700">v</text>`;
-                    // 回転矢印（中心まわり、反時計まわり）
-                    const rotR = 24;
-                    svg += `<path d="M ${cx1 + rotR} ${cy1} A ${rotR} ${rotR} 0 0 0 ${cx1} ${cy1 - rotR}" fill="none" stroke="#555" stroke-width="1.5"/>`;
-                    svg += `<path d="M ${cx1 - 4} ${cy1 - rotR + 4} L ${cx1 + 6} ${cy1 - rotR + 1} L ${cx1 + 1} ${cy1 - rotR - 7} Z" fill="#555"/>`;
-                    // 糸（円周の下を回って、右下にほどける）
-                    //   円周の最下点 (cx1, cy1 + R) から接線方向に下方向 → 右へほどけて伸びる。
-                    const sx0 = cx1, sy0 = cy1 + R;
-                    const sxEnd = W - 22, syEnd = sy0;
-                    svg += `<line x1="${sx0}" y1="${sy0}" x2="${sxEnd}" y2="${syEnd}" stroke="${RED}" stroke-width="2.2"/>`;
-                    // 糸の長さ l の寸法線（双方向矢印・下方向）
-                    const dimY = sy0 + 22;
-                    svg += `<line x1="${sx0}" y1="${sy0 + 6}" x2="${sx0}" y2="${dimY + 4}" stroke="#888" stroke-width="0.8" stroke-dasharray="3,3"/>`;
-                    svg += `<line x1="${sxEnd}" y1="${syEnd + 6}" x2="${sxEnd}" y2="${dimY + 4}" stroke="#888" stroke-width="0.8" stroke-dasharray="3,3"/>`;
-                    svg += `<line x1="${sx0}" y1="${dimY}" x2="${sxEnd}" y2="${dimY}" stroke="#777" stroke-width="1" marker-start="url(#stc24-grayS)" marker-end="url(#stc24-gray)"/>`;
-                    svg += `<text x="${(sx0 + sxEnd) / 2}" y="${dimY + 16}" text-anchor="middle" font-size="13" fill="#555" font-weight="600">l ＝ ${problem.l} m</text>`;
-                    // t 表示
-                    svg += `<text x="${W - 12}" y="20" text-anchor="end" font-size="12" fill="#555">t ＝ ${problem.t} s</text>`;
+                    svg += `<text x="${pX - 16}" y="${pY + 1}" font-size="13" fill="${BLUE}" font-weight="600">P</text>`;
+                    svg += `<line x1="${pX}" y1="${pY}" x2="${pX + 42}" y2="${pY}" stroke="${BLUE}" stroke-width="2.6" marker-end="url(#stc24-blue)"/>`;
+                    svg += `<text x="${pX + 48}" y="${pY + 5}" font-size="13" fill="${BLUE}" font-weight="700">v</text>`;
+                    // 糸の長さ l の寸法線（糸の上、双方向矢印）
+                    const dimY = pY - 26;
+                    svg += `<line x1="${pX}" y1="${pY - 5}" x2="${pX}" y2="${dimY - 4}" stroke="#888" stroke-width="0.8" stroke-dasharray="3,3"/>`;
+                    svg += `<line x1="${sxEnd}" y1="${pY - 5}" x2="${sxEnd}" y2="${dimY - 4}" stroke="#888" stroke-width="0.8" stroke-dasharray="3,3"/>`;
+                    svg += `<line x1="${pX}" y1="${dimY}" x2="${sxEnd}" y2="${dimY}" stroke="#777" stroke-width="1" marker-start="url(#stc24-grayS)" marker-end="url(#stc24-gray)"/>`;
+                    svg += `<text x="${(pX + sxEnd) / 2}" y="${dimY - 6}" text-anchor="middle" font-size="13" fill="#555" font-weight="600">l ＝ ${problem.l} m</text>`;
+                    // 「t ＝ 2 s でほどけた糸」ラベル（糸の下・円の右側で重ならない位置）
+                    svg += `<text x="${(cx1 + R + 20 + sxEnd) / 2}" y="${pY + 22}" text-anchor="middle" font-size="12" fill="${RED}">t ＝ ${problem.t} s でほどけた糸</text>`;
                 } else if (kind === 'rotationAngle') {
                     // 問2: 正面視の円。中心 O・基準半径（右、点線）・回転後半径（上ななめ）・角度 θ の弧。
                     const cx = W / 2, cy = H / 2 + 6;
