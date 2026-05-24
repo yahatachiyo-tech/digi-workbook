@@ -17455,6 +17455,7 @@
                   <marker id="stc24-red" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><polygon points="0,0 9,3.5 0,7" fill="${RED}"/></marker>
                   <marker id="stc24-gray" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto"><polygon points="0,0 8,3.5 0,7" fill="#777"/></marker>
                   <marker id="stc24-grayS" markerWidth="8" markerHeight="7" refX="1" refY="3.5" orient="auto"><polygon points="8,0 0,3.5 8,7" fill="#777"/></marker>
+                  <marker id="stc24-rot" markerWidth="10" markerHeight="8" refX="7" refY="4" orient="auto"><polygon points="0,0 10,4 0,8" fill="#555"/></marker>
                 </defs>`;
 
                 if (kind === 'rotationCylinder') {
@@ -17473,9 +17474,18 @@
                     svg += `<circle cx="${cx1}" cy="${cy1}" r="3" fill="#333"/>`;
                     svg += `<text x="${cx1 - 14}" y="${cy1 + 4}" font-size="12" fill="#333">O</text>`;
                     svg += `<text x="${cx1}" y="${cy1 + R + 17}" text-anchor="middle" font-size="11" fill="#888">円筒（正面から見た図）</text>`;
-                    // 回転矢印（中心まわり・時計まわり＝上が右へ動く）
-                    svg += `<path d="M ${cx1 - 15} ${cy1 - 19} A 24 24 0 0 1 ${cx1 + 15} ${cy1 - 19}" fill="none" stroke="#555" stroke-width="1.6"/>`;
-                    svg += `<path d="M ${cx1 + 9} ${cy1 - 25} L ${cx1 + 20} ${cy1 - 18} L ${cx1 + 7} ${cy1 - 12} Z" fill="#555"/>`;
+                    // 回転の向き（時計まわり＝上面が右へ動き、糸が右へほどける）。
+                    //   中心 O まわりの弧を描き、矢じりは marker-end で接線方向に自動整列させる
+                    //   （手描き三角だと向きが弧とずれて読み取りにくかったため修正）。
+                    const rotR = 22;
+                    const ra1 = 210 * Math.PI / 180;   // 始点角（左上・約 8 時方向）
+                    const ra2 = 330 * Math.PI / 180;   // 終点角（右上・約 2 時方向）
+                    const rax1 = (cx1 + rotR * Math.cos(ra1)).toFixed(1);
+                    const ray1 = (cy1 + rotR * Math.sin(ra1)).toFixed(1);
+                    const rax2 = (cx1 + rotR * Math.cos(ra2)).toFixed(1);
+                    const ray2 = (cy1 + rotR * Math.sin(ra2)).toFixed(1);
+                    // sweep-flag=1（角度を増やす向き＝SVG では時計まわり）で上側を左→右に弧を描く
+                    svg += `<path d="M ${rax1} ${ray1} A ${rotR} ${rotR} 0 0 1 ${rax2} ${ray2}" fill="none" stroke="#555" stroke-width="1.8" marker-end="url(#stc24-rot)"/>`;
                     // ほどけた糸（赤・点 P から右へまっすぐ）。長さ l。
                     svg += `<line x1="${pX}" y1="${pY}" x2="${sxEnd}" y2="${pY}" stroke="${RED}" stroke-width="2.2"/>`;
                     // 点 P と v 矢印（接線方向＝水平右。糸のほどける向きと同じ）
