@@ -1197,6 +1197,13 @@
             margin: 14px 0;
             user-select: none;
         }
+        /* 2-1 Stage2: v-t グラフと「き・は・じ」参考図を横並びにする補助行。
+           幅の広い画面では横に並び、狭い画面では flex-wrap で下に回り込む。 */
+        .vt-kihaji-row > .drawing-wrapper {
+            width: auto;
+            flex: 0 1 auto;
+            max-width: 100%;
+        }
         .drawing-svg {
             display: block;
             cursor: crosshair;
@@ -13100,7 +13107,12 @@
                         if (this.calcInputs.derivStepIndex === undefined) {
                             this.calcInputs.derivStepIndex = 0;
                         }
-                        content.innerHTML = header + staticCanvas1_6 + `
+                        // 2-1 のみ、Stage 2（使う式を導く）の補助として v-t グラフの横に「き・は・じ」参考図を並べる。
+                        //   常時表示はせず、立式を導くこの段階に限る。狭い画面では flex-wrap で下に回り込む。
+                        const canvasBlock2_1 = is2_1
+                            ? `<div class="vt-kihaji-row" style="display:flex; flex-wrap:wrap; gap:8px 24px; align-items:flex-start; justify-content:center;">${staticCanvas1_6}${this.build2_1KihajiCircle()}</div>`
+                            : staticCanvas1_6;
+                        content.innerHTML = header + canvasBlock2_1 + `
                             <div class="calc-stage-container">
                                 <div class="calc-question-text">使う式を、一段ずつ自分で導いてください。</div>
                                 <div id="derivAccordion"></div>
@@ -17146,6 +17158,39 @@
 
                 svg += `</svg></div>`;
                 return svg;
+            }
+
+            // 2-1 用「き・は・じ」参考図（補助）。Stage 2（使う式を導く）でのみ、v-t グラフの横に並べて表示する。
+            //   円を上下に分け、上＝距離（き／s）、下を左右に分け 左＝速さ（は／v）・右＝時間（じ／t）。
+            //   となりどうし（は×じ）＝き、上下（き÷は・き÷じ）＝割り算。意味理解の主軸はあくまで
+            //   「速さ＝1秒あたりに進む距離」で、この図は思い出すための補助。
+            build2_1KihajiCircle() {
+                const W = 196, H = 234;
+                const cx = 96, cy = 118, r = 72;
+                const BLUE = '#1e5fa8', RED = '#c62828', GRAY = '#666', INK = '#333';
+                let s = `<div class="drawing-wrapper" style="pointer-events:none;">
+                <svg class="drawing-svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="cursor:default;">`;
+                s += `<text x="${cx}" y="18" text-anchor="middle" font-size="12" fill="${GRAY}" font-weight="700">参考：き・は・じ の図</text>`;
+                s += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#f3f7fc" stroke="${BLUE}" stroke-width="1.8"/>`;
+                s += `<line x1="${cx - r}" y1="${cy}" x2="${cx + r}" y2="${cy}" stroke="${BLUE}" stroke-width="1.4"/>`;
+                s += `<line x1="${cx}" y1="${cy}" x2="${cx}" y2="${cy + r}" stroke="${BLUE}" stroke-width="1.4"/>`;
+                // き（距離 s）上
+                s += `<text x="${cx}" y="${cy - 30}" text-anchor="middle" font-size="20" fill="${BLUE}" font-weight="700">き</text>`;
+                s += `<text x="${cx}" y="${cy - 12}" text-anchor="middle" font-size="12" fill="${INK}">（距離 s）</text>`;
+                // は（速さ v）左下
+                s += `<text x="${cx - 36}" y="${cy + 36}" text-anchor="middle" font-size="20" fill="${BLUE}" font-weight="700">は</text>`;
+                s += `<text x="${cx - 36}" y="${cy + 54}" text-anchor="middle" font-size="11" fill="${INK}">（速さ v）</text>`;
+                // じ（時間 t）右下
+                s += `<text x="${cx + 36}" y="${cy + 36}" text-anchor="middle" font-size="20" fill="${BLUE}" font-weight="700">じ</text>`;
+                s += `<text x="${cx + 36}" y="${cy + 54}" text-anchor="middle" font-size="11" fill="${INK}">（時間 t）</text>`;
+                // 演算子: 上下は ÷、となりどうしは ×
+                s += `<text x="${cx - 36}" y="${cy + 13}" text-anchor="middle" font-size="15" fill="${RED}" font-weight="700">÷</text>`;
+                s += `<text x="${cx + 36}" y="${cy + 13}" text-anchor="middle" font-size="15" fill="${RED}" font-weight="700">÷</text>`;
+                s += `<text x="${cx}" y="${cy + 40}" text-anchor="middle" font-size="15" fill="${RED}" font-weight="700">×</text>`;
+                // 説明
+                s += `<text x="${cx}" y="${H - 12}" text-anchor="middle" font-size="11" fill="${GRAY}">距離＝速さ×時間／速さ＝距離÷時間</text>`;
+                s += `</svg></div>`;
+                return s;
             }
 
             // 2-4（回転運動）の問題図を生成する。
