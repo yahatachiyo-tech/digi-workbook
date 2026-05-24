@@ -1043,6 +1043,7 @@
             align-items: center;
             justify-content: center;
             color: var(--color-text);
+            overflow-x: auto;
         }
 
         .calc-formula-input {
@@ -14572,17 +14573,17 @@
                         let reflFormulaLatex_2_2, reflText_2_2;
                         if (problem.formulaType === 'aFromV') {
                             const num = problem.v - problem.v0;
-                            reflFormulaLatex_2_2 = `\\begin{aligned} a &= \\dfrac{v - v_0}{t} \\\\[6pt] &= \\dfrac{${problem.v} - ${problem.v0}}{${problem.t}} = \\dfrac{${num}}{${problem.t}} \\\\[6pt] &= ${problem.expectedA}\\ \\mathrm{m/s^{2}} \\end{aligned}`;
+                            reflFormulaLatex_2_2 = `a = \\dfrac{v - v_0}{t} = \\dfrac{${problem.v} - ${problem.v0}}{${problem.t}} = \\dfrac{${num}}{${problem.t}} = ${problem.expectedA}\\ \\mathrm{m/s^{2}}`;
                             reflText_2_2 = `加速度 a ＝ (${problem.v} − ${problem.v0}) ÷ ${problem.t} ＝ ${num} ÷ ${problem.t} ＝ ${problem.expectedA} m/s²。この自動車は 1 秒間に速度が ${problem.expectedA} m/s ずつ増えていくことになります。`;
                         } else if (problem.formulaType === 'vFromAT') {
                             const inc = problem.a * problem.t;
-                            reflFormulaLatex_2_2 = `\\begin{aligned} v &= v_0 + a\\,t \\\\[6pt] &= ${problem.v0} + ${problem.a} \\times ${problem.t} \\\\[6pt] &= ${problem.v0} + ${inc} = ${problem.expectedV}\\ \\mathrm{m/s} \\end{aligned}`;
+                            reflFormulaLatex_2_2 = `v = v_0 + a\\,t = ${problem.v0} + ${problem.a} \\times ${problem.t} = ${problem.v0} + ${inc} = ${problem.expectedV}\\ \\mathrm{m/s}`;
                             reflText_2_2 = `速度 v ＝ ${problem.v0} ＋ ${problem.a} × ${problem.t} ＝ ${problem.v0} ＋ ${inc} ＝ ${problem.expectedV} m/s。初速度 ${problem.v0} m/s に、${problem.t} 秒間の増加ぶん ${inc} m/s が加わって ${problem.expectedV} m/s になります。`;
                         } else if (problem.formulaType === 'sFromV0AT') {
                             const term1 = problem.v0 * problem.t;
                             const term2 = 0.5 * problem.a * problem.t * problem.t;
                             const tsq = problem.t * problem.t;
-                            reflFormulaLatex_2_2 = `\\begin{aligned} s &= v_0\\,t + \\dfrac{1}{2}\\,a\\,t^{2} \\\\[6pt] &= ${problem.v0} \\times ${problem.t} + \\dfrac{1}{2} \\times ${problem.a} \\times ${problem.t}^{\\,2} \\\\[6pt] &= ${term1} + ${term2} = ${problem.expectedS}\\ \\mathrm{m} \\end{aligned}`;
+                            reflFormulaLatex_2_2 = `s = v_0\\,t + \\dfrac{1}{2}\\,a\\,t^{2} = ${problem.v0} \\times ${problem.t} + \\dfrac{1}{2} \\times ${problem.a} \\times ${problem.t}^{\\,2} = ${term1} + ${term2} = ${problem.expectedS}\\ \\mathrm{m}`;
                             reflText_2_2 = `距離 s ＝ ${problem.v0} × ${problem.t} ＋ (1/2) × ${problem.a} × ${problem.t}² ＝ ${term1} ＋ ${term2} ＝ ${problem.expectedS} m。等速ぶん v₀t ＝ ${term1} m と、加速で増えるぶん ½at² ＝ ${term2} m を足した合計です。`;
                         } else {
                             // vFromV0AS
@@ -14620,12 +14621,12 @@
                         //   「記号式／数値式／答え」を表示し、その下に formulaType ごとの振り返り文を載せる。
                         let reflFormulaLatex_2_3, reflText_2_3;
                         if (problem.formulaType === 'freeFallV') {
-                            reflFormulaLatex_2_3 = `\\begin{aligned} v &= g\\,t \\\\[6pt] &= ${problem.g} \\times ${problem.t} \\\\[6pt] &= ${problem.expectedV}\\ \\mathrm{m/s} \\end{aligned}`;
+                            reflFormulaLatex_2_3 = `v = g\\,t = ${problem.g} \\times ${problem.t} = ${problem.expectedV}\\ \\mathrm{m/s}`;
                             reflText_2_3 = '3 秒後の落下速度は 29.4 m/s。時速になおすと約 106 km/h で、高速道路を走る自動車くらいの速さです。自由落下では、わずかな時間で物体がとても速くなることが分かります。';
                         } else if (problem.formulaType === 'freeFallH') {
                             const tsq2_3 = problem.t * problem.t;
                             const gtsq2_3 = problem.g * tsq2_3;
-                            reflFormulaLatex_2_3 = `\\begin{aligned} h &= \\dfrac{1}{2}\\,g\\,t^{2} \\\\[6pt] &= \\dfrac{1}{2} \\times ${problem.g} \\times ${problem.t}^{\\,2} = \\dfrac{1}{2} \\times ${gtsq2_3} \\\\[6pt] &= ${problem.expectedH}\\ \\mathrm{m} \\end{aligned}`;
+                            reflFormulaLatex_2_3 = `h = \\dfrac{1}{2}\\,g\\,t^{2} = \\dfrac{1}{2} \\times ${problem.g} \\times ${problem.t}^{\\,2} = \\dfrac{1}{2} \\times ${gtsq2_3} = ${problem.expectedH}\\ \\mathrm{m}`;
                             reflText_2_3 = '2 秒間で約 19.6 m 落下します。これはビルの 5〜6 階くらいの高さに当たります。自由落下では、はじめゆっくりでも時間の 2 乗で距離が大きくなるため、短い時間で大きく落下することが分かります。';
                         } else if (problem.formulaType === 'freeFallTime') {
                             const twoH2_3 = 2 * problem.h;
@@ -14635,7 +14636,7 @@
                         } else {
                             // verticalDownV
                             const inc2_3 = problem.g * problem.t;
-                            reflFormulaLatex_2_3 = `\\begin{aligned} v &= v_0 + g\\,t \\\\[6pt] &= ${problem.v0} + ${problem.g} \\times ${problem.t} \\\\[6pt] &= ${problem.v0} + ${inc2_3} = ${problem.expectedV}\\ \\mathrm{m/s} \\end{aligned}`;
+                            reflFormulaLatex_2_3 = `v = v_0 + g\\,t = ${problem.v0} + ${problem.g} \\times ${problem.t} = ${problem.v0} + ${inc2_3} = ${problem.expectedV}\\ \\mathrm{m/s}`;
                             reflText_2_3 = '初速度 4 m/s で投げおろした 2 秒後の速度は 23.6 m/s。同じ 2 秒後でも、そっと手をはなした自由落下なら 9.8 × 2 ＝ 19.6 m/s なので、自由落下より 4.0 m/s 大きい（＝初速のぶん）ことが分かります。';
                         }
                         content.innerHTML = header + staticCanvas1_6 + `
@@ -14657,18 +14658,18 @@
                         //   「記号式／数値式／答え」を表示し、その下に formulaType ごとの振り返り文を載せる。
                         let reflFormulaLatex_2_4, reflText_2_4;
                         if (problem.formulaType === 'peripheralVFromLT') {
-                            reflFormulaLatex_2_4 = `\\begin{aligned} v &= \\dfrac{l}{t} \\\\[6pt] &= \\dfrac{${problem.l}}{${problem.t}} \\\\[6pt] &= ${problem.expectedV}\\ \\mathrm{m/s} \\end{aligned}`;
+                            reflFormulaLatex_2_4 = `v = \\dfrac{l}{t} = \\dfrac{${problem.l}}{${problem.t}} = ${problem.expectedV}\\ \\mathrm{m/s}`;
                             reflText_2_4 = '周速度は「円周上の点が 1 秒あたりに動く長さ」です。動いた長さ l を時間 t で割れば求められ、向きは円周の接線方向になります（教科書 p.43 式 2-28）。';
                         } else if (problem.formulaType === 'angularVFromThetaT') {
-                            reflFormulaLatex_2_4 = `\\begin{aligned} \\omega &= \\dfrac{\\theta}{t} \\\\[6pt] &= \\dfrac{${problem.theta}}{${problem.t}} \\\\[6pt] &= ${problem.expectedOmega}\\ \\mathrm{rad/s} \\end{aligned}`;
+                            reflFormulaLatex_2_4 = `\\omega = \\dfrac{\\theta}{t} = \\dfrac{${problem.theta}}{${problem.t}} = ${problem.expectedOmega}\\ \\mathrm{rad/s}`;
                             reflText_2_4 = '角速度は「1 秒あたりに回った角度」で、単位は rad/s です。周速度 v が「1 秒あたりに動いた長さ」だったのと、形がよく似ています。回った角度 θ を時間 t で割れば求められます（教科書 p.43 式 2-29）。';
                         } else if (problem.formulaType === 'peripheralVFromROmega') {
-                            reflFormulaLatex_2_4 = `\\begin{aligned} v &= r\\,\\omega \\\\[6pt] &= ${problem.r} \\times ${problem.omega} \\\\[6pt] &= ${problem.expectedV}\\ \\mathrm{m/s} \\end{aligned}`;
+                            reflFormulaLatex_2_4 = `v = r\\,\\omega = ${problem.r} \\times ${problem.omega} = ${problem.expectedV}\\ \\mathrm{m/s}`;
                             reflText_2_4 = '周速度と角速度は v ＝ r × ω でつながります（教科書 p.43 式 2-30）。同じ角速度でも、半径が大きいほど周上の点は速く動きます。<strong>半径が 2 倍になれば周速度も 2 倍</strong>になります。旋盤で同じ回転数でも、太い棒と細い棒で切削速度が異なる理由です。';
                         } else {
                             // peripheralVFromDN
                             const mid2_4 = problem.piApprox * problem.d * problem.n;
-                            reflFormulaLatex_2_4 = `\\begin{aligned} v &= \\dfrac{\\pi\\,d\\,n}{1000} \\\\[6pt] &= \\dfrac{${problem.piApprox} \\times ${problem.d} \\times ${problem.n}}{1000} = \\dfrac{${mid2_4}}{1000} \\\\[6pt] &= ${problem.expectedV}\\ \\mathrm{m/min} \\end{aligned}`;
+                            reflFormulaLatex_2_4 = `v = \\dfrac{\\pi\\,d\\,n}{1000} = \\dfrac{${problem.piApprox} \\times ${problem.d} \\times ${problem.n}}{1000} = ${problem.expectedV}\\ \\mathrm{m/min}`;
                             reflText_2_4 = '旋盤の周速度（切削速度）は、直径と回転速度から v ＝ π × d × n / 1000 [m/min] で求められます（教科書 p.44 例題 11）。同じ回転速度でも太い棒ほど周速度が大きくなり、刃物にかかる速度が変わります。<strong>現場では mm/min 表記の場合もあります</strong>（その場合は 1000 で割らずに π × d × n のまま）。';
                         }
                         content.innerHTML = header + staticCanvas1_6 + `
@@ -14692,22 +14693,22 @@
                         let reflFormulaLatex_2_5, reflText_2_5;
                         if (problem.formulaType === 'centripAccelVR') {
                             const vsq2_5 = problem.v * problem.v;
-                            reflFormulaLatex_2_5 = `\\begin{aligned} a &= \\dfrac{v^{2}}{r} \\\\[6pt] &= \\dfrac{${problem.v}^{\\,2}}{${problem.r}} = \\dfrac{${vsq2_5}}{${problem.r}} \\\\[6pt] &= ${problem.expectedA}\\ \\mathrm{m/s^2} \\end{aligned}`;
+                            reflFormulaLatex_2_5 = `a = \\dfrac{v^{2}}{r} = \\dfrac{${problem.v}^{\\,2}}{${problem.r}} = \\dfrac{${vsq2_5}}{${problem.r}} = ${problem.expectedA}\\ \\mathrm{m/s^2}`;
                             reflText_2_5 = '円運動を続けるには、たえず中心 O に向かって物体を引っぱる力（向心力）が必要です。その力を生む加速度が向心加速度 a で、a ＝ v² ÷ r ＝ 4² ÷ 2 ＝ 16 ÷ 2 ＝ 8.0 m/s²。半径が同じなら、速さが大きいほど中心に引きもどす加速度も大きくなります。';
                         } else if (problem.formulaType === 'centripAccelROmega') {
                             const omsq2_5 = problem.omega * problem.omega;
-                            reflFormulaLatex_2_5 = `\\begin{aligned} a &= r\\,\\omega^{2} \\\\[6pt] &= ${problem.r} \\times ${problem.omega}^{\\,2} = ${problem.r} \\times ${omsq2_5} \\\\[6pt] &= ${problem.expectedA}\\ \\mathrm{m/s^2} \\end{aligned}`;
+                            reflFormulaLatex_2_5 = `a = r\\,\\omega^{2} = ${problem.r} \\times ${problem.omega}^{\\,2} = ${problem.r} \\times ${omsq2_5} = ${problem.expectedA}\\ \\mathrm{m/s^2}`;
                             reflText_2_5 = '周速度 v がわからなくても、半径 r と角速度 ω があれば a ＝ r × ω² で求められます。a ＝ 0.5 × 6² ＝ 0.5 × 36 ＝ 18.0 m/s²。これは a ＝ v² ÷ r に v ＝ r × ω（2-4 の式 2-30）を入れて導いた式です。';
                         } else if (problem.formulaType === 'centripForceMVR') {
                             const vsq2_5b = problem.v * problem.v;
                             const mvsq2_5 = problem.m * vsq2_5b;
-                            reflFormulaLatex_2_5 = `\\begin{aligned} F &= m\\,\\dfrac{v^{2}}{r} \\\\[6pt] &= ${problem.m} \\times \\dfrac{${problem.v}^{\\,2}}{${problem.r}} = \\dfrac{${mvsq2_5}}{${problem.r}} \\\\[6pt] &= ${problem.expectedF}\\ \\mathrm{N} \\end{aligned}`;
+                            reflFormulaLatex_2_5 = `F = m\\,\\dfrac{v^{2}}{r} = ${problem.m} \\times \\dfrac{${problem.v}^{\\,2}}{${problem.r}} = \\dfrac{${mvsq2_5}}{${problem.r}} = ${problem.expectedF}\\ \\mathrm{N}`;
                             reflText_2_5 = '向心力は「質量 × 向心加速度」F ＝ m × v² ÷ r で求められます。F ＝ 2 × 3² ÷ 1.5 ＝ 2 × 9 ÷ 1.5 ＝ 12.0 N。なお、物体を回す人は外向きに引っぱられるように感じますが、実際に物体を円運動させているのは中心向きの力（向心力）だけです。この外向きに感じる見かけの力を遠心力といいます。';
                         } else {
                             // centripForceMROmega
                             const omsq2_5b = problem.omega * problem.omega;
                             const mr2_5 = problem.m * problem.r;
-                            reflFormulaLatex_2_5 = `\\begin{aligned} F &= m\\,r\\,\\omega^{2} \\\\[6pt] &= ${problem.m} \\times ${problem.r} \\times ${problem.omega}^{\\,2} = ${mr2_5} \\times ${omsq2_5b} \\\\[6pt] &= ${problem.expectedF}\\ \\mathrm{N} \\end{aligned}`;
+                            reflFormulaLatex_2_5 = `F = m\\,r\\,\\omega^{2} = ${problem.m} \\times ${problem.r} \\times ${problem.omega}^{\\,2} = ${mr2_5} \\times ${omsq2_5b} = ${problem.expectedF}\\ \\mathrm{N}`;
                             reflText_2_5 = '周速度 v がなくても、F ＝ m × r × ω² で求められます。F ＝ 0.5 × 2 × 4² ＝ 0.5 × 2 × 16 ＝ 16.0 N。中心向きの向心力が実際に物体を円運動させており、外向きに感じる遠心力は見かけの力です。';
                         }
                         content.innerHTML = header + staticCanvas1_6 + `
@@ -14730,17 +14731,17 @@
                         //   「比例・反比例」は小学校レベルの言い回し（◯倍にすれば◯倍／半分）に言い換える。
                         let reflFormulaLatex_3_2, reflText_3_2;
                         if (problem.formulaType === 'accelFromFM') {
-                            reflFormulaLatex_3_2 = `\\begin{aligned} a &= \\dfrac{F}{m} \\\\[6pt] &= \\dfrac{${problem.F}}{${problem.m}} \\\\[6pt] &= ${problem.expectedA}.0\\ \\mathrm{m/s^2} \\end{aligned}`;
+                            reflFormulaLatex_3_2 = `a = \\dfrac{F}{m} = \\dfrac{${problem.F}}{${problem.m}} = ${problem.expectedA}.0\\ \\mathrm{m/s^2}`;
                             reflText_3_2 = '加速度 a ＝ 20 ÷ 5 ＝ 4.0 m/s²。同じ 20 N の力でも、質量が 2 倍になれば加速度は半分になります（質量 10 kg なら 2 m/s²）。';
                         } else if (problem.formulaType === 'massFromFA') {
-                            reflFormulaLatex_3_2 = `\\begin{aligned} m &= \\dfrac{F}{a} \\\\[6pt] &= \\dfrac{${problem.F}}{${problem.a}} \\\\[6pt] &= ${problem.expectedM}.0\\ \\mathrm{kg} \\end{aligned}`;
+                            reflFormulaLatex_3_2 = `m = \\dfrac{F}{a} = \\dfrac{${problem.F}}{${problem.a}} = ${problem.expectedM}.0\\ \\mathrm{kg}`;
                             reflText_3_2 = '質量 m ＝ 30 ÷ 6 ＝ 5.0 kg。F ＝ m × a の関係から、加えた力と生じた加速度が分かれば質量を逆算できます。同じ力で加速度が小さい物体ほど、質量が大きい物体です。';
                         } else if (problem.formulaType === 'forceFromKinematics') {
                             reflFormulaLatex_3_2 = `\\begin{aligned} a &= \\dfrac{v-v_0}{t} = \\dfrac{${problem.v}-${problem.v0}}{${problem.t}} = ${problem.expectedA}\\ \\mathrm{m/s^2} \\\\[6pt] F &= m\\,a = ${problem.m} \\times ${problem.expectedA} = ${problem.expectedF}.0\\ \\mathrm{N} \\end{aligned}`;
                             reflText_3_2 = 'まず加速度 a ＝ (12 − 0) ÷ 4 ＝ 3 m/s²、次に力 F ＝ 10 × 3 ＝ 30.0 N。速度の情報から加速度を出し、それを運動方程式に入れて力を求める 2 段階の問題でした。力を求めるとき掛けるのは速度 12 ではなく加速度 3 です。';
                         } else {
                             // forceFromMA
-                            reflFormulaLatex_3_2 = `\\begin{aligned} F &= m\\,a \\\\[6pt] &= ${problem.m} \\times ${problem.a} \\\\[6pt] &= ${problem.expectedF}.0\\ \\mathrm{N} \\end{aligned}`;
+                            reflFormulaLatex_3_2 = `F = m\\,a = ${problem.m} \\times ${problem.a} = ${problem.expectedF}.0\\ \\mathrm{N}`;
                             reflText_3_2 = '力 F ＝ 3 × 4 ＝ 12.0 N。1 N は質量 1 kg の物体に 1 m/s² の加速度を生じさせる力です。同じ物体でも、加える力を 2 倍にすれば加速度も 2 倍になります。';
                         }
                         content.innerHTML = header + staticCanvas1_6 + `
@@ -14763,17 +14764,17 @@
                         //   重力 mg は数値（質量 × 9.8）に置きかえ済み。
                         let reflFormulaLatex_3_3, reflText_3_3;
                         if (problem.formulaType === 'inertiaDown') {
-                            reflFormulaLatex_3_3 = `\\begin{aligned} F &= mg - ma \\\\[6pt] &= ${problem.mg} - ${problem.ma} \\\\[6pt] &= ${problem.expectedF}.0\\ \\mathrm{N} \\end{aligned}`;
+                            reflFormulaLatex_3_3 = `F = mg - ma = ${problem.mg} - ${problem.ma} = ${problem.expectedF}.0\\ \\mathrm{N}`;
                             reflText_3_3 = '下向きに加速するエレベータの中では、加速度と逆向き（上向き）の慣性力 ma が重力の一部を肩代わりします。だから床を押す力は F ＝ 490 − 75 ＝ 415.0 N と、ふだん（重力 490 N だけ）より小さくなります。エレベータが下りはじめるしゅんかんに体が軽く感じるのは、この慣性力のためです。';
                         } else if (problem.formulaType === 'inertiaRope') {
-                            reflFormulaLatex_3_3 = `\\begin{aligned} S &= mg + ma \\\\[6pt] &= ${problem.mg} + ${problem.ma} \\\\[6pt] &= ${problem.expectedS}.0\\ \\mathrm{N} \\end{aligned}`;
+                            reflFormulaLatex_3_3 = `S = mg + ma = ${problem.mg} + ${problem.ma} = ${problem.expectedS}.0\\ \\mathrm{N}`;
                             reflText_3_3 = '物体を上向きに加速して引き上げるには、重力を支える力に加えて、加速させるぶんの力も必要です。慣性力 ma が下向きに加わるので、張力は S ＝ 196 ＋ 40 ＝ 236.0 N。ただつるして止めておくとき（196 N）より大きな張力がかかります。';
                         } else if (problem.formulaType === 'inertiaAccel') {
-                            reflFormulaLatex_3_3 = `\\begin{aligned} a &= \\dfrac{F - mg}{m} = \\dfrac{${problem.F} - ${problem.mg}}{${problem.m}} \\\\[6pt] &= \\dfrac{${problem.net}}{${problem.m}} = ${problem.expectedA}\\ \\mathrm{m/s^2} \\end{aligned}`;
+                            reflFormulaLatex_3_3 = `a = \\dfrac{F - mg}{m} = \\dfrac{${problem.F} - ${problem.mg}}{${problem.m}} = \\dfrac{${problem.net}}{${problem.m}} = ${problem.expectedA}\\ \\mathrm{m/s^2}`;
                             reflText_3_3 = '上向きの力 170 N から下向きの重力 mg ＝ 98 N を引いた、物体を動かす残りの力 72 N が物体を加速させます。これを質量で割って a ＝ 72 ÷ 10 ＝ 7.2 m/s²。もし引き上げる力が重力 98 N と同じなら加速度は 0（一定の速さ）、98 N より小さければ物体は上がりません。';
                         } else {
                             // inertiaUp
-                            reflFormulaLatex_3_3 = `\\begin{aligned} F &= mg + ma \\\\[6pt] &= ${problem.mg} + ${problem.ma} \\\\[6pt] &= ${problem.expectedF}.0\\ \\mathrm{N} \\end{aligned}`;
+                            reflFormulaLatex_3_3 = `F = mg + ma = ${problem.mg} + ${problem.ma} = ${problem.expectedF}.0\\ \\mathrm{N}`;
                             reflText_3_3 = '上向きに加速するエレベータの中では、加速度と逆向き（下向き）の慣性力 ma が重力に上乗せされます。だから床を押す力は F ＝ 588 ＋ 120 ＝ 708.0 N と、ふだん（重力 588 N だけ）より大きくなります。エレベータが動き出すしゅんかんに体が重く感じるのは、この慣性力（見かけの力）のためです。';
                         }
                         content.innerHTML = header + staticCanvas1_6 + `
@@ -14796,17 +14797,17 @@
                         //   問3・問4 は大きさで答えるので、負号・逆向きはここで言葉で説明する。
                         let reflFormulaLatex_3_4, reflText_3_4;
                         if (problem.formulaType === 'impulseV') {
-                            reflFormulaLatex_3_4 = `\\begin{aligned} v &= \\dfrac{Ft + m v_0}{m} = \\dfrac{${problem.Ft} + ${problem.mv0}}{${problem.m}} \\\\[6pt] &= \\dfrac{40}{${problem.m}} = ${problem.expectedV}.0\\ \\mathrm{m/s} \\end{aligned}`;
+                            reflFormulaLatex_3_4 = `v = \\dfrac{Ft + m v_0}{m} = \\dfrac{${problem.Ft} + ${problem.mv0}}{${problem.m}} = \\dfrac{40}{${problem.m}} = ${problem.expectedV}.0\\ \\mathrm{m/s}`;
                             reflText_3_4 = '力 F を時間 t のあいだ加えると、運動量が「力 × 時間（力積）」のぶんだけ増えます。今回は力積 Ft ＝ 20 が加わって、速度が 4 m/s から 8.0 m/s に増えました。同じ力でも、加える時間が長いほど速度の変化は大きくなります。';
                         } else if (problem.formulaType === 'impactForce') {
-                            reflFormulaLatex_3_4 = `\\begin{aligned} F &= \\dfrac{m\\,(v_0 - v)}{t} = \\dfrac{${problem.m} \\times ${problem.dv}}{${problem.t}} \\\\[6pt] &= \\dfrac{5}{${problem.t}} = ${problem.expectedF}.0\\ \\mathrm{N} \\end{aligned}`;
+                            reflFormulaLatex_3_4 = `F = \\dfrac{m\\,(v_0 - v)}{t} = \\dfrac{${problem.m} \\times ${problem.dv}}{${problem.t}} = \\dfrac{5}{${problem.t}} = ${problem.expectedF}.0\\ \\mathrm{N}`;
                             reflText_3_4 = 'かなづちはわずか 0.01 秒で止まったので、ひじょうに大きな力 500.0 N が働きました。これが衝撃力です。同じ運動量の変化でも、止まるまでの時間が短いほど力は大きくなります（時間 t と力 F は反比例）。クッションや手袋で衝突の時間を長くすると衝撃力を小さくできます。教科書では F ＝ −500 N と出ますが、負号はかなづちの運動と逆向きを表すだけで、くぎはその反作用で 500 N の力を受けます。';
                         } else if (problem.formulaType === 'momentumConserv') {
-                            reflFormulaLatex_3_4 = `\\begin{aligned} v_1' &= \\dfrac{m_2\\,v_2'}{m_1} = \\dfrac{${problem.m2v2}}{${problem.m1}} \\\\[6pt] &= ${problem.expectedV1}.0\\ \\mathrm{m/s} \\end{aligned}`;
+                            reflFormulaLatex_3_4 = `v_1' = \\dfrac{m_2\\,v_2'}{m_1} = \\dfrac{${problem.m2v2}}{${problem.m1}} = ${problem.expectedV1}.0\\ \\mathrm{m/s}`;
                             reflText_3_4 = '飛び込む前、人とボートは静止していて運動量の和は 0 でした。人が前へ飛び出すと、その逆向きにボートが動き、運動量の和は 0 のまま保たれます。だからボートは人と逆向きに 2.0 m/s で進みます。質量の大きいボート（150 kg）は、質量の小さい人（60 kg）より遅く動きます。ロケットがガスを後ろへふき出して前へ進むのも、同じ運動量保存の法則です。';
                         } else {
                             // momentum
-                            reflFormulaLatex_3_4 = `\\begin{aligned} p &= m\\,v \\\\[6pt] &= ${problem.m} \\times ${problem.v} \\\\[6pt] &= ${problem.expectedP}.0\\ \\mathrm{kg\\cdot m/s} \\end{aligned}`;
+                            reflFormulaLatex_3_4 = `p = m\\,v = ${problem.m} \\times ${problem.v} = ${problem.expectedP}.0\\ \\mathrm{kg\\cdot m/s}`;
                             reflText_3_4 = '運動量 p ＝ 30 × 20 ＝ 600.0 kg·m/s。運動量は「運動の止めにくさ（運動の大きさ）」を表す量で、質量が大きいほど、速度が速いほど大きくなります。同じ速度でも質量が 2 倍なら運動量も 2 倍、同じ質量でも速度が 2 倍なら運動量も 2 倍です。運動量は速度と同じ向きをもつ量です。';
                         }
                         content.innerHTML = header + staticCanvas1_6 + `
@@ -14829,17 +14830,17 @@
                         //   問1・問2 は整数答え（J）、問3・問4 は小数第 1 位まで。CJK は \text{} で囲む。
                         let reflFormulaLatex_4_1, reflText_4_1;
                         if (problem.formulaType === 'workLift') {
-                            reflFormulaLatex_4_1 = `\\begin{aligned} A &= Fs \\\\[6pt] &= ${problem.F} \\times ${problem.s} \\\\[6pt] &= ${problem.expectedA}\\ \\mathrm{J} \\end{aligned}`;
+                            reflFormulaLatex_4_1 = `A = Fs = ${problem.F} \\times ${problem.s} = ${problem.expectedA}\\ \\mathrm{J}`;
                             reflText_4_1 = '仕事 A ＝ 600 × 15 ＝ 9000 J。重力に逆らって物体を真上に持ち上げるときも、力の向き（上）と動いた向き（上）が同じなので A ＝ F × s で求められます。引き上げる力は重力と同じ大きさ 600 N で、これに引き上げた高さ 15 m を掛けます。';
                         } else if (problem.formulaType === 'workAngle') {
-                            reflFormulaLatex_4_1 = `\\begin{aligned} A &= Fs\\cos\\alpha \\\\[6pt] &= ${problem.F} \\times ${problem.s} \\times ${problem.cosValue} \\\\[6pt] &= ${problem.expectedA}\\ \\mathrm{J} \\end{aligned}`;
+                            reflFormulaLatex_4_1 = `A = Fs\\cos\\alpha = ${problem.F} \\times ${problem.s} \\times ${problem.cosValue} = ${problem.expectedA}\\ \\mathrm{J}`;
                             reflText_4_1 = '仕事 A ＝ 200 × 4 × 0.866 ＝ 692.8 J。力の向きと動いた向きが角度をなすときは、動いた向きの分力 F × cos α だけが仕事をします。小数第1位を四捨五入すると 693 J で、教科書 例題18 と同じです。同じ力でも、動く向きとなす角が大きいほど（cos が小さいほど）仕事は小さくなります。';
                         } else if (problem.formulaType === 'forceFromWork') {
-                            reflFormulaLatex_4_1 = `\\begin{aligned} F &= \\dfrac{A}{s} \\\\[6pt] &= \\dfrac{${problem.A}}{${problem.s}} \\\\[6pt] &= ${problem.expectedF}.0\\ \\mathrm{N} \\end{aligned}`;
+                            reflFormulaLatex_4_1 = `F = \\dfrac{A}{s} = \\dfrac{${problem.A}}{${problem.s}} = ${problem.expectedF}.0\\ \\mathrm{N}`;
                             reflText_4_1 = '力 F ＝ 240 ÷ 8 ＝ 30.0 N。A ＝ F × s の関係から、した仕事と動いた距離が分かれば、加えた力を逆算できます。仕事を距離で割れば力が求まります。同じ仕事でも、動く距離が長いほど必要な力は小さくなります。';
                         } else {
                             // workFlat
-                            reflFormulaLatex_4_1 = `\\begin{aligned} A &= Fs \\\\[6pt] &= ${problem.F} \\times ${problem.s} \\\\[6pt] &= ${problem.expectedA}\\ \\mathrm{J} \\end{aligned}`;
+                            reflFormulaLatex_4_1 = `A = Fs = ${problem.F} \\times ${problem.s} = ${problem.expectedA}\\ \\mathrm{J}`;
                             reflText_4_1 = '仕事 A ＝ 30 × 5 ＝ 150 J。1 J は、1 N の力が物体を力の向きに 1 m 動かしたときの仕事です。力の向きと動いた向きが同じときは A ＝ F × s で求めます。同じ距離でも、加える力を 2 倍にすれば仕事も 2 倍になります。';
                         }
                         content.innerHTML = header + staticCanvas1_6 + `
@@ -14862,17 +14863,17 @@
                         //   全問 整数答え・単位 N。CJK は \text{} で囲む。
                         let reflFormulaLatex_4_2, reflText_4_2;
                         if (problem.formulaType === 'lever') {
-                            reflFormulaLatex_4_2 = `\\begin{aligned} F &= \\dfrac{W \\times b}{a} \\\\[6pt] &= \\dfrac{${problem.W} \\times ${problem.b}}{${problem.a}} \\\\[6pt] &= ${problem.expectedF} \\ \\text{N} \\end{aligned}`;
+                            reflFormulaLatex_4_2 = `F = \\dfrac{W \\times b}{a} = \\dfrac{${problem.W} \\times ${problem.b}}{${problem.a}} = ${problem.expectedF} \\ \\text{N}`;
                             reflText_4_2 = '手がした仕事 A ＝ F × a ＝ 120 × 2 ＝ 240、物体にした仕事 A ＝ W × b ＝ 240 × 1 ＝ 240 で同じです。支点から遠いところを押すほど小さい力で持ち上げられますが、そのぶん手を長く動かします。';
                         } else if (problem.formulaType === 'incline') {
-                            reflFormulaLatex_4_2 = `\\begin{aligned} F &= W\\sin\\theta \\\\[6pt] &= ${problem.W} \\times ${problem.sinValue} \\\\[6pt] &= ${problem.expectedF} \\ \\text{N} \\end{aligned}`;
+                            reflFormulaLatex_4_2 = `F = W\\sin\\theta = ${problem.W} \\times ${problem.sinValue} = ${problem.expectedF} \\ \\text{N}`;
                             reflText_4_2 = '坂がゆるい（θ が小さい）ほど小さい力ですみますが、そのぶん斜面が長くなり、引く距離が長くなります。';
                         } else if (problem.formulaType === 'pulley') {
-                            reflFormulaLatex_4_2 = `\\begin{aligned} F &= \\dfrac{W}{2} \\\\[6pt] &= \\dfrac{${problem.W}}{2} \\\\[6pt] &= ${problem.expectedF} \\ \\text{N} \\end{aligned}`;
+                            reflFormulaLatex_4_2 = `F = \\dfrac{W}{2} = \\dfrac{${problem.W}}{2} = ${problem.expectedF} \\ \\text{N}`;
                             reflText_4_2 = '力 F ＝ W ÷ 2 で長さ 2h 引くと、手がした仕事 A ＝ F × 2h ＝ W × h で、物体を h 持ち上げた仕事と同じです。力が半分のかわり、引く距離が 2 倍です。';
                         } else {
                             // wheelset
-                            reflFormulaLatex_4_2 = `\\begin{aligned} F &= \\dfrac{W \\times d}{D} \\\\[6pt] &= \\dfrac{${problem.W} \\times ${problem.d}}{${problem.D}} \\\\[6pt] &= ${problem.expectedF} \\ \\text{N} \\end{aligned}`;
+                            reflFormulaLatex_4_2 = `F = \\dfrac{W \\times d}{D} = \\dfrac{${problem.W} \\times ${problem.d}}{${problem.D}} = ${problem.expectedF} \\ \\text{N}`;
                             reflText_4_2 = '輪が軸より大きいほど小さい力ですみますが、そのぶん輪のロープを長く引きます。';
                         }
                         content.innerHTML = header + staticCanvas1_6 + `
@@ -14897,17 +14898,17 @@
                         //   2 本棒グラフ（同じ高さ・同色）を KaTeX 3 行式・言葉の下に追加する。
                         let reflFormulaLatex_4_3, reflText_4_3, extraVisual_4_3 = '';
                         if (problem.formulaType === 'kinetic') {
-                            reflFormulaLatex_4_3 = `\\begin{aligned} E_k &= \\dfrac{1}{2}mv^2 \\\\[6pt] &= \\dfrac{1}{2}\\times${problem.m}\\times${problem.v}\\times${problem.v} \\\\[6pt] &= \\dfrac{1}{2}\\times${problem.m * problem.v * problem.v} \\\\[6pt] &= ${problem.expectedAns}\\ \\mathrm{J} \\end{aligned}`;
+                            reflFormulaLatex_4_3 = `E_k = \\dfrac{1}{2}mv^2 = \\dfrac{1}{2}\\times${problem.m}\\times${problem.v}\\times${problem.v} = \\dfrac{1}{2}\\times${problem.m * problem.v * problem.v} = ${problem.expectedAns}\\ \\mathrm{J}`;
                             reflText_4_3 = '運動エネルギー Ek＝½×3×10×10＝150 J。速さ v は2回掛けます。速さが2倍になると運動エネルギーは4倍になります。';
                         } else if (problem.formulaType === 'potential') {
-                            reflFormulaLatex_4_3 = `\\begin{aligned} E_p &= mgH \\\\[6pt] &= ${problem.m}\\times${problem.g}\\times${problem.H} \\\\[6pt] &= ${problem.expectedAns}\\ \\mathrm{J} \\end{aligned}`;
+                            reflFormulaLatex_4_3 = `E_p = mgH = ${problem.m}\\times${problem.g}\\times${problem.H} = ${problem.expectedAns}\\ \\mathrm{J}`;
                             reflText_4_3 = '位置エネルギー Ep＝5×9.8×4＝196 J。高いところ・重い物体ほど大きく、地面（高さ0）では0です。';
                         } else if (problem.formulaType === 'conserveMid') {
-                            reflFormulaLatex_4_3 = `\\begin{aligned} E_k &= mg(H-h) \\\\[6pt] &= ${problem.m}\\times${problem.g}\\times(${problem.H}-${problem.h}) \\\\[6pt] &= ${problem.m}\\times${problem.g}\\times${problem.H - problem.h} \\\\[6pt] &= ${problem.expectedAns}\\ \\mathrm{J} \\end{aligned}`;
+                            reflFormulaLatex_4_3 = `E_k = mg(H-h) = ${problem.m}\\times${problem.g}\\times(${problem.H}-${problem.h}) = ${problem.m}\\times${problem.g}\\times${problem.H - problem.h} = ${problem.expectedAns}\\ \\mathrm{J}`;
                             reflText_4_3 = '途中の運動エネルギー＝減った高さ（H−h＝6 m）分の位置エネルギーが移ったぶん。残り4 m分（78.4 J）はまだ位置エネルギーです。';
                         } else {
                             // conserveGround（問3）: 3 行式 + 言葉 + 2 本棒グラフ
-                            reflFormulaLatex_4_3 = `\\begin{aligned} E_k &= mgH \\\\[6pt] &= ${problem.m}\\times${problem.g}\\times${problem.H} \\\\[6pt] &= ${problem.expectedAns}\\ \\mathrm{J} \\end{aligned}`;
+                            reflFormulaLatex_4_3 = `E_k = mgH = ${problem.m}\\times${problem.g}\\times${problem.H} = ${problem.expectedAns}\\ \\mathrm{J}`;
                             reflText_4_3 = '地面の運動エネルギー＝はなした高さの位置エネルギー mgH＝147 J が、そっくり移っただけ。量（J）は変わりません。';
                             extraVisual_4_3 = this.build4_3EnergyCanvas({ canvas: { width: 320, height: 220, kind: 'conserveBars' }, value: problem.expectedAns });
                         }
@@ -14932,17 +14933,17 @@
                         //   問4 のみ kW・km の対応と「動力＝仕事÷時間」の核の一貫性を言葉で補足する（kW 換算は表記紹介のみ）。
                         let reflFormulaLatex_4_4, reflText_4_4;
                         if (problem.formulaType === 'powerWork') {
-                            reflFormulaLatex_4_4 = `\\begin{aligned} P &= \\dfrac{A}{t} \\\\[6pt] &= \\dfrac{${problem.A}}{${problem.t}} \\\\[6pt] &= ${problem.expectedAns}\\ \\mathrm{W} \\end{aligned}`;
+                            reflFormulaLatex_4_4 = `P = \\dfrac{A}{t} = \\dfrac{${problem.A}}{${problem.t}} = ${problem.expectedAns}\\ \\mathrm{W}`;
                             reflText_4_4 = '動力は「1秒あたりにする仕事」。この機械は1秒ごとに 300 J ずつ仕事をしています。W（ワット）は J/s（1秒あたりのジュール）と同じ意味です。';
                         } else if (problem.formulaType === 'powerLift') {
-                            reflFormulaLatex_4_4 = `\\begin{aligned} P &= \\dfrac{Fh}{t} \\\\[6pt] &= \\dfrac{${problem.F}\\times${problem.h}}{${problem.t}} \\\\[6pt] &= \\dfrac{${problem.F * problem.h}}{${problem.t}} \\\\[6pt] &= ${problem.expectedAns}\\ \\mathrm{W} \\end{aligned}`;
+                            reflFormulaLatex_4_4 = `P = \\dfrac{Fh}{t} = \\dfrac{${problem.F}\\times${problem.h}}{${problem.t}} = ${problem.expectedAns}\\ \\mathrm{W}`;
                             reflText_4_4 = '先に仕事 A＝F×h＝30000 J を出し、時間 5 秒で割って 6000 W。同じ仕事でも短い時間でするほど動力は大きくなります。';
                         } else if (problem.formulaType === 'powerSpeed') {
-                            reflFormulaLatex_4_4 = `\\begin{aligned} P &= Fv \\\\[6pt] &= ${problem.F}\\times${problem.v} \\\\[6pt] &= ${problem.expectedAns}\\ \\mathrm{W} \\end{aligned}`;
+                            reflFormulaLatex_4_4 = `P = Fv = ${problem.F}\\times${problem.v} = ${problem.expectedAns}\\ \\mathrm{W}`;
                             reflText_4_4 = '一定の力で一定の速さを保つときは、力×速さで動力が出ます。動力 P＝仕事÷時間＝力×距離÷時間で、距離÷時間が速さ v だからです。';
                         } else {
                             // powerForklift（問4）
-                            reflFormulaLatex_4_4 = `\\begin{aligned} P &= \\dfrac{mgh}{t} \\\\[6pt] &= \\dfrac{${problem.m}\\times${problem.g}\\times${problem.h}}{${problem.t}} \\\\[6pt] &= \\dfrac{${problem.m * problem.g * problem.h}}{${problem.t}} \\\\[6pt] &= ${problem.expectedAns}\\ \\mathrm{W} \\end{aligned}`;
+                            reflFormulaLatex_4_4 = `P = \\dfrac{mgh}{t} = \\dfrac{${problem.m}\\times${problem.g}\\times${problem.h}}{${problem.t}} = ${problem.expectedAns}\\ \\mathrm{W}`;
                             reflText_4_4 = '先に持ち上げる仕事 A＝m×g×h＝11760 J を出し、時間 2 秒で割って 5880 W。問1〜3と同じく動力は「仕事÷時間」で、ちがうのは仕事 A の出し方（ここでは持ち上げる仕事 m×g×h）だけです。動力が大きいときは 1000 W をまとめて 1 kW（キロワット）と表します。1000 m を 1 km と書くのと同じ「k（キロ＝1000倍）」です。1 kW＝1000 W なので 5880 W＝5.88 kW。工作機械の動力にはこの kW がよく使われます。';
                         }
                         content.innerHTML = header + staticCanvas1_6 + `
@@ -14964,17 +14965,17 @@
                         //   その下に formulaType ごとの振り返り文を載せる。CJK は \mathrm{}。
                         let reflFormulaLatex_5_1, reflText_5_1;
                         if (problem.formulaType === 'staticFric') {
-                            reflFormulaLatex_5_1 = `\\begin{aligned} f_0 &= \\mu_0 R \\\\[6pt] &= ${problem.mu0}\\times${problem.R} \\\\[6pt] &= ${problem.expectedAns}\\ \\mathrm{N} \\end{aligned}`;
+                            reflFormulaLatex_5_1 = `f_0 = \\mu_0 R = ${problem.mu0}\\times${problem.R} = ${problem.expectedAns}\\ \\mathrm{N}`;
                             reflText_5_1 = '最大静摩擦力＝静摩擦係数×（面を垂直に押しつける力）。水平面では R＝重力 W です。係数だけで終わらせず、必ず R を掛けてください。';
                         } else if (problem.formulaType === 'kineticFric') {
-                            reflFormulaLatex_5_1 = `\\begin{aligned} f' &= \\mu R \\\\[6pt] &= ${problem.mu}\\times${problem.R} \\\\[6pt] &= ${problem.expectedAns}\\ \\mathrm{N} \\end{aligned}`;
+                            reflFormulaLatex_5_1 = `f' = \\mu R = ${problem.mu}\\times${problem.R} = ${problem.expectedAns}\\ \\mathrm{N}`;
                             reflText_5_1 = '動摩擦力＝動摩擦係数×R。動摩擦係数は静摩擦係数より小さいことが多いです。';
                         } else if (problem.formulaType === 'coeffFric') {
-                            reflFormulaLatex_5_1 = `\\begin{aligned} \\mu_0 &= \\dfrac{f_0}{R} \\\\[6pt] &= \\dfrac{${problem.f0}}{${problem.R}} \\\\[6pt] &= ${problem.expectedAns} \\end{aligned}`;
+                            reflFormulaLatex_5_1 = `\\mu_0 = \\dfrac{f_0}{R} = \\dfrac{${problem.f0}}{${problem.R}} = ${problem.expectedAns}`;
                             reflText_5_1 = '静摩擦係数は、動かし始めに必要な力 ÷（面を垂直に押しつける力）。単位はつきません（数だけ）。例題22 と同じです。';
                         } else {
                             // frictionAngle（問4）
-                            reflFormulaLatex_5_1 = `\\begin{aligned} \\mu_0 &= \\tan\\rho \\\\[6pt] &= \\tan ${problem.rho}° \\\\[6pt] &= ${problem.expectedAns} \\end{aligned}`;
+                            reflFormulaLatex_5_1 = `\\mu_0 = \\tan\\rho = \\tan ${problem.rho}° = ${problem.expectedAns}`;
                             reflText_5_1 = '斜面で物体がちょうど滑り出す傾きを摩擦角といいます。その tan が静摩擦係数になります（μ₀＝tanρ）。坂を急にしていって滑り出した角度から、すべりにくさが分かります。';
                         }
                         content.innerHTML = header + staticCanvas1_6 + `
@@ -14997,11 +14998,11 @@
                         //   問1・問2 は「割合 → 百分率」を視覚化する比率バー（与えた仕事を全体、有効仕事を濃色で塗る）を添える。
                         let reflFormulaLatex_5_2, reflText_5_2, ratioBar_5_2 = '';
                         if (problem.formulaType === 'effWork') {
-                            reflFormulaLatex_5_2 = `\\begin{aligned} \\eta &= \\dfrac{A_E}{A}\\times 100 \\\\[6pt] &= \\dfrac{${problem.A_E}}{${problem.A}}\\times 100 \\\\[6pt] &= ${problem.expectedAns}\\ \\% \\end{aligned}`;
+                            reflFormulaLatex_5_2 = `\\eta = \\dfrac{A_E}{A}\\times 100 = \\dfrac{${problem.A_E}}{${problem.A}}\\times 100 = ${problem.expectedAns}\\ \\%`;
                             reflText_5_2 = '効率は「役に立った仕事 ÷ 与えた仕事」の割合（1500÷2000＝0.75、つまり 1 のうち 0.75）。それを「100 のうちどれだけか（％）」に直すため 100 を掛けて 75%。';
                             ratioBar_5_2 = this.build5_2EfficiencyCanvas({ canvas: { kind: 'effBar', width: 360, height: 96, total: 2000, eff: 1500, loss: 0, pct: 75 } });
                         } else if (problem.formulaType === 'effLoss') {
-                            reflFormulaLatex_5_2 = `\\begin{aligned} \\eta &= \\dfrac{A_E}{A}\\times 100 \\\\[6pt] &= \\dfrac{${problem.A}-${problem.A_C}}{${problem.A}}\\times 100 \\\\[6pt] &= \\dfrac{${problem.A - problem.A_C}}{${problem.A}}\\times 100 \\\\[6pt] &= ${problem.expectedAns}\\ \\% \\end{aligned}`;
+                            reflFormulaLatex_5_2 = `\\eta = \\dfrac{A_E}{A}\\times 100 = \\dfrac{${problem.A}-${problem.A_C}}{${problem.A}}\\times 100 = ${problem.expectedAns}\\ \\%`;
                             reflText_5_2 = '全体の仕事から、むだになった分（損失 500J）を引くと、役に立った仕事 1500J。それが与えた仕事のうち 0.75（75%）。';
                             ratioBar_5_2 = this.build5_2EfficiencyCanvas({ canvas: { kind: 'effBar', width: 360, height: 96, total: 2000, eff: 1500, loss: 500, pct: 75 } });
                         } else if (problem.formulaType === 'effWinch') {
@@ -15009,7 +15010,7 @@
                             reflText_5_2 = 'つり上げに使えた動力 P_E＝mg×v＝3.92kW を、与えた動力 5kW で割って 100 倍。電動機の力の 78.4% がつり上げに使えた、ということです。';
                         } else {
                             // effReverse
-                            reflFormulaLatex_5_2 = `\\begin{aligned} P_E &= \\dfrac{\\eta \\times P}{100} \\\\[6pt] &= \\dfrac{${problem.eta}\\times ${problem.P}}{100} \\\\[6pt] &= ${problem.expectedAns}\\ \\mathrm{kW} \\end{aligned}`;
+                            reflFormulaLatex_5_2 = `P_E = \\dfrac{\\eta \\times P}{100} = \\dfrac{${problem.eta}\\times ${problem.P}}{100} = ${problem.expectedAns}\\ \\mathrm{kW}`;
                             reflText_5_2 = '効率80%なら、与えた動力 5kW のうち 80% の 4kW しか取り出せません。残り 1kW は損失になります。';
                         }
                         content.innerHTML = header + staticCanvas1_6 + `
