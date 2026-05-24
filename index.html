@@ -17717,9 +17717,10 @@
                 const aLabel = isForce ? 'F ＝ ?' : 'a ＝ ?';
                 svg += `<text x="${(rmX - 18).toFixed(1)}" y="${(rmY - 13).toFixed(1)}" text-anchor="middle" font-size="14" fill="${RED}" font-weight="700">${aLabel}</text>`;
 
-                // 遠心力 F′（外向き・赤破線）— 力の問（Q3・Q4）のみ。物体から中心と反対向きへ短く。
+                // 遠心力 F′（外向き・赤破線）— 力の問（Q3・Q4）のみ。物体から中心と反対向きへ。
+                //   向心力 F と遠心力 F′ は大きさが等しく逆向き（つり合う）ので、長さは F と同じ aLen にそろえる。
                 if (isForce) {
-                    const fpLen = 30;
+                    const fpLen = aLen;
                     const fpX2 = pX - uX * fpLen, fpY2 = pY - uY * fpLen;
                     svg += `<line x1="${pX.toFixed(1)}" y1="${pY.toFixed(1)}" x2="${fpX2.toFixed(1)}" y2="${fpY2.toFixed(1)}" stroke="${RED}" stroke-width="1.8" stroke-dasharray="4,3" marker-end="url(#stc25-red)"/>`;
                     svg += `<text x="${(fpX2 + 6).toFixed(1)}" y="${(fpY2 - 4).toFixed(1)}" text-anchor="start" font-size="10.5" fill="${RED}">遠心力 F′</text>`;
