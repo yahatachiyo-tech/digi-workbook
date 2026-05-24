@@ -14592,6 +14592,14 @@
                             reflFormulaLatex_2_2 = `\\begin{aligned} v &= \\sqrt{v_0^{\\,2} + 2\\,a\\,s} \\\\[6pt] &= \\sqrt{${problem.v0}^{\\,2} + 2 \\times ${problem.a} \\times ${problem.s}} \\\\[6pt] &= \\sqrt{${v0sq} + ${twoAS}} = \\sqrt{${inside}} = ${problem.expectedV}\\ \\mathrm{m/s} \\end{aligned}`;
                             reflText_2_2 = `速度 v ＝ √(${problem.v0}² ＋ 2 × ${problem.a} × ${problem.s}) ＝ √(${v0sq} ＋ ${twoAS}) ＝ √${inside} ＝ ${problem.expectedV} m/s。時間 t が分からないときは、式 2-23（v² − v₀² ＝ 2as）を使うと t を出さずに速度を求められます。`;
                         }
+                        // vFromV0AS（v²−v₀²＝2as）のみ、エネルギーとのつながりを「発展」メモとして添える。
+                        //   2 節時点では 4 節の運動エネルギー・仕事は未習なので、断定せず「4 節で学ぶと…」の先取り扱い。
+                        const energyNote_2_2 = (problem.formulaType === 'vFromV0AS')
+                            ? `<div style="background:#f0f5ef; border-left:4px solid #6f9f6f; padding:12px 16px; border-radius:3px; margin-top:12px; font-size:13px; line-height:1.8; color:#374a37;">
+                                    <strong>【発展】じつは「エネルギーの式」</strong><br>
+                                    この式の両辺に ½m を掛けると、½mv² − ½mv₀² ＝ mas ＝ Fs（m × a が力 F）になります。4 節で学ぶ「運動エネルギー ½mv²」と「仕事 Fs」を使うと、これは <strong>「運動エネルギーの変化 ＝ した仕事」</strong> を表す式と同じものです。だから時間 t が出てこなくても速度が求められます。今は「時間が出てこないときに使う式」と覚えておけば十分です。
+                                </div>`
+                            : '';
                         content.innerHTML = header + staticCanvas1_6 + `
                             <div class="calc-stage-container">
                                 <div class="calc-question-text">答えの意味を確認しよう。</div>
@@ -14601,6 +14609,7 @@
                                 <div style="background:#eaf1fa; border-left:4px solid #1e5fa8; padding:14px 18px; border-radius:3px; margin-top:18px; font-size:15px; line-height:1.7;">
                                     ${reflText_2_2}
                                 </div>
+                                ${energyNote_2_2}
                                 <div style="margin-top:14px; font-size:13px; color:#555;">
                                     次の問題に進む前に、式と v-t グラフを頭の中で思い浮かべてください。
                                 </div>
