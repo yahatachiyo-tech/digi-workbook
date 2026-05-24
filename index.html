@@ -17628,78 +17628,68 @@
                   <marker id="stc25-red" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><polygon points="0,0 9,3.5 0,7" fill="${RED}"/></marker>
                   <marker id="stc25-gray" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto"><polygon points="0,0 8,3.5 0,7" fill="#777"/></marker>
                   <marker id="stc25-grayS" markerWidth="8" markerHeight="7" refX="1" refY="3.5" orient="auto"><polygon points="8,0 0,3.5 8,7" fill="#777"/></marker>
+                  <marker id="stc25-rotR" markerWidth="10" markerHeight="8" refX="7" refY="4" orient="auto"><polygon points="0,0 10,4 0,8" fill="${RED}"/></marker>
+                  <marker id="stc25-rotG" markerWidth="9" markerHeight="7" refX="6" refY="3.5" orient="auto"><polygon points="0,0 9,3.5 0,7" fill="#999"/></marker>
                 </defs>`;
 
-                // 中心 O（中央やや左）、半径 R（描画スケール）
-                const cx = W / 2 - 22, cy = H / 2 + 6;
-                const R = 78;
-                // 円本体
+                // 円・中心 O（中央やや左）。配置は 2-4 問3 と同じ方針でラベルを領域分け。
+                const cx = 124, cy = 120, R = 70;
                 svg += `<circle cx="${cx}" cy="${cy}" r="${R}" fill="#fbfcfe" stroke="#444" stroke-width="1.5"/>`;
-                // 中心 O
                 svg += `<circle cx="${cx}" cy="${cy}" r="3" fill="#333"/>`;
-                svg += `<text x="${cx - 12}" y="${cy + 14}" font-size="12" fill="#333">O</text>`;
+                svg += `<text x="${cx - 13}" y="${cy + 16}" font-size="12" fill="#333">O</text>`;
 
-                // 物体の位置（右上、角度 −40°）
-                const pAng = -40 * Math.PI / 180;
-                const pX = cx + R * Math.cos(pAng);
-                const pY = cy + R * Math.sin(pAng);
+                // 物体の位置（右上、−36°）
+                const pAng = -36 * Math.PI / 180;
+                const pX = cx + R * Math.cos(pAng), pY = cy + R * Math.sin(pAng);
+                // 向き：中心向き u（向心 a/F）と接線 t（時計まわり＝回転弧と整合）
+                const uL = Math.hypot(cx - pX, cy - pY);
+                const uX = (cx - pX) / uL, uY = (cy - pY) / uL;
+                const tX = -Math.sin(pAng), tY = Math.cos(pAng);
 
-                // 半径補助線（中心→物体、グレー破線）。r ラベルは線の下側（ω 弧・接線が上側にあるので重なり回避）
-                svg += `<line x1="${cx}" y1="${cy}" x2="${pX}" y2="${pY}" stroke="#777" stroke-width="1.2" stroke-dasharray="4,3"/>`;
-                const rLabX = (cx + pX) / 2 + 4;
-                const rLabY = (cy + pY) / 2 + 18;
-                svg += `<text x="${rLabX}" y="${rLabY}" text-anchor="middle" font-size="13" fill="#555" font-weight="600">r ＝ ${problem.r} m</text>`;
+                // 半径 r（グレー破線）。r ラベルは半径線の「下側」にオフセット
+                svg += `<line x1="${cx}" y1="${cy}" x2="${pX.toFixed(1)}" y2="${pY.toFixed(1)}" stroke="#999" stroke-width="1.2" stroke-dasharray="4,3"/>`;
+                const rmX = (cx + pX) / 2, rmY = (cy + pY) / 2;
+                svg += `<text x="${(rmX + 14).toFixed(1)}" y="${(rmY + 21).toFixed(1)}" text-anchor="middle" font-size="13" fill="#555" font-weight="600">r ＝ ${problem.r} m</text>`;
 
-                // 接線方向（反時計回り → (-sin, cos)）。グレー点線の短い矢印「飛び出そうとする向き」
-                const tx = -Math.sin(pAng), ty = Math.cos(pAng);
-                const tanLen = 30;
-                const tanX2 = pX + tx * tanLen, tanY2 = pY + ty * tanLen;
-                svg += `<line x1="${pX}" y1="${pY}" x2="${tanX2}" y2="${tanY2}" stroke="#999" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#stc25-gray)"/>`;
-                svg += `<text x="${tanX2 + 4}" y="${tanY2 - 2}" font-size="10" fill="#888">飛び出そうとする向き</text>`;
-
-                // 中心まわりの回転弧（反時計回り）。omega 問題は赤＋ラベル、それ以外は細いグレー
-                const rotR = 30;
-                const arcColor = isOmega ? RED : '#888';
-                const arcW = isOmega ? 2 : 1.2;
-                svg += `<path d="M ${cx + rotR} ${cy} A ${rotR} ${rotR} 0 0 0 ${cx} ${cy - rotR}" fill="none" stroke="${arcColor}" stroke-width="${arcW}"/>`;
-                svg += `<path d="M ${cx - 4} ${cy - rotR + 3} L ${cx + 6} ${cy - rotR} L ${cx + 1} ${cy - rotR - 8} Z" fill="${arcColor}"/>`;
+                // 回転の向き（左側・時計まわり、marker-end で接線方向に自動整列）。
+                //   ω 問は赤＋ラベル、それ以外は細グレー（回っていることだけ示す）。
+                const rotR = 22;
+                const wa1 = 150 * Math.PI / 180, wa2 = 238 * Math.PI / 180;
+                const rotCol = isOmega ? RED : '#999';
+                const rotMk = isOmega ? 'stc25-rotR' : 'stc25-rotG';
+                svg += `<path d="M ${(cx + rotR * Math.cos(wa1)).toFixed(1)} ${(cy + rotR * Math.sin(wa1)).toFixed(1)} A ${rotR} ${rotR} 0 0 1 ${(cx + rotR * Math.cos(wa2)).toFixed(1)} ${(cy + rotR * Math.sin(wa2)).toFixed(1)}" fill="none" stroke="${rotCol}" stroke-width="${isOmega ? 2 : 1.3}" marker-end="url(#${rotMk})"/>`;
                 if (isOmega) {
-                    svg += `<text x="${cx + rotR + 6}" y="${cy - rotR + 4}" font-size="13" fill="${RED}" font-weight="700">ω ＝ ${problem.omega} rad/s</text>`;
+                    svg += `<text x="${cx}" y="${cy + R + 22}" text-anchor="middle" font-size="14" fill="${RED}" font-weight="700">ω ＝ ${problem.omega} rad/s</text>`;
                 }
 
-                // 周速度 v の接線矢印（青）— a/v 問（centripAccel）と F/v 問（centripForce）のみ
+                // 周速度 v（接線方向・青）— v が与えられる問（Q1・Q3）のみ。右下の空き領域へ。
                 if (!isOmega) {
-                    const vLen = 40;
-                    const vX2 = pX + tx * vLen, vY2 = pY + ty * vLen;
-                    // 接線（飛び出し方向）と重ならないよう、青の v 矢印は実線で太く描く
-                    svg += `<line x1="${pX}" y1="${pY}" x2="${vX2}" y2="${vY2}" stroke="${BLUE}" stroke-width="2.5" marker-end="url(#stc25-blue)"/>`;
-                    svg += `<text x="${vX2 + 4}" y="${vY2 + 12}" font-size="13" fill="${BLUE}" font-weight="700">v ＝ ${problem.v} m/s</text>`;
+                    const vLen = 44;
+                    const vX2 = pX + tX * vLen, vY2 = pY + tY * vLen;
+                    svg += `<line x1="${pX.toFixed(1)}" y1="${pY.toFixed(1)}" x2="${vX2.toFixed(1)}" y2="${vY2.toFixed(1)}" stroke="${BLUE}" stroke-width="2.6" marker-end="url(#stc25-blue)"/>`;
+                    svg += `<text x="${(vX2 + 8).toFixed(1)}" y="${(vY2 + 6).toFixed(1)}" text-anchor="start" font-size="13" fill="${BLUE}" font-weight="700">v ＝ ${problem.v} m/s</text>`;
                 }
 
-                // 中心向きの赤矢印（向心加速度 a または向心力 F）。物体 → 中心方向
-                const inX = cx - pX, inY = cy - pY;
-                const inLen = Math.sqrt(inX * inX + inY * inY);
-                const ux = inX / inLen, uy = inY / inLen;
-                const aArrowLen = 46;
-                const aX2 = pX + ux * aArrowLen, aY2 = pY + uy * aArrowLen;
-                svg += `<line x1="${pX}" y1="${pY}" x2="${aX2}" y2="${aY2}" stroke="${RED}" stroke-width="2.8" marker-end="url(#stc25-red)"/>`;
+                // 向心 a / F（中心向き・赤・＝?）。ラベルは半径線の「上側」（r ラベルと反対側）に置く。
+                const aLen = 46;
+                const aX2 = pX + uX * aLen, aY2 = pY + uY * aLen;
+                svg += `<line x1="${pX.toFixed(1)}" y1="${pY.toFixed(1)}" x2="${aX2.toFixed(1)}" y2="${aY2.toFixed(1)}" stroke="${RED}" stroke-width="2.8" marker-end="url(#stc25-red)"/>`;
                 const aLabel = isForce ? 'F ＝ ?' : 'a ＝ ?';
-                svg += `<text x="${(pX + aX2) / 2 - 6}" y="${(pY + aY2) / 2 - 6}" text-anchor="end" font-size="14" fill="${RED}" font-weight="700">${aLabel}</text>`;
+                svg += `<text x="${(rmX - 18).toFixed(1)}" y="${(rmY - 13).toFixed(1)}" text-anchor="middle" font-size="14" fill="${RED}" font-weight="700">${aLabel}</text>`;
 
-                // 物体（青の塗り円）
-                svg += `<circle cx="${pX}" cy="${pY}" r="6" fill="${BLUE}" stroke="#0a3c70" stroke-width="1.5"/>`;
-                // 質量 m ラベル（力の問題のみ、物体の外側）
-                if (isForce) {
-                    svg += `<text x="${pX + 10}" y="${pY + 4}" font-size="12" fill="${BLUE}" font-weight="700">m ＝ ${problem.m} kg</text>`;
-                }
-
-                // 遠心力 F′（見かけの力）— 力の問題のみ。物体から外向き（中心と反対）に赤の破線矢印を短く。
-                //   ラベルは canvas 幅に収めるため簡潔に「F′（遠心力）」。見かけの力である説明は Stage 5 振り返りに記載。
+                // 遠心力 F′（外向き・赤破線）— 力の問（Q3・Q4）のみ。物体から中心と反対向きへ短く。
                 if (isForce) {
                     const fpLen = 30;
-                    const fpX2 = pX - ux * fpLen, fpY2 = pY - uy * fpLen;
-                    svg += `<line x1="${pX}" y1="${pY}" x2="${fpX2}" y2="${fpY2}" stroke="${RED}" stroke-width="1.8" stroke-dasharray="4,3" marker-end="url(#stc25-red)"/>`;
-                    svg += `<text x="${fpX2 + 4}" y="${fpY2 - 4}" font-size="10" fill="${RED}">F′（遠心力）</text>`;
+                    const fpX2 = pX - uX * fpLen, fpY2 = pY - uY * fpLen;
+                    svg += `<line x1="${pX.toFixed(1)}" y1="${pY.toFixed(1)}" x2="${fpX2.toFixed(1)}" y2="${fpY2.toFixed(1)}" stroke="${RED}" stroke-width="1.8" stroke-dasharray="4,3" marker-end="url(#stc25-red)"/>`;
+                    svg += `<text x="${(fpX2 + 6).toFixed(1)}" y="${(fpY2 - 4).toFixed(1)}" text-anchor="start" font-size="10.5" fill="${RED}">遠心力 F′</text>`;
+                }
+
+                // 物体（青丸）＋ m ラベル（力の問のみ、物体の右）
+                svg += `<circle cx="${pX.toFixed(1)}" cy="${pY.toFixed(1)}" r="6" fill="${BLUE}" stroke="#0a3c70" stroke-width="1.5"/>`;
+                if (isForce) {
+                    // m ラベルは物体の右・物体とほぼ同じ高さ（F′ の下、v 矢印の上の空き）に置く
+                    svg += `<text x="${(pX + 14).toFixed(1)}" y="${(pY + 4).toFixed(1)}" text-anchor="start" font-size="12" fill="${BLUE}" font-weight="700">m ＝ ${problem.m} kg</text>`;
                 }
 
                 svg += `</svg></div>`;
