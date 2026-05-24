@@ -17456,6 +17456,7 @@
                   <marker id="stc24-gray" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto"><polygon points="0,0 8,3.5 0,7" fill="#777"/></marker>
                   <marker id="stc24-grayS" markerWidth="8" markerHeight="7" refX="1" refY="3.5" orient="auto"><polygon points="8,0 0,3.5 8,7" fill="#777"/></marker>
                   <marker id="stc24-rot" markerWidth="10" markerHeight="8" refX="7" refY="4" orient="auto"><polygon points="0,0 10,4 0,8" fill="#555"/></marker>
+                  <marker id="stc24-rotR" markerWidth="10" markerHeight="8" refX="7" refY="4" orient="auto"><polygon points="0,0 10,4 0,8" fill="${RED}"/></marker>
                 </defs>`;
 
                 if (kind === 'rotationCylinder') {
@@ -17502,67 +17503,69 @@
                     // 「t ＝ 2 s でほどけた糸」ラベル（糸の下・円の右側で重ならない位置）
                     svg += `<text x="${(cx1 + R + 20 + sxEnd) / 2}" y="${pY + 22}" text-anchor="middle" font-size="12" fill="${RED}">t ＝ ${problem.t} s でほどけた糸</text>`;
                 } else if (kind === 'rotationAngle') {
-                    // 問2: 正面視の円。中心 O・基準半径（右、点線）・回転後半径（上ななめ）・角度 θ の弧。
-                    const cx = W / 2, cy = H / 2 + 6;
-                    const R = 78;
+                    // 問2: 正面視の円。中心 O から「基準（回転前の半径）」と「回転後の半径」を描き、
+                    //   その間の角度 θ を弧＋矢じり（回転の向き＝反時計まわり）で示す。
+                    //   ※ θ＝8 rad は 1 回転（2π≒6.28 rad）を超えるため、図は角度を模式的に表す。
+                    //     ラベルは弧の外側・二等分線方向に置き、半径線と重ならないようにする。
+                    const cx = W / 2, cy = H / 2 + 10, R = 76;
                     svg += `<circle cx="${cx}" cy="${cy}" r="${R}" fill="#fbfcfe" stroke="#444" stroke-width="1.5"/>`;
                     svg += `<circle cx="${cx}" cy="${cy}" r="3" fill="#333"/>`;
-                    svg += `<text x="${cx - 12}" y="${cy + 14}" font-size="12" fill="#333">O</text>`;
-                    // 基準（水平右）→ 破線
-                    svg += `<line x1="${cx}" y1="${cy}" x2="${cx + R}" y2="${cy}" stroke="${GRAY_LIGHT}" stroke-width="1.2" stroke-dasharray="4,3"/>`;
-                    svg += `<circle cx="${cx + R}" cy="${cy}" r="3" fill="#888"/>`;
-                    // 回転後の半径（角度 70° = 上ななめ右）
-                    const ang2 = -70 * Math.PI / 180;  // 反時計まわり（y 軸下向き SVG だが、上方向が負）
-                    const ex = cx + R * Math.cos(ang2);
-                    const ey = cy + R * Math.sin(ang2);
-                    svg += `<line x1="${cx}" y1="${cy}" x2="${ex}" y2="${ey}" stroke="${BLUE}" stroke-width="2"/>`;
+                    svg += `<text x="${cx - 14}" y="${cy + 15}" font-size="12" fill="#333">O</text>`;
+                    // 基準（回転前）＝水平右、グレー破線
+                    svg += `<line x1="${cx}" y1="${cy}" x2="${cx + R}" y2="${cy}" stroke="${GRAY_LIGHT}" stroke-width="1.3" stroke-dasharray="5,3"/>`;
+                    svg += `<circle cx="${cx + R}" cy="${cy}" r="3" fill="#aaa"/>`;
+                    svg += `<text x="${cx + R - 6}" y="${cy + 17}" text-anchor="middle" font-size="10.5" fill="#888">基準（回転前）</text>`;
+                    // 回転後の半径（青・実線）＝基準から反時計まわりに θ だけ回した位置（模式的に 55°）
+                    const visAng = -55 * Math.PI / 180;   // SVG では上向きが負
+                    const ex = (cx + R * Math.cos(visAng)).toFixed(1);
+                    const ey = (cy + R * Math.sin(visAng)).toFixed(1);
+                    svg += `<line x1="${cx}" y1="${cy}" x2="${ex}" y2="${ey}" stroke="${BLUE}" stroke-width="2.2"/>`;
                     svg += `<circle cx="${ex}" cy="${ey}" r="4" fill="${BLUE}"/>`;
-                    // 角度 θ の弧（小さい半径）
-                    const arcR = 30;
-                    const a0 = 0, a1 = ang2;
-                    const arcEndX = cx + arcR * Math.cos(a1);
-                    const arcEndY = cy + arcR * Math.sin(a1);
-                    svg += `<path d="M ${cx + arcR} ${cy} A ${arcR} ${arcR} 0 0 0 ${arcEndX} ${arcEndY}" fill="none" stroke="${RED}" stroke-width="2"/>`;
-                    // θ ラベル（弧の途中、平均角度）
-                    const labA = (a0 + a1) / 2;
-                    const labR = arcR + 14;
-                    const labX = cx + labR * Math.cos(labA);
-                    const labY = cy + labR * Math.sin(labA);
-                    svg += `<text x="${labX}" y="${labY + 4}" text-anchor="middle" font-size="14" fill="${RED}" font-weight="700">θ ＝ ${problem.theta} rad</text>`;
-                    // 回転矢印（中心まわり、反時計）
-                    svg += `<text x="${cx + R - 10}" y="${cy + 18}" font-size="11" fill="#888">基準</text>`;
-                    // t 表示
-                    svg += `<text x="${W - 12}" y="20" text-anchor="end" font-size="12" fill="#555">t ＝ ${problem.t} s で θ ＝ ${problem.theta} rad 回転</text>`;
+                    svg += `<text x="${(+ex + 7).toFixed(1)}" y="${(+ey - 5).toFixed(1)}" font-size="11" fill="${BLUE}" font-weight="600">回転後</text>`;
+                    // 角度 θ の弧（赤）＋矢じり（基準→回転後＝反時計まわり、sweep-flag=0）
+                    const arcR = 32;
+                    const arcEx = (cx + arcR * Math.cos(visAng)).toFixed(1);
+                    const arcEy = (cy + arcR * Math.sin(visAng)).toFixed(1);
+                    svg += `<path d="M ${cx + arcR} ${cy} A ${arcR} ${arcR} 0 0 0 ${arcEx} ${arcEy}" fill="none" stroke="${RED}" stroke-width="2" marker-end="url(#stc24-rotR)"/>`;
+                    // θ ラベル（弧の外側・二等分線方向に「θ」だけを置く。
+                    //   数値「8 rad」は上部キャプションに書くので、半径線と重なる幅広ラベルを避けられる）
+                    const bis = -29 * Math.PI / 180, labR = arcR + 16;
+                    const labX = (cx + labR * Math.cos(bis)).toFixed(1);
+                    const labY = (cy + labR * Math.sin(bis)).toFixed(1);
+                    svg += `<text x="${labX}" y="${(+labY + 5).toFixed(1)}" text-anchor="middle" font-size="15" fill="${RED}" font-weight="700">θ</text>`;
+                    // 上部に与条件（かかった時間と回転角）
+                    svg += `<text x="${cx}" y="18" text-anchor="middle" font-size="12" fill="#555">t ＝ ${problem.t} s で θ ＝ ${problem.theta} rad 回転</text>`;
                 } else if (kind === 'rotationDisk') {
-                    // 問3: 正面視の円。中心 O・半径 r の補助線・円周上の点 P に接線 v・中心まわりに ω 弧。
-                    const cx = W / 2 - 20, cy = H / 2 + 6;
-                    const R = 78;
+                    // 問3: 正面視の円。半径 r の補助線・円周上の点 P に接線 v・中心まわりに ω 弧。
+                    //   ラベルが密集しないよう領域を分ける：r＝半径線の下、v＝右下（接線の先）、ω＝左側。
+                    //   回転は時計まわり（角度を増やす向き）に統一し、v の接線も同じ向き（−sinθ,cosθ）で
+                    //   描いて ω 弧と矛盾しないようにする。
+                    const cx = 118, cy = H / 2 - 2, R = 68;
                     svg += `<circle cx="${cx}" cy="${cy}" r="${R}" fill="#fbfcfe" stroke="#444" stroke-width="1.5"/>`;
                     svg += `<circle cx="${cx}" cy="${cy}" r="3" fill="#333"/>`;
-                    svg += `<text x="${cx - 12}" y="${cy + 14}" font-size="12" fill="#333">O</text>`;
-                    // 半径 r の補助線（中心から右へ）
-                    const pAng = -25 * Math.PI / 180;
-                    const pX = cx + R * Math.cos(pAng);
-                    const pY = cy + R * Math.sin(pAng);
-                    svg += `<line x1="${cx}" y1="${cy}" x2="${pX}" y2="${pY}" stroke="#777" stroke-width="1.2" stroke-dasharray="4,3"/>`;
-                    // r ラベル — r 線の下側に配置（ω 弧・ω ラベルが上側にあるので重なり回避）
-                    const rLabX = (cx + pX) / 2 + 6;
-                    const rLabY = (cy + pY) / 2 + 16;
-                    svg += `<text x="${rLabX}" y="${rLabY}" text-anchor="middle" font-size="13" fill="#555" font-weight="600">r ＝ ${problem.r} m</text>`;
-                    // 点 P
-                    svg += `<circle cx="${pX}" cy="${pY}" r="4" fill="${BLUE}"/>`;
-                    svg += `<text x="${pX + 7}" y="${pY + 4}" font-size="13" fill="${BLUE}" font-weight="600">P</text>`;
-                    // 接線方向 v 矢印（反時計回り → 接線は (-sin, cos)）
-                    const tx = -Math.sin(pAng), ty = Math.cos(pAng);
-                    const vLen = 42;
+                    svg += `<text x="${cx - 14}" y="${cy + 15}" font-size="12" fill="#333">O</text>`;
+                    // 半径 r の補助線（中心から右上の点 P へ、グレー破線）
+                    const pAng = -22 * Math.PI / 180;
+                    const pX = (cx + R * Math.cos(pAng)), pY = (cy + R * Math.sin(pAng));
+                    svg += `<line x1="${cx}" y1="${cy}" x2="${pX.toFixed(1)}" y2="${pY.toFixed(1)}" stroke="#888" stroke-width="1.2" stroke-dasharray="4,3"/>`;
+                    // r ラベル（半径線の上側・中ほどの空き領域。中心 O・P・v と分離）
+                    svg += `<text x="${(cx + 18)}" y="${(cy - 32)}" text-anchor="middle" font-size="13" fill="#555" font-weight="600">r ＝ ${problem.r} m</text>`;
+                    // 点 P と P ラベル（円周上、外側やや上）
+                    svg += `<circle cx="${pX.toFixed(1)}" cy="${pY.toFixed(1)}" r="4" fill="${BLUE}"/>`;
+                    svg += `<text x="${(pX + 12).toFixed(1)}" y="${(pY - 7).toFixed(1)}" text-anchor="middle" font-size="13" fill="${BLUE}" font-weight="700">P</text>`;
+                    // 接線方向 v 矢印（時計まわり → 接線 (−sinθ, cosθ)＝右下向き、開いた右側へ）
+                    const tx = -Math.sin(pAng), ty = Math.cos(pAng), vLen = 48;
                     const vx2 = pX + tx * vLen, vy2 = pY + ty * vLen;
-                    svg += `<line x1="${pX}" y1="${pY}" x2="${vx2}" y2="${vy2}" stroke="${BLUE}" stroke-width="2.5" marker-end="url(#stc24-blue)"/>`;
-                    svg += `<text x="${vx2 + 4}" y="${vy2 + 5}" font-size="14" fill="${BLUE}" font-weight="700">v ＝ ?</text>`;
-                    // 中心まわりの ω 弧（反時計）
-                    const rotR = 30;
-                    svg += `<path d="M ${cx + rotR} ${cy} A ${rotR} ${rotR} 0 0 0 ${cx} ${cy - rotR}" fill="none" stroke="${RED}" stroke-width="2"/>`;
-                    svg += `<path d="M ${cx - 5} ${cy - rotR + 3} L ${cx + 5} ${cy - rotR - 1} L ${cx + 1} ${cy - rotR - 9} Z" fill="${RED}"/>`;
-                    svg += `<text x="${cx + rotR + 6}" y="${cy - rotR + 4}" font-size="13" fill="${RED}" font-weight="700">ω ＝ ${problem.omega} rad/s</text>`;
+                    svg += `<line x1="${pX.toFixed(1)}" y1="${pY.toFixed(1)}" x2="${vx2.toFixed(1)}" y2="${vy2.toFixed(1)}" stroke="${BLUE}" stroke-width="2.6" marker-end="url(#stc24-blue)"/>`;
+                    svg += `<text x="${(vx2 + 10).toFixed(1)}" y="${(vy2 + 5).toFixed(1)}" text-anchor="start" font-size="14" fill="${BLUE}" font-weight="700">v ＝ ?</text>`;
+                    // 中心まわりの ω 弧（左側・時計まわり、sweep-flag=1）＋矢じり（接線方向に自動整列）
+                    const rotR = 24;
+                    const wa1 = 150 * Math.PI / 180, wa2 = 238 * Math.PI / 180;  // 左下→左上（時計まわり）
+                    const wx1 = (cx + rotR * Math.cos(wa1)).toFixed(1), wy1 = (cy + rotR * Math.sin(wa1)).toFixed(1);
+                    const wx2 = (cx + rotR * Math.cos(wa2)).toFixed(1), wy2 = (cy + rotR * Math.sin(wa2)).toFixed(1);
+                    svg += `<path d="M ${wx1} ${wy1} A ${rotR} ${rotR} 0 0 1 ${wx2} ${wy2}" fill="none" stroke="${RED}" stroke-width="2" marker-end="url(#stc24-rotR)"/>`;
+                    // ω ラベル（円の下、中央。半径線・v とも分離した空き領域）
+                    svg += `<text x="${cx}" y="${cy + R + 22}" text-anchor="middle" font-size="14" fill="${RED}" font-weight="700">ω ＝ ${problem.omega} rad/s</text>`;
                 } else if (kind === 'lathe') {
                     // 問4: 旋盤チャック + 丸棒（直径 d）+ 外周のバイトと接線 v + ω/n 弧。
                     //   左側にチャック（縦長台形 + 縦の溝 3 本）、その右に丸棒（中央水平の長方形）。
@@ -17592,14 +17595,16 @@
                     svg += `<line x1="${rodX2 + 2}" y1="${rodCY + rodH / 2}" x2="${dimX + 4}" y2="${rodCY + rodH / 2}" stroke="#888" stroke-width="0.8" stroke-dasharray="3,3"/>`;
                     svg += `<line x1="${dimX}" y1="${rodCY - rodH / 2}" x2="${dimX}" y2="${rodCY + rodH / 2}" stroke="#777" stroke-width="1" marker-start="url(#stc24-grayS)" marker-end="url(#stc24-gray)"/>`;
                     svg += `<text x="${dimX + 6}" y="${rodCY + 4}" font-size="12" fill="#555" font-weight="600">d ＝ ${problem.d} mm</text>`;
-                    // 回転矢印（チャック上端付近に小さい弧）→ ω/n を表す
+                    // 回転の向き（丸棒が軸まわりに回る）→ チャック上部に弧＋矢じり（赤・時計まわり）。
+                    //   n ラベルはチャックの下に置き、回転弧・中心軸の破線と重ならないようにする。
                     const arcCX = chuckX + chuckW / 2;
-                    const arcCY = chuckY + chuckH / 2;
-                    const arcR = 22;
-                    svg += `<path d="M ${arcCX + arcR} ${arcCY} A ${arcR} ${arcR} 0 0 0 ${arcCX} ${arcCY - arcR}" fill="none" stroke="${RED}" stroke-width="2"/>`;
-                    svg += `<path d="M ${arcCX - 4} ${arcCY - arcR + 3} L ${arcCX + 6} ${arcCY - arcR} L ${arcCX + 1} ${arcCY - arcR - 8} Z" fill="${RED}"/>`;
-                    svg += `<text x="${arcCX}" y="${arcCY + 4}" text-anchor="middle" font-size="11" fill="${RED}" font-weight="600">n ＝ ${problem.n}</text>`;
-                    svg += `<text x="${arcCX}" y="${arcCY + 18}" text-anchor="middle" font-size="11" fill="${RED}" font-weight="600">min⁻¹</text>`;
+                    const arcCY = chuckY + 30;            // 中心軸より上（チャック上部）
+                    const arcR = 16;
+                    const na1 = 200 * Math.PI / 180, na2 = 340 * Math.PI / 180;  // 上側を左→右（時計まわり）
+                    const nx1 = (arcCX + arcR * Math.cos(na1)).toFixed(1), ny1 = (arcCY + arcR * Math.sin(na1)).toFixed(1);
+                    const nx2 = (arcCX + arcR * Math.cos(na2)).toFixed(1), ny2 = (arcCY + arcR * Math.sin(na2)).toFixed(1);
+                    svg += `<path d="M ${nx1} ${ny1} A ${arcR} ${arcR} 0 0 1 ${nx2} ${ny2}" fill="none" stroke="${RED}" stroke-width="2" marker-end="url(#stc24-rotR)"/>`;
+                    svg += `<text x="${arcCX}" y="${chuckY + chuckH + 16}" text-anchor="middle" font-size="11.5" fill="${RED}" font-weight="600">n ＝ ${problem.n} min⁻¹</text>`;
                     // バイト（外周の上に三角の刃物）と接線 v 矢印
                     const cutX = rodX1 + (rodX2 - rodX1) * 0.55;
                     const cutTopY = rodCY - rodH / 2;
