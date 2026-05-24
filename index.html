@@ -1199,7 +1199,8 @@
         }
         /* 2-1 Stage2: v-t グラフと「き・は・じ」参考図を横並びにする補助行。
            幅の広い画面では横に並び、狭い画面では flex-wrap で下に回り込む。 */
-        .vt-kihaji-row > .drawing-wrapper {
+        .vt-kihaji-row > .drawing-wrapper,
+        .vt-pair-row > .drawing-wrapper {
             width: auto;
             flex: 0 1 auto;
             max-width: 100%;
@@ -12816,7 +12817,7 @@
                                       : is1_12 ? (problem.formulaType === 'centroid' ? this.build1_12StaticCanvas(problem) : this.build1_12PlateCanvas(problem))
                                       : is2_1 ? this.build2_1VTGraph(problem)
                                       : is2_2 ? this.build2_2VTGraph(problem)
-                                      : is2_3 ? this.build2_3FreeFallCanvas(problem)
+                                      : is2_3 ? `<div class="vt-pair-row" style="display:flex; flex-wrap:wrap; gap:8px 10px; align-items:flex-start; justify-content:center;">${this.build2_3FreeFallCanvas(problem)}${this.build2_3VTGraph(problem)}</div>`
                                       : is2_4 ? this.build2_4RotationCanvas(problem)
                                       : is2_5 ? this.build2_5CircularCanvas(problem)
                                       : is3_2 ? this.build3_2ForceCanvas(problem)
@@ -17323,6 +17324,102 @@
                     svg += `<text x="${cx + 12}" y="${(gY1 + gY2) / 2}" font-size="14" fill="${RED}" font-weight="700">g ＝ 9.8 m/s²</text>`;
                     // t 秒後の v 表示
                     svg += `<text x="${cx}" y="${gY2 + 26}" text-anchor="middle" font-size="13" fill="${BLUE}" font-weight="700">t ＝ ${problem.t} s 後の v ＝ ？</text>`;
+                }
+
+                svg += `</svg></div>`;
+                return svg;
+            }
+
+            // 2-3（自由落下）の v-t グラフを生成する。
+            //   自由落下は「初速度 0 の等加速度運動（a＝g）」なので、傾き g の直線を描き、
+            //   直線の下の三角形の面積＝落下距離 h であることを示す（2-2 等加速度運動とのつながり）。
+            //   build2_2VTGraph を雛形にし、軸・色・スケール係数は同一スタイル。marker 接頭辞は stc23v-。
+            build2_3VTGraph(problem) {
+                const c = problem.canvas || {};
+                const W = 270, H = 240;
+                const mLeft = 56, mRight = 38, mTop = 30, mBottom = 46;
+                const ox = mLeft, oy = H - mBottom;
+                const v0 = problem.v0 || 0;
+                const g = problem.g;
+                // freeFallTime（問3）は t が未知なので h から逆算する。
+                let t = problem.t;
+                if (problem.formulaType === 'freeFallTime') {
+                    t = Math.sqrt(2 * problem.h / g);
+                }
+                const vEnd = v0 + g * t;
+                // スケール（build2_2VTGraph と同じ係数）。
+                const vMax = Math.max(1, vEnd) * 1.25;
+                const tMax = Math.max(0.5, t) * 1.25;
+                const plotW = W - mLeft - mRight;
+                const plotH = H - mTop - mBottom;
+                const sx = (tv) => ox + (tv / tMax) * plotW;
+                const sy = (vv) => oy - (vv / vMax) * plotH;
+
+                const BLUE = '#1e5fa8';
+                const RED = '#c62828';
+
+                let svg = `<div class="drawing-wrapper" style="pointer-events:none;">
+                <svg class="drawing-svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="cursor:default;">
+                <defs>
+                  <marker id="stc23v-axis" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><polygon points="0,0 9,3.5 0,7" fill="#3A434C"/></marker>
+                </defs>`;
+
+                // 軸（X 軸・Y 軸 + 矢印 + ラベル）
+                const axisEndX = ox + plotW + 14;
+                const axisEndY = oy - plotH - 8;
+                svg += `<line x1="${ox}" y1="${oy}" x2="${axisEndX}" y2="${oy}" stroke="#3A434C" stroke-width="1.2" marker-end="url(#stc23v-axis)"/>`;
+                svg += `<line x1="${ox}" y1="${oy}" x2="${ox}" y2="${axisEndY}" stroke="#3A434C" stroke-width="1.2" marker-end="url(#stc23v-axis)"/>`;
+                svg += `<text x="${W - 3}" y="${oy + 4}" text-anchor="end" font-size="12" fill="#3A434C" font-style="italic">t [s]</text>`;
+                svg += `<text x="${ox - 6}" y="${axisEndY - 6}" text-anchor="end" font-size="12" fill="#3A434C" font-style="italic">v [m/s]</text>`;
+                // 原点 O と 0
+                svg += `<circle cx="${ox}" cy="${oy}" r="3" fill="#333"/>`;
+                svg += `<text x="${ox - 10}" y="${oy + 14}" text-anchor="middle" font-size="12" fill="#333" font-weight="600">O</text>`;
+                svg += `<text x="${ox - 10}" y="${oy + 2}" text-anchor="middle" font-size="10" fill="#666">0</text>`;
+
+                const x1 = sx(0), y1 = sy(v0);
+                const x2 = sx(t), y2 = sy(vEnd);
+                const ft = problem.formulaType;
+                const fillArea = (ft === 'freeFallH' || ft === 'freeFallTime');
+
+                // 三角形（面積＝落下距離 h）の塗り（h を扱う問のみ）
+                if (fillArea) {
+                    svg += `<polygon points="${x1},${y1} ${x2},${y2} ${x2},${oy}" fill="#bcd2ee" fill-opacity="0.55" stroke="none"/>`;
+                }
+                // 傾き g の直線
+                svg += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${BLUE}" stroke-width="2.5"/>`;
+                // 傾き＝g 注記（直線の中ほど、グレー）
+                const midX = (x1 + x2) / 2, midY = (y1 + y2) / 2;
+                svg += `<text x="${midX + 8}" y="${midY - 8}" font-size="11" fill="#777" font-weight="600" paint-order="stroke" stroke="#fff" stroke-width="3" stroke-linejoin="round">傾き＝g＝9.8</text>`;
+
+                if (ft === 'freeFallH') {
+                    // 問2: 原点から直線。三角形の中に「面積 ＝ 落下距離 h ＝ ?」（赤）。x軸に t（グレー）。
+                    const cxA = (x1 * 1 + x2 * 2) / 3;
+                    const cyA = (y2 + oy + oy) / 3;
+                    svg += `<text x="${x2}" y="${oy + 16}" text-anchor="middle" font-size="11" fill="#555" font-weight="500">t ＝ ${t}</text>`;
+                    svg += `<text x="${cxA}" y="${cyA + 4}" text-anchor="middle" font-size="12" fill="${RED}" font-weight="700">面積 ＝ h ＝ ?</text>`;
+                } else if (ft === 'freeFallTime') {
+                    // 問3: 三角形の中に既知の「面積 ＝ 落下距離 h ＝ {h} m」（青）。x軸終点に t ＝ ?（赤）。
+                    const cxA = (x1 * 1 + x2 * 2) / 3;
+                    const cyA = (y2 + oy + oy) / 3;
+                    svg += `<text x="${x2}" y="${oy + 16}" text-anchor="middle" font-size="11" fill="${RED}" font-weight="700">t ＝ ?</text>`;
+                    svg += `<text x="${cxA}" y="${cyA + 4}" text-anchor="middle" font-size="12" fill="${BLUE}" font-weight="700">面積 ＝ h ＝ ${problem.h} m</text>`;
+                } else if (ft === 'verticalDownV') {
+                    // 問4: 始点 (0, v₀) に点＋「v₀ ＝ {v0}」（青）。終点に v ＝ ?（赤）。x軸に t（グレー）。
+                    svg += `<circle cx="${x1}" cy="${y1}" r="3.5" fill="${BLUE}"/>`;
+                    svg += `<line x1="${ox}" y1="${y1}" x2="${x1}" y2="${y1}" stroke="#bbb" stroke-width="1" stroke-dasharray="3,3"/>`;
+                    svg += `<text x="${ox - 6}" y="${y1 + 4}" text-anchor="end" font-size="11" fill="${BLUE}" font-weight="600">v₀ ＝ ${v0}</text>`;
+                    svg += `<circle cx="${x2}" cy="${y2}" r="3.5" fill="${RED}"/>`;
+                    svg += `<line x1="${ox}" y1="${y2}" x2="${x2}" y2="${y2}" stroke="#bbb" stroke-width="1" stroke-dasharray="3,3"/>`;
+                    svg += `<line x1="${x2}" y1="${oy}" x2="${x2}" y2="${y2}" stroke="#bbb" stroke-width="1" stroke-dasharray="3,3"/>`;
+                    svg += `<text x="${ox - 6}" y="${y2 + 4}" text-anchor="end" font-size="11" fill="${RED}" font-weight="600">v ＝ ?</text>`;
+                    svg += `<text x="${x2}" y="${oy + 16}" text-anchor="middle" font-size="11" fill="#555" font-weight="500">t ＝ ${t}</text>`;
+                } else {
+                    // 問1 freeFallV: 原点から直線。終点 (t, vEnd) に点＋「v ＝ ?」（赤）。x軸に t（グレー）。
+                    svg += `<circle cx="${x2}" cy="${y2}" r="3.5" fill="${RED}"/>`;
+                    svg += `<line x1="${ox}" y1="${y2}" x2="${x2}" y2="${y2}" stroke="#bbb" stroke-width="1" stroke-dasharray="3,3"/>`;
+                    svg += `<line x1="${x2}" y1="${oy}" x2="${x2}" y2="${y2}" stroke="#bbb" stroke-width="1" stroke-dasharray="3,3"/>`;
+                    svg += `<text x="${ox - 6}" y="${y2 + 4}" text-anchor="end" font-size="11" fill="${RED}" font-weight="600">v ＝ ?</text>`;
+                    svg += `<text x="${x2}" y="${oy + 16}" text-anchor="middle" font-size="11" fill="#555" font-weight="500">t ＝ ${t}</text>`;
                 }
 
                 svg += `</svg></div>`;
