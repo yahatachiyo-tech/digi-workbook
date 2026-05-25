@@ -6513,7 +6513,17 @@
                 stage1Correct: 'secondLaw',
                 derivationSteps: [
                     {
-                        prompt: '運動方程式は F ＝ m × a（式 2-35）です。求めるのは加速度 a なので、この式を a について解きます。両辺をどうすればよいですか？',
+                        prompt: '運動の第二法則の問題でした。まず、運動の第二法則を式で表すとどれですか？',
+                        choices: [
+                            { value: 'ma',   label: 'F ＝ m × a' },
+                            { value: 'plus', label: 'F ＝ m ＋ a' },
+                            { value: 'div',  label: 'F ＝ m ÷ a' }
+                        ],
+                        correct: 'ma',
+                        onCorrectText: '運動の第二法則は F ＝ m × a（式 2-35）。質量 m に加速度 a を掛けると、力 F になります。'
+                    },
+                    {
+                        prompt: '求めるのは加速度 a です。F ＝ m × a を a について解くには、両辺をどうすればよいですか？',
                         choices: [
                             { value: 'divM', label: '両辺を m で割る（→ a ＝ F ÷ m）' },
                             { value: 'mulM', label: '両辺に m を掛ける（→ a ＝ F × m）' },
@@ -6555,7 +6565,17 @@
                 stage1Correct: 'secondLaw',
                 derivationSteps: [
                     {
-                        prompt: '運動方程式は F ＝ m × a（式 2-35）です。求めるのは質量 m なので、この式を m について解きます。両辺をどうすればよいですか？',
+                        prompt: '運動の第二法則の問題でした。まず、運動の第二法則を式で表すとどれですか？',
+                        choices: [
+                            { value: 'ma',   label: 'F ＝ m × a' },
+                            { value: 'plus', label: 'F ＝ m ＋ a' },
+                            { value: 'div',  label: 'F ＝ m ÷ a' }
+                        ],
+                        correct: 'ma',
+                        onCorrectText: '運動の第二法則は F ＝ m × a（式 2-35）。質量 m に加速度 a を掛けると、力 F になります。'
+                    },
+                    {
+                        prompt: '求めるのは質量 m です。F ＝ m × a を m について解くには、両辺をどうすればよいですか？',
                         choices: [
                             { value: 'divA', label: '両辺を a で割る（→ m ＝ F ÷ a）' },
                             { value: 'mulA', label: '両辺に a を掛ける（→ m ＝ F × a）' },
