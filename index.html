@@ -6471,14 +6471,14 @@
                 stage1Correct: 'secondLaw',
                 derivationSteps: [
                     {
-                        prompt: 'Stage 1 で「力が加わって加速度が生じる（運動の第二法則）」の問題だと分かりました。運動方程式は F ＝ m × a（式 2-35）です。求めるのは力 F で、質量 m と加速度 a の両方が分かっています。次にすることはどれですか？',
+                        prompt: '運動の第二法則の問題でした。質量 m と加速度 a が分かっていて、力 F を求めます。運動の第二法則を式で表すと、力 F はどれですか？',
                         choices: [
-                            { value: 'direct', label: 'F ＝ m × a に、質量 m と加速度 a をそのまま代入して掛け算する' },
-                            { value: 'solve',  label: 'F ＝ m × a を変形して、別の文字について解いてから代入する' },
-                            { value: 'needA',  label: '加速度 a が足りないので、先に別の式で a を計算する' }
+                            { value: 'ma',   label: 'F ＝ m × a' },
+                            { value: 'plus', label: 'F ＝ m ＋ a' },
+                            { value: 'div',  label: 'F ＝ m ÷ a' }
                         ],
-                        correct: 'direct',
-                        onCorrectText: '運動方程式 F ＝ m × a に、質量 m ＝ 3 kg と加速度 a ＝ 4 m/s² をそのまま代入して掛け算すれば、力 F が求まります。'
+                        correct: 'ma',
+                        onCorrectText: '運動の第二法則は F ＝ m × a（式 2-35）。質量 m に加速度 a を掛けると、加えた力 F になります。この式に m ＝ 3 kg と a ＝ 4 m/s² を入れます。'
                     }
                 ],
                 formula: 'F = m\\,a',
@@ -13256,9 +13256,11 @@
                         if (this.calcInputs.derivStepIndex === undefined) {
                             this.calcInputs.derivStepIndex = 0;
                         }
+                        // 立式ステップが 1 つだけの問題（問1〜3）は「一段ずつ」ではなく単一の問いとして見せる。
+                        const single3_2 = (this.getCalcProblem().derivationSteps || []).length <= 1;
                         content.innerHTML = header + staticCanvas1_6 + `
                             <div class="calc-stage-container">
-                                <div class="calc-question-text">使う式を、一段ずつ自分で導いてください。</div>
+                                <div class="calc-question-text">${single3_2 ? '使う式を考えてください。' : '使う式を、一段ずつ自分で導いてください。'}</div>
                                 <div id="derivAccordion"></div>
                                 <div id="stageFeedback" style="margin-top:12px; font-size:14px; min-height:20px;"></div>
                             </div>
@@ -15770,13 +15772,14 @@
                 const cur = this.calcInputs.derivStepIndex || 0;
                 const acc = document.getElementById('derivAccordion');
                 if (!acc) return;
+                const multi = steps.length > 1;   // 立式が 1 段だけの問題では「ステップ N/M」表示を出さない
                 let html = '';
                 for (let i = 0; i < steps.length; i++) {
                     if (i < cur) {
                         // 完了済み: 結論だけを 1 行で表示
                         html += `
                             <div style="display:flex; align-items:flex-start; gap:8px; padding:8px 12px; margin-bottom:6px; background:#eef6ee; border-left:3px solid #4CAF50; border-radius:3px; font-size:13px; line-height:1.6;">
-                                <span style="color:#2e7d32; font-weight:600; flex-shrink:0;">ステップ ${i + 1}</span>
+                                ${multi ? `<span style="color:#2e7d32; font-weight:600; flex-shrink:0;">ステップ ${i + 1}</span>` : ''}
                                 <span style="color:#2e7d32;">${steps[i].onCorrectText}</span>
                             </div>
                         `;
@@ -15788,7 +15791,7 @@
                         ).join('');
                         html += `
                             <div style="border:1px solid #2196F3; border-radius:4px; padding:14px; margin-bottom:6px; background:#fafdff;">
-                                <div style="font-size:13px; color:#1976D2; font-weight:600; margin-bottom:8px;">ステップ ${i + 1} / ${steps.length}</div>
+                                ${multi ? `<div style="font-size:13px; color:#1976D2; font-weight:600; margin-bottom:8px;">ステップ ${i + 1} / ${steps.length}</div>` : ''}
                                 <div class="calc-question-text" style="font-size:15px; margin-bottom:10px;">${steps[i].prompt}</div>
                                 <div class="calc-chips" id="derivChips">${chipsHTML}</div>
                                 <div style="margin-top:12px;">
