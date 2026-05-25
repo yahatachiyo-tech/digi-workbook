@@ -6799,7 +6799,7 @@
                 sentence: 'エレベータが加速度 a ＝ 2 m/s² で上昇をはじめた。エレベータの中に乗っている質量 m ＝ 60 kg の人が、エレベータの床を押す力 F [N] を求めよ。ただし、重力加速度を g ＝ 9.8 m/s² とする。',
                 condition: '紹介、慣性力（例題14型）、加速上昇、F=mg+ma=588+120=708.0 N',
                 canvasType: '2d-static',
-                canvas: { width: 360, height: 250, kind: 'inertiaUp' },
+                canvas: { width: 360, height: 230, kind: 'inertiaUp' },
                 stage0Choices: [
                     { value: 'floorForce', label: '人がエレベータの床を押す力 F [N] の大きさ' },
                     { value: 'mass',       label: '人の質量 m [kg] の大きさ' },
@@ -6831,25 +6831,15 @@
                             { value: 'onlyg', label: 'F ＝ mg（加速していても重力だけ支えればよい）' }
                         ],
                         correct: 'plus',
-                        onCorrectText: '下向きに重力 mg と慣性力 ma の 2 つが働くので、それを支える上向きの床の反力は mg ＋ ma。作用・反作用で、人が床を押す力 F も同じ大きさです。F ＝ mg ＋ ma。加速上昇では、ふだんより大きな力で床を押します。'
-                    },
-                    {
-                        prompt: '重力 mg と加速度ぶんの力 ma を数値にします。重力は「質量 × 9.8」で求めます。それぞれいくつですか。',
-                        choices: [
-                            { value: 'right',  label: 'mg ＝ 60 × 9.8 ＝ 588 N、ma ＝ 60 × 2 ＝ 120 N' },
-                            { value: 'swap',   label: 'mg ＝ 60 × 2 ＝ 120 N、ma ＝ 60 × 9.8 ＝ 588 N' },
-                            { value: 'nomass', label: 'mg ＝ 9.8 N、ma ＝ 2 N' }
-                        ],
-                        correct: 'right',
-                        onCorrectText: '重力 mg ＝ 60 × 9.8 ＝ 588 N、加速度ぶんの力 ma ＝ 60 × 2 ＝ 120 N。あとはこの 2 つを足せば F が求まります。'
+                        onCorrectText: '下向きに重力 mg と慣性力 ma の 2 つが働くので、それを支える上向きの床の反力は mg ＋ ma。作用・反作用で、人が床を押す力 F も同じ大きさです。F ＝ mg ＋ ma。加速上昇では、ふだんより大きな力で床を押します。次に数値を代入して計算します。'
                     }
                 ],
                 formula: 'F = mg + ma',
                 substitutions: {
                     slots: ['mg', 'ma'],
                     cards: [
-                        { role: 'mg', label: 'mg', value: 588, unit: 'N' },
-                        { role: 'ma', label: 'ma', value: 120, unit: 'N' }
+                        { role: 'mg', label: 'mg ＝ 60 × 9.8', value: 588, unit: 'N' },
+                        { role: 'ma', label: 'ma ＝ 60 × 2', value: 120, unit: 'N' }
                     ]
                 }
             },
@@ -6861,7 +6851,7 @@
                 sentence: 'エレベータが加速度 a ＝ 1.5 m/s² で下降をはじめた。エレベータの中に乗っている質量 m ＝ 50 kg の人が、エレベータの床を押す力 F [N] を求めよ。ただし、重力加速度を g ＝ 9.8 m/s² とする。',
                 condition: '紹介、慣性力（問31型）、加速下降、F=mg−ma=490−75=415.0 N',
                 canvasType: '2d-static',
-                canvas: { width: 360, height: 250, kind: 'inertiaDown' },
+                canvas: { width: 360, height: 230, kind: 'inertiaDown' },
                 stage0Choices: [
                     { value: 'floorForce', label: '人がエレベータの床を押す力 F [N] の大きさ' },
                     { value: 'mass',       label: '人の質量 m [kg] の大きさ' },
@@ -6893,25 +6883,15 @@
                             { value: 'onlyg', label: 'F ＝ mg（加速しても重力だけ支えればよい）' }
                         ],
                         correct: 'minus',
-                        onCorrectText: '慣性力 ma が上向きなので、重力 mg の一部を慣性力が肩代わりします。床の反力（＝人が床を押す力 F）は F ＝ mg − ma となり、ふだんより小さくなります。'
-                    },
-                    {
-                        prompt: '重力 mg と加速度ぶんの力 ma を数値にします。重力は「質量 × 9.8」で求めます。それぞれいくつですか。',
-                        choices: [
-                            { value: 'right',  label: 'mg ＝ 50 × 9.8 ＝ 490 N、ma ＝ 50 × 1.5 ＝ 75 N' },
-                            { value: 'swap',   label: 'mg ＝ 50 × 1.5 ＝ 75 N、ma ＝ 50 × 9.8 ＝ 490 N' },
-                            { value: 'nomass', label: 'mg ＝ 9.8 N、ma ＝ 1.5 N' }
-                        ],
-                        correct: 'right',
-                        onCorrectText: '重力 mg ＝ 50 × 9.8 ＝ 490 N、加速度ぶんの力 ma ＝ 50 × 1.5 ＝ 75 N。あとは重力から慣性力ぶんを引けば F が求まります。'
+                        onCorrectText: '慣性力 ma が上向きなので、重力 mg の一部を慣性力が肩代わりします。床の反力（＝人が床を押す力 F）は F ＝ mg − ma となり、ふだんより小さくなります。次に数値を代入して計算します。'
                     }
                 ],
                 formula: 'F = mg - ma',
                 substitutions: {
                     slots: ['mg', 'ma'],
                     cards: [
-                        { role: 'mg', label: 'mg', value: 490, unit: 'N' },
-                        { role: 'ma', label: 'ma', value: 75,  unit: 'N' }
+                        { role: 'mg', label: 'mg ＝ 50 × 9.8', value: 490, unit: 'N' },
+                        { role: 'ma', label: 'ma ＝ 50 × 1.5', value: 75,  unit: 'N' }
                     ]
                 }
             },
@@ -6955,25 +6935,15 @@
                             { value: 'onlyg', label: 'S ＝ mg（加速しても重力だけ支えればよい）' }
                         ],
                         correct: 'plus',
-                        onCorrectText: '下向きに重力 mg と慣性力 ma の 2 つが働くので、それを支える張力は S ＝ mg ＋ ma です。加速して引き上げるときは、ただつるすときより大きな張力が必要です。'
-                    },
-                    {
-                        prompt: '重力 mg と加速度ぶんの力 ma を数値にします。重力は「質量 × 9.8」で求めます。それぞれいくつですか。',
-                        choices: [
-                            { value: 'right',  label: 'mg ＝ 20 × 9.8 ＝ 196 N、ma ＝ 20 × 2 ＝ 40 N' },
-                            { value: 'swap',   label: 'mg ＝ 20 × 2 ＝ 40 N、ma ＝ 20 × 9.8 ＝ 196 N' },
-                            { value: 'nomass', label: 'mg ＝ 9.8 N、ma ＝ 2 N' }
-                        ],
-                        correct: 'right',
-                        onCorrectText: '重力 mg ＝ 20 × 9.8 ＝ 196 N、加速度ぶんの力 ma ＝ 20 × 2 ＝ 40 N。あとはこの 2 つを足せば張力 S が求まります。'
+                        onCorrectText: '下向きに重力 mg と慣性力 ma の 2 つが働くので、それを支える張力は S ＝ mg ＋ ma です。加速して引き上げるときは、ただつるすときより大きな張力が必要です。次に数値を代入して計算します。'
                     }
                 ],
                 formula: 'S = mg + ma',
                 substitutions: {
                     slots: ['mg', 'ma'],
                     cards: [
-                        { role: 'mg', label: 'mg', value: 196, unit: 'N' },
-                        { role: 'ma', label: 'ma', value: 40,  unit: 'N' }
+                        { role: 'mg', label: 'mg ＝ 20 × 9.8', value: 196, unit: 'N' },
+                        { role: 'ma', label: 'ma ＝ 20 × 2', value: 40,  unit: 'N' }
                     ]
                 }
             },
@@ -7017,25 +6987,15 @@
                             { value: 'subM', label: '両辺から m を引く（→ a ＝ (F − mg) − m）' }
                         ],
                         correct: 'divM',
-                        onCorrectText: 'ma ＝ F − mg の両辺を m で割ると a ＝ (F − mg) ÷ m。物体を動かす残りの力（F − mg）を質量で割れば加速度が求まります。'
-                    },
-                    {
-                        prompt: '重力 mg と、物体を動かす残りの力 F − mg を数値にします。重力は「質量 × 9.8」で求めます。それぞれいくつですか。',
-                        choices: [
-                            { value: 'right',  label: 'mg ＝ 10 × 9.8 ＝ 98 N、F − mg ＝ 170 − 98 ＝ 72 N' },
-                            { value: 'nomass', label: 'mg ＝ 9.8 N、F − mg ＝ 170 − 9.8 ＝ 160.2 N' },
-                            { value: 'subm',   label: 'mg ＝ 170 − 10 ＝ 160 N、F − mg ＝ 170 − 160 ＝ 10 N' }
-                        ],
-                        correct: 'right',
-                        onCorrectText: '重力 mg ＝ 10 × 9.8 ＝ 98 N。物体を動かす残りの力 F − mg ＝ 170 − 98 ＝ 72 N。あとは質量 m で割れば加速度 a が求まります。'
+                        onCorrectText: 'ma ＝ F − mg の両辺を m で割ると a ＝ (F − mg) ÷ m。物体を動かす残りの力（F − mg）を質量で割れば加速度が求まります。次に数値を代入して計算します。'
                     }
                 ],
                 formula: 'a = \\dfrac{F - mg}{m}',
                 substitutions: {
                     slots: ['net', 'm'],
                     cards: [
-                        { role: 'net', label: 'F − mg', value: 72, unit: 'N' },
-                        { role: 'm',   label: 'm',      value: 10, unit: 'kg' }
+                        { role: 'net', label: 'F − mg ＝ 170 − 10 × 9.8', value: 72, unit: 'N' },
+                        { role: 'm',   label: 'm', value: 10, unit: 'kg' }
                     ]
                 }
             }
@@ -17962,61 +17922,61 @@
 
                 if (kind === 'inertiaUp' || kind === 'inertiaDown') {
                     const up = (kind === 'inertiaUp');
-                    // エレベータの箱（外枠グレー）。中の人は「人形」で床に立たせる。
-                    const elx = 64, ely = 24, elw = 148, elh = H - 50;
+                    // エレベータの箱。中の人は「人形」で床に立たせる。箱は人に合わせて短くし、人形・力・文字を大きく描く。
+                    const elx = 56, ely = 20, elw = 164, elh = 160;
                     svg += `<rect x="${elx}" y="${ely}" width="${elw}" height="${elh}" rx="4" ry="4" fill="#f7f8fa" stroke="${GRAY}" stroke-width="2"/>`;
                     // 上部に吊りケーブル
-                    svg += `<line x1="${elx + elw / 2}" y1="${ely}" x2="${elx + elw / 2}" y2="6" stroke="${GRAY}" stroke-width="1.5"/>`;
+                    svg += `<line x1="${elx + elw / 2}" y1="${ely}" x2="${elx + elw / 2}" y2="4" stroke="${GRAY}" stroke-width="1.5"/>`;
                     // 床（箱の内側下部）＋ハッチ
                     const floorY = ely + elh - 14;
                     svg += `<line x1="${elx + 6}" y1="${floorY}" x2="${elx + elw - 6}" y2="${floorY}" stroke="${GRAY}" stroke-width="2"/>`;
-                    for (let hx = elx + 12; hx < elx + elw - 6; hx += 14) {
-                        svg += `<line x1="${hx}" y1="${floorY}" x2="${hx - 7}" y2="${floorY + 8}" stroke="#bbb" stroke-width="1"/>`;
+                    for (let hx = elx + 12; hx < elx + elw - 6; hx += 15) {
+                        svg += `<line x1="${hx}" y1="${floorY}" x2="${hx - 8}" y2="${floorY + 9}" stroke="#bbb" stroke-width="1"/>`;
                     }
-                    // 人（人形）：足を床に乗せる
+                    // 人（人形）：足を床に乗せ、箱いっぱいに大きく
                     const px = elx + elw / 2;
-                    const headR = 8;
-                    const headCy = floorY - 64;
-                    const shoulderY = headCy + headR + 3;
-                    const hipY = floorY - 26;
-                    svg += `<circle cx="${px}" cy="${headCy}" r="${headR}" fill="#dce9f7" stroke="${BLUE}" stroke-width="2"/>`;
-                    svg += `<line x1="${px}" y1="${shoulderY}" x2="${px}" y2="${hipY}" stroke="${BLUE}" stroke-width="2.6"/>`;
-                    svg += `<line x1="${px}" y1="${shoulderY + 4}" x2="${px - 13}" y2="${shoulderY + 19}" stroke="${BLUE}" stroke-width="2.2"/>`;
-                    svg += `<line x1="${px}" y1="${shoulderY + 4}" x2="${px + 13}" y2="${shoulderY + 19}" stroke="${BLUE}" stroke-width="2.2"/>`;
-                    svg += `<line x1="${px}" y1="${hipY}" x2="${px - 11}" y2="${floorY}" stroke="${BLUE}" stroke-width="2.6"/>`;
-                    svg += `<line x1="${px}" y1="${hipY}" x2="${px + 11}" y2="${floorY}" stroke="${BLUE}" stroke-width="2.6"/>`;
-                    svg += `<text x="${px}" y="${headCy - headR - 5}" text-anchor="middle" font-size="11.5" fill="${BLUE}" font-weight="700">m ＝ ${problem.m} kg</text>`;
+                    const headR = 11;
+                    const headCy = 56;
+                    const shoulderY = headCy + headR + 4;
+                    const hipY = floorY - 34;
+                    svg += `<circle cx="${px}" cy="${headCy}" r="${headR}" fill="#dce9f7" stroke="${BLUE}" stroke-width="2.2"/>`;
+                    svg += `<line x1="${px}" y1="${shoulderY}" x2="${px}" y2="${hipY}" stroke="${BLUE}" stroke-width="3"/>`;
+                    svg += `<line x1="${px}" y1="${shoulderY + 5}" x2="${px - 18}" y2="${shoulderY + 26}" stroke="${BLUE}" stroke-width="2.6"/>`;
+                    svg += `<line x1="${px}" y1="${shoulderY + 5}" x2="${px + 18}" y2="${shoulderY + 26}" stroke="${BLUE}" stroke-width="2.6"/>`;
+                    svg += `<line x1="${px}" y1="${hipY}" x2="${px - 15}" y2="${floorY}" stroke="${BLUE}" stroke-width="3"/>`;
+                    svg += `<line x1="${px}" y1="${hipY}" x2="${px + 15}" y2="${floorY}" stroke="${BLUE}" stroke-width="3"/>`;
+                    svg += `<text x="${px}" y="${headCy - headR - 6}" text-anchor="middle" font-size="13" fill="${BLUE}" font-weight="700">m ＝ ${problem.m} kg</text>`;
                     // 重力 mg ↓（青）— 人の左
-                    const mgX = px - 42;
-                    svg += `<line x1="${mgX}" y1="${shoulderY - 2}" x2="${mgX}" y2="${shoulderY + 32}" stroke="${BLUE}" stroke-width="2.4" marker-end="url(#stc33-blue)"/>`;
-                    svg += `<text x="${mgX - 4}" y="${shoulderY + 12}" text-anchor="end" font-size="11" fill="${BLUE}" font-weight="600">重力 mg</text>`;
-                    svg += `<text x="${mgX - 4}" y="${shoulderY + 26}" text-anchor="end" font-size="10.5" fill="${BLUE}">＝ ${problem.mg} N</text>`;
+                    const mgX = px - 52;
+                    svg += `<line x1="${mgX}" y1="${shoulderY}" x2="${mgX}" y2="${shoulderY + 46}" stroke="${BLUE}" stroke-width="2.8" marker-end="url(#stc33-blue)"/>`;
+                    svg += `<text x="${mgX - 5}" y="${shoulderY + 18}" text-anchor="end" font-size="12.5" fill="${BLUE}" font-weight="600">重力 mg</text>`;
+                    svg += `<text x="${mgX - 5}" y="${shoulderY + 34}" text-anchor="end" font-size="12" fill="${BLUE}">＝ ${problem.mg} N</text>`;
                     // 慣性力 ma（グレー破線）— 人の右。上昇＝下向き／下降＝上向き
-                    const iaX = px + 42;
+                    const iaX = px + 52;
                     if (up) {
-                        svg += `<line x1="${iaX}" y1="${shoulderY - 2}" x2="${iaX}" y2="${shoulderY + 32}" stroke="${GRAY}" stroke-width="2.2" stroke-dasharray="5,3" marker-end="url(#stc33-gray)"/>`;
+                        svg += `<line x1="${iaX}" y1="${shoulderY}" x2="${iaX}" y2="${shoulderY + 46}" stroke="${GRAY}" stroke-width="2.6" stroke-dasharray="6,3" marker-end="url(#stc33-gray)"/>`;
                     } else {
-                        svg += `<line x1="${iaX}" y1="${shoulderY + 32}" x2="${iaX}" y2="${shoulderY - 2}" stroke="${GRAY}" stroke-width="2.2" stroke-dasharray="5,3" marker-end="url(#stc33-gray)"/>`;
+                        svg += `<line x1="${iaX}" y1="${shoulderY + 46}" x2="${iaX}" y2="${shoulderY}" stroke="${GRAY}" stroke-width="2.6" stroke-dasharray="6,3" marker-end="url(#stc33-gray)"/>`;
                     }
-                    svg += `<text x="${iaX + 5}" y="${shoulderY + 12}" text-anchor="start" font-size="10.5" fill="${GRAY}" font-weight="600">慣性力</text>`;
-                    svg += `<text x="${iaX + 5}" y="${shoulderY + 26}" text-anchor="start" font-size="10.5" fill="${GRAY}" font-weight="600">ma</text>`;
-                    // 足もとの作用・反作用：床の反力 N↑（脚の間）／人が床を押す力 F↓（床へ）
-                    svg += `<line x1="${px}" y1="${floorY}" x2="${px}" y2="${floorY - 24}" stroke="${RED}" stroke-width="2.2" marker-end="url(#stc33-red)"/>`;
-                    svg += `<text x="${px - 13}" y="${floorY - 5}" text-anchor="end" font-size="10" fill="${RED}">床の反力</text>`;
-                    svg += `<line x1="${px}" y1="${floorY}" x2="${px}" y2="${floorY + 26}" stroke="${RED}" stroke-width="2.9" marker-end="url(#stc33-red)"/>`;
-                    svg += `<text x="${px + 8}" y="${floorY + 18}" text-anchor="start" font-size="12.5" fill="${RED}" font-weight="700">F ＝ ?</text>`;
-                    svg += `<text x="${px + 8}" y="${floorY + 31}" text-anchor="start" font-size="9.5" fill="${RED}">人が床を押す力</text>`;
+                    svg += `<text x="${iaX + 6}" y="${shoulderY + 18}" text-anchor="start" font-size="12" fill="${GRAY}" font-weight="600">慣性力</text>`;
+                    svg += `<text x="${iaX + 6}" y="${shoulderY + 34}" text-anchor="start" font-size="12" fill="${GRAY}" font-weight="600">ma</text>`;
+                    // 足もとの作用・反作用：床の反力 ↑（脚の間）／人が床を押す力 F ↓（床へ）
+                    svg += `<line x1="${px}" y1="${floorY}" x2="${px}" y2="${floorY - 30}" stroke="${RED}" stroke-width="2.4" marker-end="url(#stc33-red)"/>`;
+                    svg += `<text x="${px - 17}" y="${floorY - 6}" text-anchor="end" font-size="11.5" fill="${RED}">床の反力</text>`;
+                    svg += `<line x1="${px}" y1="${floorY}" x2="${px}" y2="${floorY + 32}" stroke="${RED}" stroke-width="3.2" marker-end="url(#stc33-red)"/>`;
+                    svg += `<text x="${px + 10}" y="${floorY + 20}" text-anchor="start" font-size="15" fill="${RED}" font-weight="700">F ＝ ?</text>`;
+                    svg += `<text x="${px + 10}" y="${floorY + 35}" text-anchor="start" font-size="11.5" fill="${RED}">人が床を押す力</text>`;
                     // 加速度矢印（箱の外、右側）。上昇＝上向き／下降＝下向き。グレー（既知）。
-                    const aX = elx + elw + 30;
-                    const aLen = 54;
-                    const aMidY = ely + elh / 2;
+                    const aX = elx + elw + 34;
+                    const aLen = 64;
+                    const aMidY = ely + elh / 2 - 6;
                     if (up) {
-                        svg += `<line x1="${aX}" y1="${aMidY + aLen / 2}" x2="${aX}" y2="${aMidY - aLen / 2}" stroke="${GRAY}" stroke-width="2.4" marker-end="url(#stc33-gray)"/>`;
+                        svg += `<line x1="${aX}" y1="${aMidY + aLen / 2}" x2="${aX}" y2="${aMidY - aLen / 2}" stroke="${GRAY}" stroke-width="2.6" marker-end="url(#stc33-gray)"/>`;
                     } else {
-                        svg += `<line x1="${aX}" y1="${aMidY - aLen / 2}" x2="${aX}" y2="${aMidY + aLen / 2}" stroke="${GRAY}" stroke-width="2.4" marker-end="url(#stc33-gray)"/>`;
+                        svg += `<line x1="${aX}" y1="${aMidY - aLen / 2}" x2="${aX}" y2="${aMidY + aLen / 2}" stroke="${GRAY}" stroke-width="2.6" marker-end="url(#stc33-gray)"/>`;
                     }
-                    svg += `<text x="${aX + 7}" y="${aMidY + 4}" text-anchor="start" font-size="12" fill="${GRAY}" font-weight="600">a ＝ ${problem.a} m/s²</text>`;
-                    svg += `<text x="${aX}" y="${ely - 10}" text-anchor="middle" font-size="11" fill="${GRAY}">${up ? '上昇' : '下降'}</text>`;
+                    svg += `<text x="${aX + 8}" y="${aMidY + 4}" text-anchor="start" font-size="13" fill="${GRAY}" font-weight="600">a ＝ ${problem.a} m/s²</text>`;
+                    svg += `<text x="${aX}" y="${ely - 6}" text-anchor="middle" font-size="12" fill="${GRAY}">${up ? '上昇' : '下降'}</text>`;
                     svg += `</svg></div>`;
                     return svg;
                 }
