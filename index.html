@@ -13550,13 +13550,18 @@
                                 `<span style="display:inline-flex; align-items:center; gap:5px; border:1.7px solid ${color}; border-radius:7px; padding:11px 11px 8px; position:relative; white-space:nowrap;"><span style="position:absolute; top:-9px; left:50%; transform:translateX(-50%); background:#fff; font-size:11px; color:${color}; font-weight:700; padding:0 5px; line-height:1; white-space:nowrap;">${label}</span>${inner}</span>`;
                             const rowOpen3_3 = `<div style="display:flex; align-items:center; justify-content:center; gap:9px; flex-wrap:wrap; padding-top:6px;">`;
                             if (problem.formulaType === 'inertiaAccel') {
-                                // a ＝ ( F − mg ) ÷ m。mg ＝ m×9.8 を「重力」枠で示す。
+                                // a ＝ 合力 ÷ m。合力 ＝ F − 重力mg（運動方程式 F−mg=ma を a について解いた形）。
+                                //   この問題は「運動方程式」の枠組みなので慣性力（見かけの力）は登場しない。
+                                //   右辺 ma は質量×加速度であって慣性力ではないため、慣性力ラベルは付けない。
+                                //   重力 mg ＝ m×9.8 を青枠、その差 F−重力mg を「合力（正味の力）」の緑枠で囲い、
+                                //   2 力の引っ張り合いの結果＝合力、それを m で割ると a、という運動方程式の中身を示す。
+                                const GGREEN_3_3 = '#2e7d32';
                                 formulaHTML = rowOpen3_3
-                                    + `<span style="font-weight:600;">a ＝ (</span>`
-                                    + slotSpans[0]
-                                    + `<span style="font-weight:600;">−</span>`
-                                    + fbox3_3('重力 mg', GBLUE_3_3, `${slotSpans[1]} <span>× 9.8</span>`)
-                                    + `<span style="font-weight:600;">) ÷</span>`
+                                    + `<span style="font-weight:600;">a ＝</span>`
+                                    + fbox3_3('合力（正味の力）', GGREEN_3_3,
+                                        `${slotSpans[0]} <span style="font-weight:600;">−</span> `
+                                        + fbox3_3('重力 mg', GBLUE_3_3, `${slotSpans[1]} <span>× 9.8</span>`))
+                                    + `<span style="font-weight:600;">÷</span>`
                                     + slotSpans[2]
                                     + `</div>`;
                             } else {
