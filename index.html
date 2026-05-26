@@ -13532,15 +13532,21 @@
                             //   inertiaAccel        → slots=['F','mA','mB']（F, mA=mg の m, mB=分母 m）
                             //   同じ m カードを 2 スロットに使うため slotToCardRoleMap で照合する。
                             slotToCardRoleMap = problem.substitutions.slotToCardRoleMap || null;
-                            if (problem.formulaType === 'inertiaDown') {
-                                formulaHTML = `F ＝ mg − ma<br><span style="white-space:nowrap;">＝ ${slotSpans[0]} × 9.8 − ${slotSpans[1]} × ${slotSpans[2]}</span>`;
-                            } else if (problem.formulaType === 'inertiaRope') {
-                                formulaHTML = `S ＝ mg ＋ ma<br><span style="white-space:nowrap;">＝ ${slotSpans[0]} × 9.8 ＋ ${slotSpans[1]} × ${slotSpans[2]}</span>`;
-                            } else if (problem.formulaType === 'inertiaAccel') {
-                                formulaHTML = `a ＝ (F − mg) ÷ m<br><span style="white-space:nowrap;">＝ ( ${slotSpans[0]} − ${slotSpans[1]} × 9.8 ) ÷ ${slotSpans[2]}</span>`;
+                            // 1 行目（mg・ma の意味）と 2 行目（代入した式）を、＝ と各項が縦に揃うグリッドで表示。
+                            //   mg が m×9.8 の真上、ma が m×a の真上に来るのでつながりが分かる。
+                            const gridOpen = `<div style="display:inline-grid; grid-template-columns:auto auto auto auto auto; column-gap:9px; row-gap:9px; align-items:center; justify-items:center;">`;
+                            if (problem.formulaType === 'inertiaAccel') {
+                                formulaHTML = gridOpen
+                                    + `<span>a</span><span>＝</span><span>( F − mg )</span><span>÷</span><span>m</span>`
+                                    + `<span></span><span>＝</span><span style="white-space:nowrap;">( ${slotSpans[0]} − ${slotSpans[1]} × 9.8 )</span><span>÷</span><span>${slotSpans[2]}</span>`
+                                    + `</div>`;
                             } else {
-                                // inertiaUp
-                                formulaHTML = `F ＝ mg ＋ ma<br><span style="white-space:nowrap;">＝ ${slotSpans[0]} × 9.8 ＋ ${slotSpans[1]} × ${slotSpans[2]}</span>`;
+                                const head3_3 = (problem.formulaType === 'inertiaRope') ? 'S' : 'F';
+                                const op3_3 = (problem.formulaType === 'inertiaDown') ? '−' : '＋';
+                                formulaHTML = gridOpen
+                                    + `<span>${head3_3}</span><span>＝</span><span>mg</span><span>${op3_3}</span><span>ma</span>`
+                                    + `<span></span><span>＝</span><span style="white-space:nowrap;">${slotSpans[0]} × 9.8</span><span>${op3_3}</span><span style="white-space:nowrap;">${slotSpans[1]} × ${slotSpans[2]}</span>`
+                                    + `</div>`;
                             }
                         } else if (is3_4) {
                             // 3-4（運動量と力積）: formulaType ごとに式の形が異なる。各量は 1 スロットのみ。
