@@ -6966,31 +6966,41 @@
                 ],
                 stage0Correct: 'accel',
                 stage1Choices: [
-                    { value: 'inertia',       label: '加速度運動する物体に慣性力を加えて、力のつり合いとして考える問題である' },
+                    { value: 'secondLaw',     label: '力が加わって加速度が生じている、運動の第二法則の問題である' },
                     { value: 'uniformLinear', label: '速度が一定のままで、力が何も加わらない等速直線運動の問題である' },
-                    { value: 'staticBalance', label: '物体が静止していて、力がつり合っている問題である' }
+                    { value: 'balance',       label: '物体に働く力がつり合って静止している、力のつり合いの問題である' }
                 ],
-                stage1Correct: 'inertia',
+                stage1Correct: 'secondLaw',
                 derivationSteps: [
                     {
-                        prompt: '物体は上向きの力 F ＝ 170 N で引き上げられ、上向きに加速します。加速度と逆向きにつけ加える慣性力（見かけの力）の向きはどちらですか。',
+                        prompt: '物体は上向きの力 F ＝ 170 N で引き上げられ、上向きに加速します。物体にはたらく力は、上向きの引き上げる力 F と下向きの重力 mg です。物体を上向きに動かす力は、この 2 つをどう計算したものですか。',
                         choices: [
-                            { value: 'down', label: '下向き（加速度が上向きなので、慣性力はその逆の下向き）' },
-                            { value: 'up',   label: '上向き（引き上げる力と同じ上向き）' },
-                            { value: 'none', label: '慣性力は働かない' }
+                            { value: 'fminusmg', label: 'F − mg（上向きの F から下向きの mg を引いた差）' },
+                            { value: 'fplusmg',  label: 'F ＋ mg（2 つの力を足す）' },
+                            { value: 'mgminusf', label: 'mg − F（下向きの mg から上向きの F を引く）' }
                         ],
-                        correct: 'down',
-                        onCorrectText: '加速度が上向きなので、慣性力（見かけの力）は下向きです。物体には、上向きに F、下向きに重力 mg と慣性力 ma が働いてつり合います。'
+                        correct: 'fminusmg',
+                        onCorrectText: '上向きの F と下向きの mg がはたらき、物体を上向きに動かすのは、その差 F − mg です。'
                     },
                     {
-                        prompt: '上向きの力 F、下向きの重力 mg、下向きの慣性力 ma がつり合うので F ＝ mg ＋ ma。これを ma ＝ F − mg と書きかえ、求めたい加速度 a について解くには、両辺をどうしますか。',
+                        prompt: '上向きに引く力 F と下向きの重力 mg の差（F − mg）が、質量 m の物体に加速度 a を生じさせます。運動方程式（力 ＝ 質量 × 加速度）を式で表すとどれですか。',
+                        choices: [
+                            { value: 'eq',  label: 'F − mg ＝ m × a' },
+                            { value: 'eq2', label: 'F ＋ mg ＝ m × a' },
+                            { value: 'eq3', label: 'F ＝ m × a（重力 mg は考えない）' }
+                        ],
+                        correct: 'eq',
+                        onCorrectText: 'F と mg の差が「質量 × 加速度」に等しいので、運動方程式は F − mg ＝ m × a です。次にこれを加速度 a について解きます。'
+                    },
+                    {
+                        prompt: 'F − mg ＝ m × a を、求めたい加速度 a について解きます。両辺をどうすればよいですか。',
                         choices: [
                             { value: 'divM', label: '両辺を m で割る（→ a ＝ (F − mg) ÷ m）' },
                             { value: 'mulM', label: '両辺に m を掛ける（→ a ＝ (F − mg) × m）' },
                             { value: 'subM', label: '両辺から m を引く（→ a ＝ (F − mg) − m）' }
                         ],
                         correct: 'divM',
-                        onCorrectText: 'ma ＝ F − mg の両辺を m で割ると a ＝ (F − mg) ÷ m。物体を動かす残りの力（F − mg）を質量で割れば加速度が求まります。次に数値を代入して計算します。'
+                        onCorrectText: 'F − mg ＝ m × a の両辺を m で割ると a ＝ (F − mg) ÷ m。F と mg の差を質量で割れば加速度が求まります。次に数値を代入して計算します。'
                     }
                 ],
                 formula: 'a = \\dfrac{F - mg}{m}',
@@ -7101,12 +7111,12 @@
             },
             stage1: {
                 b: '物体には上向きの引き上げる力と下向きの重力がかかっています。この 2 つは大きさが違うので、つり合っていません。物体は加速します。',
-                a: '加速度運動する物体に慣性力を加えると力のつり合いとして考えられます。上向きの力・下向きの重力・下向きの慣性力がつり合うとして式を立てます。',
+                a: '力が加わって加速度が生じる、運動の第二法則の問題です。上向きの力 F と下向きの重力 mg の差（F − mg）が、質量 m × 加速度 a に等しくなります。',
                 c: '教科書49ページ 問32、47ページ「2 運動の第二法則」を確認してください。'
             },
             stage2: {
-                b: '物体を上向きに動かすのは、引き上げる力から重力を引いた「残りの力」です。その残りの力を質量で割れば加速度が出ます。',
-                a: 'F ＝ mg ＋ ma を ma ＝ F − mg と書きかえ、両辺を m で割ると a ＝ (F − mg) ÷ m。重力は mg ＝ 質量 × 9.8 です。',
+                b: '物体を上向きに動かすのは、引き上げる力 F と重力 mg の差（F − mg）です。この差が「質量 × 加速度」に等しい、と式を立てます。',
+                a: '運動方程式は F − mg ＝ m × a。両辺を m で割ると a ＝ (F − mg) ÷ m。重力は mg ＝ 質量 × 9.8 です。',
                 c: '教科書49ページ 問32、47ページ 式(2-35) を確認してください。'
             },
             stage3: {
@@ -18004,15 +18014,16 @@
                 }
 
                 if (kind === 'inertiaRope') {
-                    // 天井ハッチ → ロープ → 青い物体。上向き S=?（赤）、下向き mg（青）、下向き慣性力（グレー破線）。
+                    // 天井ハッチ → ロープ → 物体。上向き張力 S=?（赤）。重力 mg・慣性力 ma はどちらも
+                    //   重心（物体の底面中央）から下向きに描き、ラベルは物体の左右の空きスペースに置く。
                     const ceilY = 22;
                     svg += `<line x1="40" y1="${ceilY}" x2="${W - 40}" y2="${ceilY}" stroke="${GRAY}" stroke-width="2"/>`;
                     for (let hx = 48; hx < W - 40; hx += 16) {
                         svg += `<line x1="${hx}" y1="${ceilY}" x2="${hx - 8}" y2="${ceilY - 9}" stroke="#aaa" stroke-width="1"/>`;
                     }
-                    const bx = 130;
-                    const obW = 70, obH = 56;
-                    const obY = H - obH - 40;
+                    const bx = 142;
+                    const obW = 66, obH = 52;
+                    const obY = H - obH - 60;
                     const obX = bx - obW / 2;
                     // ロープ（天井から物体の上面まで）
                     svg += `<line x1="${bx}" y1="${ceilY}" x2="${bx}" y2="${obY}" stroke="#555" stroke-width="2"/>`;
@@ -18020,24 +18031,23 @@
                     svg += `<rect x="${obX}" y="${obY}" width="${obW}" height="${obH}" rx="6" ry="6" fill="#dce9f7" stroke="${BLUE}" stroke-width="1.8"/>`;
                     svg += `<text x="${bx}" y="${obY + obH / 2 + 4}" text-anchor="middle" font-size="12" fill="${BLUE}" font-weight="700">m ＝ ${problem.m} kg</text>`;
                     // 上向き張力 S=?（赤）：ロープに沿って物体の上から上向き
-                    const sLen = 40;
+                    const sLen = 42;
                     svg += `<line x1="${bx}" y1="${obY}" x2="${bx}" y2="${obY - sLen}" stroke="${RED}" stroke-width="2.8" marker-end="url(#stc33-red)"/>`;
-                    svg += `<text x="${bx + 8}" y="${obY - sLen + 8}" text-anchor="start" font-size="13" fill="${RED}" font-weight="700">S ＝ ?</text>`;
-                    // 下向き mg（青）
-                    const mgLen = 38;
-                    svg += `<line x1="${bx - 14}" y1="${obY + obH}" x2="${bx - 14}" y2="${obY + obH + mgLen}" stroke="${BLUE}" stroke-width="2.4" marker-end="url(#stc33-blue)"/>`;
-                    svg += `<text x="${bx - 20}" y="${obY + obH + mgLen + 2}" text-anchor="end" font-size="12" fill="${BLUE}" font-weight="600">mg ＝ ${problem.mg} N</text>`;
-                    // 下向き慣性力（グレー破線）
-                    const iaLen = 36;
-                    svg += `<line x1="${bx + 16}" y1="${obY + obH}" x2="${bx + 16}" y2="${obY + obH + iaLen}" stroke="${GRAY}" stroke-width="2.2" stroke-dasharray="5,3" marker-end="url(#stc33-gray)"/>`;
-                    svg += `<text x="${bx + 22}" y="${obY + obH + iaLen + 2}" text-anchor="start" font-size="11" fill="${GRAY}" font-weight="600">慣性力 ma（下向き）</text>`;
-                    // 加速度矢印（右、上向き、グレー＝既知）
-                    const aX = W - 56;
-                    const aLen = 52;
+                    svg += `<text x="${bx + 8}" y="${obY - sLen + 9}" text-anchor="start" font-size="13" fill="${RED}" font-weight="700">S ＝ ?</text>`;
+                    // 重力 mg（実線青）・慣性力 ma（破線グレー）：重心（底面中央）から下向き。ラベルは左右の空きへ。
+                    const fmTop = obY + obH;
+                    const mgX = bx - 9, iaX = bx + 9;
+                    svg += `<line x1="${mgX}" y1="${fmTop}" x2="${mgX}" y2="${fmTop + 44}" stroke="${BLUE}" stroke-width="2.6" marker-end="url(#stc33-blue)"/>`;
+                    svg += `<line x1="${iaX}" y1="${fmTop}" x2="${iaX}" y2="${fmTop + 40}" stroke="${GRAY}" stroke-width="2.4" stroke-dasharray="6,3" marker-end="url(#stc33-gray)"/>`;
+                    svg += `<text x="${mgX - 8}" y="${fmTop + 16}" text-anchor="end" font-size="12" fill="${BLUE}" font-weight="600">重力 mg</text>`;
+                    svg += `<text x="${mgX - 8}" y="${fmTop + 31}" text-anchor="end" font-size="11.5" fill="${BLUE}">＝ ${problem.mg} N</text>`;
+                    svg += `<text x="${iaX + 8}" y="${fmTop + 16}" text-anchor="start" font-size="11.5" fill="${GRAY}" font-weight="600">慣性力 ma</text>`;
+                    // 加速度矢印（右上、上向き、グレー＝既知）
+                    const aX = W - 42;
+                    const aLen = 50;
                     const aMidY = obY + obH / 2;
                     svg += `<line x1="${aX}" y1="${aMidY + aLen / 2}" x2="${aX}" y2="${aMidY - aLen / 2}" stroke="${GRAY}" stroke-width="2.4" marker-end="url(#stc33-gray)"/>`;
-                    // ラベルは矢印の左に寄せる（右に出すと viewBox 右端で見切れるため）
-                    svg += `<text x="${aX - 8}" y="${aMidY + 4}" text-anchor="end" font-size="12" fill="${GRAY}" font-weight="600">a ＝ ${problem.a} m/s²</text>`;
+                    svg += `<text x="${aX}" y="${aMidY - aLen / 2 - 7}" text-anchor="middle" font-size="12" fill="${GRAY}" font-weight="600">a ＝ ${problem.a} m/s²</text>`;
                     svg += `</svg></div>`;
                     return svg;
                 }
@@ -18050,7 +18060,7 @@
                 }
                 const bx = 130;
                 const obW = 70, obH = 56;
-                const obY = H - obH - 40;
+                const obY = H - obH - 54;
                 const obX = bx - obW / 2;
                 svg += `<line x1="${bx}" y1="${ceilY}" x2="${bx}" y2="${obY}" stroke="#555" stroke-width="2"/>`;
                 svg += `<rect x="${obX}" y="${obY}" width="${obW}" height="${obH}" rx="6" ry="6" fill="#dce9f7" stroke="${BLUE}" stroke-width="1.8"/>`;
@@ -18062,7 +18072,7 @@
                 // 下向き mg（青・既知）
                 const mgLen2 = 38;
                 svg += `<line x1="${bx}" y1="${obY + obH}" x2="${bx}" y2="${obY + obH + mgLen2}" stroke="${BLUE}" stroke-width="2.4" marker-end="url(#stc33-blue)"/>`;
-                svg += `<text x="${bx + 8}" y="${obY + obH + mgLen2 + 2}" text-anchor="start" font-size="12" fill="${BLUE}" font-weight="600">mg ＝ ${problem.mg} N</text>`;
+                svg += `<text x="${bx + 8}" y="${obY + obH + mgLen2 + 2}" text-anchor="start" font-size="12" fill="${BLUE}" font-weight="600">重力 mg ＝ ${problem.mg} N</text>`;
                 // 加速度矢印（右、上向き、赤＝未知）
                 const aX2 = W - 56;
                 const aLen2 = 52;
