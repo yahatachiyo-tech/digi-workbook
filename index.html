@@ -13532,20 +13532,31 @@
                             //   inertiaAccel        → slots=['F','mA','mB']（F, mA=mg の m, mB=分母 m）
                             //   同じ m カードを 2 スロットに使うため slotToCardRoleMap で照合する。
                             slotToCardRoleMap = problem.substitutions.slotToCardRoleMap || null;
-                            // 1 行目（mg・ma の意味）と 2 行目（代入した式）を、＝ と各項が縦に揃うグリッドで表示。
-                            //   mg が m×9.8 の真上、ma が m×a の真上に来るのでつながりが分かる。
-                            const gridOpen = `<div style="display:inline-grid; grid-template-columns:auto auto auto auto auto; column-gap:9px; row-gap:9px; align-items:center; justify-items:center;">`;
+                            // 1 行で F ＝ m×9.8 ＋ m×a を表示。m×9.8 を枠で囲って「重力 mg」、m×a を枠で囲って「慣性力 ma」と
+                            //   ラベルを付け、各項が何の力かを直感的に示す（2 つの力の合計であることが伝わる）。
+                            //   色は図と統一（重力＝青、慣性力＝グレー）。
+                            const GBLUE_3_3 = '#1e5fa8', GGRAY_3_3 = '#777';
+                            const fbox3_3 = (label, color, inner) =>
+                                `<span style="display:inline-flex; align-items:center; gap:5px; border:1.7px solid ${color}; border-radius:7px; padding:11px 11px 8px; position:relative; white-space:nowrap;"><span style="position:absolute; top:-9px; left:9px; background:#fff; font-size:11px; color:${color}; font-weight:700; padding:0 5px; line-height:1;">${label}</span>${inner}</span>`;
+                            const rowOpen3_3 = `<div style="display:flex; align-items:center; justify-content:center; gap:9px; flex-wrap:wrap; padding-top:6px;">`;
                             if (problem.formulaType === 'inertiaAccel') {
-                                formulaHTML = gridOpen
-                                    + `<span>a</span><span>＝</span><span>( F − mg )</span><span>÷</span><span>m</span>`
-                                    + `<span></span><span>＝</span><span style="white-space:nowrap;">( ${slotSpans[0]} − ${slotSpans[1]} × 9.8 )</span><span>÷</span><span>${slotSpans[2]}</span>`
+                                // a ＝ ( F − mg ) ÷ m。mg ＝ m×9.8 を「重力」枠で示す。
+                                formulaHTML = rowOpen3_3
+                                    + `<span style="font-weight:600;">a ＝ (</span>`
+                                    + slotSpans[0]
+                                    + `<span style="font-weight:600;">−</span>`
+                                    + fbox3_3('重力 mg', GBLUE_3_3, `${slotSpans[1]} <span>× 9.8</span>`)
+                                    + `<span style="font-weight:600;">) ÷</span>`
+                                    + slotSpans[2]
                                     + `</div>`;
                             } else {
                                 const head3_3 = (problem.formulaType === 'inertiaRope') ? 'S' : 'F';
                                 const op3_3 = (problem.formulaType === 'inertiaDown') ? '−' : '＋';
-                                formulaHTML = gridOpen
-                                    + `<span>${head3_3}</span><span>＝</span><span>mg</span><span>${op3_3}</span><span>ma</span>`
-                                    + `<span></span><span>＝</span><span style="white-space:nowrap;">${slotSpans[0]} × 9.8</span><span>${op3_3}</span><span style="white-space:nowrap;">${slotSpans[1]} × ${slotSpans[2]}</span>`
+                                formulaHTML = rowOpen3_3
+                                    + `<span style="font-weight:600;">${head3_3} ＝</span>`
+                                    + fbox3_3('重力 mg', GBLUE_3_3, `${slotSpans[0]} <span>× 9.8</span>`)
+                                    + `<span style="font-weight:600;">${op3_3}</span>`
+                                    + fbox3_3('慣性力 ma', GGRAY_3_3, `${slotSpans[1]} <span>× ${slotSpans[2]}</span>`)
                                     + `</div>`;
                             }
                         } else if (is3_4) {
@@ -13685,7 +13696,7 @@
                                 <div style="margin-bottom:14px; font-size:13px; color:#555;">
                                     下の<strong>数値カード</strong>をタップしてから、式の中の<strong>空欄（黄色）</strong>をタップすると、そこに数値が入ります。${is1_6 ? '<br>1-6 は<strong>2 つの式</strong>に代入します（同じカードを 2 回タップして使えます）。' : ''}${(is1_12 && problem.formulaType === 'centroid') ? '<br>W₂ は<strong>分子と分母の 2 か所</strong>に入ります（同じカードを 2 回タップして使えます）。' : ''}${(is1_12 && problem.formulaType !== 'centroid') ? '<br>面積カード（A₁・A₂・A など）は x の式と y の式の<strong>両方</strong>に入ります。同じカードを何度もタップして使えます。' : ''}${(is2_2 && problem.formulaType === 'sFromV0AT') ? '<br>t は<strong>第1項と第2項の 2 か所</strong>に入ります（同じ t カードを 2 回タップして使えます）。' : ''}${is3_3 ? '<br>m は<strong>2 か所</strong>に入ります（同じ m カードを 2 回タップして使えます）。' : ''}
                                 </div>
-                                <div class="calc-formula-display" style="font-size:22px; ${(is1_6 || is3_3 || (is1_12 && problem.formulaType !== 'centroid')) ? 'flex-direction:column;' : ''}${is2_2 ? 'flex-wrap:wrap; gap:6px;' : ''}">
+                                <div class="calc-formula-display" style="font-size:22px; ${(is1_6 || (is1_12 && problem.formulaType !== 'centroid')) ? 'flex-direction:column;' : ''}${is2_2 ? 'flex-wrap:wrap; gap:6px;' : ''}${is3_3 ? 'overflow:visible;' : ''}">
                                     ${formulaHTML}
                                 </div>
                                 <div style="display:flex; gap:12px; margin-top:16px; flex-wrap:wrap;">
