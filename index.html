@@ -18034,14 +18034,17 @@
                     const sLen = 42;
                     svg += `<line x1="${bx}" y1="${obY}" x2="${bx}" y2="${obY - sLen}" stroke="${RED}" stroke-width="2.8" marker-end="url(#stc33-red)"/>`;
                     svg += `<text x="${bx + 8}" y="${obY - sLen + 9}" text-anchor="start" font-size="13" fill="${RED}" font-weight="700">S ＝ ?</text>`;
-                    // 重力 mg（実線青）・慣性力 ma（破線グレー）：重心（底面中央）から下向き。ラベルは左右の空きへ。
+                    // 重力 mg（実線青）→ 慣性力 ma（破線グレー）を重心の中心線（bx）上に縦に積む。
+                    //   どちらも重心の真下に伸ばし、和 mg＋ma が張力 S とつり合うことを視覚化する。
+                    //   ラベルは重力＝左、慣性力＝右の空きスペースへ。
                     const fmTop = obY + obH;
-                    const mgX = bx - 9, iaX = bx + 9;
-                    svg += `<line x1="${mgX}" y1="${fmTop}" x2="${mgX}" y2="${fmTop + 44}" stroke="${BLUE}" stroke-width="2.6" marker-end="url(#stc33-blue)"/>`;
-                    svg += `<line x1="${iaX}" y1="${fmTop}" x2="${iaX}" y2="${fmTop + 40}" stroke="${GRAY}" stroke-width="2.4" stroke-dasharray="6,3" marker-end="url(#stc33-gray)"/>`;
-                    svg += `<text x="${mgX - 8}" y="${fmTop + 16}" text-anchor="end" font-size="12" fill="${BLUE}" font-weight="600">重力 mg</text>`;
-                    svg += `<text x="${mgX - 8}" y="${fmTop + 31}" text-anchor="end" font-size="11.5" fill="${BLUE}">＝ ${problem.mg} N</text>`;
-                    svg += `<text x="${iaX + 8}" y="${fmTop + 16}" text-anchor="start" font-size="11.5" fill="${GRAY}" font-weight="600">慣性力 ma</text>`;
+                    const mgEnd = fmTop + 30;        // 重力 mg の先端
+                    const iaEnd = mgEnd + 24;        // 慣性力 ma の先端（mg の先端から続けて下へ）
+                    svg += `<line x1="${bx}" y1="${fmTop}" x2="${bx}" y2="${mgEnd}" stroke="${BLUE}" stroke-width="2.8" marker-end="url(#stc33-blue)"/>`;
+                    svg += `<line x1="${bx}" y1="${mgEnd}" x2="${bx}" y2="${iaEnd}" stroke="${GRAY}" stroke-width="2.4" stroke-dasharray="6,3" marker-end="url(#stc33-gray)"/>`;
+                    svg += `<text x="${bx - 12}" y="${fmTop + 13}" text-anchor="end" font-size="12" fill="${BLUE}" font-weight="600">重力 mg</text>`;
+                    svg += `<text x="${bx - 12}" y="${fmTop + 28}" text-anchor="end" font-size="11.5" fill="${BLUE}">＝ ${problem.mg} N</text>`;
+                    svg += `<text x="${bx + 12}" y="${mgEnd + 15}" text-anchor="start" font-size="11.5" fill="${GRAY}" font-weight="600">慣性力 ma</text>`;
                     // 加速度矢印（右上、上向き、グレー＝既知）
                     const aX = W - 42;
                     const aLen = 50;
