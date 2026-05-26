@@ -13537,7 +13537,7 @@
                             //   色は図と統一（重力＝青、慣性力＝グレー）。
                             const GBLUE_3_3 = '#1e5fa8', GGRAY_3_3 = '#777';
                             const fbox3_3 = (label, color, inner) =>
-                                `<span style="display:inline-flex; align-items:center; gap:5px; border:1.7px solid ${color}; border-radius:7px; padding:11px 11px 8px; position:relative; white-space:nowrap;"><span style="position:absolute; top:-9px; left:9px; background:#fff; font-size:11px; color:${color}; font-weight:700; padding:0 5px; line-height:1;">${label}</span>${inner}</span>`;
+                                `<span style="display:inline-flex; align-items:center; gap:5px; border:1.7px solid ${color}; border-radius:7px; padding:11px 11px 8px; position:relative; white-space:nowrap;"><span style="position:absolute; top:-9px; left:50%; transform:translateX(-50%); background:#fff; font-size:11px; color:${color}; font-weight:700; padding:0 5px; line-height:1; white-space:nowrap;">${label}</span>${inner}</span>`;
                             const rowOpen3_3 = `<div style="display:flex; align-items:center; justify-content:center; gap:9px; flex-wrap:wrap; padding-top:6px;">`;
                             if (problem.formulaType === 'inertiaAccel') {
                                 // a ＝ ( F − mg ) ÷ m。mg ＝ m×9.8 を「重力」枠で示す。
@@ -13694,7 +13694,7 @@
                             <div class="calc-stage-container">
                                 <div class="calc-question-text">それぞれの数値を、式の正しい場所に入れよう。</div>
                                 <div style="margin-bottom:14px; font-size:13px; color:#555;">
-                                    下の<strong>数値カード</strong>をタップしてから、式の中の<strong>空欄（黄色）</strong>をタップすると、そこに数値が入ります。${is1_6 ? '<br>1-6 は<strong>2 つの式</strong>に代入します（同じカードを 2 回タップして使えます）。' : ''}${(is1_12 && problem.formulaType === 'centroid') ? '<br>W₂ は<strong>分子と分母の 2 か所</strong>に入ります（同じカードを 2 回タップして使えます）。' : ''}${(is1_12 && problem.formulaType !== 'centroid') ? '<br>面積カード（A₁・A₂・A など）は x の式と y の式の<strong>両方</strong>に入ります。同じカードを何度もタップして使えます。' : ''}${(is2_2 && problem.formulaType === 'sFromV0AT') ? '<br>t は<strong>第1項と第2項の 2 か所</strong>に入ります（同じ t カードを 2 回タップして使えます）。' : ''}${is3_3 ? '<br>m は<strong>2 か所</strong>に入ります（同じ m カードを 2 回タップして使えます）。' : ''}
+                                    下の<strong>数値カード</strong>をタップしてから、式の中の<strong>空欄（黄色）</strong>をタップすると、そこに数値が入ります。${is1_6 ? '<br>1-6 は<strong>2 つの式</strong>に代入します（同じカードを 2 回タップして使えます）。' : ''}${(is1_12 && problem.formulaType === 'centroid') ? '<br>W₂ は<strong>分子と分母の 2 か所</strong>に入ります（同じカードを 2 回タップして使えます）。' : ''}${(is1_12 && problem.formulaType !== 'centroid') ? '<br>面積カード（A₁・A₂・A など）は x の式と y の式の<strong>両方</strong>に入ります。同じカードを何度もタップして使えます。' : ''}${(is2_2 && problem.formulaType === 'sFromV0AT') ? '<br>t は<strong>第1項と第2項の 2 か所</strong>に入ります（同じ t カードを 2 回タップして使えます）。' : ''}
                                 </div>
                                 <div class="calc-formula-display" style="font-size:22px; ${(is1_6 || (is1_12 && problem.formulaType !== 'centroid')) ? 'flex-direction:column;' : ''}${is2_2 ? 'flex-wrap:wrap; gap:6px;' : ''}${is3_3 ? 'overflow:visible;' : ''}">
                                     ${formulaHTML}
