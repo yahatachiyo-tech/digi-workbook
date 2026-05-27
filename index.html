@@ -8626,6 +8626,253 @@
                         hint_c: '教科書 31 ページ「偶力」、式 (2-13) M = Fd、図 2-22(a) を確認してください。'
                     }
                 ]
+            },
+            // ============================================================
+            // 1 学期期末考査 対策（R07 過去問対策プリント 1・2 を忠実に再現）
+            //   範囲: 2 節 運動（計算）＋ 1 節 復習（モーメント・つり合い・重心）＋ 1〜3 節 用語。
+            //   問1〜4: 運動の反復計算（composite, 各 5 小問）／問5: モーメント／
+            //   問6: ベルクランクのつり合い（逆算）／問7: L 字図形の重心／問8〜13: 用語穴埋め。
+            //   ※ 等速直線運動の文脈では「初速度」を使わず「一定の速さ」と表記（§17.2 言葉づかい）。
+            // ============================================================
+            'final-1': {
+                meta: {
+                    title: '1 学期期末考査',
+                    titleShort: '1学期期末考査',
+                    scope: '2 節 運動・3 節 力と運動の法則（1 節の復習を含む）',
+                    year: '令和 8 年度',
+                    paperHeader: {
+                        prepTitle: '機械設計　令和 8 年度　1 学期期末考査対策プリント',
+                        examTitlePrefix: '機械設計　令和 8 年度　1 学期期末考査',
+                        classLabel: '1G'
+                    },
+                    instructions: '※導出過程も含めて計算結果が小数点以下第 2 位以上になる場合、小数点以下第 2 位を四捨五入して小数点以下第 1 位までで答えること。'
+                },
+                problems: [
+                    // 問1: 等速直線運動の変位 s = v × t（2-1）/ 知・技
+                    {
+                        id: 'fp1-q1', num: 1, category: 'knowledge', pattern: 'composite',
+                        unitTags: ['2-1'], points: 10,
+                        title: '次の各問いに答えなさい。',
+                        subQuestions: [
+                            { sub: '(1)', title: '一定の速さ 1 m/s で 19 秒間進んだときの変位 [m] を求めよ。',  expected: 19,  unit: 'm', points: 2, workflow: ['$s = v \\times t = 1 \\times 19 = 19$ [m]'] },
+                            { sub: '(2)', title: '一定の速さ 13 m/s で 13 秒間進んだときの変位 [m] を求めよ。', expected: 169, unit: 'm', points: 2, workflow: ['$s = v \\times t = 13 \\times 13 = 169$ [m]'] },
+                            { sub: '(3)', title: '一定の速さ 3 m/s で 14 秒間進んだときの変位 [m] を求めよ。',  expected: 42,  unit: 'm', points: 2, workflow: ['$s = v \\times t = 3 \\times 14 = 42$ [m]'] },
+                            { sub: '(4)', title: '一定の速さ 10 m/s で 8 秒間進んだときの変位 [m] を求めよ。',  expected: 80,  unit: 'm', points: 2, workflow: ['$s = v \\times t = 10 \\times 8 = 80$ [m]'] },
+                            { sub: '(5)', title: '一定の速さ 16 m/s で 8 秒間進んだときの変位 [m] を求めよ。',  expected: 128, unit: 'm', points: 2, workflow: ['$s = v \\times t = 16 \\times 8 = 128$ [m]'] }
+                        ],
+                        hint_b: '「一定の速さ（等速）」で進む運動です。速さと時間から、進んだ距離（変位）を求めます。',
+                        hint_a: '等速直線運動では 変位 ＝ 速度 × 時間。s ＝ v × t に数値を入れて計算します。',
+                        hint_c: '教科書 40〜41 ページ「変位と速度」を確認してください。'
+                    },
+                    // 問2: 加速度 a = (v − v₀) ÷ t（2-2）/ 知・技
+                    {
+                        id: 'fp1-q2', num: 2, category: 'knowledge', pattern: 'composite',
+                        unitTags: ['2-2'], points: 10,
+                        title: '次の各問いに答えなさい。',
+                        subQuestions: [
+                            { sub: '(1)', title: '初速度 17 m/s の物体が 7 秒後に速度 31 m/s になったときの加速度 [m/s²] を求めよ。', expected: 2,  unit: 'm/s²', points: 2, workflow: ['$a = \\dfrac{v - v_0}{t} = \\dfrac{31 - 17}{7} = \\dfrac{14}{7} = 2$ [m/s²]'] },
+                            { sub: '(2)', title: '初速度 13 m/s の物体が 2 秒後に速度 21 m/s になったときの加速度 [m/s²] を求めよ。', expected: 4,  unit: 'm/s²', points: 2, workflow: ['$a = \\dfrac{v - v_0}{t} = \\dfrac{21 - 13}{2} = \\dfrac{8}{2} = 4$ [m/s²]'] },
+                            { sub: '(3)', title: '初速度 17 m/s の物体が 3 秒後に速度 20 m/s になったときの加速度 [m/s²] を求めよ。', expected: 1,  unit: 'm/s²', points: 2, workflow: ['$a = \\dfrac{v - v_0}{t} = \\dfrac{20 - 17}{3} = \\dfrac{3}{3} = 1$ [m/s²]'] },
+                            { sub: '(4)', title: '初速度 13 m/s の物体が 3 秒後に速度 10 m/s になったときの加速度 [m/s²] を求めよ。', expected: -1, unit: 'm/s²', points: 2, workflow: ['$a = \\dfrac{v - v_0}{t} = \\dfrac{10 - 13}{3} = \\dfrac{-3}{3} = -1$ [m/s²]'] },
+                            { sub: '(5)', title: '初速度 14 m/s の物体が 7 秒後に速度 49 m/s になったときの加速度 [m/s²] を求めよ。', expected: 5,  unit: 'm/s²', points: 2, workflow: ['$a = \\dfrac{v - v_0}{t} = \\dfrac{49 - 14}{7} = \\dfrac{35}{7} = 5$ [m/s²]'] }
+                        ],
+                        hint_b: '速度が時間とともに変化しています。はじめの速度（初速度）とあとの速度、かかった時間に注目します。',
+                        hint_a: '加速度 ＝ （あとの速度 − はじめの速度） ÷ 時間。a ＝ (v − v₀) ÷ t です。速度が減るときは負の値になります。',
+                        hint_c: '教科書 41〜42 ページ「加速度」を確認してください。'
+                    },
+                    // 問3: 速度 v = v₀ + a t（2-2）/ 知・技
+                    {
+                        id: 'fp1-q3', num: 3, category: 'knowledge', pattern: 'composite',
+                        unitTags: ['2-2'], points: 10,
+                        title: '次の各問いに答えなさい。',
+                        subQuestions: [
+                            { sub: '(1)', title: '初速度 5 m/s から加速度 3 m/s² で 8 秒間運動したときの速度 [m/s] を求めよ。',  expected: 29, unit: 'm/s', points: 2, workflow: ['$v = v_0 + a t = 5 + 3 \\times 8 = 5 + 24 = 29$ [m/s]'] },
+                            { sub: '(2)', title: '初速度 7 m/s から加速度 −1 m/s² で 6 秒間運動したときの速度 [m/s] を求めよ。', expected: 1,  unit: 'm/s', points: 2, workflow: ['$v = v_0 + a t = 7 + (-1) \\times 6 = 7 - 6 = 1$ [m/s]'] },
+                            { sub: '(3)', title: '初速度 10 m/s から加速度 5 m/s² で 7 秒間運動したときの速度 [m/s] を求めよ。', expected: 45, unit: 'm/s', points: 2, workflow: ['$v = v_0 + a t = 10 + 5 \\times 7 = 10 + 35 = 45$ [m/s]'] },
+                            { sub: '(4)', title: '初速度 20 m/s から加速度 2 m/s² で 4 秒間運動したときの速度 [m/s] を求めよ。', expected: 28, unit: 'm/s', points: 2, workflow: ['$v = v_0 + a t = 20 + 2 \\times 4 = 20 + 8 = 28$ [m/s]'] },
+                            { sub: '(5)', title: '初速度 15 m/s から加速度 5 m/s² で 6 秒間運動したときの速度 [m/s] を求めよ。', expected: 45, unit: 'm/s', points: 2, workflow: ['$v = v_0 + a t = 15 + 5 \\times 6 = 15 + 30 = 45$ [m/s]'] }
+                        ],
+                        hint_b: '初速度から、一定の加速度で時間が経過したあとの速度を求めます。',
+                        hint_a: '速度 ＝ 初速度 ＋ 加速度 × 時間。v ＝ v₀ ＋ a × t です。加速度が負のときは引き算になります。',
+                        hint_c: '教科書 41〜42 ページ「等加速度運動」を確認してください。'
+                    },
+                    // 問4: 変位 s = v₀ t + ½ a t²（2-2）/ 知・技
+                    {
+                        id: 'fp1-q4', num: 4, category: 'knowledge', pattern: 'composite',
+                        unitTags: ['2-2'], points: 10,
+                        title: '次の各問いに答えなさい。',
+                        subQuestions: [
+                            { sub: '(1)', title: '初速度 9 m/s から加速度 3 m/s² で 9 秒間運動したときの変位 [m] を求めよ。',  expected: 202.5, unit: 'm', points: 2, workflow: ['$s = v_0 t + \\dfrac{1}{2} a t^2 = 9 \\times 9 + \\dfrac{1}{2} \\times 3 \\times 9^2 = 81 + 121.5 = 202.5$ [m]'] },
+                            { sub: '(2)', title: '初速度 10 m/s から加速度 3 m/s² で 7 秒間運動したときの変位 [m] を求めよ。', expected: 143.5, unit: 'm', points: 2, workflow: ['$s = v_0 t + \\dfrac{1}{2} a t^2 = 10 \\times 7 + \\dfrac{1}{2} \\times 3 \\times 7^2 = 70 + 73.5 = 143.5$ [m]'] },
+                            { sub: '(3)', title: '初速度 1 m/s から加速度 1 m/s² で 6 秒間運動したときの変位 [m] を求めよ。',  expected: 24,  unit: 'm', points: 2, workflow: ['$s = v_0 t + \\dfrac{1}{2} a t^2 = 1 \\times 6 + \\dfrac{1}{2} \\times 1 \\times 6^2 = 6 + 18 = 24$ [m]'] },
+                            { sub: '(4)', title: '初速度 3 m/s から加速度 1 m/s² で 6 秒間運動したときの変位 [m] を求めよ。',  expected: 36,  unit: 'm', points: 2, workflow: ['$s = v_0 t + \\dfrac{1}{2} a t^2 = 3 \\times 6 + \\dfrac{1}{2} \\times 1 \\times 6^2 = 18 + 18 = 36$ [m]'] },
+                            { sub: '(5)', title: '初速度 4 m/s から加速度 4 m/s² で 6 秒間運動したときの変位 [m] を求めよ。',  expected: 96,  unit: 'm', points: 2, workflow: ['$s = v_0 t + \\dfrac{1}{2} a t^2 = 4 \\times 6 + \\dfrac{1}{2} \\times 4 \\times 6^2 = 24 + 72 = 96$ [m]'] }
+                        ],
+                        hint_b: '初速度をもち、一定の加速度で動いた間に進んだ距離（変位）を求めます。',
+                        hint_a: '変位 ＝ 初速度 × 時間 ＋ (1/2) × 加速度 × 時間²。s ＝ v₀t ＋ ½at² です。',
+                        hint_c: '教科書 41〜42 ページ「等加速度運動」を確認してください。'
+                    },
+                    // 問5: 力のモーメント M = F × r（1-8 復習）/ 知・技
+                    {
+                        id: 'fp1-q5', num: 5, category: 'knowledge', pattern: 'calc-moment',
+                        unitTags: ['1-8'], points: 6,
+                        titleTemplate: '下図で、r = {r} mm、F = {F} N のとき、点 O のまわりの力 F のモーメントを求めよ。',
+                        figureSvg: 'wrenchOnBolt',
+                        params: { r: 300, F: 150 },
+                        expected: { M: 45000 },
+                        unit: 'N·mm',
+                        workflow: ['$M = F \\cdot r = 150 \\times 300 = 45000$ [N·mm]'],
+                        answerLabels: ['M'],
+                        hint_b: '点 O から力 F の作用線までの距離 r と、力 F の大きさに注目します。',
+                        hint_a: 'モーメント ＝ 力 × 距離。M ＝ F × r です。単位は N·mm。',
+                        hint_c: '教科書 28〜29 ページ「力のモーメント」を確認してください。'
+                    },
+                    // 問6: ベルクランクのつり合い（モーメントのつり合いから逆算）（1-11 復習）/ 思・判・表
+                    {
+                        id: 'fp1-q6', num: 6, category: 'thinking', pattern: 'calc-applied',
+                        unitTags: ['1-11'], points: 8,
+                        title: '下図は、点 O で支えられたベルクランクである。点 A に 60 N の力が水平に働いている。図のようにつり合うとき、OB に垂直な力 F [N] を求めよ。',
+                        figureSvg: 'bellCrank',
+                        params: { Fa: 60, la: 150, lb: 200 },
+                        answerSlots: [
+                            { key: 'F', label: '力 F', unit: 'N', expected: 45, tolerance: 0.5 }
+                        ],
+                        workflow: [
+                            '点 A の力のモーメント $M_A = 60 \\times 150 = 9000$ [N·mm]',
+                            'つり合うには、点 B の力のモーメントが $M_A$ と等しければよい。$F \\times 200 = 9000$',
+                            '$F = \\dfrac{9000}{200} = 45$ [N]'
+                        ],
+                        hint_b: 'O のまわりで回転しないように、2 つの力のモーメントがつり合っています。点 A の力 60 N とうでの長さ 150 mm に注目します。',
+                        hint_a: 'つり合いでは「左回りのモーメント ＝ 右回りのモーメント」。60 × 150 ＝ F × 200 を F について解きます。',
+                        hint_c: '教科書 33〜34 ページ「作用点の異なる力のつり合い」を確認してください。'
+                    },
+                    // 問7: L 字平面図形の重心（1-12 復習）/ 思・判・表
+                    {
+                        id: 'fp1-q7', num: 7, category: 'thinking', pattern: 'composite',
+                        unitTags: ['1-12'], points: 10,
+                        title: '下図のような平面図形の重心を求めよ。（単位 mm）',
+                        figureSvg: 'lShapeCentroid',
+                        params: { topW: 120, totalH: 250, bottomW: 260, bottomH: 100 },
+                        subQuestions: [
+                            { sub: '(1)', title: '重心の x 座標 x̄ [mm] を求めよ。', expected: 101.4, unit: 'mm', tolerance: 0.6, points: 5,
+                              workflow: ['下の長方形（260×100）＝面積 26000・重心 (130, 50)、左上の長方形（120×150）＝面積 18000・重心 (60, 175) に分ける。',
+                                         '$\\bar{x} = \\dfrac{26000 \\times 130 + 18000 \\times 60}{26000 + 18000} = \\dfrac{4460000}{44000} \\fallingdotseq 101.4$ [mm]'] },
+                            { sub: '(2)', title: '重心の y 座標 ȳ [mm] を求めよ。', expected: 101.1, unit: 'mm', tolerance: 0.6, points: 5,
+                              workflow: ['$\\bar{y} = \\dfrac{26000 \\times 50 + 18000 \\times 175}{44000} = \\dfrac{4450000}{44000} \\fallingdotseq 101.1$ [mm]'] }
+                        ],
+                        hint_b: 'L 字形を 2 つの長方形に分けて考えます。それぞれの面積と重心の位置に注目します。',
+                        hint_a: '重心 ＝ （各部分の面積 × その重心位置）の合計 ÷ 全体の面積。x、y それぞれで計算します。',
+                        hint_c: '教科書 35〜38 ページ「重心・図心」を確認してください。'
+                    },
+                    // 問8: 用語（力のつり合い）（プ2問1）/ 知・技
+                    {
+                        id: 'fp2-q1', num: 8, category: 'knowledge', pattern: 'fill-in-blank',
+                        unitTags: ['1-10', '1-11'], points: 6,
+                        title: '次の文章中の（　）に当てはまる適切な語句を答えなさい。',
+                        stems: [
+                            '(1) 多くの力が物体に働いていても運動状態に変化が現れず、全体として力が働かないのと同様の場合がある。このとき、これらの力はたがいに（①）という。',
+                            '(2) 1 点に働く力のつり合いを考える。2 力が同一作用線上にあって、大きさが（②）、向きが逆のときは 2 力がつり合う。',
+                            '(3) 作用点の異なる力のつり合いの条件は、① 合力が 0 であること、② 任意の点のまわりのそれぞれの（③）の和が 0 であること、である。'
+                        ],
+                        blanks: [
+                            { id: '①', answer: 'つり合っている' },
+                            { id: '②', answer: '等しく' },
+                            { id: '③', answer: 'モーメント' }
+                        ]
+                    },
+                    // 問9: 用語（重心・図心）（プ2問2）/ 知・技
+                    {
+                        id: 'fp2-q2', num: 9, category: 'knowledge', pattern: 'fill-in-blank',
+                        unitTags: ['1-12'], points: 4,
+                        title: '次の文章中の（　）に当てはまる適切な語句を答えなさい。',
+                        stems: [
+                            '(1) 物体には、その点を支えるとき、物体の姿勢にかかわらず必ずつり合いを保つ点がある。この点を（①）または質量中心という。',
+                            '(2) 平面図形の重心は、（②）ともいう。'
+                        ],
+                        blanks: [
+                            { id: '①', answer: '重心' },
+                            { id: '②', answer: '図心' }
+                        ]
+                    },
+                    // 問10: 用語（運動の表し方）（プ2問3）/ 知・技
+                    {
+                        id: 'fp2-q3', num: 10, category: 'knowledge', pattern: 'fill-in-blank',
+                        unitTags: ['2-1', '2-2'], points: 8,
+                        title: '次の文章中の（　）に当てはまる適切な語句を答えなさい。',
+                        stems: [
+                            '(1) 物体が運動して位置を変えるとき、その位置の変化を（①）という。',
+                            '(2) 単位時間あたりの変位を（②）という。',
+                            '(3) 単位時間の変位のうち、向きを考えない大きさだけの量を（③）という。',
+                            '(4) 速度が一定の直線運動を（④）という。',
+                            '(5) 一定時間ごとの移動距離が大きくなり、速度がしだいに増える。このような単位時間あたりの速度の変化を（⑤）という。',
+                            '(6) 一定の加速度を（⑥）といい、この場合の運動を（⑦）という。',
+                            '(7) 加速度の単位は（⑧）であり、1 秒間に 1 m/s の割合で速度が変わることを表している。'
+                        ],
+                        blanks: [
+                            { id: '①', answer: '変位' },
+                            { id: '②', answer: '速度' },
+                            { id: '③', answer: '速さ' },
+                            { id: '④', answer: '等速直線運動' },
+                            { id: '⑤', answer: '加速度' },
+                            { id: '⑥', answer: '等加速度' },
+                            { id: '⑦', answer: '等加速度直線運動' },
+                            { id: '⑧', answer: 'm/s2' }
+                        ]
+                    },
+                    // 問11: 用語（重力）（プ2問4）/ 知・技
+                    {
+                        id: 'fp2-q4', num: 11, category: 'knowledge', pattern: 'fill-in-blank',
+                        unitTags: ['2-3'], points: 4,
+                        title: '次の文章中の（　）に当てはまる適切な語句を答えなさい。',
+                        stems: [
+                            '(1) 空中に支えられた物体は、支えをはずすと鉛直下方に速度をしだいに増しながら落下する。これは、地球上で物体に引力が働き、一定の加速度を生じるためで、この引力を（①）、加速度を（②）という。'
+                        ],
+                        blanks: [
+                            { id: '①', answer: '重力' },
+                            { id: '②', answer: '重力加速度' }
+                        ]
+                    },
+                    // 問12: 用語（回転運動・向心力）（プ2問5）/ 知・技
+                    {
+                        id: 'fp2-q5', num: 12, category: 'knowledge', pattern: 'fill-in-blank',
+                        unitTags: ['2-4', '2-5'], points: 6,
+                        title: '次の文章中の（　）に当てはまる適切な語句を答えなさい。',
+                        stems: [
+                            '(1) 円周上の速度を（①）といい、向きは円周の接線方向である。',
+                            '(2) 回転運動の速度を単位時間あたりの回転角度で表したものを（②）という。',
+                            '(3) 工作機械やモータなどの回転は、単位時間あたりの回転数 n によって表すことが多い。これを（③）という。',
+                            '(4) 物体が円運動を続けるには、中心 O に向かってたえず引っ張る力が作用していなければならない。この力を（④）という。',
+                            '(5) 向心力とつり合う逆向きの力を（⑤）という。'
+                        ],
+                        blanks: [
+                            { id: '①', answer: '周速度' },
+                            { id: '②', answer: '角速度' },
+                            { id: '③', answer: '回転速度' },
+                            { id: '④', answer: '向心力' },
+                            { id: '⑤', answer: '遠心力' }
+                        ]
+                    },
+                    // 問13: 用語（運動の三法則・慣性力）（プ2問6）/ 知・技
+                    {
+                        id: 'fp2-q6', num: 13, category: 'knowledge', pattern: 'fill-in-blank',
+                        unitTags: ['3-1', '3-3'], points: 8,
+                        title: '次の文章中の（　）に当てはまる適切な語句または式を答えなさい。',
+                        stems: [
+                            '(1) 「物体に外から力が働かないかぎり、その運動の状態はかわらない。」（運動の第一法則）。力が加わらなければ、動いている物体は動き続け、静止している物体は静止し続ける。このような性質を（①）という。',
+                            '(2) 「物体に力が作用したとき、生じる加速度の向きは力の向きと一致し、その大きさは力の大きさに比例する。」（運動の第二法則）。力を F [N]、加速度を a [m/s²]、質量を m [kg] とすると、この関係は式（②）で表される。',
+                            '(3) (2) の式を（③）という。',
+                            '(4) 「物体 A が物体 B に力を働かせたときは、同時に物体 B も物体 A に力を働かせる。その力は大きさが等しく、向きが逆である。」（運動の第三法則）。この法則を（④）の法則ともいう。',
+                            '(5) 電車が動きはじめたとき、電車内の物体は加速度と逆の向きに傾く。これは実際に物体に働く力ではなく、慣性によるみかけの力で、これを（⑤）という。'
+                        ],
+                        blanks: [
+                            { id: '①', answer: '慣性' },
+                            { id: '②', answer: 'F=ma' },
+                            { id: '③', answer: '運動方程式' },
+                            { id: '④', answer: '作用反作用' },
+                            { id: '⑤', answer: '慣性力' }
+                        ]
+                    }
+                ]
             }
         };
 
@@ -11049,6 +11296,67 @@
                 </svg>`;
             }
 
+            // 期末問6: ベルクランク（R07 図2-26）。支点 O から上にうで OA（長さ la）、
+            //   右にうで OB（長さ lb）。A に水平左向きの力 Fa、B に下向きの力 F（求める量）。
+            //   モーメントのつり合い Fa×la ＝ F×lb から F を求める問題の図。
+            _svgBellCrank(p) {
+                const W = 240, H = 200;
+                const ox = 95, oy = 135;          // 支点 O
+                const ay = oy - 80;               // A は O の真上（OA を 80px で表現）
+                const bx = ox + 105;              // B は O の右（OB を 105px で表現）
+                return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" class="figure-svg">
+                    <defs>
+                        <marker id="mbcR" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="#d23a2a"/></marker>
+                    </defs>
+                    <!-- うで OA（上）・OB（右）: 太いグレー -->
+                    <path d="M ${ox} ${ay} L ${ox} ${oy} L ${bx} ${oy}" stroke="#666" stroke-width="6" fill="none" stroke-linecap="round" opacity="0.45"/>
+                    <!-- 60 N（A で水平左向き） -->
+                    <line x1="${ox}" y1="${ay}" x2="${ox - 55}" y2="${ay}" stroke="#d23a2a" stroke-width="2.2" marker-end="url(#mbcR)"/>
+                    <text x="${ox - 55}" y="${ay - 6}" font-size="9pt" fill="#d23a2a">${p.params.Fa} N</text>
+                    <!-- F（B で下向き、求める量） -->
+                    <line x1="${bx}" y1="${oy}" x2="${bx}" y2="${oy + 48}" stroke="#d23a2a" stroke-width="2.2" marker-end="url(#mbcR)"/>
+                    <text x="${bx + 5}" y="${oy + 44}" font-size="9pt" fill="#d23a2a">F = ？</text>
+                    <!-- 点 O,A,B + うで長 -->
+                    <circle cx="${ox}" cy="${oy}" r="3.2" fill="none" stroke="#000" stroke-width="1.4"/>
+                    <text x="${ox - 15}" y="${oy + 14}" font-size="10pt">O</text>
+                    <circle cx="${ox}" cy="${ay}" r="2" fill="#000"/>
+                    <text x="${ox + 5}" y="${ay - 4}" font-size="10pt">A</text>
+                    <circle cx="${bx}" cy="${oy}" r="2" fill="#000"/>
+                    <text x="${bx - 2}" y="${oy - 8}" font-size="10pt">B</text>
+                    <text x="${ox + 5}" y="${(ay + oy) / 2}" font-size="9pt">${p.params.la}</text>
+                    <text x="${(ox + bx) / 2 - 8}" y="${oy + 15}" font-size="9pt">${p.params.lb}</text>
+                </svg>`;
+            }
+
+            // 期末問7: L 字平面図形（R07 図2-32）。原点 O を左下に、x 右・y 上。
+            //   頂点（mm, y上）: (0,0)(bottomW,0)(bottomW,bottomH)(topW,bottomH)(topW,totalH)(0,totalH)。
+            _svgLShapeCentroid(p) {
+                const W = 260, H = 230;
+                const ox = 46, oy = 196;          // 原点 O（左下）
+                const sc = 0.60;                  // mm → px
+                const tW = p.params.topW, tH = p.params.totalH, bW = p.params.bottomW, bH = p.params.bottomH;
+                const X = (mm) => ox + mm * sc;
+                const Y = (mm) => oy - mm * sc;
+                const pts = `${X(0)},${Y(0)} ${X(bW)},${Y(0)} ${X(bW)},${Y(bH)} ${X(tW)},${Y(bH)} ${X(tW)},${Y(tH)} ${X(0)},${Y(tH)}`;
+                return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" class="figure-svg">
+                    <defs>
+                        <marker id="mlcX" markerWidth="7" markerHeight="6" refX="6" refY="3" orient="auto"><polygon points="0,0 7,3 0,6" fill="#c0392b"/></marker>
+                    </defs>
+                    <polygon points="${pts}" fill="#cfe0f0" stroke="#1e5fa8" stroke-width="1.6"/>
+                    <!-- 座標軸（赤） -->
+                    <line x1="${ox}" y1="${oy}" x2="${ox}" y2="${Y(tH) - 18}" stroke="#c0392b" stroke-width="1.4" marker-end="url(#mlcX)"/>
+                    <line x1="${ox}" y1="${oy}" x2="${X(bW) + 18}" y2="${oy}" stroke="#c0392b" stroke-width="1.4" marker-end="url(#mlcX)"/>
+                    <text x="${ox - 13}" y="${oy + 14}" font-size="10pt">O</text>
+                    <text x="${X(bW) + 20}" y="${oy + 4}" font-size="10pt" fill="#c0392b">x</text>
+                    <text x="${ox - 5}" y="${Y(tH) - 22}" font-size="10pt" fill="#c0392b">y</text>
+                    <!-- 寸法（mm） -->
+                    <text x="${(X(0) + X(tW)) / 2 - 9}" y="${Y(tH) - 5}" font-size="9pt">${tW}</text>
+                    <text x="${ox - 32}" y="${(Y(0) + Y(tH)) / 2}" font-size="9pt">${tH}</text>
+                    <text x="${(X(0) + X(bW)) / 2 - 9}" y="${oy + 16}" font-size="9pt">${bW}</text>
+                    <text x="${X(bW) + 4}" y="${(Y(0) + Y(bH)) / 2}" font-size="9pt">${bH}</text>
+                </svg>`;
+            }
+
             // ==================================================================
             // 考査対策モード（仕様書 §11.2 自習モード）
             // ==================================================================
@@ -11338,6 +11646,8 @@
                         case 'handleWheelCouple':     return app._svgHandleWheelCouple(p);
                         case 'inclineForceTriangle':  return app._svgInclineForceTriangle(p);
                         case 'lShapeFrame':           return app._svgLShapeFrame(p);
+                        case 'bellCrank':             return app._svgBellCrank(p);
+                        case 'lShapeCentroid':        return app._svgLShapeCentroid(p);
                         case 'rightTriangleResultant': return app._svgRightTriangleResultant(p);
                         default: return '';
                     }
@@ -11907,11 +12217,15 @@
                 }
                 if (problem.pattern === 'fill-in-blank') {
                     let allOk = true;
+                    // 表記ゆれを吸収して比較する。NFKC 正規化（全角→半角、上付き ² → 2、＝ → = 等）＋
+                    //   空白除去＋小文字化。これにより「m/s²」「Ｆ＝ｍａ」「F = ma」「f=ma」等も
+                    //   正答（m/s2 / F=ma）と一致扱いになる。日本語の語句解答（空白・英字なし）には影響しない。
+                    const normBlank = (s) => (s || '').normalize('NFKC').replace(/\s+/g, '').toLowerCase().trim();
                     inputs.forEach(inp => {
-                        const expected = (inp.getAttribute('data-correct') || '').trim();
-                        const actual = (inp.value || '').trim();
+                        const expected = normBlank(inp.getAttribute('data-correct'));
+                        const actual = normBlank(inp.value);
                         const key = inp.getAttribute('data-blank-id');
-                        if (actual === expected) correctKeys.push(key);
+                        if (actual !== '' && actual === expected) correctKeys.push(key);
                         else { wrongKeys.push(key); allOk = false; }
                     });
                     return { allCorrect: allOk, wrongKeys, correctKeys,
