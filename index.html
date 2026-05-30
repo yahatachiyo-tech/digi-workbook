@@ -18616,14 +18616,21 @@
                 for (let hx = 28; hx < W - 24; hx += 16) {
                     svg += `<line x1="${hx}" y1="${groundY}" x2="${hx - 8}" y2="${groundY + 9}" stroke="#bbb" stroke-width="1"/>`;
                 }
-                // 台車（箱＋車輪2つ）
-                const cartW = 70, cartH = 34;
+                // 台車（箱＋車輪2つ）。移動前は実線、移動後（s だけ右）は破線・半透明のゴースト。
+                const cartW = 70, cartH = 34, wheelR = 7;
                 const cartX = 70;
                 const cartY = groundY - cartH - 9;
-                svg += `<rect x="${cartX}" y="${cartY}" width="${cartW}" height="${cartH}" rx="5" ry="5" fill="#dce9f7" stroke="#1e5fa8" stroke-width="1.8"/>`;
-                const wheelR = 7;
-                svg += `<circle cx="${cartX + 16}" cy="${groundY - wheelR}" r="${wheelR}" fill="#fff" stroke="#555" stroke-width="1.6"/>`;
-                svg += `<circle cx="${cartX + cartW - 16}" cy="${groundY - wheelR}" r="${wheelR}" fill="#fff" stroke="#555" stroke-width="1.6"/>`;
+                const sPx = 150;   // 移動距離 s の表示長（px）。移動後の台車はこの分だけ右にずらす。
+                const drawCart = (x, ghost) => {
+                    const op = ghost ? 0.4 : 1;
+                    const dash = ghost ? ' stroke-dasharray="5,3"' : '';
+                    return `<rect x="${x}" y="${cartY}" width="${cartW}" height="${cartH}" rx="5" ry="5" fill="#dce9f7" stroke="#1e5fa8" stroke-width="1.8" opacity="${op}"${dash}/>`
+                        + `<circle cx="${x + 16}" cy="${groundY - wheelR}" r="${wheelR}" fill="#fff" stroke="#555" stroke-width="1.6" opacity="${op}"${dash}/>`
+                        + `<circle cx="${x + cartW - 16}" cy="${groundY - wheelR}" r="${wheelR}" fill="#fff" stroke="#555" stroke-width="1.6" opacity="${op}"${dash}/>`;
+                };
+                svg += drawCart(cartX + sPx, true);   // 移動後（破線・半透明）。先に描いて実線を前面に。
+                svg += drawCart(cartX, false);         // 移動前（実線）
+                svg += `<text x="${cartX + sPx + cartW / 2}" y="${cartY - 6}" text-anchor="middle" font-size="10" fill="${GRAY}">動いたあと</text>`;
                 // 力の付け根（台車の右側面の中央）
                 const ax = cartX + cartW;
                 const ay = cartY + cartH / 2;
@@ -18650,7 +18657,7 @@
                     svg += `<text x="${ax + arcR + 8}" y="${ay - 8}" text-anchor="start" font-size="12" fill="${GRAY}" font-weight="600">α</text>`;
                     // 水平移動距離 s の寸法線（床の上）
                     const dimY = groundY + 22;
-                    const sX1 = cartX, sX2 = cartX + 150;
+                    const sX1 = cartX, sX2 = cartX + sPx;
                     svg += `<line x1="${sX1}" y1="${dimY}" x2="${sX2}" y2="${dimY}" stroke="${GRAY}" stroke-width="1.2" marker-start="url(#stc41-grayS)" marker-end="url(#stc41-gray)"/>`;
                     svg += `<text x="${(sX1 + sX2) / 2}" y="${dimY + 14}" text-anchor="middle" font-size="13" fill="${GRAY}" font-weight="600">s</text>`;
                     svg += `</svg></div>`;
@@ -18663,7 +18670,7 @@
                 svg += `<text x="${ax + fLen / 2}" y="${ay - 8}" text-anchor="middle" font-size="14" fill="${RED}" font-weight="700">F</text>`;
                 // 水平移動距離 s の寸法線（床の上）
                 const dimY2 = groundY + 22;
-                const sX1b = cartX, sX2b = cartX + 150;
+                const sX1b = cartX, sX2b = cartX + sPx;
                 svg += `<line x1="${sX1b}" y1="${dimY2}" x2="${sX2b}" y2="${dimY2}" stroke="${GRAY}" stroke-width="1.2" marker-start="url(#stc41-grayS)" marker-end="url(#stc41-gray)"/>`;
                 svg += `<text x="${(sX1b + sX2b) / 2}" y="${dimY2 + 14}" text-anchor="middle" font-size="13" fill="${GRAY}" font-weight="600">s</text>`;
                 svg += `</svg></div>`;
