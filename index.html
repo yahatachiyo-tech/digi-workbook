@@ -8137,7 +8137,7 @@
                     { prompt: '有効仕事 A_E ＝ A − A_C ＝ 1500 J が分かりました。効率は「役に立った仕事 ÷ 与えた仕事 × 100」です（式 2-59）。η を求める式はどれですか。', choices: [ { value: 'AE_div_A', label: 'η ＝ A_E ÷ A × 100（役に立った仕事を、与えた仕事で割って、100 を掛ける）' }, { value: 'AC_div_A', label: 'η ＝ A_C ÷ A × 100（なくなった仕事を、与えた仕事で割る）' }, { value: 'AE_div_A_no100', label: 'η ＝ A_E ÷ A（割るだけ）' } ], correct: 'AE_div_A', onCorrectText: '効率は η ＝ A_E ÷ A × 100。さきほど出した有効仕事 1500 J を、与えた仕事 2000 J で割ると 0.75（1 のうち 0.75）。100 を掛けて 75%。なくなった仕事 A_C を割ってはいけません。これに数値を代入します。' }
                 ],
                 formula: '\\eta = \\dfrac{A_E}{A}\\times 100 \\;\\;(A_E = A - A_C)',
-                substitutions: { slots: ['A', 'A_C'], cards: [ { role: 'A', label: 'A（与えた仕事）', value: 2000, unit: 'J' }, { role: 'A_C', label: 'A_C（なくなった仕事）', value: 500, unit: 'J' } ] }
+                substitutions: { slots: ['A', 'A_C', 'Aden'], slotToCardRoleMap: { A: 'A', A_C: 'A_C', Aden: 'A' }, cards: [ { role: 'A', label: 'A（与えた仕事）', value: 2000, unit: 'J' }, { role: 'A_C', label: 'A_C（なくなった仕事）', value: 500, unit: 'J' } ] }
             },
             {
                 id: 3, formulaType: 'effWinch', m: 800, g: 9.8, v: 0.5, P: 5,
@@ -13653,7 +13653,7 @@
                             p: 'p', Ft: 'Ft', mv0: 'mv₀', dv: 'v₀ − v', m2v2: "m₂v₂'", m1: 'm₁', m2: 'm₂', v2: "v₂'",
                             A: 'A', cosα: 'cos α', b: 'b', D: 'D',
                             'μ₀': 'μ₀', 'μ': 'μ', R: 'R', 'f₀': 'f₀', 'tanρ': 'tan ρ',
-                            A_E: 'A_E', A_C: 'A_C', P_E: 'P_E', P: 'P', eta: 'η' };
+                            A_E: 'A_E', A_C: 'A_C', Aden: 'A', P_E: 'P_E', P: 'P', eta: 'η' };
                         const makeSlotSpan = (role, text) =>
                             `<span class="calc-formula-input empty" data-slot="${role}" id="slot-${role}">${text || slotLabel[role] || role}</span>`;
                         const slotSpans = slots.map(role => makeSlotSpan(role));
@@ -13957,15 +13957,16 @@
                         } else if (is5_2) {
                             // 5-2（機械の効率）: formulaType ごとに式の形が異なる。
                             //   effWork    → η ＝ [A_E] ÷ [A] × 100             （slots: A_E, A）
-                            //   effLoss    → η ＝ ( [A] − [A_C] ) ÷ A × 100      （slots: A, A_C）
-                            //                  ※分母 A は同じ slot を 2 度描くと id が重複するため、
-                            //                    分母側は非対話の静的ラベル「A」で表示する（対話 slot は分子の A・A_C）
+                            //   effLoss    → η ＝ ( [A] − [A_C] ) ÷ [A] × 100    （slots: A, A_C, Aden）
+                            //                  ※分母 A も 1 文字ずつ代入する。同じ A カードを 2 スロット
+                            //                    （分子 A・分母 Aden）に使うため slotToCardRoleMap で照合する。
                             //   effWinch   → η ＝ [m] × [g] × [v] ÷ [P] × 100    （slots: m, g, v, P）
                             //   effReverse → P_E ＝ [η] × [P] ÷ 100              （slots: eta, P）
+                            slotToCardRoleMap = problem.substitutions.slotToCardRoleMap || null;
                             if (problem.formulaType === 'effWork') {
                                 formulaHTML = `η ＝ ${slotSpans[0]} ÷ ${slotSpans[1]} × 100`;
                             } else if (problem.formulaType === 'effLoss') {
-                                formulaHTML = `η ＝ ( ${slotSpans[0]} − ${slotSpans[1]} ) ÷ A × 100`;
+                                formulaHTML = `η ＝ ( ${slotSpans[0]} − ${slotSpans[1]} ) ÷ ${slotSpans[2]} × 100`;
                             } else if (problem.formulaType === 'effWinch') {
                                 formulaHTML = `η ＝ ${slotSpans[0]} × ${slotSpans[1]} × ${slotSpans[2]} ÷ ${slotSpans[3]} × 100`;
                             } else {
@@ -23176,7 +23177,7 @@
                     g: 'g', h: 'h', H: 'H', m: 'm', F: 'F', mA: 'm', mB: 'm', m1: 'm₁', m2: 'm₂', v2: "v₂'",
                     A: 'A', cosα: 'cos α', b: 'b', D: 'D',
                     'μ₀': 'μ₀', 'μ': 'μ', R: 'R', 'f₀': 'f₀', 'tanρ': 'tan ρ',
-                    A_E: 'A_E', A_C: 'A_C', P_E: 'P_E', P: 'P', eta: 'η'
+                    A_E: 'A_E', A_C: 'A_C', Aden: 'A', P_E: 'P_E', P: 'P', eta: 'η'
                 };
                 slotRoles.forEach(r => { slotEls[r] = document.getElementById('slot-' + r); });
                 // Reset visual state
