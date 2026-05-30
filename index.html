@@ -7234,11 +7234,13 @@
                 ],
                 formula: 'v = \\dfrac{Ft + m v_0}{m}',
                 substitutions: {
-                    slots: ['Ft', 'mv0', 'm'],
+                    slots: ['F', 't', 'mA', 'v0', 'mB'],
+                    slotToCardRoleMap: { F: 'F', t: 't', mA: 'm', v0: 'v0', mB: 'm' },
                     cards: [
-                        { role: 'Ft',  label: 'Ft',  value: 20, unit: 'N·s' },
-                        { role: 'mv0', label: 'mv₀', value: 20, unit: 'kg·m/s' },
-                        { role: 'm',   label: 'm',   value: 5,  unit: 'kg' }
+                        { role: 'F',  label: 'F',  value: 10, unit: 'N' },
+                        { role: 't',  label: 't',  value: 2,  unit: 's' },
+                        { role: 'm',  label: 'm',  value: 5,  unit: 'kg' },
+                        { role: 'v0', label: 'v₀', value: 4,  unit: 'm/s' }
                     ]
                 }
             },
@@ -7277,11 +7279,12 @@
                 ],
                 formula: 'F = \\dfrac{m\\,(v_0 - v)}{t}',
                 substitutions: {
-                    slots: ['m', 'dv', 't'],
+                    slots: ['m', 'v0', 'v', 't'],
                     cards: [
-                        { role: 'm',  label: 'm',     value: 0.5,  unit: 'kg' },
-                        { role: 'dv', label: 'v₀ − v', value: 10,   unit: 'm/s' },
-                        { role: 't',  label: 't',     value: 0.01, unit: 's' }
+                        { role: 'm',  label: 'm',  value: 0.5,  unit: 'kg' },
+                        { role: 'v0', label: 'v₀', value: 10,   unit: 'm/s' },
+                        { role: 'v',  label: 'v',  value: 0,    unit: 'm/s' },
+                        { role: 't',  label: 't',  value: 0.01, unit: 's' }
                     ]
                 }
             },
@@ -7340,10 +7343,11 @@
                 ],
                 formula: "v_1' = \\dfrac{m_2\\,v_2'}{m_1}",
                 substitutions: {
-                    slots: ['m2v2', 'm1'],
+                    slots: ['m2', 'v2', 'm1'],
                     cards: [
-                        { role: 'm2v2', label: "m₂v₂'", value: 300, unit: 'kg·m/s' },
-                        { role: 'm1',   label: 'm₁',    value: 150, unit: 'kg' }
+                        { role: 'm2', label: 'm₂',  value: 60,  unit: 'kg' },
+                        { role: 'v2', label: "v₂'", value: 5,   unit: 'm/s' },
+                        { role: 'm1', label: 'm₁',  value: 150, unit: 'kg' }
                     ]
                 }
             }
@@ -13646,7 +13650,7 @@
                             v: 'v', v0: 'v₀', t: 't', t1: 't', t2: 't', a: 'a', s: 's',
                             l: 'l', theta: 'θ', omega: 'ω', pi: 'π', n: 'n',
                             g: 'g', h: 'h', H: 'H', m: 'm', F: 'F', mg: 'mg', ma: 'ma', net: 'F − mg', mA: 'm', mB: 'm',
-                            p: 'p', Ft: 'Ft', mv0: 'mv₀', dv: 'v₀ − v', m2v2: "m₂v₂'", m1: 'm₁',
+                            p: 'p', Ft: 'Ft', mv0: 'mv₀', dv: 'v₀ − v', m2v2: "m₂v₂'", m1: 'm₁', m2: 'm₂', v2: "v₂'",
                             A: 'A', cosα: 'cos α', b: 'b', D: 'D',
                             'μ₀': 'μ₀', 'μ': 'μ', R: 'R', 'f₀': 'f₀', 'tanρ': 'tan ρ',
                             A_E: 'A_E', A_C: 'A_C', P_E: 'P_E', P: 'P', eta: 'η' };
@@ -13855,17 +13859,19 @@
                                     + `</div>`;
                             }
                         } else if (is3_4) {
-                            // 3-4（運動量と力積）: formulaType ごとに式の形が異なる。各量は 1 スロットのみ。
-                            //   momentum        → p ＝ [m] × [v]                     （slots: m, v）
-                            //   impulseV        → v ＝ ( [Ft] ＋ [mv0] ) ÷ [m]        （slots: Ft, mv0, m）
-                            //   impactForce     → F ＝ [m] × [dv] ÷ [t]              （slots: m, dv, t）
-                            //   momentumConserv → v₁' ＝ [m2v2] ÷ [m1]                （slots: m2v2, m1）
+                            // 3-4（運動量と力積）: 一つ一つの文字に代入する（複合量カードにしない）。
+                            //   impulseV は m が 2 か所に入るため slotToCardRoleMap で照合する。
+                            //   momentum        → p ＝ [m] × [v]                         （slots: m, v）
+                            //   impulseV        → v ＝ ( [F]×[t] ＋ [m]×[v₀] ) ÷ [m]      （slots: F,t,mA,v0,mB）
+                            //   impactForce     → F ＝ [m] × ( [v₀] − [v] ) ÷ [t]          （slots: m,v0,v,t）
+                            //   momentumConserv → v₁' ＝ ( [m₂] × [v₂'] ) ÷ [m₁]            （slots: m2,v2,m1）
+                            slotToCardRoleMap = problem.substitutions.slotToCardRoleMap || null;
                             if (problem.formulaType === 'impulseV') {
-                                formulaHTML = `v ＝ ( ${slotSpans[0]} ＋ ${slotSpans[1]} ) ÷ ${slotSpans[2]}`;
+                                formulaHTML = `v ＝ ( ${slotSpans[0]} × ${slotSpans[1]} ＋ ${slotSpans[2]} × ${slotSpans[3]} ) ÷ ${slotSpans[4]}`;
                             } else if (problem.formulaType === 'impactForce') {
-                                formulaHTML = `F ＝ ${slotSpans[0]} × ${slotSpans[1]} ÷ ${slotSpans[2]}`;
+                                formulaHTML = `F ＝ ${slotSpans[0]} × ( ${slotSpans[1]} − ${slotSpans[2]} ) ÷ ${slotSpans[3]}`;
                             } else if (problem.formulaType === 'momentumConserv') {
-                                formulaHTML = `v₁' ＝ ${slotSpans[0]} ÷ ${slotSpans[1]}`;
+                                formulaHTML = `v₁' ＝ ( ${slotSpans[0]} × ${slotSpans[1]} ) ÷ ${slotSpans[2]}`;
                             } else {
                                 // momentum
                                 formulaHTML = `p ＝ ${slotSpans[0]} × ${slotSpans[1]}`;
@@ -14480,19 +14486,19 @@
                         `;
                     } else if (is3_4) {
                         // 3-4（運動量と力積）: formulaType ごとに数値入りの式と単位を切り替える。
-                        //   力積 Ft・はじめの運動量 mv₀・人の運動量 m₂v₂' は derivationStep で先に数値化済み。
+                        //   代入は一つ一つの文字（F・t・m・v₀ 等）で行うので、数値式もその形で表示する。
                         //   答えは小数第 1 位まで（注記ボックス併設、3-3 と同じ）。問3・問4 は大きさ（負号なし）。
                         let formulaLine_3_4, answerLabel_3_4, unitLabel_3_4;
                         if (problem.formulaType === 'impulseV') {
-                            formulaLine_3_4 = `$v = \\dfrac{${problem.Ft} + ${problem.mv0}}{${problem.m}} = {\\color{#c62828}?}\\ \\mathrm{[m/s]}$`;
+                            formulaLine_3_4 = `$v = \\dfrac{${problem.F} \\times ${problem.t} + ${problem.m} \\times ${problem.v0}}{${problem.m}} = {\\color{#c62828}?}\\ \\mathrm{[m/s]}$`;
                             answerLabel_3_4 = 'v ＝';
                             unitLabel_3_4 = '[m/s]';
                         } else if (problem.formulaType === 'impactForce') {
-                            formulaLine_3_4 = `$F = \\dfrac{${problem.m} \\times ${problem.dv}}{${problem.t}} = {\\color{#c62828}?}\\ \\mathrm{[N]}$`;
+                            formulaLine_3_4 = `$F = \\dfrac{${problem.m} \\times (${problem.v0} - ${problem.v})}{${problem.t}} = {\\color{#c62828}?}\\ \\mathrm{[N]}$`;
                             answerLabel_3_4 = 'F ＝';
                             unitLabel_3_4 = '[N]';
                         } else if (problem.formulaType === 'momentumConserv') {
-                            formulaLine_3_4 = `$v_1' = \\dfrac{${problem.m2v2}}{${problem.m1}} = {\\color{#c62828}?}\\ \\mathrm{[m/s]}$`;
+                            formulaLine_3_4 = `$v_1' = \\dfrac{${problem.m2} \\times ${problem.v2}}{${problem.m1}} = {\\color{#c62828}?}\\ \\mathrm{[m/s]}$`;
                             answerLabel_3_4 = "v₁' ＝";
                             unitLabel_3_4 = '[m/s]';
                         } else {
@@ -15159,13 +15165,13 @@
                         //   問3・問4 は大きさで答えるので、負号・逆向きはここで言葉で説明する。
                         let reflFormulaLatex_3_4, reflText_3_4;
                         if (problem.formulaType === 'impulseV') {
-                            reflFormulaLatex_3_4 = `v = \\dfrac{Ft + m v_0}{m} = \\dfrac{${problem.Ft} + ${problem.mv0}}{${problem.m}} = \\dfrac{40}{${problem.m}} = ${problem.expectedV}.0\\ \\mathrm{m/s}`;
+                            reflFormulaLatex_3_4 = `v = \\dfrac{Ft + m v_0}{m} = \\dfrac{${problem.F} \\times ${problem.t} + ${problem.m} \\times ${problem.v0}}{${problem.m}} = \\dfrac{40}{${problem.m}} = ${problem.expectedV}.0\\ \\mathrm{m/s}`;
                             reflText_3_4 = '力 F を時間 t のあいだ加えると、運動量が「力 × 時間（力積）」のぶんだけ増えます。今回は力積 Ft ＝ 20 が加わって、速度が 4 m/s から 8.0 m/s に増えました。同じ力でも、加える時間が長いほど速度の変化は大きくなります。';
                         } else if (problem.formulaType === 'impactForce') {
-                            reflFormulaLatex_3_4 = `F = \\dfrac{m\\,(v_0 - v)}{t} = \\dfrac{${problem.m} \\times ${problem.dv}}{${problem.t}} = \\dfrac{5}{${problem.t}} = ${problem.expectedF}.0\\ \\mathrm{N}`;
+                            reflFormulaLatex_3_4 = `F = \\dfrac{m\\,(v_0 - v)}{t} = \\dfrac{${problem.m} \\times (${problem.v0} - ${problem.v})}{${problem.t}} = \\dfrac{5}{${problem.t}} = ${problem.expectedF}.0\\ \\mathrm{N}`;
                             reflText_3_4 = 'かなづちはわずか 0.01 秒で止まったので、ひじょうに大きな力 500.0 N が働きました。これが衝撃力です。同じ運動量の変化でも、止まるまでの時間が短いほど力は大きくなります（時間 t と力 F は反比例）。クッションや手袋で衝突の時間を長くすると衝撃力を小さくできます。教科書では F ＝ −500 N と出ますが、負号はかなづちの運動と逆向きを表すだけで、くぎはその反作用で 500 N の力を受けます。';
                         } else if (problem.formulaType === 'momentumConserv') {
-                            reflFormulaLatex_3_4 = `v_1' = \\dfrac{m_2\\,v_2'}{m_1} = \\dfrac{${problem.m2v2}}{${problem.m1}} = ${problem.expectedV1}.0\\ \\mathrm{m/s}`;
+                            reflFormulaLatex_3_4 = `v_1' = \\dfrac{m_2\\,v_2'}{m_1} = \\dfrac{${problem.m2} \\times ${problem.v2}}{${problem.m1}} = \\dfrac{300}{${problem.m1}} = ${problem.expectedV1}.0\\ \\mathrm{m/s}`;
                             reflText_3_4 = '飛び込む前、人とボートは静止していて運動量の和は 0 でした。人が前へ飛び出すと、その逆向きにボートが動き、運動量の和は 0 のまま保たれます。だからボートは人と逆向きに 2.0 m/s で進みます。質量の大きいボート（150 kg）は、質量の小さい人（60 kg）より遅く動きます。ロケットがガスを後ろへふき出して前へ進むのも、同じ運動量保存の法則です。';
                         } else {
                             // momentum
@@ -18492,6 +18498,14 @@
                 // ボート（側面の船体）を描く（cx・甲板の高さ deckY・半幅 halfW・色）
                 const drawBoat = (cx, deckY, halfW, fill, stroke) =>
                     `<path d="M ${cx - halfW} ${deckY} L ${cx + halfW} ${deckY} L ${cx + halfW - 12} ${deckY + 9} Q ${cx} ${deckY + 18} ${cx - halfW + 12} ${deckY + 9} Z" fill="${fill}" stroke="${stroke}" stroke-width="1.8"/>`;
+                // 前方（右）へ跳んだ人形（cy＝胴の中心・色）。前傾し、手足を開いて飛び出した姿勢。
+                const drawJumper = (cx, cy, color) =>
+                    `<circle cx="${cx + 9}" cy="${cy - 16}" r="8" fill="${BOATF}" stroke="${color}" stroke-width="1.8"/>`
+                    + `<line x1="${cx + 5}" y1="${cy - 8}" x2="${cx - 3}" y2="${cy + 8}" stroke="${color}" stroke-width="2.4"/>`
+                    + `<line x1="${cx + 4}" y1="${cy - 6}" x2="${cx + 19}" y2="${cy - 12}" stroke="${color}" stroke-width="2"/>`
+                    + `<line x1="${cx + 4}" y1="${cy - 6}" x2="${cx - 9}" y2="${cy - 1}" stroke="${color}" stroke-width="2"/>`
+                    + `<line x1="${cx - 3}" y1="${cy + 8}" x2="${cx + 14}" y2="${cy + 4}" stroke="${color}" stroke-width="2.4"/>`
+                    + `<line x1="${cx - 3}" y1="${cy + 8}" x2="${cx - 16}" y2="${cy + 18}" stroke="${color}" stroke-width="2.4"/>`;
                 // ----- 上段：飛び込む前（静止：人がボートに乗っている） -----
                 svg += `<text x="20" y="22" text-anchor="start" font-size="11" fill="${GRAY}">飛び込む前（静止：運動量の和 0）</text>`;
                 const tCx = 100, tDeckY = 88;
@@ -18507,13 +18521,13 @@
                 const b1x1 = bBoatCx - 46, b1x2 = bBoatCx - 90;
                 svg += `<line x1="${b1x1}" y1="${bDeckY + 8}" x2="${b1x2}" y2="${bDeckY + 8}" stroke="${RED}" stroke-width="2.6" marker-end="url(#stc34-red)"/>`;
                 svg += `<text x="${(b1x1 + b1x2) / 2}" y="${bDeckY + 28}" text-anchor="middle" font-size="12" fill="${RED}" font-weight="700">v₁' ＝ ?</text>`;
-                // 人（右へ・人形）
-                const bPersonCx = 255, bFeetY = H - 24;
-                svg += drawPerson(bPersonCx, bFeetY, BLUE);
+                // 人（右へ前方ジャンプした姿勢）
+                const bPersonCx = 250, bCy = 178;
+                svg += drawJumper(bPersonCx, bCy, BLUE);
                 // 人 右向き v₂'（青・既知）
-                const p2x1 = bPersonCx + 14, p2x2 = Math.min(W - 16, p2x1 + 48);
-                svg += `<line x1="${p2x1}" y1="${bFeetY - 18}" x2="${p2x2}" y2="${bFeetY - 18}" stroke="${BLUE}" stroke-width="2.8" marker-end="url(#stc34-blue)"/>`;
-                svg += `<text x="${(p2x1 + p2x2) / 2}" y="${bFeetY - 26}" text-anchor="middle" font-size="11" fill="${BLUE}" font-weight="600">v₂' ＝ ${problem.v2}</text>`;
+                const p2x1 = bPersonCx + 26, p2x2 = Math.min(W - 16, p2x1 + 46);
+                svg += `<line x1="${p2x1}" y1="${bCy}" x2="${p2x2}" y2="${bCy}" stroke="${BLUE}" stroke-width="2.8" marker-end="url(#stc34-blue)"/>`;
+                svg += `<text x="${(p2x1 + p2x2) / 2}" y="${bCy - 10}" text-anchor="middle" font-size="11" fill="${BLUE}" font-weight="600">v₂' ＝ ${problem.v2}</text>`;
                 svg += `</svg></div>`;
                 return svg;
             }
@@ -23159,7 +23173,7 @@
                     Abx: 'A大', Aby: 'A大', xbs: 'x大', ybs: 'y大', Acx: 'A切', Acy: 'A切', xcs: 'x切', ycs: 'y切', A0x: 'A₀', A0y: 'A₀',
                     v0: 'v₀', t1: 't', t2: 't', a: 'a', s: 's',
                     l: 'l', theta: 'θ', omega: 'ω', pi: 'π', n: 'n',
-                    g: 'g', h: 'h', H: 'H', m: 'm', F: 'F', mA: 'm', mB: 'm',
+                    g: 'g', h: 'h', H: 'H', m: 'm', F: 'F', mA: 'm', mB: 'm', m1: 'm₁', m2: 'm₂', v2: "v₂'",
                     A: 'A', cosα: 'cos α', b: 'b', D: 'D',
                     'μ₀': 'μ₀', 'μ': 'μ', R: 'R', 'f₀': 'f₀', 'tanρ': 'tan ρ',
                     A_E: 'A_E', A_C: 'A_C', P_E: 'P_E', P: 'P', eta: 'η'
