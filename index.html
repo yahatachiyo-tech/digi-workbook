@@ -7224,7 +7224,7 @@
                     {
                         prompt: 'Ft ＝ mv − mv₀ を v について解きます。右辺を mv だけにするために、両辺をどうすればよいですか。',
                         choices: [
-                            { value: 'addBoth', label: '両辺に mv₀ を足す（→ Ft ＋ mv₀ ＝ mv）' },
+                            { value: 'addBoth', label: '両辺に mv₀ を足す' },
                             { value: 'subBoth', label: '両辺から mv₀ を引く' },
                             { value: 'divBoth', label: '両辺を mv₀ で割る' }
                         ],
@@ -7234,22 +7234,12 @@
                     {
                         prompt: 'Ft ＋ mv₀ ＝ mv になりました。求めるのは v なので、両辺をどうすればよいですか。',
                         choices: [
-                            { value: 'divM', label: '両辺を m で割る（→ v ＝ (Ft ＋ mv₀) ÷ m）' },
+                            { value: 'divM', label: '両辺を m で割る' },
                             { value: 'mulM', label: '両辺に m を掛ける' },
                             { value: 'subM', label: '両辺から m を引く' }
                         ],
                         correct: 'divM',
                         onCorrectText: '両辺を m で割ると v ＝ (Ft ＋ mv₀) ÷ m。これで速度 v を求める式が完成しました。'
-                    },
-                    {
-                        prompt: '式に入れる Ft（力積）と mv₀（はじめの運動量）を数値にします。それぞれいくつですか。',
-                        choices: [
-                            { value: 'right', label: 'Ft ＝ 10 × 2 ＝ 20、mv₀ ＝ 5 × 4 ＝ 20' },
-                            { value: 'swap',  label: 'Ft ＝ 5 × 4 ＝ 20、mv₀ ＝ 10 × 2 ＝ 20' },
-                            { value: 'wrong', label: 'Ft ＝ 10 ＋ 2 ＝ 12、mv₀ ＝ 5 ＋ 4 ＝ 9' }
-                        ],
-                        correct: 'right',
-                        onCorrectText: '力積 Ft ＝ 10 × 2 ＝ 20、はじめの運動量 mv₀ ＝ 5 × 4 ＝ 20。あとはこの 2 つを足して質量で割れば速度 v が求まります。'
                     }
                 ],
                 formula: 'v = \\dfrac{Ft + m v_0}{m}',
@@ -7293,16 +7283,6 @@
                         ],
                         correct: 'fdt',
                         onCorrectText: 'Ft ＝ mv − mv₀ の両辺を t で割ると F ＝ (mv − mv₀) ÷ t。運動量の変化を時間で割れば、その間に働いた力が求まります。くぎが受ける力の向きは、かなづちが進む向き（くぎを打ち込む向き）と同じです。ここでは大きさを求めるので、速度の変化は (v₀ − v) を使います。'
-                    },
-                    {
-                        prompt: 'かなづちは止まったので、あとの速度 v ＝ 0。速度の変化は v₀ − v ＝ 10 − 0 ＝ 10 m/s です。力の大きさ F ＝ m × (v₀ − v) ÷ t に入れる 3 つの数値はどれですか。',
-                        choices: [
-                            { value: 'right', label: 'm ＝ 0.5、(v₀ − v) ＝ 10、t ＝ 0.01' },
-                            { value: 'swap',  label: 'm ＝ 0.5、(v₀ − v) ＝ 0.01、t ＝ 10' },
-                            { value: 'add',   label: 'm ＝ 0.5、(v₀ − v) ＝ 10、t ＝ 10 ＋ 0.01' }
-                        ],
-                        correct: 'right',
-                        onCorrectText: '質量 m ＝ 0.5 kg、速度の変化 (v₀ − v) ＝ 10 m/s、時間 t ＝ 0.01 s。これを F ＝ m × (v₀ − v) ÷ t に入れます。'
                     }
                 ],
                 formula: 'F = \\dfrac{m\\,(v_0 - v)}{t}',
@@ -7340,7 +7320,7 @@
                     {
                         prompt: '飛び込む前は、人もボートもいっしょに静止しています。このとき、人とボートを合わせた運動量の和はいくつですか。',
                         choices: [
-                            { value: 'zero', label: '0（どちらも速度が 0 なので、運動量の和も 0）' },
+                            { value: 'zero', label: '0' },
                             { value: 'm2v2', label: '60 × 5 ＝ 300' },
                             { value: 'm1',   label: '150' }
                         ],
@@ -7356,16 +7336,6 @@
                         ],
                         correct: 'right',
                         onCorrectText: '運動量保存 m₁v₁′ ＋ m₂v₂′ ＝ 0 を解くと、ボートの速さの大きさは (m₂ × v₂′) ÷ m₁。人の運動量をボートの質量で割ります。式の上ではマイナス（ボートは人と逆向き）ですが、ここでは速さ＝大きさを求めます。'
-                    },
-                    {
-                        prompt: '式 v₁′ ＝ (m₂ × v₂′) ÷ m₁ に入れる、人の運動量 m₂ × v₂′ を数値にします。いくつですか。',
-                        choices: [
-                            { value: 'right', label: 'm₂ × v₂′ ＝ 60 × 5 ＝ 300' },
-                            { value: 'm1',    label: 'm₂ × v₂′ ＝ 150 × 5 ＝ 750' },
-                            { value: 'add',   label: 'm₂ × v₂′ ＝ 60 ＋ 5 ＝ 65' }
-                        ],
-                        correct: 'right',
-                        onCorrectText: '人の運動量 m₂ × v₂′ ＝ 60 × 5 ＝ 300。これをボートの質量 m₁ ＝ 150 で割れば、ボートの速さが求まります。'
                     }
                 ],
                 formula: "v_1' = \\dfrac{m_2\\,v_2'}{m_1}",
@@ -18471,30 +18441,37 @@
                 }
 
                 if (kind === 'impactForce') {
-                    // 問3: 右向きに進むかなづち（m=0.5 kg, v₀ 矢印・青）がくぎに当たる。
-                    //   当たったあと v=0、接触時間 t=0.01 s。くぎが受ける力 F=?（赤）を左向き矢印で。
+                    // 問3: 右向きに進むかなづち（m, v₀ 矢印・青）が、板に刺さったくぎの頭を軸方向に打つ。
+                    //   くぎは横向き（頭が左・先が右で板に刺さる）に描き、頭を打ち込む様子にする
+                    //   （側面を叩く描き方は誤りなので避ける）。当たったあと v=0、接触時間 t=0.01 s。
+                    //   くぎが受ける力 F=?（赤・右向き＝打ち込む向き）。
                     const midY = H / 2 - 4;
-                    // くぎ（右側・縦線 + 頭）
-                    const nailX = W - 70;
-                    svg += `<line x1="${nailX}" y1="${midY - 30}" x2="${nailX}" y2="${midY + 46}" stroke="${GRAY}" stroke-width="3"/>`;
-                    svg += `<line x1="${nailX - 12}" y1="${midY - 30}" x2="${nailX + 12}" y2="${midY - 30}" stroke="${GRAY}" stroke-width="5"/>`;
-                    svg += `<text x="${nailX}" y="${midY + 62}" text-anchor="middle" font-size="11" fill="${GRAY}">くぎ</text>`;
-                    // かなづち（青箱）
-                    const hmW = 70, hmH = 40;
-                    const hmX = 44, hmY = midY - hmH / 2;
+                    // 接触時間・あとの速度の注記（左上）
+                    svg += `<text x="20" y="22" text-anchor="start" font-size="11" fill="${GRAY}">t ＝ ${problem.t} s で止まる（v ＝ 0）</text>`;
+                    // 板（右端・ハッチの壁）。くぎはこの板に打ち込まれる。
+                    const wallX = W - 44;
+                    svg += `<line x1="${wallX}" y1="${midY - 46}" x2="${wallX}" y2="${midY + 50}" stroke="${GRAY}" stroke-width="3"/>`;
+                    for (let hy = midY - 42; hy < midY + 50; hy += 13) {
+                        svg += `<line x1="${wallX}" y1="${hy}" x2="${wallX + 12}" y2="${hy - 9}" stroke="#bbb" stroke-width="1"/>`;
+                    }
+                    svg += `<text x="${wallX + 4}" y="${midY + 64}" text-anchor="middle" font-size="11" fill="${GRAY}">板</text>`;
+                    // くぎ（横向き）：頭（左の縦バー）＋軸（右へ、板に刺さる）
+                    const headX = wallX - 84;
+                    svg += `<line x1="${headX}" y1="${midY}" x2="${wallX}" y2="${midY}" stroke="${GRAY}" stroke-width="3"/>`;
+                    svg += `<line x1="${headX}" y1="${midY - 13}" x2="${headX}" y2="${midY + 13}" stroke="${GRAY}" stroke-width="5"/>`;
+                    svg += `<text x="${headX}" y="${midY - 22}" text-anchor="middle" font-size="11" fill="${GRAY}">くぎ</text>`;
+                    // かなづち（青箱、左）。くぎの頭に向かって右へ進む。
+                    const hmW = 60, hmH = 40, hmX = 30, hmY = midY - hmH / 2;
                     svg += `<rect x="${hmX}" y="${hmY}" width="${hmW}" height="${hmH}" rx="5" ry="5" fill="#dce9f7" stroke="${BLUE}" stroke-width="1.8"/>`;
                     svg += `<text x="${hmX + hmW / 2}" y="${midY + 4}" text-anchor="middle" font-size="11" fill="${BLUE}" font-weight="700">m ＝ ${problem.m}</text>`;
-                    // v₀ 矢印（右向き・青・既知）
-                    const v0x1 = hmX + hmW + 4, v0x2 = v0x1 + 56;
+                    // v₀ 矢印（右向き・青・既知）：かなづちからくぎの頭へ
+                    const v0x1 = hmX + hmW + 6, v0x2 = headX - 14;
                     svg += `<line x1="${v0x1}" y1="${midY}" x2="${v0x2}" y2="${midY}" stroke="${BLUE}" stroke-width="2.8" marker-end="url(#stc34-blue)"/>`;
                     svg += `<text x="${(v0x1 + v0x2) / 2}" y="${midY - 8}" text-anchor="middle" font-size="11" fill="${BLUE}" font-weight="600">v₀ ＝ ${problem.v0}</text>`;
-                    // 接触時間・あとの速度の注記
-                    svg += `<text x="${hmX}" y="22" text-anchor="start" font-size="11" fill="${GRAY}">t ＝ ${problem.t} s で止まる（v ＝ 0）</text>`;
-                    // くぎが受ける力 F=?（赤・右向き＝くぎを打ち込む向き＝かなづちが進む向きと同じ）。
-                    //   問題は「くぎが受ける力」を問うので、矢印はくぎに食い込む向き（右）で描く。
-                    const fxA = nailX - 54, fxB = nailX - 8;
-                    svg += `<line x1="${fxA}" y1="${midY + 30}" x2="${fxB}" y2="${midY + 30}" stroke="${RED}" stroke-width="2.6" marker-end="url(#stc34-red)"/>`;
-                    svg += `<text x="${(fxA + fxB) / 2}" y="${midY + 48}" text-anchor="middle" font-size="12" fill="${RED}" font-weight="700">F ＝ ?</text>`;
+                    // くぎが受ける力 F=?（赤・右向き＝くぎを打ち込む向き）。頭から右へ、軸の少し下に描く。
+                    const fxA = headX + 2, fxB = headX + 54;
+                    svg += `<line x1="${fxA}" y1="${midY + 26}" x2="${fxB}" y2="${midY + 26}" stroke="${RED}" stroke-width="2.6" marker-end="url(#stc34-red)"/>`;
+                    svg += `<text x="${(fxA + fxB) / 2}" y="${midY + 44}" text-anchor="middle" font-size="12" fill="${RED}" font-weight="700">F ＝ ?</text>`;
                     svg += `</svg></div>`;
                     return svg;
                 }
