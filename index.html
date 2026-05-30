@@ -13586,9 +13586,11 @@
                         if (this.calcInputs.derivStepIndex === undefined) {
                             this.calcInputs.derivStepIndex = 0;
                         }
+                        // 立式ステップが 1 つだけの問題は「一段ずつ」ではなく単一の問いとして見せる（3-2 と同じ）。
+                        const singleStep = (this.getCalcProblem().derivationSteps || []).length <= 1;
                         content.innerHTML = header + staticCanvas1_6 + `
                             <div class="calc-stage-container">
-                                <div class="calc-question-text">使う式を、一段ずつ自分で導いてください。</div>
+                                <div class="calc-question-text">${singleStep ? '使う式を考えてください。' : '使う式を、一段ずつ自分で導いてください。'}</div>
                                 <div id="derivAccordion"></div>
                                 <div id="stageFeedback" style="margin-top:12px; font-size:14px; min-height:20px;"></div>
                             </div>
@@ -13606,9 +13608,11 @@
                         if (this.calcInputs.derivStepIndex === undefined) {
                             this.calcInputs.derivStepIndex = 0;
                         }
+                        // 立式ステップが 1 つだけの問題は「一段ずつ」ではなく単一の問いとして見せる（3-2 と同じ）。
+                        const singleStep = (this.getCalcProblem().derivationSteps || []).length <= 1;
                         content.innerHTML = header + staticCanvas1_6 + `
                             <div class="calc-stage-container">
-                                <div class="calc-question-text">使う式を、一段ずつ自分で導いてください。</div>
+                                <div class="calc-question-text">${singleStep ? '使う式を考えてください。' : '使う式を、一段ずつ自分で導いてください。'}</div>
                                 <div id="derivAccordion"></div>
                                 <div id="stageFeedback" style="margin-top:12px; font-size:14px; min-height:20px;"></div>
                             </div>
@@ -13625,9 +13629,11 @@
                         if (this.calcInputs.derivStepIndex === undefined) {
                             this.calcInputs.derivStepIndex = 0;
                         }
+                        // 立式ステップが 1 つだけの問題は「一段ずつ」ではなく単一の問いとして見せる（3-2 と同じ）。
+                        const singleStep = (this.getCalcProblem().derivationSteps || []).length <= 1;
                         content.innerHTML = header + staticCanvas1_6 + `
                             <div class="calc-stage-container">
-                                <div class="calc-question-text">使う式を、一段ずつ自分で導いてください。</div>
+                                <div class="calc-question-text">${singleStep ? '使う式を考えてください。' : '使う式を、一段ずつ自分で導いてください。'}</div>
                                 <div id="derivAccordion"></div>
                                 <div id="stageFeedback" style="margin-top:12px; font-size:14px; min-height:20px;"></div>
                             </div>
@@ -18505,7 +18511,8 @@
                 const ballR = 16;
                 const boatW = 70, boatH = 14;
                 // ----- 上段：飛び込む前（静止） -----
-                const topY = 44;
+                //   topY は人形の頭が上部キャプション（y=22）と重ならない高さにする。
+                const topY = 60;
                 svg += `<text x="20" y="22" text-anchor="start" font-size="11" fill="${GRAY}">飛び込む前（静止：運動量の和 0）</text>`;
                 const tBoatX = 70;
                 svg += `<rect x="${tBoatX}" y="${topY}" width="${boatW}" height="${boatH}" rx="5" ry="5" fill="#dce9f7" stroke="${BLUE}" stroke-width="1.8"/>`;
