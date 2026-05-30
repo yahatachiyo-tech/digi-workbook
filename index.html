@@ -7177,17 +7177,7 @@
                             { value: 'add', label: 'p ＝ m ＋ v（質量と速度を足す）' }
                         ],
                         correct: 'mul',
-                        onCorrectText: '運動量は p ＝ m × v（質量 × 速度）で求めます。運動量は速度と同じ向きをもつ量で、単位は kg·m/s です。'
-                    },
-                    {
-                        prompt: '式 p ＝ m × v に、質量 m ＝ 30 kg と速度 v ＝ 20 m/s をそのまま入れます。次にすることはどれですか。',
-                        choices: [
-                            { value: 'direct', label: '質量と速度を、変形せずそのまま代入して掛け算する' },
-                            { value: 'solve',  label: 'この式を別の文字について解いてから代入する' },
-                            { value: 'needA',  label: '加速度が足りないので、先に加速度を求める' }
-                        ],
-                        correct: 'direct',
-                        onCorrectText: '質量も速度も数値が分かっているので、p ＝ m × v にそのまま代入して掛け算すれば運動量が求まります。'
+                        onCorrectText: '運動量は p ＝ m × v（質量 × 速度）で求めます。運動量は速度と同じ向きをもつ量で、単位は kg·m/s です。質量も速度も数値が分かっているので、これにそのまま代入して掛け算すれば求まります。'
                     }
                 ],
                 formula: 'p = m\\,v',
@@ -7302,7 +7292,7 @@
                             { value: 'fmv', label: 'F ＝ m × v（運動量がそのまま力になる）' }
                         ],
                         correct: 'fdt',
-                        onCorrectText: 'Ft ＝ mv − mv₀ の両辺を t で割ると F ＝ (mv − mv₀) ÷ t。運動量の変化を時間で割れば、その間に働いた力が求まります。力の向きはかなづちの運動と逆向き（くぎを止める向き）ですが、ここでは大きさを求めるので速度の変化は (v₀ − v) を使います。'
+                        onCorrectText: 'Ft ＝ mv − mv₀ の両辺を t で割ると F ＝ (mv − mv₀) ÷ t。運動量の変化を時間で割れば、その間に働いた力が求まります。くぎが受ける力の向きは、かなづちが進む向き（くぎを打ち込む向き）と同じです。ここでは大きさを求めるので、速度の変化は (v₀ − v) を使います。'
                     },
                     {
                         prompt: 'かなづちは止まったので、あとの速度 v ＝ 0。速度の変化は v₀ − v ＝ 10 − 0 ＝ 10 m/s です。力の大きさ F ＝ m × (v₀ − v) ÷ t に入れる 3 つの数値はどれですか。',
@@ -8045,13 +8035,13 @@
                 sentence: '水平な床の上に、100 N の重力が働く物体が置いてある。この床と物体の間の静摩擦係数（すべりにくさを表す数。大きいほどすべりにくい）は μ₀ ＝ 0.4 である。この物体を動かし始めるのに、ちょうど必要な水平の力（＝最大静摩擦力 f₀）を求めよ。',
                 condition: '基礎（静摩擦・式2-56）、水平面なので R＝W＝100 N、f₀＝μ₀×R＝0.4×100＝40 N',
                 canvasType: '2d-static', canvas: { width: 360, height: 200, kind: 'staticFric' },
-                stage0Choices: [ { value: 'f0', label: '物体を動かし始めるのに必要な力（最大静摩擦力 f₀）[N] の大きさ' }, { value: 'mu0', label: '床と物体の間の静摩擦係数 μ₀ の大きさ' }, { value: 'R', label: '面を垂直に押しつける力 R [N] の大きさ' } ],
+                stage0Choices: [ { value: 'f0', label: '物体を動かし始めるのに必要な力（最大静摩擦力 f₀）[N] の大きさ' }, { value: 'mu0', label: '床と物体の間の静摩擦係数 μ₀ の大きさ' }, { value: 'R', label: '床が物体を押し返す力 R [N] の大きさ' } ],
                 stage0Correct: 'f0',
                 stage1Choices: [ { value: 'static', label: 'まだ止まっている物体を動かし始める、静摩擦の問題である' }, { value: 'kinetic', label: 'すでに滑っている物体を滑らせ続ける、動摩擦の問題である' }, { value: 'angle', label: '斜面の傾きを大きくして物体が滑り出す、摩擦角の問題である' } ],
                 stage1Correct: 'static',
                 derivationSteps: [
-                    { prompt: 'Stage 1 で「まだ止まっている物体を動かし始める静摩擦の問題」と分かりました。動かし始めるのに必要な力（最大静摩擦力 f₀）は、面を垂直に押しつける力 R に静摩擦係数 μ₀ を掛けて求めます（式 2-56：f₀ ＝ μ₀ × R）。式に入れる R は、この場面では何と同じ大きさですか。', choices: [ { value: 'R_eq_W', label: '水平な床なので、床が物体を押し返す力 R は重力 W と同じ大きさ。R ＝ 100 N' }, { value: 'R_eq_f', label: 'R は最大静摩擦力 f₀ と同じ大きさ' }, { value: 'R_eq_mu', label: 'R は静摩擦係数 μ₀（＝0.4）と同じ大きさ' } ], correct: 'R_eq_W', onCorrectText: '物体は水平な床に置かれているので、床が物体を押し返す力 R は、物体に働く重力 W とつり合っています。だから R ＝ W ＝ 100 N。これを式に入れます。' },
-                    { prompt: '面を垂直に押しつける力 R ＝ 100 N と、静摩擦係数 μ₀ ＝ 0.4 が分かりました。最大静摩擦力 f₀ を求める式はどれですか。', choices: [ { value: 'mu_mul_R', label: 'f₀ ＝ μ₀ × R（静摩擦係数に R を掛ける）' }, { value: 'mu_only', label: 'f₀ ＝ μ₀（係数だけ）' }, { value: 'R_div_mu', label: 'f₀ ＝ R ÷ μ₀（R を係数で割る）' } ], correct: 'mu_mul_R', onCorrectText: '最大静摩擦力は f₀ ＝ μ₀ × R（式 2-56）です。静摩擦係数 0.4 に、面を垂直に押しつける力 R ＝ 100 N を掛けます。係数だけで終わらせず、必ず R を掛けてください。これに数値を代入します。' }
+                    { prompt: 'Stage 1 で「まだ止まっている物体を動かし始める静摩擦の問題」と分かりました。動かし始めるのに必要な力（最大静摩擦力 f₀）は、床が物体を押し返す力 R に静摩擦係数 μ₀ を掛けて求めます（式 2-56：f₀ ＝ μ₀ × R）。式に入れる R は、この場面では何と同じ大きさですか。', choices: [ { value: 'R_eq_W', label: '水平な床なので、床が物体を押し返す力 R は重力 W と同じ大きさ。R ＝ 100 N' }, { value: 'R_eq_f', label: 'R は最大静摩擦力 f₀ と同じ大きさ' }, { value: 'R_eq_mu', label: 'R は静摩擦係数 μ₀（＝0.4）と同じ大きさ' } ], correct: 'R_eq_W', onCorrectText: '物体は水平な床に置かれているので、床が物体を押し返す力 R は、物体に働く重力 W とつり合っています。だから R ＝ W ＝ 100 N。これを式に入れます。' },
+                    { prompt: '床が物体を押し返す力 R ＝ 100 N と、静摩擦係数 μ₀ ＝ 0.4 が分かりました。最大静摩擦力 f₀ を求める式はどれですか。', choices: [ { value: 'mu_mul_R', label: 'f₀ ＝ μ₀ × R（静摩擦係数に R を掛ける）' }, { value: 'mu_only', label: 'f₀ ＝ μ₀（係数だけ）' }, { value: 'R_div_mu', label: 'f₀ ＝ R ÷ μ₀（R を係数で割る）' } ], correct: 'mu_mul_R', onCorrectText: '最大静摩擦力は f₀ ＝ μ₀ × R（式 2-56）です。静摩擦係数 0.4 に、床が物体を押し返す力 R ＝ 100 N を掛けます。係数だけで終わらせず、必ず R を掛けてください。これに数値を代入します。' }
                 ],
                 formula: 'f_0 = \\mu_0 R',
                 substitutions: { slots: ['μ₀', 'R'], cards: [ { role: 'μ₀', label: 'μ₀', value: 0.4, unit: '' }, { role: 'R', label: 'R（床が物体を押し返す力。水平面では重力 W と同じ）', value: 100, unit: 'N' } ] }
@@ -8062,13 +8052,13 @@
                 sentence: '水平な床の上で、200 N の重力が働く物体を、一定の速さですべらせ続けている。この床と物体の間の動摩擦係数（すべっているときのすべりにくさを表す数）は μ ＝ 0.25 である。一定の速さですべらせ続けるのにちょうど必要な力（＝動摩擦力 f′）を求めよ。',
                 condition: '基礎（動摩擦・式2-58）、水平面なので R＝W＝200 N、f′＝μ×R＝0.25×200＝50 N',
                 canvasType: '2d-static', canvas: { width: 360, height: 200, kind: 'kineticFric' },
-                stage0Choices: [ { value: 'fp', label: 'すべらせ続けるのに必要な力（動摩擦力 f′）[N] の大きさ' }, { value: 'mu', label: '床と物体の間の動摩擦係数 μ の大きさ' }, { value: 'R', label: '面を垂直に押しつける力 R [N] の大きさ' } ],
+                stage0Choices: [ { value: 'fp', label: 'すべらせ続けるのに必要な力（動摩擦力 f′）[N] の大きさ' }, { value: 'mu', label: '床と物体の間の動摩擦係数 μ の大きさ' }, { value: 'R', label: '床が物体を押し返す力 R [N] の大きさ' } ],
                 stage0Correct: 'fp',
                 stage1Choices: [ { value: 'kinetic', label: 'すでに滑っている物体を一定の速さで滑らせ続ける、動摩擦の問題である' }, { value: 'static', label: 'まだ止まっている物体を動かし始める、静摩擦の問題である' }, { value: 'angle', label: '斜面の傾きを大きくして物体が滑り出す、摩擦角の問題である' } ],
                 stage1Correct: 'kinetic',
                 derivationSteps: [
-                    { prompt: 'Stage 1 で「すでに滑っている物体を一定の速さで滑らせ続ける動摩擦の問題」と分かりました。動摩擦力 f′ は、面を垂直に押しつける力 R に動摩擦係数 μ を掛けて求めます（式 2-58：f′ ＝ μ × R）。問1 と同じく、式に入れる R はこの場面では何と同じ大きさですか。', choices: [ { value: 'R_eq_W', label: '水平な床なので、床が物体を押し返す力 R は重力 W と同じ大きさ。R ＝ 200 N' }, { value: 'R_eq_f', label: 'R は動摩擦力 f′ と同じ大きさ' }, { value: 'R_eq_mu', label: 'R は動摩擦係数 μ（＝0.25）と同じ大きさ' } ], correct: 'R_eq_W', onCorrectText: '問1 と同じく、水平な床なので床が物体を押し返す力 R は重力 W とつり合います。R ＝ W ＝ 200 N。これを式に入れます。' },
-                    { prompt: '面を垂直に押しつける力 R ＝ 200 N と、動摩擦係数 μ ＝ 0.25 が分かりました。動摩擦力 f′ を求める式はどれですか。', choices: [ { value: 'mu_mul_R', label: 'f′ ＝ μ × R（動摩擦係数に R を掛ける）' }, { value: 'mu_only', label: 'f′ ＝ μ（係数だけ）' }, { value: 'R_div_mu', label: 'f′ ＝ R ÷ μ（R を係数で割る）' } ], correct: 'mu_mul_R', onCorrectText: '動摩擦力は f′ ＝ μ × R（式 2-58）です。動摩擦係数 0.25 に R ＝ 200 N を掛けます。必ず R を掛けてください。これに数値を代入します。' }
+                    { prompt: 'Stage 1 で「すでに滑っている物体を一定の速さで滑らせ続ける動摩擦の問題」と分かりました。動摩擦力 f′ は、床が物体を押し返す力 R に動摩擦係数 μ を掛けて求めます（式 2-58：f′ ＝ μ × R）。問1 と同じく、式に入れる R はこの場面では何と同じ大きさですか。', choices: [ { value: 'R_eq_W', label: '水平な床なので、床が物体を押し返す力 R は重力 W と同じ大きさ。R ＝ 200 N' }, { value: 'R_eq_f', label: 'R は動摩擦力 f′ と同じ大きさ' }, { value: 'R_eq_mu', label: 'R は動摩擦係数 μ（＝0.25）と同じ大きさ' } ], correct: 'R_eq_W', onCorrectText: '問1 と同じく、水平な床なので床が物体を押し返す力 R は重力 W とつり合います。R ＝ W ＝ 200 N。これを式に入れます。' },
+                    { prompt: '床が物体を押し返す力 R ＝ 200 N と、動摩擦係数 μ ＝ 0.25 が分かりました。動摩擦力 f′ を求める式はどれですか。', choices: [ { value: 'mu_mul_R', label: 'f′ ＝ μ × R（動摩擦係数に R を掛ける）' }, { value: 'mu_only', label: 'f′ ＝ μ（係数だけ）' }, { value: 'R_div_mu', label: 'f′ ＝ R ÷ μ（R を係数で割る）' } ], correct: 'mu_mul_R', onCorrectText: '動摩擦力は f′ ＝ μ × R（式 2-58）です。動摩擦係数 0.25 に R ＝ 200 N を掛けます。必ず R を掛けてください。これに数値を代入します。' }
                 ],
                 formula: 'f\' = \\mu R',
                 substitutions: { slots: ['μ', 'R'], cards: [ { role: 'μ', label: 'μ', value: 0.25, unit: '' }, { role: 'R', label: 'R（床が物体を押し返す力。水平面では重力 W と同じ）', value: 200, unit: 'N' } ] }
@@ -8079,7 +8069,7 @@
                 sentence: '水平な床の上に、60 N の重力が働く物体が置いてある。この物体を動かし始めるのに、ちょうど f₀ ＝ 18 N の水平の力が必要であった。この床と物体の間の静摩擦係数 μ₀ を求めよ。',
                 condition: '基礎（例題22型・逆算・式2-56）、水平面なので R＝W＝60 N、μ₀＝f₀÷R＝18÷60＝0.3。求める量＝μ₀（無単位）',
                 canvasType: '2d-static', canvas: { width: 360, height: 200, kind: 'coeffFric' },
-                stage0Choices: [ { value: 'mu0', label: '床と物体の間の静摩擦係数 μ₀ の大きさ' }, { value: 'f0', label: '物体を動かし始めるのに必要な力（最大静摩擦力 f₀）[N] の大きさ' }, { value: 'R', label: '面を垂直に押しつける力 R [N] の大きさ' } ],
+                stage0Choices: [ { value: 'mu0', label: '床と物体の間の静摩擦係数 μ₀ の大きさ' }, { value: 'f0', label: '物体を動かし始めるのに必要な力（最大静摩擦力 f₀）[N] の大きさ' }, { value: 'R', label: '床が物体を押し返す力 R [N] の大きさ' } ],
                 stage0Correct: 'mu0',
                 stage1Choices: [ { value: 'static', label: 'まだ止まっている物体を動かし始める、静摩擦の問題である' }, { value: 'kinetic', label: 'すでに滑っている物体を滑らせ続ける、動摩擦の問題である' }, { value: 'angle', label: '斜面の傾きを大きくして物体が滑り出す、摩擦角の問題である' } ],
                 stage1Correct: 'static',
@@ -8115,21 +8105,21 @@
             stage1: { b: '物体はまだ止まっていて、これから「動かし始める」場面です。止まっている物体を動かし始めるまでの摩擦か、すでに滑っている物体の摩擦か、斜面で滑り出す摩擦か、確かめてください。', a: 'まだ止まっている物体を動かし始めるまでの摩擦を「静摩擦」といいます。動かし始めにちょうど必要な力が最大静摩擦力 f₀ で、f₀ ＝ μ₀ × R で求めます。', c: '教科書66ページ 静摩擦・式(2-56)「f₀ ＝ μ₀ R」を確認してください。' },
             stage2: { b: '水平な床の上では、床が物体を押し返す力 R は、物体の重力 W とつり合っています。だから R は重力と同じ大きさ（100 N）。係数 μ₀ にこの R を掛けます。', a: 'f₀ ＝ μ₀ × R（式 2-56）。水平面なので R ＝ W ＝ 100 N。静摩擦係数 0.4 に R ＝ 100 N を掛けます。必ず R を掛けてください。', c: '教科書66ページ 式(2-56)と、水平面で R＝W となることを確認してください。' },
             stage3: { b: '式は f₀ ＝ μ₀ × R です。μ₀ には静摩擦係数、R には床が物体を押し返す力（重力と同じ 100 N）を入れます。', a: '式 f₀ ＝ μ₀ × R の空欄に、μ₀ ＝ 0.4、R ＝ 100 N を入れてください。', c: '教科書66ページ 式(2-56)を確認してください。' },
-            stage4: { b: '係数 0.4 に、力 100 を掛けるだけです。電卓を使ってかまいません。', a: 'f₀ ＝ 0.4 × 100 ＝ 40 [N]。係数に、面を垂直に押しつける力を掛けると最大静摩擦力が出ます。', c: '教科書66ページ 式(2-56)を確認してください。' }
+            stage4: { b: '係数 0.4 に、力 100 を掛けるだけです。電卓を使ってかまいません。', a: 'f₀ ＝ 0.4 × 100 ＝ 40 [N]。係数に、床が物体を押し返す力を掛けると最大静摩擦力が出ます。', c: '教科書66ページ 式(2-56)を確認してください。' }
         };
         const HINTS_5_1_KINETIC = {
             stage0: { b: '問題文の最後の文に注目してください。重力 200 N、動摩擦係数 0.25 はすでに数値が書かれています。', a: '問題文の末尾に「すべらせ続けるのにちょうど必要な力（動摩擦力 f′）を求めよ」とあります。求めるものは動摩擦力 f′、単位は N です。', c: '教科書67ページ 動摩擦・動摩擦力の説明を確認してください。' },
             stage1: { b: '物体はすでに滑っていて、それを「一定の速さですべらせ続ける」場面です。動かし始めまでの摩擦か、滑っている物体の摩擦か、斜面で滑り出す摩擦か、確かめてください。', a: 'すでに滑っている物体にはたらく摩擦を「動摩擦」といいます。動摩擦力は f′ ＝ μ × R で求めます。動摩擦係数 μ は静摩擦係数の半分くらいです。', c: '教科書67ページ 式(2-58)「f′ ＝ μ R」を確認してください。' },
             stage2: { b: '水平な床の上をすべっているとき、床が物体を押し返す力 R は重力 W とつり合っています。R は重力と同じ大きさ（200 N）。係数 μ にこの R を掛けます。', a: 'f′ ＝ μ × R（式 2-58）。水平面なので R ＝ W ＝ 200 N。動摩擦係数 0.25 に R ＝ 200 N を掛けます。必ず R を掛けてください。', c: '教科書67ページ 式(2-58)と、水平面で R＝W となることを確認してください。' },
             stage3: { b: '式は f′ ＝ μ × R です。μ には動摩擦係数、R には床が物体を押し返す力（重力と同じ 200 N）を入れます。', a: '式 f′ ＝ μ × R の空欄に、μ ＝ 0.25、R ＝ 200 N を入れてください。', c: '教科書67ページ 式(2-58)を確認してください。' },
-            stage4: { b: '係数 0.25 に、力 200 を掛けるだけです。電卓を使ってかまいません。', a: 'f′ ＝ 0.25 × 200 ＝ 50 [N]。係数に、面を垂直に押しつける力を掛けると動摩擦力が出ます。', c: '教科書67ページ 式(2-58)を確認してください。' }
+            stage4: { b: '係数 0.25 に、力 200 を掛けるだけです。電卓を使ってかまいません。', a: 'f′ ＝ 0.25 × 200 ＝ 50 [N]。係数に、床が物体を押し返す力を掛けると動摩擦力が出ます。', c: '教科書67ページ 式(2-58)を確認してください。' }
         };
         const HINTS_5_1_COEFF = {
             stage0: { b: '問題文の最後の文に注目してください。重力 60 N、動かし始めに必要な力 18 N はすでに数値が書かれています。', a: '問題文の末尾に「静摩擦係数 μ₀ を求めよ」とあります。求めるものは静摩擦係数 μ₀、単位はありません（数だけ）。', c: '教科書66ページ 式(2-56)・例題22 を確認してください。' },
             stage1: { b: '物体はまだ止まっていて「動かし始める」場面です。今回はその力が分かっていて、係数を逆に求めます。静摩擦か動摩擦か摩擦角か、確かめてください。', a: 'まだ止まっている物体を動かし始める静摩擦の問題です。f₀ ＝ μ₀ × R を使い、f₀ と R から μ₀ を逆に求めます。μ₀ ＝ f₀ ÷ R です。', c: '教科書66ページ 式(2-56)・例題22 を確認してください。' },
             stage2: { b: '水平な床なので R は重力 W と同じ大きさ（60 N）。f₀ ＝ μ₀ × R では μ₀ に R が掛け算でついているので、両辺を R で割ります。', a: 'f₀ ＝ μ₀ × R の両辺を R で割ると μ₀ ＝ f₀ ÷ R。18 N を R ＝ 60 N で割ります。割る順番を逆にしないでください。', c: '教科書66ページ 例題22（μ₀＝f₀÷R）を確認してください。' },
             stage3: { b: '式は μ₀ ＝ f₀ ÷ R です。f₀ には動かし始めに必要な力、R には床が物体を押し返す力（重力と同じ 60 N）を入れます。', a: '式 μ₀ ＝ f₀ ÷ R の空欄に、f₀ ＝ 18 N、R ＝ 60 N を入れてください。', c: '教科書66ページ 例題22 を確認してください。' },
-            stage4: { b: '力 18 を、力 60 で割るだけです。電卓を使ってかまいません。答えに単位はつきません。', a: 'μ₀ ＝ 18 ÷ 60 ＝ 0.3。最大静摩擦力を、面を垂直に押しつける力で割ると静摩擦係数が出ます。例題22 と同じです。', c: '教科書66ページ 例題22 を確認してください。' }
+            stage4: { b: '力 18 を、力 60 で割るだけです。電卓を使ってかまいません。答えに単位はつきません。', a: 'μ₀ ＝ 18 ÷ 60 ＝ 0.3。最大静摩擦力を、床が物体を押し返す力で割ると静摩擦係数が出ます。例題22 と同じです。', c: '教科書66ページ 例題22 を確認してください。' }
         };
         const HINTS_5_1_ANGLE = {
             stage0: { b: '問題文の最後の文に注目してください。すべり出したときの傾き 30°、tan 30° ＝ 0.58 はすでに数値が書かれています。', a: '問題文の末尾に「静摩擦係数 μ₀ を求めよ」とあります。求めるものは静摩擦係数 μ₀、単位はありません（数だけ）。', c: '教科書67ページ 摩擦角の説明を確認してください。' },
@@ -15368,13 +15358,13 @@
                         let reflFormulaLatex_5_1, reflText_5_1;
                         if (problem.formulaType === 'staticFric') {
                             reflFormulaLatex_5_1 = `f_0 = \\mu_0 R = ${problem.mu0}\\times${problem.R} = ${problem.expectedAns}\\ \\mathrm{N}`;
-                            reflText_5_1 = '最大静摩擦力＝静摩擦係数×（面を垂直に押しつける力）。水平面では R＝重力 W です。係数だけで終わらせず、必ず R を掛けてください。';
+                            reflText_5_1 = '最大静摩擦力＝静摩擦係数×（床が物体を押し返す力）。水平面では R＝重力 W です。係数だけで終わらせず、必ず R を掛けてください。';
                         } else if (problem.formulaType === 'kineticFric') {
                             reflFormulaLatex_5_1 = `f' = \\mu R = ${problem.mu}\\times${problem.R} = ${problem.expectedAns}\\ \\mathrm{N}`;
                             reflText_5_1 = '動摩擦力＝動摩擦係数×R。動摩擦係数は静摩擦係数より小さいことが多いです。';
                         } else if (problem.formulaType === 'coeffFric') {
                             reflFormulaLatex_5_1 = `\\mu_0 = \\dfrac{f_0}{R} = \\dfrac{${problem.f0}}{${problem.R}} = ${problem.expectedAns}`;
-                            reflText_5_1 = '静摩擦係数は、動かし始めに必要な力 ÷（面を垂直に押しつける力）。単位はつきません（数だけ）。例題22 と同じです。';
+                            reflText_5_1 = '静摩擦係数は、動かし始めに必要な力 ÷（床が物体を押し返す力）。単位はつきません（数だけ）。例題22 と同じです。';
                         } else {
                             // frictionAngle（問4）
                             reflFormulaLatex_5_1 = `\\mu_0 = \\tan\\rho = \\tan ${problem.rho}° = ${problem.expectedAns}`;
@@ -18437,8 +18427,9 @@
                     const ballX = 90, ballR = 24;
                     const ballY = groundY - ballR;
                     svg += `<circle cx="${ballX}" cy="${ballY}" r="${ballR}" fill="#dce9f7" stroke="${BLUE}" stroke-width="1.8"/>`;
-                    svg += `<text x="${ballX}" y="${ballY + 4}" text-anchor="middle" font-size="12" fill="${BLUE}" font-weight="700">m ＝ ${problem.m}</text>`;
-                    svg += `<text x="${ballX}" y="${ballY - ballR - 8}" text-anchor="middle" font-size="11" fill="${BLUE}">kg</text>`;
+                    svg += `<text x="${ballX}" y="${ballY + 4}" text-anchor="middle" font-size="13" fill="${BLUE}" font-weight="700">m</text>`;
+                    // 質量ラベルは球の上に 1 行でまとめて置く（「kg」だけが浮かないように）
+                    svg += `<text x="${ballX}" y="${ballY - ballR - 8}" text-anchor="middle" font-size="12" fill="${BLUE}" font-weight="600">m ＝ ${problem.m} kg</text>`;
                     // 速度ベクトル（右向き・青・既知）：球の中心の高さから右へ
                     const vx1 = ballX + ballR + 6, vx2 = vx1 + 90;
                     svg += `<line x1="${vx1}" y1="${ballY}" x2="${vx2}" y2="${ballY}" stroke="${BLUE}" stroke-width="2.8" marker-end="url(#stc34-blue)"/>`;
@@ -18499,8 +18490,9 @@
                     svg += `<text x="${(v0x1 + v0x2) / 2}" y="${midY - 8}" text-anchor="middle" font-size="11" fill="${BLUE}" font-weight="600">v₀ ＝ ${problem.v0}</text>`;
                     // 接触時間・あとの速度の注記
                     svg += `<text x="${hmX}" y="22" text-anchor="start" font-size="11" fill="${GRAY}">t ＝ ${problem.t} s で止まる（v ＝ 0）</text>`;
-                    // くぎが受ける力 F=?（赤・左向き＝かなづちの運動と逆向き）。くぎから左へ。
-                    const fxA = nailX - 6, fxB = nailX - 56;
+                    // くぎが受ける力 F=?（赤・右向き＝くぎを打ち込む向き＝かなづちが進む向きと同じ）。
+                    //   問題は「くぎが受ける力」を問うので、矢印はくぎに食い込む向き（右）で描く。
+                    const fxA = nailX - 54, fxB = nailX - 8;
                     svg += `<line x1="${fxA}" y1="${midY + 30}" x2="${fxB}" y2="${midY + 30}" stroke="${RED}" stroke-width="2.6" marker-end="url(#stc34-red)"/>`;
                     svg += `<text x="${(fxA + fxB) / 2}" y="${midY + 48}" text-anchor="middle" font-size="12" fill="${RED}" font-weight="700">F ＝ ?</text>`;
                     svg += `</svg></div>`;
@@ -19265,10 +19257,11 @@
                     const wEndY = floorY - 4;
                     svg += `<line x1="${cx}" y1="${wStartY}" x2="${cx}" y2="${wEndY}" stroke="${GRAY}" stroke-width="2.4" marker-end="url(#stc51-gray)"/>`;
                     svg += `<text x="${cx - 8}" y="${(wStartY + wEndY) / 2 + 4}" text-anchor="end" font-size="12" fill="${GRAY}" font-weight="700">${wLabel}</text>`;
-                    // 面を垂直に押しつける力 R（箱中心から上へ、青）。canvas 上端を超えないよう y=20 で止める。
+                    // 床が物体を押し返す力 R（箱中心から上へ、青）。canvas 上端を超えないよう y=20 で止める。
+                    //   矢印は上向き（＝床が物体を押し返す向き）なので、ラベルも向きと一致させる。
                     const rTop = 22;
                     svg += `<line x1="${cx}" y1="${boxY - 2}" x2="${cx}" y2="${rTop}" stroke="${COMP}" stroke-width="2.4" marker-end="url(#stc51-comp)"/>`;
-                    svg += `<text x="${cx + 8}" y="${rTop + 14}" text-anchor="start" font-size="12" fill="${COMP}" font-weight="700">面を垂直に押しつける力 R</text>`;
+                    svg += `<text x="${cx + 8}" y="${rTop + 14}" text-anchor="start" font-size="12" fill="${COMP}" font-weight="700">床が物体を押し返す力 R</text>`;
                     // 水平の駆動力（赤、右向き）。箱右端から右へ。
                     const fLabel = (kind === 'kineticFric') ? "動かす力 f′" : '動かす力 f₀';
                     const fY = boxY + boxH / 2;
@@ -19407,8 +19400,10 @@
                     const outStart = boxX + boxW + 6, outEnd = W - 28;
                     svg += `<line x1="${outStart}" y1="${midY}" x2="${outEnd}" y2="${midY}" stroke="${GREEN}" stroke-width="5" marker-end="url(#stc52-green)"/>`;
                     const aeLabel = (kind === 'effWork') ? `A_E ＝ ${problem.A_E} J` : 'A_E ＝ ？';
-                    svg += `<text x="${(outStart + outEnd) / 2}" y="${midY - 24}" text-anchor="middle" font-size="13" fill="${GREEN}" font-weight="700">${aeLabel}</text>`;
-                    svg += `<text x="${(outStart + outEnd) / 2}" y="${midY - 10}" text-anchor="middle" font-size="12" fill="${GREEN}" font-weight="700">有効仕事</text>`;
+                    // ラベルは太い緑矢じり（約45px）の手前に寄せて、文字が欠けないようにする。
+                    const outLabelCx = (outStart + outEnd) / 2 - 24;
+                    svg += `<text x="${outLabelCx}" y="${midY - 24}" text-anchor="middle" font-size="13" fill="${GREEN}" font-weight="700">${aeLabel}</text>`;
+                    svg += `<text x="${outLabelCx}" y="${midY - 10}" text-anchor="middle" font-size="12" fill="${GREEN}" font-weight="700">有効仕事</text>`;
                     // 下：損失（細い、下向き）。effLoss は値、effWork は「損失」のみ。
                     const lossX = W / 2, lossTop = boxY + boxH + 2, lossBot = lossTop + 38;
                     svg += `<line x1="${lossX}" y1="${lossTop}" x2="${lossX}" y2="${lossBot}" stroke="${GRAY}" stroke-width="2" marker-end="url(#stc52-gray)"/>`;
@@ -19460,8 +19455,10 @@
                     // 右：有効動力 P_E（太い緑、右向き、？）
                     const outStart = boxX + boxW + 6, outEnd = W - 28;
                     svg += `<line x1="${outStart}" y1="${midY}" x2="${outEnd}" y2="${midY}" stroke="${GREEN}" stroke-width="5" marker-end="url(#stc52-green)"/>`;
-                    svg += `<text x="${(outStart + outEnd) / 2}" y="${midY - 24}" text-anchor="middle" font-size="13" fill="${GREEN}" font-weight="700">P_E ＝ ？ kW</text>`;
-                    svg += `<text x="${(outStart + outEnd) / 2}" y="${midY - 10}" text-anchor="middle" font-size="12" fill="${GREEN}" font-weight="700">有効動力</text>`;
+                    // ラベルは太い緑矢じり（約45px）の手前に寄せて、文字が欠けないようにする。
+                    const outLabelCx = (outStart + outEnd) / 2 - 24;
+                    svg += `<text x="${outLabelCx}" y="${midY - 24}" text-anchor="middle" font-size="13" fill="${GREEN}" font-weight="700">P_E ＝ ？ kW</text>`;
+                    svg += `<text x="${outLabelCx}" y="${midY - 10}" text-anchor="middle" font-size="12" fill="${GREEN}" font-weight="700">有効動力</text>`;
                     svg += `</svg></div>`;
                     return svg;
                 }
@@ -22741,7 +22738,7 @@
                             if (value === 'mu0' || value === 'mu') {
                                 msg = `不正解。摩擦係数は問題文に数値で与えられています。求めるものは${target5_1}です。`;
                             } else if (value === 'R') {
-                                msg = `不正解。R（面を垂直に押しつける力）は計算で求める途中の量で、最後に求めたいものではありません。求めるものは${target5_1}です。`;
+                                msg = `不正解。R（床が物体を押し返す力）は計算で求める途中の量で、最後に求めたいものではありません。求めるものは${target5_1}です。`;
                             } else if (value === 'f0') {
                                 msg = `不正解。f₀（動かし始めに必要な力）は問題文に数値で与えられています。求めるものは${target5_1}です。`;
                             } else if (value === 'rho') {
@@ -23308,11 +23305,11 @@
                         } else if (this.currentUnitId === '5-1') {
                             const ft5_1sub = (this.getCalcProblem() || {}).formulaType;
                             if (ft5_1sub === 'staticFric') {
-                                feedback.textContent = '不正解。入れ直してください。μ₀ が静摩擦係数（単位なし）、R が面を垂直に押しつける力（N。水平面では重力と同じ）です（f₀ ＝ μ₀ × R）。';
+                                feedback.textContent = '不正解。入れ直してください。μ₀ が静摩擦係数（単位なし）、R は床が物体を押し返す力（N。水平面では重力と同じ）です（f₀ ＝ μ₀ × R）。';
                             } else if (ft5_1sub === 'kineticFric') {
-                                feedback.textContent = '不正解。入れ直してください。μ が動摩擦係数（単位なし）、R が面を垂直に押しつける力（N。水平面では重力と同じ）です（f′ ＝ μ × R）。';
+                                feedback.textContent = '不正解。入れ直してください。μ が動摩擦係数（単位なし）、R は床が物体を押し返す力（N。水平面では重力と同じ）です（f′ ＝ μ × R）。';
                             } else if (ft5_1sub === 'coeffFric') {
-                                feedback.textContent = '不正解。入れ直してください。f₀ が動かし始めに必要な力（N）、R が面を垂直に押しつける力（N。水平面では重力と同じ）です（μ₀ ＝ f₀ ÷ R）。割る順番に注意してください。';
+                                feedback.textContent = '不正解。入れ直してください。f₀ が動かし始めに必要な力（N）、R は床が物体を押し返す力（N。水平面では重力と同じ）です（μ₀ ＝ f₀ ÷ R）。割る順番に注意してください。';
                             } else {
                                 feedback.textContent = '不正解。入れ直してください。空欄には tan 30° の値（0.58）を入れます（μ₀ ＝ tan ρ）。';
                             }
