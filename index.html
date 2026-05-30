@@ -6624,27 +6624,17 @@
                             { value: 'cannot', label: '加速度がないので、この問題は解けない' }
                         ],
                         correct: 'calcA',
-                        onCorrectText: '加速度の数値がないので、まず 2-2 で学んだ a ＝ (v − v₀) ÷ t で加速度を求めます。速度 v をそのまま力の式に使うことはできません。'
+                        onCorrectText: '加速度の数値がないので、まず 2-2 で学んだ a ＝ (v − v₀) ÷ t で加速度を求めます。a ＝ (12 − 0) ÷ 4 ＝ 3 m/s²。速度 v をそのまま力の式に使うことはできません。'
                     },
                     {
-                        prompt: 'a ＝ (v − v₀) ÷ t に v ＝ 12 m/s、v₀ ＝ 0 m/s、t ＝ 4 s を入れると、加速度 a は何 m/s² ですか？',
+                        prompt: '加速度 a が求まりました。これと質量 m を運動方程式に入れて、力 F を求めます。F を表す式はどれですか？',
                         choices: [
-                            { value: 'a3',  label: 'a ＝ (12 − 0) ÷ 4 ＝ 3 m/s²' },
-                            { value: 'a48', label: 'a ＝ (12 − 0) × 4 ＝ 48 m/s²' },
-                            { value: 'a16', label: 'a ＝ 12 ＋ 4 ＝ 16 m/s²' }
+                            { value: 'fma',  label: 'F ＝ m × a（質量 × 加速度）' },
+                            { value: 'fmv',  label: 'F ＝ m × v（質量 × 速度）' },
+                            { value: 'fdiv', label: 'F ＝ m ÷ a（質量 ÷ 加速度）' }
                         ],
-                        correct: 'a3',
-                        onCorrectText: '加速度は a ＝ (12 − 0) ÷ 4 ＝ 3 m/s² です。これで F ＝ m × a に入れる加速度がそろいました。'
-                    },
-                    {
-                        prompt: '加速度 a ＝ 3 m/s² が求まりました。これと質量 m ＝ 10 kg を運動方程式 F ＝ m × a に入れると、力 F の式はどうなりますか？',
-                        choices: [
-                            { value: 'fmul', label: 'F ＝ 10 × 3（質量 × 加速度）' },
-                            { value: 'fv',   label: 'F ＝ 10 × 12（質量 × 速度）' },
-                            { value: 'fdiv', label: 'F ＝ 10 ÷ 3（質量 ÷ 加速度）' }
-                        ],
-                        correct: 'fmul',
-                        onCorrectText: 'F ＝ m × a ＝ 10 × 3 です。掛けるのは速度 12 ではなく加速度 3 m/s² であることに注意してください。'
+                        correct: 'fma',
+                        onCorrectText: '運動方程式は F ＝ m × a。掛けるのは速度 12 ではなく加速度であることに注意してください。これに数値を代入します。'
                     }
                 ],
                 formula: 'F = m\\,a \\quad\\left(a = \\dfrac{v - v_0}{t}\\right)',
@@ -7303,7 +7293,7 @@
                 sentence: '湖の上で静止している質量 m₁ ＝ 150 kg のボートから、質量 m₂ ＝ 60 kg の人が、速度 v₂′ ＝ 5 m/s でボートをけって湖に飛び込んだ。このとき、ボートが動き出す速さ v₁′ [m/s] の大きさを求めよ。ただし、水の抵抗は考えないものとする。',
                 condition: '紹介、運動量保存（例題17型）、m₁v₁′+m₂v₂′=0 → 大きさ (m₂v₂′)/m₁=300/150=2.0 m/s（人と逆向き）',
                 canvasType: '2d-static',
-                canvas: { width: 400, height: 200, kind: 'momentumConserv' },
+                canvas: { width: 400, height: 224, kind: 'momentumConserv' },
                 stage0Choices: [
                     { value: 'boatV',   label: '飛び込んだあとにボートが動く速さ v₁′ [m/s] の大きさ' },
                     { value: 'personV', label: '人が飛び込む速度 v₂′ [m/s] の大きさ' },
@@ -7328,14 +7318,24 @@
                         onCorrectText: '飛び込む前は両方とも静止しているので、運動量の和は 0 です。運動量保存の法則から、飛び込んだあとの運動量の和も 0 のままです。'
                     },
                     {
-                        prompt: '飛び込んだあとも運動量の和は 0 です。ボートの速度を v₁′、人の速度を v₂′ として、これを v₁′ の「大きさ」について解くとどう表せますか。',
+                        prompt: '飛び込んだあとも、人とボートの運動量の和は 0 です。ボートの速度を v₁′、人の速度を v₂′ として、この「運動量の和が 0」を式で表すとどれですか。',
+                        choices: [
+                            { value: 'sumZero', label: 'm₁ × v₁′ ＋ m₂ × v₂′ ＝ 0' },
+                            { value: 'prod',    label: 'm₁ × v₁′ × m₂ × v₂′ ＝ 0' },
+                            { value: 'equal',   label: 'm₁ × v₁′ ＝ m₂ × v₂′' }
+                        ],
+                        correct: 'sumZero',
+                        onCorrectText: 'ボートの運動量 m₁ × v₁′ と人の運動量 m₂ × v₂′ を足したものが 0 です。式で表すと m₁ × v₁′ ＋ m₂ × v₂′ ＝ 0。'
+                    },
+                    {
+                        prompt: 'm₁ × v₁′ ＋ m₂ × v₂′ ＝ 0 を、ボートの速さ v₁′ の「大きさ」について解くとどう表せますか。',
                         choices: [
                             { value: 'right', label: 'v₁′ の大きさ ＝ (m₂ × v₂′) ÷ m₁（人の運動量 ÷ ボートの質量）' },
                             { value: 'swapM', label: 'v₁′ の大きさ ＝ (m₂ × v₂′) ÷ m₂（人の運動量 ÷ 人の質量）' },
                             { value: 'mul',   label: 'v₁′ の大きさ ＝ m₂ × v₂′ × m₁（人の運動量 × ボートの質量）' }
                         ],
                         correct: 'right',
-                        onCorrectText: '運動量保存 m₁v₁′ ＋ m₂v₂′ ＝ 0 を解くと、ボートの速さの大きさは (m₂ × v₂′) ÷ m₁。人の運動量をボートの質量で割ります。式の上ではマイナス（ボートは人と逆向き）ですが、ここでは速さ＝大きさを求めます。'
+                        onCorrectText: 'm₁v₁′ ＋ m₂v₂′ ＝ 0 を v₁′ について解くと、ボートの速さの大きさは (m₂ × v₂′) ÷ m₁。人の運動量をボートの質量で割ります。式の上ではマイナス（ボートは人と逆向き）ですが、ここでは速さ＝大きさを求めます。'
                     }
                 ],
                 formula: "v_1' = \\dfrac{m_2\\,v_2'}{m_1}",
@@ -8010,7 +8010,7 @@
                 stage1Choices: [ { value: 'static', label: 'まだ止まっている物体を動かし始める、静摩擦の問題である' }, { value: 'kinetic', label: 'すでに滑っている物体を滑らせ続ける、動摩擦の問題である' }, { value: 'angle', label: '斜面の傾きを大きくして物体が滑り出す、摩擦角の問題である' } ],
                 stage1Correct: 'static',
                 derivationSteps: [
-                    { prompt: 'Stage 1 で「まだ止まっている物体を動かし始める静摩擦の問題」と分かりました。動かし始めるのに必要な力（最大静摩擦力 f₀）は、床が物体を押し返す力 R に静摩擦係数 μ₀ を掛けて求めます（式 2-56：f₀ ＝ μ₀ × R）。式に入れる R は、この場面では何と同じ大きさですか。', choices: [ { value: 'R_eq_W', label: '水平な床なので、床が物体を押し返す力 R は重力 W と同じ大きさ。R ＝ 100 N' }, { value: 'R_eq_f', label: 'R は最大静摩擦力 f₀ と同じ大きさ' }, { value: 'R_eq_mu', label: 'R は静摩擦係数 μ₀（＝0.4）と同じ大きさ' } ], correct: 'R_eq_W', onCorrectText: '物体は水平な床に置かれているので、床が物体を押し返す力 R は、物体に働く重力 W とつり合っています。だから R ＝ W ＝ 100 N。これを式に入れます。' },
+                    { prompt: 'Stage 1 で「まだ止まっている物体を動かし始める静摩擦の問題」と分かりました。動かし始めるのに必要な力（最大静摩擦力 f₀）は、床が物体を押し返す力 R に静摩擦係数 μ₀ を掛けて求めます（式 2-56：f₀ ＝ μ₀ × R）。式に入れる R は、この場面では何と同じ大きさですか。', choices: [ { value: 'R_eq_W', label: '水平な床なので、床が物体を押し返す力 R は重力 W と同じ大きさ' }, { value: 'R_eq_f', label: 'R は最大静摩擦力 f₀ と同じ大きさ' }, { value: 'R_eq_mu', label: 'R は静摩擦係数 μ₀ と同じ大きさ' } ], correct: 'R_eq_W', onCorrectText: '物体は水平な床に置かれているので、床が物体を押し返す力 R は、物体に働く重力 W とつり合っています。だから R ＝ W ＝ 100 N。これを式に入れます。' },
                     { prompt: '床が物体を押し返す力 R ＝ 100 N と、静摩擦係数 μ₀ ＝ 0.4 が分かりました。最大静摩擦力 f₀ を求める式はどれですか。', choices: [ { value: 'mu_mul_R', label: 'f₀ ＝ μ₀ × R（静摩擦係数に R を掛ける）' }, { value: 'mu_only', label: 'f₀ ＝ μ₀（係数だけ）' }, { value: 'R_div_mu', label: 'f₀ ＝ R ÷ μ₀（R を係数で割る）' } ], correct: 'mu_mul_R', onCorrectText: '最大静摩擦力は f₀ ＝ μ₀ × R（式 2-56）です。静摩擦係数 0.4 に、床が物体を押し返す力 R ＝ 100 N を掛けます。係数だけで終わらせず、必ず R を掛けてください。これに数値を代入します。' }
                 ],
                 formula: 'f_0 = \\mu_0 R',
@@ -8027,7 +8027,7 @@
                 stage1Choices: [ { value: 'kinetic', label: 'すでに滑っている物体を一定の速さで滑らせ続ける、動摩擦の問題である' }, { value: 'static', label: 'まだ止まっている物体を動かし始める、静摩擦の問題である' }, { value: 'angle', label: '斜面の傾きを大きくして物体が滑り出す、摩擦角の問題である' } ],
                 stage1Correct: 'kinetic',
                 derivationSteps: [
-                    { prompt: 'Stage 1 で「すでに滑っている物体を一定の速さで滑らせ続ける動摩擦の問題」と分かりました。動摩擦力 f′ は、床が物体を押し返す力 R に動摩擦係数 μ を掛けて求めます（式 2-58：f′ ＝ μ × R）。問1 と同じく、式に入れる R はこの場面では何と同じ大きさですか。', choices: [ { value: 'R_eq_W', label: '水平な床なので、床が物体を押し返す力 R は重力 W と同じ大きさ。R ＝ 200 N' }, { value: 'R_eq_f', label: 'R は動摩擦力 f′ と同じ大きさ' }, { value: 'R_eq_mu', label: 'R は動摩擦係数 μ（＝0.25）と同じ大きさ' } ], correct: 'R_eq_W', onCorrectText: '問1 と同じく、水平な床なので床が物体を押し返す力 R は重力 W とつり合います。R ＝ W ＝ 200 N。これを式に入れます。' },
+                    { prompt: 'Stage 1 で「すでに滑っている物体を一定の速さで滑らせ続ける動摩擦の問題」と分かりました。動摩擦力 f′ は、床が物体を押し返す力 R に動摩擦係数 μ を掛けて求めます（式 2-58：f′ ＝ μ × R）。問1 と同じく、式に入れる R はこの場面では何と同じ大きさですか。', choices: [ { value: 'R_eq_W', label: '水平な床なので、床が物体を押し返す力 R は重力 W と同じ大きさ' }, { value: 'R_eq_f', label: 'R は動摩擦力 f′ と同じ大きさ' }, { value: 'R_eq_mu', label: 'R は動摩擦係数 μ と同じ大きさ' } ], correct: 'R_eq_W', onCorrectText: '問1 と同じく、水平な床なので床が物体を押し返す力 R は重力 W とつり合います。R ＝ W ＝ 200 N。これを式に入れます。' },
                     { prompt: '床が物体を押し返す力 R ＝ 200 N と、動摩擦係数 μ ＝ 0.25 が分かりました。動摩擦力 f′ を求める式はどれですか。', choices: [ { value: 'mu_mul_R', label: 'f′ ＝ μ × R（動摩擦係数に R を掛ける）' }, { value: 'mu_only', label: 'f′ ＝ μ（係数だけ）' }, { value: 'R_div_mu', label: 'f′ ＝ R ÷ μ（R を係数で割る）' } ], correct: 'mu_mul_R', onCorrectText: '動摩擦力は f′ ＝ μ × R（式 2-58）です。動摩擦係数 0.25 に R ＝ 200 N を掛けます。必ず R を掛けてください。これに数値を代入します。' }
                 ],
                 formula: 'f\' = \\mu R',
@@ -8044,7 +8044,7 @@
                 stage1Choices: [ { value: 'static', label: 'まだ止まっている物体を動かし始める、静摩擦の問題である' }, { value: 'kinetic', label: 'すでに滑っている物体を滑らせ続ける、動摩擦の問題である' }, { value: 'angle', label: '斜面の傾きを大きくして物体が滑り出す、摩擦角の問題である' } ],
                 stage1Correct: 'static',
                 derivationSteps: [
-                    { prompt: 'Stage 1 で「まだ止まっている物体を動かし始める静摩擦の問題」と分かりました。今回は動かし始めに必要な力 f₀ ＝ 18 N が分かっていて、静摩擦係数 μ₀ を逆に求めます。f₀ ＝ μ₀ × R（式 2-56）で、式に入れる R はこの場面では何と同じ大きさですか。', choices: [ { value: 'R_eq_W', label: '水平な床なので、床が物体を押し返す力 R は重力 W と同じ大きさ。R ＝ 60 N' }, { value: 'R_eq_f', label: 'R は最大静摩擦力 f₀（＝18 N）と同じ大きさ' }, { value: 'R_zero', label: 'R は分からないので 0 として計算する' } ], correct: 'R_eq_W', onCorrectText: '水平な床なので、床が物体を押し返す力 R は重力 W とつり合います。R ＝ W ＝ 60 N。これを使います。' },
+                    { prompt: 'Stage 1 で「まだ止まっている物体を動かし始める静摩擦の問題」と分かりました。今回は動かし始めに必要な力 f₀ ＝ 18 N が分かっていて、静摩擦係数 μ₀ を逆に求めます。f₀ ＝ μ₀ × R（式 2-56）で、式に入れる R はこの場面では何と同じ大きさですか。', choices: [ { value: 'R_eq_W', label: '水平な床なので、床が物体を押し返す力 R は重力 W と同じ大きさ' }, { value: 'R_eq_f', label: 'R は最大静摩擦力 f₀ と同じ大きさ' }, { value: 'R_zero', label: 'R は分からないので 0 として計算する' } ], correct: 'R_eq_W', onCorrectText: '水平な床なので、床が物体を押し返す力 R は重力 W とつり合います。R ＝ W ＝ 60 N。これを使います。' },
                     { prompt: 'f₀ ＝ μ₀ × R では、静摩擦係数 μ₀ に R が掛け算でついています。μ₀ だけを残すには、両辺をどうすればよいですか。', choices: [ { value: 'divR', label: '両辺を R で割る（→ μ₀ ＝ f₀ ÷ R。最大静摩擦力を R で割る）' }, { value: 'divf', label: '両辺を f₀ で割る（→ μ₀ ＝ R ÷ f₀）' }, { value: 'mulR', label: '両辺に R を掛ける（→ μ₀ ＝ f₀ × R）' } ], correct: 'divR', onCorrectText: 'f₀ ＝ μ₀ × R では μ₀ に R が掛け算でついています。両辺を R で割って R を消すと μ₀ ＝ f₀ ÷ R。最大静摩擦力 18 N を R ＝ 60 N で割ります。割る順番を逆にしないでください。これに数値を代入します。' }
                 ],
                 formula: '\\mu_0 = \\dfrac{f_0}{R}',
@@ -18477,34 +18477,43 @@
                 }
 
                 // momentumConserv（問4）：上段「飛び込む前」＝静止（運動量の和 0）、下段「飛び込んだあと」。
-                const ballR = 16;
-                const boatW = 70, boatH = 14;
-                // ----- 上段：飛び込む前（静止） -----
-                //   topY は人形の頭が上部キャプション（y=22）と重ならない高さにする。
-                const topY = 60;
+                //   問題文の状況に合わせ、人は人形（スティックフィギュア）、ボートは船体の形で描く。
+                const BOATF = '#dce9f7';
+                // 人形を描く（cx・足元 feetY・色）
+                const drawPerson = (cx, feetY, color) => {
+                    const hr = 9, headCy = feetY - 32, shoulderY = headCy + hr + 2, hipY = feetY - 13;
+                    return `<circle cx="${cx}" cy="${headCy}" r="${hr}" fill="${BOATF}" stroke="${color}" stroke-width="1.8"/>`
+                        + `<line x1="${cx}" y1="${shoulderY}" x2="${cx}" y2="${hipY}" stroke="${color}" stroke-width="2.4"/>`
+                        + `<line x1="${cx}" y1="${shoulderY + 3}" x2="${cx - 11}" y2="${shoulderY + 14}" stroke="${color}" stroke-width="2"/>`
+                        + `<line x1="${cx}" y1="${shoulderY + 3}" x2="${cx + 11}" y2="${shoulderY + 14}" stroke="${color}" stroke-width="2"/>`
+                        + `<line x1="${cx}" y1="${hipY}" x2="${cx - 9}" y2="${feetY}" stroke="${color}" stroke-width="2.4"/>`
+                        + `<line x1="${cx}" y1="${hipY}" x2="${cx + 9}" y2="${feetY}" stroke="${color}" stroke-width="2.4"/>`;
+                };
+                // ボート（側面の船体）を描く（cx・甲板の高さ deckY・半幅 halfW・色）
+                const drawBoat = (cx, deckY, halfW, fill, stroke) =>
+                    `<path d="M ${cx - halfW} ${deckY} L ${cx + halfW} ${deckY} L ${cx + halfW - 12} ${deckY + 9} Q ${cx} ${deckY + 18} ${cx - halfW + 12} ${deckY + 9} Z" fill="${fill}" stroke="${stroke}" stroke-width="1.8"/>`;
+                // ----- 上段：飛び込む前（静止：人がボートに乗っている） -----
                 svg += `<text x="20" y="22" text-anchor="start" font-size="11" fill="${GRAY}">飛び込む前（静止：運動量の和 0）</text>`;
-                const tBoatX = 70;
-                svg += `<rect x="${tBoatX}" y="${topY}" width="${boatW}" height="${boatH}" rx="5" ry="5" fill="#dce9f7" stroke="${BLUE}" stroke-width="1.8"/>`;
-                svg += `<text x="${tBoatX + boatW / 2}" y="${topY + boatH + 14}" text-anchor="middle" font-size="10" fill="${BLUE}">ボート m₁ ＝ ${problem.m1} kg</text>`;
-                const tPersonX = tBoatX + boatW / 2;
-                svg += `<circle cx="${tPersonX}" cy="${topY - ballR + 2}" r="${ballR}" fill="#dce9f7" stroke="${BLUE}" stroke-width="1.8"/>`;
-                svg += `<text x="${tPersonX + ballR + 6}" y="${topY - ballR + 6}" text-anchor="start" font-size="10" fill="${BLUE}">人 m₂ ＝ ${problem.m2} kg</text>`;
-                // ----- 下段：飛び込んだあと -----
-                const botY = H - 48;
-                svg += `<text x="20" y="${botY - 30}" text-anchor="start" font-size="11" fill="${GRAY}">飛び込んだあと（運動量の和 0 のまま）</text>`;
-                const bBoatX = 90;
-                svg += `<rect x="${bBoatX}" y="${botY}" width="${boatW}" height="${boatH}" rx="5" ry="5" fill="#fbe3e3" stroke="${RED}" stroke-width="1.8"/>`;
+                const tCx = 100, tDeckY = 88;
+                svg += drawBoat(tCx, tDeckY, 40, BOATF, BLUE);
+                svg += drawPerson(tCx, tDeckY, BLUE);   // 足元を甲板に乗せる
+                svg += `<text x="${tCx + 20}" y="${tDeckY - 28}" text-anchor="start" font-size="10" fill="${BLUE}">人 m₂ ＝ ${problem.m2} kg</text>`;
+                svg += `<text x="${tCx}" y="${tDeckY + 34}" text-anchor="middle" font-size="10" fill="${BLUE}">ボート m₁ ＝ ${problem.m1} kg</text>`;
+                // ----- 下段：飛び込んだあと（ボートは左へ、人は右へ） -----
+                svg += `<text x="20" y="140" text-anchor="start" font-size="11" fill="${GRAY}">飛び込んだあと（運動量の和 0 のまま）</text>`;
+                const bBoatCx = 110, bDeckY = 174;
+                svg += drawBoat(bBoatCx, bDeckY, 40, '#fbe3e3', RED);
                 // ボート左向き v₁'=?（赤・未知）
-                const b1x1 = bBoatX - 6, b1x2 = bBoatX - 52;
-                svg += `<line x1="${b1x1}" y1="${botY + boatH / 2}" x2="${b1x2}" y2="${botY + boatH / 2}" stroke="${RED}" stroke-width="2.6" marker-end="url(#stc34-red)"/>`;
-                svg += `<text x="${(b1x1 + b1x2) / 2}" y="${botY + boatH / 2 + 18}" text-anchor="middle" font-size="12" fill="${RED}" font-weight="700">v₁' ＝ ?</text>`;
-                // 人（右へ）
-                const bPersonX = bBoatX + boatW + 36;
-                svg += `<circle cx="${bPersonX}" cy="${botY + 2}" r="${ballR}" fill="#dce9f7" stroke="${BLUE}" stroke-width="1.8"/>`;
+                const b1x1 = bBoatCx - 46, b1x2 = bBoatCx - 90;
+                svg += `<line x1="${b1x1}" y1="${bDeckY + 8}" x2="${b1x2}" y2="${bDeckY + 8}" stroke="${RED}" stroke-width="2.6" marker-end="url(#stc34-red)"/>`;
+                svg += `<text x="${(b1x1 + b1x2) / 2}" y="${bDeckY + 28}" text-anchor="middle" font-size="12" fill="${RED}" font-weight="700">v₁' ＝ ?</text>`;
+                // 人（右へ・人形）
+                const bPersonCx = 255, bFeetY = H - 24;
+                svg += drawPerson(bPersonCx, bFeetY, BLUE);
                 // 人 右向き v₂'（青・既知）
-                const p2x1 = bPersonX + ballR + 4, p2x2 = Math.min(W - 14, p2x1 + 44);
-                svg += `<line x1="${p2x1}" y1="${botY + 2}" x2="${p2x2}" y2="${botY + 2}" stroke="${BLUE}" stroke-width="2.8" marker-end="url(#stc34-blue)"/>`;
-                svg += `<text x="${bPersonX}" y="${botY - ballR - 4}" text-anchor="middle" font-size="11" fill="${BLUE}" font-weight="600">v₂' ＝ ${problem.v2}</text>`;
+                const p2x1 = bPersonCx + 14, p2x2 = Math.min(W - 16, p2x1 + 48);
+                svg += `<line x1="${p2x1}" y1="${bFeetY - 18}" x2="${p2x2}" y2="${bFeetY - 18}" stroke="${BLUE}" stroke-width="2.8" marker-end="url(#stc34-blue)"/>`;
+                svg += `<text x="${(p2x1 + p2x2) / 2}" y="${bFeetY - 26}" text-anchor="middle" font-size="11" fill="${BLUE}" font-weight="600">v₂' ＝ ${problem.v2}</text>`;
                 svg += `</svg></div>`;
                 return svg;
             }
