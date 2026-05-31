@@ -18777,8 +18777,12 @@
                     svg += `<g transform="translate(${px.toFixed(1)},${py.toFixed(1)}) rotate(${-deg})">`;
                     svg += `<rect x="${-boxW / 2}" y="${-boxH - 2}" width="${boxW}" height="${boxH}" rx="4" ry="4" fill="${BOXF}" stroke="${BOXS}" stroke-width="1.8"/>`;
                     svg += `</g>`;
-                    // 重力 W（真下、グレー）：箱の中心から下へ
-                    const gx = px, gy = py - 14;      // おおよそ箱の中心
+                    // 重力 W（真下、グレー）：箱の重心から下へ。
+                    //   箱は translate(px,py) rotate(-deg) で描いているので、重心も回転を考慮して求める。
+                    //   回転前の箱の中心（ローカル）は (0, -(boxH/2 + 2))。これを -deg 回転して (px,py) に足す。
+                    const cLocalY = -(boxH / 2 + 2);
+                    const gx = px + cLocalY * Math.sin(theta);
+                    const gy = py + cLocalY * Math.cos(theta);
                     const wLen = 56;
                     svg += `<line x1="${gx.toFixed(1)}" y1="${gy.toFixed(1)}" x2="${gx.toFixed(1)}" y2="${(gy + wLen).toFixed(1)}" stroke="${GRAY}" stroke-width="2.4" marker-end="url(#stc42-gray)"/>`;
                     svg += `<text x="${(gx + 6).toFixed(1)}" y="${(gy + wLen).toFixed(1)}" text-anchor="start" font-size="12" fill="${GRAY}" font-weight="700">W</text>`;
