@@ -7606,23 +7606,23 @@
                         onCorrectText: '動いた向き（水平）にあたるのは底辺です。底辺 ＝ 斜辺 × cos なので、動いた向きの分力の大きさは F × cos α です。'
                     },
                     {
-                        prompt: '動いた向きの分力 F × cos α に、動いた距離 s を掛けたものが仕事です。仕事 A を求める式はどれですか。',
+                        prompt: '動いた向きの分力 F × cos α に、動いた距離 s を掛けたものが仕事です。「仕事 ＝ 力 × 距離」の形で、仕事 A を求める式はどれですか。',
                         choices: [
-                            { value: 'fscos', label: 'A ＝ F × s × cos α' },
-                            { value: 'fssin', label: 'A ＝ F × s × sin α' },
+                            { value: 'fcoss', label: 'A ＝ (F × cos α) × s' },
+                            { value: 'fsins', label: 'A ＝ (F × sin α) × s' },
                             { value: 'fs',    label: 'A ＝ F × s' }
                         ],
-                        correct: 'fscos',
-                        onCorrectText: '動いた向きの分力 F × cos α に距離 s を掛けて A ＝ F × s × cos α（式 2-42）です。cos α を掛け忘れないようにしてください。'
+                        correct: 'fcoss',
+                        onCorrectText: '動いた向きの分力（F × cos α）に距離 s を掛けて A ＝ (F × cos α) × s。これは「仕事 ＝ 力 × 距離」で、力が動いた向きの分力 F cos α になった形です。並べかえると A ＝ F × s × cos α（式 2-42）と同じです。'
                     }
                 ],
                 formula: 'A = Fs\\cos\\alpha',
                 substitutions: {
-                    slots: ['F', 's', 'cosα'],
+                    slots: ['F', 'cosα', 's'],
                     cards: [
                         { role: 'F',    label: 'F',       value: 200,   unit: 'N' },
-                        { role: 's',    label: 's',       value: 4,     unit: 'm' },
-                        { role: 'cosα', label: 'cos 30°', value: 0.866, unit: '' }
+                        { role: 'cosα', label: 'cos 30°', value: 0.866, unit: '' },
+                        { role: 's',    label: 's',       value: 4,     unit: 'm' }
                     ]
                 }
             },
@@ -7681,9 +7681,9 @@
         const HINTS_4_1_ANGLE = {
             stage0: { b: '問題文の最後の文に注目してください。力 200 N、角度 30°、動いた距離 4 m はすでに数値が書かれています。', a: '問題文の末尾に「この力がした仕事 A [J] を求めよ」とあります。求めるものは仕事 A、単位は J です。', c: '教科書54ページ 例題18を確認してください。' },
             stage1: { b: '問題文に「力の向きは、動く向きと 30° の角度をなしている」とあります。力の向きと動いた向きが同じか、角度をなすかを確かめてください。', a: '力の向きと動いた向きが角度をなすときは、動いた向きの分力だけが仕事をします。だから A ＝ F × s × cos α を使います。', c: '教科書54ページ 式(2-42)、例題18を確認してください。' },
-            stage2: { b: '力 F を、動いた向き（水平）と、それに直角な向きの 2 つに分けます。動いた向きにあたるのは底辺で、大きさは F × cos α です。直角な向きの分力（高さ F × sin α）はその向きに動いていないので仕事をしません。', a: '直角三角形で斜辺が力 F、動いた向き（底辺）が F × cos α。これに距離 s を掛けて A ＝ F × s × cos α（式 2-42）。cos α を掛け忘れないこと。', c: '教科書54ページ 式(2-42)、図2-62、例題18を確認してください。' },
-            stage3: { b: '式は A ＝ F × s × cos α です。F には力、s には距離、cos α には cos 30° の値（0.866）を入れます。', a: '式 A ＝ F × s × cos α の空欄に、F ＝ 200 N、s ＝ 4 m、cos 30° ＝ 0.866 を入れてください。', c: '教科書54ページ 例題18の解答を確認してください。' },
-            stage4: { b: '力、距離、cos 30°（0.866）の 3 つを掛け算します。電卓を使って構いません。答えは小数第1位までで答えてください。', a: 'A ＝ 200 × 4 × 0.866 ＝ 692.8 [J]。小数第1位を四捨五入すると 693 J で、教科書 例題18 と同じです。', c: '教科書54ページ 例題18を確認してください。' }
+            stage2: { b: '力 F を、動いた向き（水平）と、それに直角な向きの 2 つに分けます。動いた向きにあたるのは底辺で、大きさは F × cos α です。直角な向きの分力（高さ F × sin α）はその向きに動いていないので仕事をしません。', a: '直角三角形で斜辺が力 F、動いた向き（底辺）が F × cos α。これに距離 s を掛けて A ＝ (F × cos α) × s（並べかえると F × s × cos α、式 2-42）。cos α を掛け忘れないこと。', c: '教科書54ページ 式(2-42)、図2-62、例題18を確認してください。' },
+            stage3: { b: '式は A ＝ (F × cos α) × s（仕事 ＝ 力 × 距離）です。F には力、cos α には cos 30° の値（0.866）、s には距離を入れます。', a: '式 A ＝ (F × cos α) × s の空欄に、F ＝ 200 N、cos 30° ＝ 0.866、s ＝ 4 m を入れてください。', c: '教科書54ページ 例題18の解答を確認してください。' },
+            stage4: { b: '先に動いた向きの分力 F × cos α ＝ 200 × 0.866 を出し、それに距離 4 を掛けます。電卓を使って構いません。答えは小数第1位までで答えてください。', a: 'A ＝ (200 × 0.866) × 4 ＝ 692.8 [J]。小数第1位を四捨五入すると 693 J で、教科書 例題18 と同じです。', c: '教科書54ページ 例題18を確認してください。' }
         };
         const HINTS_4_1_FORCE = {
             stage0: { b: '問題文の最後の文に注目してください。仕事 240 J、動いた距離 8 m はすでに数値が書かれています。', a: '問題文の末尾に「荷物を押した力 F [N] を求めよ」とあります。求めるものは力 F、単位は N です。', c: '教科書54ページ 式(2-41)「A ＝ Fs」を確認してください。' },
@@ -13889,10 +13889,10 @@
                         } else if (is4_1) {
                             // 4-1（仕事 A=Fs / A=Fs cosα）: formulaType ごとに式の形が異なる。各量は 1 スロットのみ。
                             //   workFlat / workLift  → A ＝ [F] × [s]              （slots: F, s）
-                            //   workAngle            → A ＝ [F] × [s] × [cos α]     （slots: F, s, cosα）
+                            //   workAngle            → A ＝ ( [F] × [cos α] ) × [s]  （slots: F, cosα, s。仕事＝力×距離の形）
                             //   forceFromWork        → F ＝ [A] ÷ [s]              （slots: A, s）
                             if (problem.formulaType === 'workAngle') {
-                                formulaHTML = `A ＝ ${slotSpans[0]} × ${slotSpans[1]} × ${slotSpans[2]}`;
+                                formulaHTML = `A ＝ ( ${slotSpans[0]} × ${slotSpans[1]} ) × ${slotSpans[2]}`;
                             } else if (problem.formulaType === 'forceFromWork') {
                                 formulaHTML = `F ＝ ${slotSpans[0]} ÷ ${slotSpans[1]}`;
                             } else {
@@ -14539,7 +14539,7 @@
                         //   workFlat / workLift は整数答え（注記不要）、workAngle / forceFromWork は小数第 1 位まで。
                         let formulaLine_4_1, answerLabel_4_1, unitLabel_4_1;
                         if (problem.formulaType === 'workAngle') {
-                            formulaLine_4_1 = `$A = ${problem.F} \\times ${problem.s} \\times ${problem.cosValue} = {\\color{#c62828}?}\\ \\mathrm{[J]}$`;
+                            formulaLine_4_1 = `$A = ( ${problem.F} \\times ${problem.cosValue} ) \\times ${problem.s} = {\\color{#c62828}?}\\ \\mathrm{[J]}$`;
                             answerLabel_4_1 = 'A ＝';
                             unitLabel_4_1 = '[J]';
                         } else if (problem.formulaType === 'forceFromWork') {
@@ -15212,8 +15212,8 @@
                             reflFormulaLatex_4_1 = `A = Fs = ${problem.F} \\times ${problem.s} = ${problem.expectedA}\\ \\mathrm{J}`;
                             reflText_4_1 = '仕事 A ＝ 600 × 15 ＝ 9000 J。重力に逆らって物体を真上に持ち上げるときも、力の向き（上）と動いた向き（上）が同じなので A ＝ F × s で求められます。引き上げる力は重力と同じ大きさ 600 N で、これに引き上げた高さ 15 m を掛けます。';
                         } else if (problem.formulaType === 'workAngle') {
-                            reflFormulaLatex_4_1 = `A = Fs\\cos\\alpha = ${problem.F} \\times ${problem.s} \\times ${problem.cosValue} = ${problem.expectedA}\\ \\mathrm{J}`;
-                            reflText_4_1 = '仕事 A ＝ 200 × 4 × 0.866 ＝ 692.8 J。力の向きと動いた向きが角度をなすときは、動いた向きの分力 F × cos α だけが仕事をします。小数第1位を四捨五入すると 693 J で、教科書 例題18 と同じです。同じ力でも、動く向きとなす角が大きいほど（cos が小さいほど）仕事は小さくなります。';
+                            reflFormulaLatex_4_1 = `A = (F\\cos\\alpha)\\times s = ( ${problem.F} \\times ${problem.cosValue} ) \\times ${problem.s} = ${problem.expectedA}\\ \\mathrm{J}`;
+                            reflText_4_1 = '仕事 A ＝ (200 × 0.866) × 4 ＝ 692.8 J。動いた向きの分力 F × cos α ＝ 200 × 0.866 ≒ 173.2 N が「動かす向きの力」で、これに距離 4 m を掛けたもの——つまり「仕事 ＝ 力 × 距離」が仕事です。小数第1位を四捨五入すると 693 J（教科書 例題18）。並べかえると A ＝ F × s × cos α（式 2-42）とも書けます。';
                         } else if (problem.formulaType === 'forceFromWork') {
                             reflFormulaLatex_4_1 = `F = \\dfrac{A}{s} = \\dfrac{${problem.A}}{${problem.s}} = ${problem.expectedF}.0\\ \\mathrm{N}`;
                             reflText_4_1 = '力 F ＝ 240 ÷ 8 ＝ 30.0 N。仕事 A ＝ F × s（力 × 動いた距離）は逆向きにも使えて、した仕事と動いた距離が分かれば、加えた力を求められます。仕事を距離で割れば力が出ます（F ＝ A ÷ s）。3 つの量（仕事・力・距離）のうち 2 つが分かれば、残りの 1 つが求められる、ということです。';
@@ -23293,7 +23293,7 @@
                         } else if (this.currentUnitId === '4-1') {
                             const ft4_1sub = (this.getCalcProblem() || {}).formulaType;
                             if (ft4_1sub === 'workAngle') {
-                                feedback.textContent = '不正解。単位に注目して入れ直してください。「N」が力 F、「m」が距離 s、cos α には cos 30° の値（0.866）を入れます（A ＝ F × s × cos α）。';
+                                feedback.textContent = '不正解。単位に注目して入れ直してください。「N」が力 F、cos α には cos 30° の値（0.866）、「m」が距離 s です（A ＝ (F × cos α) × s）。';
                             } else if (ft4_1sub === 'forceFromWork') {
                                 feedback.textContent = '不正解。単位に注目して入れ直してください。「J」が仕事 A、「m」が距離 s です（F ＝ A ÷ s）。';
                             } else {
@@ -23773,7 +23773,7 @@
                     } else if (is4_1) {
                         let expl4_1;
                         if (problem.formulaType === 'workAngle') {
-                            expl4_1 = `A ＝ F × s × cos α ＝ ${problem.F} × ${problem.s} × ${problem.cosValue} ＝ ${expected} [J]`;
+                            expl4_1 = `A ＝ (F × cos α) × s ＝ (${problem.F} × ${problem.cosValue}) × ${problem.s} ＝ ${expected} [J]`;
                         } else if (problem.formulaType === 'forceFromWork') {
                             expl4_1 = `F ＝ A ÷ s ＝ ${problem.A} ÷ ${problem.s} ＝ ${expected} [N]`;
                         } else {
