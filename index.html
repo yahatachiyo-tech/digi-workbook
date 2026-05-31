@@ -2157,22 +2157,22 @@
                             <div class="name-input-row">
                                 <div class="name-input-group" style="max-width: 120px;">
                                     <label for="attendanceNumber">出席番号</label>
-                                    <input type="number" id="attendanceNumber" min="1" max="40" placeholder="例：5" autocomplete="off" data-1p-ignore="true" data-lpignore="true" data-bwignore oninput="app._onAttendanceChange()">
+                                    <input type="number" id="attendanceNumber" min="1" max="40" placeholder="例：5" oninput="app._onAttendanceChange()">
                                 </div>
                                 <div class="name-input-group">
                                     <label for="lastName">姓</label>
-                                    <input type="text" id="lastName" placeholder="例：山田" autocomplete="off" data-1p-ignore="true" data-lpignore="true" data-bwignore>
+                                    <input type="text" id="lastName" placeholder="例：山田">
                                 </div>
                                 <div class="name-input-group">
                                     <label for="firstName">名</label>
-                                    <input type="text" id="firstName" placeholder="例：太郎" autocomplete="off" data-1p-ignore="true" data-lpignore="true" data-bwignore>
+                                    <input type="text" id="firstName" placeholder="例：太郎">
                                 </div>
                             </div>
                             <!-- 教員パスワード（出席番号 40 のときのみ表示）-->
                             <div class="name-input-row" id="teacherPassRow" style="display:none; margin-top:8px;">
                                 <div class="name-input-group" style="max-width: 320px; flex:1;">
                                     <label for="teacherPassword">教員パスワード（出席番号 40 のみ）</label>
-                                    <input type="password" id="teacherPassword" placeholder="教員のみ入力" autocomplete="off" data-1p-ignore="true" data-lpignore="true" data-bwignore>
+                                    <input type="password" id="teacherPassword" placeholder="教員のみ入力" autocomplete="off">
                                 </div>
                             </div>
                             <div class="login-error-text" id="loginError"></div>
@@ -24357,11 +24357,14 @@
         //   display:none で隠すだけ（DOM に残る）。そのためパスワードマネージャが
         //   ページを「ログインフォーム」と誤認し、解答のたびに再描画される入力欄を
         //   見て「ログインを保存/更新しますか」を繰り返し出してしまう。
-        //   すべての input/textarea に無視属性を付け、誤認を止める（動的生成分は
-        //   MutationObserver で追従）。
+        //   解答系の入力欄（動的生成分含む）に無視属性を付けて誤認を止める。
+        //   ただしログイン画面（#login-screen）の欄は対象外とし、教員パスワードの
+        //   自動入力（オートフィル）は使えるようにしておく。
         (function suppressPasswordManagers() {
             const tagOne = (el) => {
                 if (!el || el.dataset.pmIgnored) return;
+                // ログイン画面の入力欄は除外（1Password のオートフィルを残す）。
+                if (el.closest && el.closest('#login-screen')) return;
                 el.dataset.pmIgnored = '1';
                 el.setAttribute('data-1p-ignore', 'true');
                 el.setAttribute('data-lpignore', 'true');
