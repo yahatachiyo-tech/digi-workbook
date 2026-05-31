@@ -18782,19 +18782,26 @@
                     const wLen = 56;
                     svg += `<line x1="${gx.toFixed(1)}" y1="${gy.toFixed(1)}" x2="${gx.toFixed(1)}" y2="${(gy + wLen).toFixed(1)}" stroke="${GRAY}" stroke-width="2.4" marker-end="url(#stc42-gray)"/>`;
                     svg += `<text x="${(gx + 6).toFixed(1)}" y="${(gy + wLen).toFixed(1)}" text-anchor="start" font-size="12" fill="${GRAY}" font-weight="700">W</text>`;
-                    // 分力（青点線）: 斜面に平行（W sinθ、斜面に沿って下向き）と斜面に垂直（W cosθ、斜面に押しつける）
-                    const compLen = wLen;
-                    // 斜面に沿って下向き（左下方向）の単位ベクトル: (-cosθ, +sinθ)
-                    const par = { x: -Math.cos(theta), y: Math.sin(theta) };
-                    // 斜面に垂直で押しつける向き（斜面下側へ）: (-sinθ, -cosθ) を反転して (sinθ, cosθ) → 斜面に押しつける（右下）
-                    const perp = { x: Math.sin(theta), y: Math.cos(theta) };
-                    const pl = 38;
-                    const parX = gx + par.x * pl, parY = gy + par.y * pl;
-                    svg += `<line x1="${gx.toFixed(1)}" y1="${gy.toFixed(1)}" x2="${parX.toFixed(1)}" y2="${parY.toFixed(1)}" stroke="${COMP}" stroke-width="2" stroke-dasharray="6,3" marker-end="url(#stc42-comp)"/>`;
+                    // 重力 W を斜面に平行・垂直な 2 分力に分解。分力は直角なので平行四辺形は長方形。
+                    //   W を対角線とし、W sinθ（斜面に沿って下向き）と W cosθ（斜面に垂直＝押しつけ）を
+                    //   実際の長さの比（W×sinθ : W×cosθ）で「辺」として描く。各分力の先端から W の先端へ
+                    //   点線（補助線）を引いて長方形を補い、W が 2 分力の合成（対角線）であることを示す。
+                    const Ldiag = wLen;                                          // W（対角線）の長さ
+                    const par = { x: -Math.cos(theta), y: Math.sin(theta) };     // 斜面に沿って下向き（左下）
+                    const perp = { x: Math.sin(theta), y: Math.cos(theta) };     // 斜面に垂直・押しつけ（右下）
+                    const wTipX = gx, wTipY = gy + Ldiag;                        // W の先端
+                    const parLen = Ldiag * Math.sin(theta);                      // |W sinθ|
+                    const perpLen = Ldiag * Math.cos(theta);                     // |W cosθ|
+                    const parX = gx + par.x * parLen, parY = gy + par.y * parLen;
+                    const perpX = gx + perp.x * perpLen, perpY = gy + perp.y * perpLen;
+                    // 長方形の補助線（グレー点線）：各分力の先端 → W の先端
+                    svg += `<line x1="${parX.toFixed(1)}" y1="${parY.toFixed(1)}" x2="${wTipX.toFixed(1)}" y2="${wTipY.toFixed(1)}" stroke="${GRAY}" stroke-width="1" stroke-dasharray="4,3"/>`;
+                    svg += `<line x1="${perpX.toFixed(1)}" y1="${perpY.toFixed(1)}" x2="${wTipX.toFixed(1)}" y2="${wTipY.toFixed(1)}" stroke="${GRAY}" stroke-width="1" stroke-dasharray="4,3"/>`;
+                    // 分力（青・実線）。長さは sinθ:cosθ の比。
+                    svg += `<line x1="${gx.toFixed(1)}" y1="${gy.toFixed(1)}" x2="${parX.toFixed(1)}" y2="${parY.toFixed(1)}" stroke="${COMP}" stroke-width="2.4" marker-end="url(#stc42-comp)"/>`;
                     svg += `<text x="${(parX - 6).toFixed(1)}" y="${(parY + 12).toFixed(1)}" text-anchor="end" font-size="10" fill="${COMP}" font-weight="600">W sinθ</text>`;
-                    const perpX = gx + perp.x * pl, perpY = gy + perp.y * pl;
-                    svg += `<line x1="${gx.toFixed(1)}" y1="${gy.toFixed(1)}" x2="${perpX.toFixed(1)}" y2="${perpY.toFixed(1)}" stroke="${COMP}" stroke-width="2" stroke-dasharray="6,3" marker-end="url(#stc42-comp)"/>`;
-                    svg += `<text x="${(perpX + 6).toFixed(1)}" y="${(perpY + 4).toFixed(1)}" text-anchor="start" font-size="10" fill="${COMP}" font-weight="600">W cosθ</text>`;
+                    svg += `<line x1="${gx.toFixed(1)}" y1="${gy.toFixed(1)}" x2="${perpX.toFixed(1)}" y2="${perpY.toFixed(1)}" stroke="${COMP}" stroke-width="2.4" marker-end="url(#stc42-comp)"/>`;
+                    svg += `<text x="${(perpX + 8).toFixed(1)}" y="${(perpY + 4).toFixed(1)}" text-anchor="start" font-size="10" fill="${COMP}" font-weight="600">W cosθ</text>`;
                     // 引き上げる力 F（赤、斜面に平行に上向き＝右上方向）：箱の上端付近から斜面に沿って上へ
                     const up = { x: Math.cos(theta), y: -Math.sin(theta) };
                     const fStartX = px + up.x * 6, fStartY = (py - boxH) + up.y * 6;
