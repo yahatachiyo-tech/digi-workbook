@@ -15243,17 +15243,17 @@
                         let reflFormulaLatex_4_2, reflText_4_2;
                         if (problem.formulaType === 'lever') {
                             reflFormulaLatex_4_2 = `F = \\dfrac{W \\times b}{a} = \\dfrac{${problem.W} \\times ${problem.b}}{${problem.a}} = ${problem.expectedF} \\ \\text{N}`;
-                            reflText_4_2 = '手がした仕事 A ＝ F × a ＝ 120 × 2 ＝ 240、物体にした仕事 A ＝ W × b ＝ 240 × 1 ＝ 240 で同じです。支点から遠いところを押すほど小さい力で持ち上げられますが、そのぶん手を長く動かします。';
+                            reflText_4_2 = '手で押す力 120 N は、物体の重力 240 N の半分ですみます。そのかわり、手（力点）はおもりが上がる距離の 2 倍（a ÷ b）動かします。手がした仕事 120 × 2 ＝ 240 と、物体にした仕事 240 × 1 ＝ 240 は同じ。小さい力ですむかわりに長く動かす——これを仕事の原理といい、てこ（バールやくぎ抜き、栓抜き）はこのしくみを使っています。';
                         } else if (problem.formulaType === 'incline') {
                             reflFormulaLatex_4_2 = `F = W\\sin\\theta = ${problem.W} \\times ${problem.sinValue} = ${problem.expectedF} \\ \\text{N}`;
-                            reflText_4_2 = '坂がゆるい（θ が小さい）ほど小さい力ですみますが、そのぶん斜面が長くなり、引く距離が長くなります。';
+                            reflText_4_2 = '斜面に沿って押す力 50 N は、真上に持ち上げる力（重力 100 N）の半分ですみます。そのかわり、斜面の長さは高さの 2 倍あり、その分だけ長く押します。仕事はどちらも同じ——これが仕事の原理です。坂（スロープ）を使えば重い荷物を小さい力で上げられるのと同じしくみで、坂がゆるいほど力は小さく、距離は長くなります。';
                         } else if (problem.formulaType === 'pulley') {
                             reflFormulaLatex_4_2 = `F = \\dfrac{W}{2} = \\dfrac{${problem.W}}{2} = ${problem.expectedF} \\ \\text{N}`;
-                            reflText_4_2 = '力 F ＝ W ÷ 2 で長さ 2h 引くと、手がした仕事 A ＝ F × 2h ＝ W × h で、物体を h 持ち上げた仕事と同じです。力が半分のかわり、引く距離が 2 倍です。';
+                            reflText_4_2 = '手で引く力 200 N は重力 400 N の半分ですみます。そのかわり、ロープは物体が上がる距離の 2 倍引きます（F ＝ W ÷ 2 で長さ 2h 引くと、仕事は F × 2h ＝ W × h で持ち上げと同じ）。小さい力で動かすかわりに長く引く——これが仕事の原理です。クレーンや井戸の動滑車に使われています。';
                         } else {
                             // wheelset
                             reflFormulaLatex_4_2 = `F = \\dfrac{W \\times d}{D} = \\dfrac{${problem.W} \\times ${problem.d}}{${problem.D}} = ${problem.expectedF} \\ \\text{N}`;
-                            reflText_4_2 = '輪が軸より大きいほど小さい力ですみますが、そのぶん輪のロープを長く引きます。';
+                            reflText_4_2 = '輪（直径 200 mm）を引く力 160 N は、軸にかかる重力 400 N より小さい。そのかわり、輪は軸より大きく回るので、引くロープは物体が上がる距離の D ÷ d ＝ 2.5 倍動かします。仕事は同じ——これが仕事の原理です。輪が軸より大きいほど小さい力ですみ、距離は長くなります。ドアノブやハンドル、自転車のギアも輪軸のしくみです。';
                         }
                         content.innerHTML = header + staticCanvas1_6 + `
                             <div class="calc-stage-container">
