@@ -7709,9 +7709,9 @@
                 stage1Choices: [ { value: 'lever', label: 'てこを使って、小さい力で重い物体を持ち上げる問題である' }, { value: 'incline', label: '斜面を使って物体を引き上げる問題である' }, { value: 'flat', label: '水平な床の上を物体を横に動かす問題である' } ],
                 stage1Correct: 'lever',
                 derivationSteps: [
-                    { prompt: 'てこでは、手で押す力点は支点から遠い距離 a、物体側の作用点は支点から近い距離 b にある。支点から遠いところを押すほど、小さい力で持ち上げられる。支点のまわりで「右回りに回そうとする働き」と「左回りに回そうとする働き」がつり合っている。つり合いの式はどれですか。',
-                      choices: [ { value: 'balance', label: 'W × b ＝ F × a（重力 × 近い距離 ＝ 手の力 × 遠い距離）' }, { value: 'swap', label: 'W × a ＝ F × b（重力に遠い距離、手の力に近い距離をかける）' }, { value: 'noDist', label: 'W ＝ F（距離は気にせず、力だけがつり合う）' } ],
-                      correct: 'balance', onCorrectText: '物体側は近い距離 b、手側は遠い距離 a なので、つり合いの式は W × b ＝ F × a です。支点から遠いところ（a が大きい側）を押すほど、小さい力 F で持ち上げられます。' },
+                    { prompt: 'てこでは、手で押す力点は支点から遠い距離 a、物体側の作用点は支点から近い距離 b にある。支点のまわりで物を回そうとする働きは「力 × 支点からの距離」で表せ、これを力のモーメントという。物体（W）が回そうとする働きと、手の力（F）が回そうとする働きがつり合っている。このつり合いの式はどれですか。',
+                      choices: [ { value: 'balance', label: 'W × b ＝ F × a（W の回す働き ＝ F の回す働き）' }, { value: 'swap', label: 'W × a ＝ F × b（力にかける距離を W と F で入れかえた式）' }, { value: 'noDist', label: 'W ＝ F（距離を考えず、力だけを等しいとした式）' } ],
+                      correct: 'balance', onCorrectText: 'W は支点から b、F は支点から a 離れているので、回す働き（力のモーメント ＝ 力 × 支点からの距離）は、W が W × b、F が F × a。この 2 つがつり合うので W × b ＝ F × a です。支点から遠いところ（a が大きい側）を押すほど、小さい力 F で持ち上げられます。' },
                     { prompt: 'つり合いの式 W × b ＝ F × a で、求めたいのは手で押す力 F です。F には遠い距離 a が掛け算でついています。F だけを残すには両辺をどうすればよいですか。',
                       choices: [ { value: 'divA', label: '両辺を a で割る（→ F ＝ W × b ÷ a）' }, { value: 'mulA', label: '両辺に a を掛ける（→ F ＝ W × b × a）' }, { value: 'divB', label: '両辺を b で割る（→ F ＝ W × a ÷ b）' } ],
                       correct: 'divA', onCorrectText: 'F に距離 a が掛け算でついているので、両辺を a で割って a を消します。F ＝ W × b ÷ a。これに数値を代入します。' }
