@@ -18869,6 +18869,14 @@
                     svg += `<text x="${(parX - 6).toFixed(1)}" y="${(parY + 12).toFixed(1)}" text-anchor="end" font-size="10" fill="${COMP}" font-weight="600">W sinθ</text>`;
                     svg += `<line x1="${gx.toFixed(1)}" y1="${gy.toFixed(1)}" x2="${perpX.toFixed(1)}" y2="${perpY.toFixed(1)}" stroke="${COMP}" stroke-width="2.4" marker-end="url(#stc42-comp)"/>`;
                     svg += `<text x="${(perpX + 8).toFixed(1)}" y="${(perpY + 4).toFixed(1)}" text-anchor="start" font-size="10" fill="${COMP}" font-weight="600">W cosθ</text>`;
+                    // 重力 W（対角線）と「斜面に垂直な分力 W cosθ」のなす角は θ（斜面の傾き θ と等しい）。
+                    //   取り出した直角三角形（補助図）の θ と対応することがわかるよう、ここにも弧と θ を描く。
+                    const angR = 19;
+                    const angSx = gx, angSy = gy + angR;                                              // W 方向（真下）
+                    const angEx = gx + angR * Math.sin(theta), angEy = gy + angR * Math.cos(theta);   // W cosθ 方向（斜面に垂直）
+                    svg += `<path d="M ${angSx.toFixed(1)} ${angSy.toFixed(1)} A ${angR} ${angR} 0 0 0 ${angEx.toFixed(1)} ${angEy.toFixed(1)}" fill="none" stroke="${GRAY}" stroke-width="1.2"/>`;
+                    const angLx = gx + (angR + 10) * Math.sin(theta / 2), angLy = gy + (angR + 10) * Math.cos(theta / 2);
+                    svg += `<text x="${angLx.toFixed(1)}" y="${(angLy + 4).toFixed(1)}" text-anchor="middle" font-size="12" fill="${GRAY}" font-weight="600">θ</text>`;
                     // 引き上げる力 F（赤、斜面に平行に上向き＝右上方向）：箱の上端付近から斜面に沿って上へ
                     const up = { x: Math.cos(theta), y: -Math.sin(theta) };
                     const fStartX = px + up.x * 6, fStartY = (py - boxH) + up.y * 6;
