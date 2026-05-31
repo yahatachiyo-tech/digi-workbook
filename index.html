@@ -7769,9 +7769,9 @@
                 stage1Choices: [ { value: 'wheelset', label: '輪軸を使って、小さい力で物体を引き上げる問題である' }, { value: 'pulley', label: '動滑車を使って物体を引き上げる問題である' }, { value: 'lever', label: 'てこを使って物体を持ち上げる問題である' } ],
                 stage1Correct: 'wheelset',
                 derivationSteps: [
-                    { prompt: '輪軸では、輪に手で引く力 F が加わり、軸に物体の重力 W が加わる。輪は直径 D、軸は直径 d が回す働きの長さになる。回転がつり合うとき、「輪に加わる力の回す働き」と「軸に加わる力の回す働き」が等しい。つり合いの式はどれですか。',
-                      choices: [ { value: 'balance', label: 'F × D ＝ W × d（手の力 × 輪の直径 ＝ 重力 × 軸の直径）' }, { value: 'swap', label: 'F × d ＝ W × D（手の力に軸の直径、重力に輪の直径をかける）' }, { value: 'noDiam', label: 'F ＝ W（直径は気にせず、力だけがつり合う）' } ],
-                      correct: 'balance', onCorrectText: 'つり合いの式は F × D ＝ W × d です。輪は直径 D、軸は直径 d。半径（D/2・d/2）で考えても、両辺を 2 で割るのは同じなので 2 が消えて、この式と同じになります。' },
+                    { prompt: '輪軸では、輪に手で引く力 F が加わり、軸に物体の重力 W が加わる。物を回そうとする働きは「力 × 中心からの距離」で表せ、これを力のモーメントという。輪は直径 D、軸は直径 d がその長さにあたる（半径で考えても両辺の 2 が消えるので直径でよい）。F が回そうとする働きと、W が回そうとする働きがつり合っている。このつり合いの式はどれですか。',
+                      choices: [ { value: 'balance', label: 'F × D ＝ W × d（F の回す働き ＝ W の回す働き）' }, { value: 'swap', label: 'F × d ＝ W × D（F と W にかける直径を入れかえた式）' }, { value: 'noDiam', label: 'F ＝ W（直径を考えず、力だけを等しいとした式）' } ],
+                      correct: 'balance', onCorrectText: 'F は輪（直径 D）に、W は軸（直径 d）に加わるので、回す働き（力のモーメント ＝ 力 × 中心からの距離）は、F が F × D、W が W × d。この 2 つがつり合うので F × D ＝ W × d です。半径 D/2・d/2 で考えても両辺の 2 が消えて同じ式になります。' },
                     { prompt: 'つり合いの式 F × D ＝ W × d で、求めたいのは手で引く力 F です。F には輪の直径 D が掛け算でついています。F だけを残すには両辺をどうすればよいですか。',
                       choices: [ { value: 'divD', label: '両辺を D で割る（→ F ＝ W × d ÷ D）' }, { value: 'mulD', label: '両辺に D を掛ける（→ F ＝ W × d × D）' }, { value: 'divd', label: '両辺を d で割る（→ F ＝ W × D ÷ d）' } ],
                       correct: 'divD', onCorrectText: 'F に輪の直径 D が掛け算でついているので、両辺を D で割って D を消します。F ＝ W × d ÷ D。D と d は同じ単位（mm）どうしの割り算なので、mm のまま計算してかまいません。' }
