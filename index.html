@@ -9973,6 +9973,15 @@
                 if (!this.isTeacherMode()) {
                     localStorage.setItem('auth', JSON.stringify(this.currentUser));
                 }
+                // ログイン後はログインフォームの値（特に教員パスワード）を空にする。
+                //   値は currentUser に保存済み。こうすると「埋まったログインフォーム」が
+                //   DOM に残らないため、解答中の再描画でパスワードマネージャ（1Password 等）が
+                //   「ログインを保存/更新しますか」を繰り返し出すのを防げる。入力欄自体は
+                //   残るので、次回ログイン時のオートフィルには影響しない。
+                ['attendanceNumber', 'lastName', 'firstName', 'teacherPassword'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.value = '';
+                });
                 // 匿名ログ送信: ログイン時（新規入力）
                 this._sendLoginLog();
                 this.goToMenu();
