@@ -18592,15 +18592,16 @@
                     }
                     // 物体（箱）
                     svg += `<rect x="${boxX}" y="${boxY}" width="${boxW}" height="${boxH}" rx="6" ry="6" fill="#dce9f7" stroke="#1e5fa8" stroke-width="1.8"/>`;
-                    // 上向き引き上げ力 F（赤）：物体の上面の左寄りから上へ
+                    // 上向き引き上げ力 F（赤）：ロープと同じ中心線 cx 上に描き、ロープと重なる形にする。
                     const fLen = 42;
-                    const fX = cx - 14;
-                    svg += `<line x1="${fX}" y1="${boxY}" x2="${fX}" y2="${boxY - fLen}" stroke="${RED}" stroke-width="2.8" marker-end="url(#stc41-red)"/>`;
-                    svg += `<text x="${fX - 6}" y="${boxY - fLen + 6}" text-anchor="end" font-size="14" fill="${RED}" font-weight="700">F</text>`;
-                    // 下向き重力 W（グレー細め）：物体の下面の左寄りから下へ（宙に浮いているので床より上に収まる）
-                    const wLen = 30;
-                    svg += `<line x1="${fX}" y1="${boxBottom}" x2="${fX}" y2="${boxBottom + wLen}" stroke="${GRAY}" stroke-width="2" marker-end="url(#stc41-gray)"/>`;
-                    svg += `<text x="${fX - 6}" y="${boxBottom + wLen}" text-anchor="end" font-size="11" fill="${GRAY}" font-weight="600">W ＝ 600 N</text>`;
+                    svg += `<line x1="${cx}" y1="${boxY}" x2="${cx}" y2="${boxY - fLen}" stroke="${RED}" stroke-width="2.8" marker-end="url(#stc41-red)"/>`;
+                    svg += `<text x="${cx - 8}" y="${boxY - fLen + 6}" text-anchor="end" font-size="14" fill="${RED}" font-weight="700">F</text>`;
+                    // 下向き重力 W（グレー）：重心（箱の中心）から下へ。CG に小さな点を打つ。
+                    const cgY = boxY + boxH / 2;
+                    const wBottom = boxBottom + 26;
+                    svg += `<circle cx="${cx}" cy="${cgY}" r="2.4" fill="${GRAY}"/>`;
+                    svg += `<line x1="${cx}" y1="${cgY}" x2="${cx}" y2="${wBottom}" stroke="${GRAY}" stroke-width="2" marker-end="url(#stc41-gray)"/>`;
+                    svg += `<text x="${cx - 8}" y="${wBottom}" text-anchor="end" font-size="11" fill="${GRAY}" font-weight="600">W ＝ 600 N</text>`;
                     // 引き上げ高さ s の縦寸法線（物体の右側、床から物体下面まで）
                     const dimX = boxX + boxW + 38;
                     svg += `<line x1="${dimX}" y1="${groundTop}" x2="${dimX}" y2="${boxBottom}" stroke="${GRAY}" stroke-width="1.2" marker-start="url(#stc41-grayS)" marker-end="url(#stc41-gray)"/>`;
