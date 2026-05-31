@@ -7743,7 +7743,7 @@
             {
                 id: 3, formulaType: 'pulley', W: 400,
                 expectedF: 200, tolerance: 0.1, unit: 'N', decimals: 0, baselineTime: 180,
-                sentence: '1 つの動滑車に、400 N の重力が働く物体をつるした。ロープの一方の端は天井に固定されていて、もう一方の端を手で下に引いて物体を引き上げる。物体を引き上げるために手で引く力 F [N] を求めよ。',
+                sentence: '1 つの動滑車に、400 N の重力が働く物体をつるした。ロープの一方の端は天井に固定されていて、もう一方の端を手で上に引いて物体を引き上げる。物体を引き上げるために手で引く力 F [N] を求めよ。',
                 condition: '基礎（動滑車・図2-67）、2本のロープが W を等分 → F=W÷2=400÷2=200 N。滑車の重さ・摩擦は0',
                 canvasType: '2d-static', canvas: { width: 300, height: 240, kind: 'pulley' },
                 stage0Choices: [ { value: 'force', label: '手で引く力 F [N] の大きさ' }, { value: 'weight', label: '物体に働く重力 W [N] の大きさ' }, { value: 'rope', label: 'ロープの本数' } ],
@@ -18896,12 +18896,19 @@
                     }
                     // 左ロープ：天井固定 → 滑車左
                     svg += `<line x1="${fixX}" y1="${ceilY}" x2="${fixX}" y2="${pulleyY}" stroke="#555" stroke-width="2"/>`;
-                    // 右ロープ：滑車右 → 手（上へ伸ばし、手で引く）
-                    const handTopY = ceilY + 6;
+                    // 右ロープ：滑車右 → 手で引く側（自由端。天井とはすき間をあけて、固定側と区別する）
+                    const handTopY = ceilY + 24;     // 自由端の高さ
                     svg += `<line x1="${handX}" y1="${pulleyY}" x2="${handX}" y2="${handTopY}" stroke="#555" stroke-width="2"/>`;
-                    // 張力ラベル（2 本それぞれ W/2）
-                    svg += `<text x="${fixX - 6}" y="${pulleyY - 26}" text-anchor="end" font-size="10" fill="${GRAY}" font-weight="600">W／2</text>`;
-                    svg += `<text x="${handX + 6}" y="${pulleyY - 26}" text-anchor="start" font-size="10" fill="${GRAY}" font-weight="600">W／2</text>`;
+                    // 張力ラベル（2 本それぞれ W/2）— 教科書 図2-67(a) と同じ「分数」表記でそろえる
+                    const fracWhalf = (xc, yc) => {
+                        let g = '';
+                        g += `<text x="${xc}" y="${yc - 1}" text-anchor="middle" font-size="11" fill="${GRAY}" font-weight="600">W</text>`;
+                        g += `<line x1="${xc - 6}" y1="${yc + 2}" x2="${xc + 6}" y2="${yc + 2}" stroke="${GRAY}" stroke-width="1"/>`;
+                        g += `<text x="${xc}" y="${yc + 13}" text-anchor="middle" font-size="11" fill="${GRAY}" font-weight="600">2</text>`;
+                        return g;
+                    };
+                    svg += fracWhalf(fixX - 14, pulleyY - 30);
+                    svg += fracWhalf(handX + 14, pulleyY - 30);
                     // 動滑車（円）
                     svg += `<circle cx="${cx}" cy="${pulleyY}" r="${pr}" fill="#f0f0f0" stroke="#555" stroke-width="2"/>`;
                     svg += `<circle cx="${cx}" cy="${pulleyY}" r="3" fill="#555"/>`;
@@ -18914,9 +18921,10 @@
                     const wLen = 28;
                     svg += `<line x1="${cx}" y1="${boxY + boxH}" x2="${cx}" y2="${boxY + boxH + wLen}" stroke="${GRAY}" stroke-width="2.2" marker-end="url(#stc42-gray)"/>`;
                     svg += `<text x="${cx}" y="${boxY + boxH + wLen + 13}" text-anchor="middle" font-size="11" fill="${GRAY}" font-weight="700">W</text>`;
-                    // 手で引く力 F（右ロープ上端、下向き＝引く向き、赤）
-                    const fLen = 40;
-                    svg += `<line x1="${handX}" y1="${handTopY}" x2="${handX}" y2="${handTopY + fLen}" stroke="${RED}" stroke-width="2.8" marker-end="url(#stc42-red)"/>`;
+                    // 手で引く力 F（自由端を上へ引く向き＝上向き、赤）。動滑車では引く向きは上が自然
+                    //   （教科書 図2-67(a) の F も上向き）。
+                    const fLen = 34;
+                    svg += `<line x1="${handX}" y1="${handTopY + fLen}" x2="${handX}" y2="${handTopY}" stroke="${RED}" stroke-width="2.8" marker-end="url(#stc42-red)"/>`;
                     svg += `<text x="${handX + 8}" y="${handTopY + fLen / 2 + 4}" text-anchor="start" font-size="14" fill="${RED}" font-weight="700">F</text>`;
                     svg += `</svg></div>`;
                     return svg;
