@@ -15323,9 +15323,19 @@
                                             <span style="font-size:11px; color:#777;">　運動量（勢い）　平均の速さ</span>
                                         </div>
                                         ・<strong>m × v</strong> ＝ 物体が手に入れた<strong>運動量</strong>（勢い。3-4）。止まっていたので、これがそのまま増えた分。<br>
-                                        ・<strong>v ÷ 2</strong> ＝ <strong>平均の速さ</strong>。速さが 0 から v までまっすぐ増えるので、ならすとちょうど真ん中（半分）。<br>
+                                        ・<strong>v ÷ 2</strong> ＝ <strong>平均の速さ</strong>。速さが 0 から v までまっすぐ増えるので、ならすとちょうど真ん中（半分）。下のグラフで確かめられます。
+                                        <div style="display:flex; justify-content:center; margin:10px 0;">${this.build4_3VtAverageFigure()}</div>
                                         この 2 つを掛けると ½ × m × v²。<strong>v が2回</strong>出るのは運動量と平均の速さの両方に v があるから、<strong>½</strong> が出るのは平均の速さが半分だから、です。
-                                        <div style="margin-top:8px; font-size:12px; color:#777;">（なぜ掛けるの？　仕事 ＝ 力 × 距離。距離 ＝ 平均の速さ × 時間、力 × 時間 ＝ 運動量の変化（力積。3-4）。だから 仕事 ＝ 運動量の変化 × 平均の速さ、になります。）</div>
+                                        <div style="margin-top:10px; padding:10px 13px; background:#fff; border:1px solid var(--color-border); border-radius:3px;">
+                                            <strong>なぜ「掛け算」になるの？</strong><br>
+                                            仕事も力積も、同じ「力」を使った量で、ちがいは<strong>距離</strong>を見るか<strong>時間</strong>を見るかだけです。<br>
+                                            ・力積（運動量の変化）＝ 力 × <strong>時間</strong>（3-4）<br>
+                                            ・仕事（エネルギー）＝ 力 × <strong>距離</strong>（4-1）<br>
+                                            「距離 ＝ 速さ × 時間」なので、距離は<strong>時間に速さを掛けたもの</strong>。だから、<br>
+                                            仕事 ＝ 力 ×（速さ × 時間）＝（力 × 時間）× 速さ ＝ <strong>運動量の変化 × 速さ</strong>。<br>
+                                            速さは押す間にずっと変わるので、ならした<strong>平均の速さ（v÷2）</strong>を使います。<br>
+                                            <span style="color:#555;">イメージ：同じだけ押して同じ勢い（運動量）を与えても、速く動いている物体ほどその間に長い距離を進むので、多くのエネルギーをもらえる──だから「速さ」が掛かります。</span>
+                                        </div>
                                     </div>
                                 </details>`;
                         } else if (problem.formulaType === 'potential') {
@@ -18286,6 +18296,44 @@
                 // 注記（三角比の定義を思い出させるだけ。答えは書かない）
                 s += `<text x="${W / 2}" y="${H - 26}" text-anchor="middle" font-size="11.5" fill="#555">斜辺 ＝ 力 F。底辺が「動いた向き」にあたる。</text>`;
                 s += `<text x="${W / 2}" y="${H - 9}" text-anchor="middle" font-size="11.5" fill="#555">cos α ＝ 底辺 ÷ 斜辺　　sin α ＝ 高さ ÷ 斜辺</text>`;
+                s += `</svg></div>`;
+                return s;
+            }
+
+            // 4-3 問1（運動エネルギー）の補助図：速さ v の v-t グラフ（0→v の直線）。
+            //   速さが 0 から v まで一定の割合で増えるとき、ならした速さ（平均）はちょうど真ん中の
+            //   v÷2 であることを、三角形と中央の破線で視覚的に示す（「なぜ ½ か」のイメージ用）。
+            build4_3VtAverageFigure() {
+                const BLUE = '#1e5fa8', RED = '#c62828', GRAY = '#8a8a8a';
+                const W = 282, H = 200;
+                const ox = 56, oy = 152;        // 原点
+                const tEnd = 212, vTop = 56;    // 線の右上（時間 t で速さ v）
+                const vMid = (oy + vTop) / 2;   // v÷2 の高さ
+                let s = `<div class="drawing-wrapper" style="pointer-events:none;"><svg class="drawing-svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="cursor:default;">`;
+                s += `<defs><marker id="vtAxArrow" markerWidth="8" markerHeight="7" refX="6" refY="3.5" orient="auto"><polygon points="0,0 8,3.5 0,7" fill="${GRAY}"/></marker></defs>`;
+                s += `<rect x="3" y="3" width="${W - 6}" height="${H - 6}" rx="8" ry="8" fill="#fffdf4" stroke="#e0d4a8" stroke-width="1.5"/>`;
+                s += `<text x="${W / 2}" y="22" text-anchor="middle" font-size="12.5" fill="#7a5c00" font-weight="700">速さは 0 → v、ならすと真ん中の v÷2</text>`;
+                // 三角形の塗り（面積＝進んだ距離）
+                s += `<polygon points="${ox},${oy} ${tEnd},${oy} ${tEnd},${vTop}" fill="#dce9f7" stroke="none"/>`;
+                // 軸（時間・速さ）
+                s += `<line x1="${ox}" y1="${oy}" x2="${tEnd + 24}" y2="${oy}" stroke="${GRAY}" stroke-width="1.4" marker-end="url(#vtAxArrow)"/>`;
+                s += `<line x1="${ox}" y1="${oy}" x2="${ox}" y2="${vTop - 22}" stroke="${GRAY}" stroke-width="1.4" marker-end="url(#vtAxArrow)"/>`;
+                s += `<text x="${tEnd + 20}" y="${oy + 16}" text-anchor="middle" font-size="11" fill="${GRAY}">時間</text>`;
+                s += `<text x="${ox}" y="${vTop - 27}" text-anchor="middle" font-size="11" fill="${GRAY}">速さ</text>`;
+                // v（最後の速さ）の補助線
+                s += `<line x1="${ox}" y1="${vTop}" x2="${tEnd}" y2="${vTop}" stroke="${GRAY}" stroke-width="1" stroke-dasharray="4,3"/>`;
+                s += `<line x1="${tEnd}" y1="${oy}" x2="${tEnd}" y2="${vTop}" stroke="${GRAY}" stroke-width="1" stroke-dasharray="4,3"/>`;
+                // 速さの線（0 → v）
+                s += `<line x1="${ox}" y1="${oy}" x2="${tEnd}" y2="${vTop}" stroke="${BLUE}" stroke-width="2.8"/>`;
+                // 平均の速さ v÷2 の線（赤・破線）
+                s += `<line x1="${ox}" y1="${vMid}" x2="${tEnd}" y2="${vMid}" stroke="${RED}" stroke-width="1.8" stroke-dasharray="6,3"/>`;
+                // ラベル
+                s += `<text x="${ox - 7}" y="${vTop + 4}" text-anchor="end" font-size="12" fill="${BLUE}" font-weight="700">v</text>`;
+                s += `<text x="${ox - 7}" y="${vMid + 4}" text-anchor="end" font-size="11.5" fill="${RED}" font-weight="700">v÷2</text>`;
+                s += `<text x="${tEnd}" y="${oy + 16}" text-anchor="middle" font-size="11" fill="${GRAY}">t</text>`;
+                s += `<text x="${tEnd + 6}" y="${vMid + 4}" text-anchor="start" font-size="10.5" fill="${RED}" font-weight="700">平均の速さ</text>`;
+                // 注記（三角形の面積＝進んだ距離）
+                s += `<text x="${W / 2}" y="${H - 8}" text-anchor="middle" font-size="10.5" fill="#555">青い三角形の面積 ＝ 進んだ距離</text>`;
                 s += `</svg></div>`;
                 return s;
             }
