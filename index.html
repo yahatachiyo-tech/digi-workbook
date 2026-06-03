@@ -1048,6 +1048,11 @@
         /* 2 つの図（問題図＋補助図）を横に並べる。各図を固定幅（約282px）に縮め、1 行に収める */
         .vt-fit-row { display: flex; flex-wrap: nowrap; gap: 12px; align-items: flex-start; justify-content: center; width: 100%; }
         .vt-fit-row .drawing-svg { width: 282px; height: auto; max-width: 100%; }
+        /* 三角比の補助図（段階表示）: 補助図が出ていないあいだは問題図を原寸・中央に。
+           補助図が出たら .paired を付け、2 図を横並びに縮めて 1 行に収める */
+        .trig-fig-row { display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: flex-start; justify-content: center; }
+        .trig-fig-row.paired { flex-wrap: nowrap; gap: 12px; width: 100%; }
+        .trig-fig-row.paired .drawing-svg { width: 282px; height: auto; max-width: 100%; }
 
         .calc-formula-input {
             font-size: 24px;
@@ -13634,7 +13639,7 @@
                             && (problem.formulaType === 'conserveGround' || problem.formulaType === 'conserveMid');
                         let figBlock4_2;
                         if (showTrigHelper) {
-                            figBlock4_2 = `<div class="vt-kihaji-row" style="display:flex; flex-wrap:wrap; gap:8px 24px; align-items:flex-start; justify-content:center;">${staticCanvas1_6}<div id="trigDecompSlot" data-on="0"></div></div>`;
+                            figBlock4_2 = `<div class="trig-fig-row" id="trigFigRow">${staticCanvas1_6}<div id="trigDecompSlot" data-on="0"></div></div>`;
                         } else if (showConserveBars) {
                             // 問題図（左・約320px）と棒グラフ（右・約340px）を横に並べる。幅が足りなければ
                             //   flex で同じ倍率に縮めて 1 行に収める（vt-fit-row の CSS で SVG を可変幅に）。
@@ -16236,6 +16241,10 @@
                         trigSlot.innerHTML = fig;
                         trigSlot.setAttribute('data-on', wantTri ? '1' : '0');
                     }
+                    // 補助図が出ているあいだだけ、問題図と補助図を横並びに縮める（.paired）。
+                    //   出ていないあいだは問題図を原寸・中央のまま。
+                    const trigRow = document.getElementById('trigFigRow');
+                    if (trigRow) trigRow.classList.toggle('paired', wantTri);
                 }
                 // 全ステップ完了 → 「次へ」ボタンを表示
                 const nextSlot = document.getElementById('stage2NextSlot');
