@@ -1048,11 +1048,9 @@
         /* 2 つの図（問題図＋補助図）を横に並べる。各図を固定幅（約282px）に縮め、1 行に収める */
         .vt-fit-row { display: flex; flex-wrap: nowrap; gap: 12px; align-items: flex-start; justify-content: center; width: 100%; }
         .vt-fit-row .drawing-svg { width: 282px; height: auto; max-width: 100%; }
-        /* 三角比の補助図（段階表示）: 補助図が出ていないあいだは問題図を原寸・中央に。
-           補助図が出たら .paired を付け、2 図を横並びに縮めて 1 行に収める */
-        .trig-fig-row { display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: flex-start; justify-content: center; }
-        .trig-fig-row.paired { flex-wrap: nowrap; gap: 12px; width: 100%; }
-        .trig-fig-row.paired .drawing-svg { width: 282px; height: auto; max-width: 100%; }
+        /* 三角比の補助図（段階表示）: 問題図と補助図はどちらも原寸で表示。幅が足りなければ
+           自動で折り返して縦に並ぶ（縮めると見えにくいため横幅優先で折り返す） */
+        .trig-fig-row { display: flex; flex-wrap: wrap; gap: 14px 24px; align-items: flex-start; justify-content: center; }
 
         .calc-formula-input {
             font-size: 24px;
@@ -16241,10 +16239,8 @@
                         trigSlot.innerHTML = fig;
                         trigSlot.setAttribute('data-on', wantTri ? '1' : '0');
                     }
-                    // 補助図が出ているあいだだけ、問題図と補助図を横並びに縮める（.paired）。
-                    //   出ていないあいだは問題図を原寸・中央のまま。
-                    const trigRow = document.getElementById('trigFigRow');
-                    if (trigRow) trigRow.classList.toggle('paired', wantTri);
+                    // 補助図は原寸のまま表示する（縮めると見えにくいため）。幅が足りなければ
+                    //   自動で折り返して縦に並ぶ（trig-fig-row は flex-wrap:wrap）。
                 }
                 // 全ステップ完了 → 「次へ」ボタンを表示
                 const nextSlot = document.getElementById('stage2NextSlot');
@@ -18249,7 +18245,7 @@
                 s += `<rect x="3" y="3" width="${W - 6}" height="${H - 6}" rx="8" ry="8" fill="#fffdf4" stroke="#e0d4a8" stroke-width="1.5"/>`;
                 s += `<text x="${W / 2}" y="25" text-anchor="middle" font-size="13.5" fill="#7a5c00" font-weight="700">考え方：取り出した直角三角形</text>`;
                 // 三角形（薄い塗り）
-                s += `<polygon points="${x0},${yb} ${x1.toFixed(1)},${yb} ${x1.toFixed(1)},${yt.toFixed(1)}" fill="#eef3f8" stroke="${GRAY}" stroke-width="1.3"/>`;
+                s += `<polygon points="${x0},${yb} ${x1.toFixed(1)},${yb} ${x1.toFixed(1)},${yt.toFixed(1)}" fill="#f6d999" stroke="#cf9a3a" stroke-width="1.3"/>`;
                 // 斜辺（重力 W、太いグレー）
                 s += `<line x1="${x0}" y1="${yb}" x2="${x1.toFixed(1)}" y2="${yt.toFixed(1)}" stroke="${GRAY}" stroke-width="2.8"/>`;
                 s += `<text x="${((x0 + x1) / 2 - 8).toFixed(1)}" y="${((yb + yt) / 2 - 8).toFixed(1)}" text-anchor="end" font-size="13.5" fill="${GRAY}" font-weight="700">斜辺 ＝ W</text>`;
@@ -18267,7 +18263,7 @@
                 // 直角マーク（右下の角）
                 s += `<rect x="${(x1 - 12).toFixed(1)}" y="${yb - 12}" width="12" height="12" fill="none" stroke="#555" stroke-width="1"/>`;
                 // 注記（三角比の定義を思い出させるだけ。答えは書かない）
-                s += `<text x="${W / 2}" y="${H - 26}" text-anchor="middle" font-size="11.5" fill="#555">斜辺 ＝ 重力 W。向きを整えた直角三角形。</text>`;
+                s += `<text x="${W / 2}" y="${H - 26}" text-anchor="middle" font-size="11.5" fill="#555">問題図の色つき三角形を、向きを整えたもの（斜辺 ＝ W）。</text>`;
                 s += `<text x="${W / 2}" y="${H - 9}" text-anchor="middle" font-size="11.5" fill="#555">sin θ ＝ 高さ ÷ 斜辺　　cos θ ＝ 底辺 ÷ 斜辺</text>`;
                 s += `</svg></div>`;
                 return s;
@@ -19039,12 +19035,9 @@
                     const gx = px + cLocalY * Math.sin(theta);
                     const gy = py + cLocalY * Math.cos(theta);
                     const wLen = 56;
-                    svg += `<line x1="${gx.toFixed(1)}" y1="${gy.toFixed(1)}" x2="${gx.toFixed(1)}" y2="${(gy + wLen).toFixed(1)}" stroke="${GRAY}" stroke-width="2.4" marker-end="url(#stc42-gray)"/>`;
-                    svg += `<text x="${(gx + 6).toFixed(1)}" y="${(gy + wLen).toFixed(1)}" text-anchor="start" font-size="12" fill="${GRAY}" font-weight="700">W</text>`;
                     // 重力 W を斜面に平行・垂直な 2 分力に分解。分力は直角なので平行四辺形は長方形。
                     //   W を対角線とし、W sinθ（斜面に沿って下向き）と W cosθ（斜面に垂直＝押しつけ）を
-                    //   実際の長さの比（W×sinθ : W×cosθ）で「辺」として描く。各分力の先端から W の先端へ
-                    //   点線（補助線）を引いて長方形を補い、W が 2 分力の合成（対角線）であることを示す。
+                    //   実際の長さの比（W×sinθ : W×cosθ）で「辺」として描く。頂点は色塗り・補助線・分力で共有。
                     const Ldiag = wLen;                                          // W（対角線）の長さ
                     const par = { x: -Math.cos(theta), y: Math.sin(theta) };     // 斜面に沿って下向き（左下）
                     const perp = { x: Math.sin(theta), y: Math.cos(theta) };     // 斜面に垂直・押しつけ（右下）
@@ -19053,6 +19046,12 @@
                     const perpLen = Ldiag * Math.cos(theta);                     // |W cosθ|
                     const parX = gx + par.x * parLen, parY = gy + par.y * parLen;
                     const perpX = gx + perp.x * perpLen, perpY = gy + perp.y * perpLen;
+                    // ★取り出す直角三角形（斜辺＝W、底辺＝W cosθ、高さ＝W sinθ）を琥珀色で塗る。補助図と
+                    //   同じ色にして「問題図のどの三角形を取り出したか」を一目で対応づける。矢印はこの上に描く。
+                    svg += `<polygon points="${gx.toFixed(1)},${gy.toFixed(1)} ${perpX.toFixed(1)},${perpY.toFixed(1)} ${wTipX.toFixed(1)},${wTipY.toFixed(1)}" fill="#f6d999" stroke="#cf9a3a" stroke-width="1.2"/>`;
+                    // 重力 W（真下、グレー）
+                    svg += `<line x1="${gx.toFixed(1)}" y1="${gy.toFixed(1)}" x2="${gx.toFixed(1)}" y2="${(gy + wLen).toFixed(1)}" stroke="${GRAY}" stroke-width="2.4" marker-end="url(#stc42-gray)"/>`;
+                    svg += `<text x="${(gx + 6).toFixed(1)}" y="${(gy + wLen).toFixed(1)}" text-anchor="start" font-size="12" fill="${GRAY}" font-weight="700">W</text>`;
                     // 長方形の補助線（グレー点線）：各分力の先端 → W の先端
                     svg += `<line x1="${parX.toFixed(1)}" y1="${parY.toFixed(1)}" x2="${wTipX.toFixed(1)}" y2="${wTipY.toFixed(1)}" stroke="${GRAY}" stroke-width="1" stroke-dasharray="4,3"/>`;
                     svg += `<line x1="${perpX.toFixed(1)}" y1="${perpY.toFixed(1)}" x2="${wTipX.toFixed(1)}" y2="${wTipY.toFixed(1)}" stroke="${GRAY}" stroke-width="1" stroke-dasharray="4,3"/>`;
