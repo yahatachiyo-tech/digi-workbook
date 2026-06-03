@@ -15319,7 +15319,7 @@
                         //   2 本棒グラフ（同じ高さ・同色）を KaTeX 3 行式・言葉の下に追加する。
                         let reflFormulaLatex_4_3, reflText_4_3, extraVisual_4_3 = '';
                         if (problem.formulaType === 'kinetic') {
-                            reflFormulaLatex_4_3 = `\\begin{aligned} E_k &= \\dfrac{1}{2}mv^2 = \\dfrac{1}{2}\\times${problem.m}\\times${problem.v}\\times${problem.v} \\\\ &= ${problem.expectedAns}\\ \\mathrm{J} \\end{aligned}`;
+                            reflFormulaLatex_4_3 = `E_k = \\dfrac{1}{2}mv^2 = \\dfrac{1}{2}\\times${problem.m}\\times${problem.v}\\times${problem.v} = ${problem.expectedAns}\\ \\mathrm{J}`;
                             reflText_4_3 = '運動エネルギー Ek＝½×3×10×10＝150 J。速さ v は2回掛けます。速さが2倍になると運動エネルギーは4倍になります。';
                         } else if (problem.formulaType === 'potential') {
                             reflFormulaLatex_4_3 = `E_p = mgH = ${problem.m}\\times${problem.g}\\times${problem.H} = ${problem.expectedAns}\\ \\mathrm{J}`;
@@ -18360,19 +18360,19 @@
             //   あることを寸法線で明示。面積＝底辺（力積）×平均の速さ＝½mv²（積分・短冊は使わない）。
             build4_3WorkAreaFigure() {
                 const BLUE = '#1e5fa8', GRAY = '#8a8a8a';
-                const W = 300, H = 228;
-                const ox = 60, oy = 156, xEnd = 244, yTop = 54;
+                const W = 300, H = 244;
+                const ox = 60, oy = 174, xEnd = 244, yTop = 74;   // タイトルと図の間に余白を確保するため図を下げる
                 let s = `<div class="drawing-wrapper" style="pointer-events:none;"><svg class="drawing-svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="cursor:default;">`;
                 s += `<defs><marker id="waAxArrow" markerWidth="8" markerHeight="7" refX="6" refY="3.5" orient="auto"><polygon points="0,0 8,3.5 0,7" fill="${GRAY}"/></marker>`;
                 s += `<marker id="waDimS" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><polygon points="7,0 0,3.5 7,7" fill="${GRAY}"/></marker>`;
                 s += `<marker id="waDimE" markerWidth="7" markerHeight="7" refX="1" refY="3.5" orient="auto"><polygon points="0,0 7,3.5 0,7" fill="${GRAY}"/></marker></defs>`;
                 s += `<rect x="3" y="3" width="${W - 6}" height="${H - 6}" rx="8" ry="8" fill="#fffdf4" stroke="#e0d4a8" stroke-width="1.5"/>`;
-                s += `<text x="${W / 2}" y="22" text-anchor="middle" font-size="12" fill="#7a5c00" font-weight="700">線の下の面積 ＝ もらったエネルギー</text>`;
+                s += `<text x="${W / 2}" y="20" text-anchor="middle" font-size="12" fill="#7a5c00" font-weight="700">線の下の面積 ＝ もらったエネルギー</text>`;
                 // 三角形（面積＝エネルギー）
                 s += `<polygon points="${ox},${oy} ${xEnd},${oy} ${xEnd},${yTop}" fill="#dce9f7" stroke="none"/>`;
                 // 軸
                 s += `<line x1="${ox}" y1="${oy}" x2="${xEnd + 26}" y2="${oy}" stroke="${GRAY}" stroke-width="1.4" marker-end="url(#waAxArrow)"/>`;
-                s += `<line x1="${ox}" y1="${oy}" x2="${ox}" y2="${yTop - 20}" stroke="${GRAY}" stroke-width="1.4" marker-end="url(#waAxArrow)"/>`;
+                s += `<line x1="${ox}" y1="${oy}" x2="${ox}" y2="${yTop - 18}" stroke="${GRAY}" stroke-width="1.4" marker-end="url(#waAxArrow)"/>`;
                 // 比例の線（速さ ∝ 運動量）
                 s += `<line x1="${ox}" y1="${oy}" x2="${xEnd}" y2="${yTop}" stroke="${BLUE}" stroke-width="2.8"/>`;
                 // 高さ v の補助線
@@ -18380,9 +18380,8 @@
                 s += `<line x1="${xEnd}" y1="${oy}" x2="${xEnd}" y2="${yTop}" stroke="${GRAY}" stroke-width="1" stroke-dasharray="4,3"/>`;
                 // 面積ラベル（三角形の中）
                 s += `<text x="${ox + 66}" y="${oy - 24}" text-anchor="middle" font-size="11.5" fill="${BLUE}" font-weight="700">エネルギー</text>`;
-                // 軸ラベル（速さ＝縦軸は回転して左端に置き、タイトルと重ならないようにする）
-                const yLabX3 = 18, yLabY3 = (oy + yTop) / 2;
-                s += `<text x="${yLabX3}" y="${yLabY3}" transform="rotate(-90 ${yLabX3} ${yLabY3})" text-anchor="middle" font-size="11" fill="${GRAY}">速さ</text>`;
+                // 軸ラベル（速さ＝縦軸の上、運動量＝横軸の右。タイトルとは余白で分ける）
+                s += `<text x="${ox - 2}" y="${yTop - 22}" text-anchor="middle" font-size="11" fill="${GRAY}">速さ</text>`;
                 s += `<text x="${xEnd + 9}" y="${oy + 15}" text-anchor="start" font-size="11" fill="${GRAY}">運動量</text>`;
                 // v と m×v のラベル
                 s += `<text x="${ox - 7}" y="${yTop + 4}" text-anchor="end" font-size="12" fill="${BLUE}" font-weight="700">v</text>`;
