@@ -1048,9 +1048,9 @@
         /* 2 つの図（問題図＋補助図）を横に並べる。各図を固定幅（約282px）に縮め、1 行に収める */
         .vt-fit-row { display: flex; flex-wrap: nowrap; gap: 12px; align-items: flex-start; justify-content: center; width: 100%; }
         .vt-fit-row .drawing-svg { width: 282px; height: auto; max-width: 100%; }
-        /* 三角比の補助図（段階表示）: 問題図と補助図はどちらも原寸で表示。幅が足りなければ
-           自動で折り返して縦に並ぶ（縮めると見えにくいため横幅優先で折り返す） */
-        .trig-fig-row { display: flex; flex-wrap: wrap; gap: 14px 24px; align-items: flex-start; justify-content: center; }
+        /* 三角比の補助図（段階表示）: 問題図と補助図はどちらも原寸で、縦に並べて中央ぞろえ
+           （縮めると見えにくいため、横並びにせず原寸のまま縦に積む） */
+        .trig-fig-row { display: flex; flex-direction: column; align-items: center; gap: 14px; }
 
         .calc-formula-input {
             font-size: 24px;
@@ -1207,7 +1207,9 @@
         /* 2-1 Stage2: v-t グラフと「き・は・じ」参考図を横並びにする補助行。
            幅の広い画面では横に並び、狭い画面では flex-wrap で下に回り込む。 */
         .vt-kihaji-row > .drawing-wrapper,
-        .vt-pair-row > .drawing-wrapper {
+        .vt-pair-row > .drawing-wrapper,
+        .trig-fig-row > .drawing-wrapper,
+        .vt-fit-row > .drawing-wrapper {
             width: auto;
             flex: 0 1 auto;
             max-width: 100%;
@@ -18263,7 +18265,7 @@
                 // 直角マーク（右下の角）
                 s += `<rect x="${(x1 - 12).toFixed(1)}" y="${yb - 12}" width="12" height="12" fill="none" stroke="#555" stroke-width="1"/>`;
                 // 注記（三角比の定義を思い出させるだけ。答えは書かない）
-                s += `<text x="${W / 2}" y="${H - 26}" text-anchor="middle" font-size="11.5" fill="#555">問題図の色つき三角形を、向きを整えたもの（斜辺 ＝ W）。</text>`;
+                s += `<text x="${W / 2}" y="${H - 26}" text-anchor="middle" font-size="11.5" fill="#555">問題図の色つき三角形を、向きを整えたもの。</text>`;
                 s += `<text x="${W / 2}" y="${H - 9}" text-anchor="middle" font-size="11.5" fill="#555">sin θ ＝ 高さ ÷ 斜辺　　cos θ ＝ 底辺 ÷ 斜辺</text>`;
                 s += `</svg></div>`;
                 return s;
