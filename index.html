@@ -15294,19 +15294,53 @@
                         //   2 本棒グラフ（同じ高さ・同色）を KaTeX 3 行式・言葉の下に追加する。
                         let reflFormulaLatex_4_3, reflText_4_3, extraVisual_4_3 = '';
                         if (problem.formulaType === 'kinetic') {
-                            reflFormulaLatex_4_3 = `E_k = \\dfrac{1}{2}mv^2 = \\dfrac{1}{2}\\times${problem.m}\\times${problem.v}\\times${problem.v} = \\dfrac{1}{2}\\times${problem.m * problem.v * problem.v} = ${problem.expectedAns}\\ \\mathrm{J}`;
+                            reflFormulaLatex_4_3 = `\\begin{aligned} E_k &= \\dfrac{1}{2}mv^2 = \\dfrac{1}{2}\\times${problem.m}\\times${problem.v}\\times${problem.v} \\\\ &= \\dfrac{1}{2}\\times${problem.m * problem.v * problem.v} = ${problem.expectedAns}\\ \\mathrm{J} \\end{aligned}`;
                             reflText_4_3 = '運動エネルギー Ek＝½×3×10×10＝150 J。速さ v は2回掛けます。速さが2倍になると運動エネルギーは4倍になります。';
                         } else if (problem.formulaType === 'potential') {
                             reflFormulaLatex_4_3 = `E_p = mgH = ${problem.m}\\times${problem.g}\\times${problem.H} = ${problem.expectedAns}\\ \\mathrm{J}`;
                             reflText_4_3 = '位置エネルギー Ep＝5×9.8×4＝196 J。高いところ・重い物体ほど大きく、地面（高さ0）では0です。';
                         } else if (problem.formulaType === 'conserveMid') {
-                            reflFormulaLatex_4_3 = `E_k = mg(H-h) = ${problem.m}\\times${problem.g}\\times(${problem.H}-${problem.h}) = ${problem.m}\\times${problem.g}\\times${problem.H - problem.h} = ${problem.expectedAns}\\ \\mathrm{J}`;
+                            reflFormulaLatex_4_3 = `\\begin{aligned} E_k &= mg(H-h) = ${problem.m}\\times${problem.g}\\times(${problem.H}-${problem.h}) \\\\ &= ${problem.m}\\times${problem.g}\\times${problem.H - problem.h} = ${problem.expectedAns}\\ \\mathrm{J} \\end{aligned}`;
                             reflText_4_3 = '途中の運動エネルギー＝減った高さ（H−h＝6 m）分の位置エネルギーが移ったぶん。残り4 m分（78.4 J）はまだ位置エネルギーです。';
                         } else {
                             // conserveGround（問3）: 3 行式 + 言葉 + 2 本棒グラフ
                             reflFormulaLatex_4_3 = `E_k = mgH = ${problem.m}\\times${problem.g}\\times${problem.H} = ${problem.expectedAns}\\ \\mathrm{J}`;
                             reflText_4_3 = '地面の運動エネルギー＝はなした高さの位置エネルギー mgH＝147 J が、そっくり移っただけ。量（J）は変わりません。';
                             extraVisual_4_3 = this.build4_3EnergyCanvas({ canvas: { width: 320, height: 220, kind: 'conserveBars' }, value: problem.expectedAns });
+                        }
+                        // 公式の「成り立ち」を知りたい生徒・先生向けの折りたたみ解説（為近方式：暗記でなく導く）。
+                        //   既習の 仕事 A=Fs / 運動方程式 F=ma / 等加速度 v²=2as を組み合わせて理論的に導く。
+                        //   既定では閉じておき、本流の認知負荷を上げない（「もっと知りたい人へ」）。
+                        let derivExplain_4_3 = '';
+                        if (problem.formulaType === 'kinetic') {
+                            derivExplain_4_3 = `
+                                <details style="margin-top:14px; border:1px solid var(--color-border); border-radius:4px; background:#fafbfc;">
+                                    <summary style="cursor:pointer; padding:11px 15px; font-size:14px; font-weight:600; color:#1e5fa8;">なぜ Ek ＝ ½ × m × v² になるの？（しくみを知りたい人へ）</summary>
+                                    <div style="padding:2px 18px 16px; font-size:14px; line-height:1.9; color:#333;">
+                                        運動エネルギーは、<strong>止まっている物体を速さ v まで加速するのに必要な仕事</strong>と同じ大きさです。すでに習った 3 つの式を組み合わせると導けます。
+                                        <div style="margin:8px 0; padding:8px 12px; background:#fff; border:1px solid var(--color-border); border-radius:3px;">
+                                            ① 仕事の式：A ＝ F × s（力 × 動いた距離。4-1）<br>
+                                            ② 運動方程式：F ＝ m × a（3-2）<br>
+                                            ③ 等加速度の式：v² ＝ 2 × a × s（はじめの速さが 0 のとき。2-2）
+                                        </div>
+                                        ③ を変形すると、a × s ＝ v² ÷ 2。<br>
+                                        ① の F に ② を入れると、A ＝（m × a）× s ＝ m ×（a × s）（掛ける順番を入れ替えただけ）。<br>
+                                        ここに a × s ＝ v² ÷ 2 を入れると、<br>
+                                        <strong>A ＝ m ×（v² ÷ 2）＝ ½ × m × v²</strong>。<br>
+                                        この「加えた仕事」がそっくり運動エネルギーになるので、<strong>Ek ＝ ½ × m × v²</strong>。速さ v を 2 回掛ける（v²）のも、2 で割る（½）のも、ここから出てきます。
+                                    </div>
+                                </details>`;
+                        } else if (problem.formulaType === 'potential') {
+                            derivExplain_4_3 = `
+                                <details style="margin-top:14px; border:1px solid var(--color-border); border-radius:4px; background:#fafbfc;">
+                                    <summary style="cursor:pointer; padding:11px 15px; font-size:14px; font-weight:600; color:#1e5fa8;">なぜ Ep ＝ m × g × H になるの？（しくみを知りたい人へ）</summary>
+                                    <div style="padding:2px 18px 16px; font-size:14px; line-height:1.9; color:#333;">
+                                        位置エネルギーは、<strong>物体を高さ H まで持ち上げるのに必要な仕事</strong>と同じ大きさです。<br>
+                                        物体には下向きに重力 m × g がかかっています。これに逆らって、上向きに m × g の力で、高さ H だけゆっくり持ち上げます。<br>
+                                        持ち上げる仕事：A ＝ 力 × 距離 ＝（m × g）× H ＝ m × g × H（4-1 の仕事の式）。<br>
+                                        この仕事がそっくり位置エネルギーとしてたくわえられるので、<strong>Ep ＝ m × g × H</strong>。
+                                    </div>
+                                </details>`;
                         }
                         content.innerHTML = header + staticCanvas1_6 + `
                             <div class="calc-stage-container">
@@ -15317,6 +15351,7 @@
                                 <div style="background:#eaf1fa; border-left:4px solid #1e5fa8; padding:14px 18px; border-radius:3px; margin-top:18px; font-size:15px; line-height:1.7;">
                                     ${reflText_4_3}
                                 </div>
+                                ${derivExplain_4_3}
                                 ${extraVisual_4_3}
                                 <div style="margin-top:14px; font-size:13px; color:#555;">
                                     次の問題に進む前に、式とエネルギーの図（高さ・速さとエネルギーの関係）を頭の中で思い浮かべてください。
