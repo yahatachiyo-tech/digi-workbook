@@ -15308,11 +15308,12 @@
                         } else if (problem.formulaType === 'conserveMid') {
                             reflFormulaLatex_4_3 = `\\begin{aligned} E_k &= mg(H-h) = ${problem.m}\\times${problem.g}\\times(${problem.H}-${problem.h}) \\\\ &= ${problem.m}\\times${problem.g}\\times${problem.H - problem.h} = ${problem.expectedAns}\\ \\mathrm{J} \\end{aligned}`;
                             reflText_4_3 = '途中の運動エネルギー＝減った高さ（H−h＝6 m）分の位置エネルギーが移ったぶん。残り4 m分（78.4 J）はまだ位置エネルギーです。';
+                            extraVisual_4_3 = this.build4_3ConserveBarsCompare(problem);
                         } else {
-                            // conserveGround（問3）: 3 行式 + 言葉 + 2 本棒グラフ
+                            // conserveGround（問3）: 3 行式 + 言葉 + 積み上げ棒グラフ（最初の総和＝地面の総和）
                             reflFormulaLatex_4_3 = `E_k = mgH = ${problem.m}\\times${problem.g}\\times${problem.H} = ${problem.expectedAns}\\ \\mathrm{J}`;
                             reflText_4_3 = '地面の運動エネルギー＝はなした高さの位置エネルギー mgH＝147 J が、そっくり移っただけ。量（J）は変わりません。';
-                            extraVisual_4_3 = this.build4_3EnergyCanvas({ canvas: { width: 320, height: 220, kind: 'conserveBars' }, value: problem.expectedAns });
+                            extraVisual_4_3 = this.build4_3ConserveBarsCompare(problem);
                         }
                         // 公式の「成り立ち」を知りたい生徒・先生向けの折りたたみ解説（為近方式：暗記でなく導く）。
                         //   既習の 仕事 A=Fs / 運動方程式 F=ma / 等加速度 v²=2as を組み合わせて理論的に導く。
@@ -19330,6 +19331,52 @@
 
                 svg += `</svg></div>`;
                 return svg;
+            }
+
+            // 4-3 問3・問4（保存則）の振り返り図：左「最初の総和」右「観察点の総和」を、位置E＋運動E の
+            //   積み上げ棒で左右に並べる。両方とも同じ高さ（＝総和は変わらない）。位置E が運動E に
+            //   移るようす（問4 は途中なので両方が残る）を視覚化し、保存則の式と対応させる。
+            build4_3ConserveBarsCompare(problem) {
+                const BLUEP = '#4a7fc8', ORANGE = '#e0892e', GRAY = '#8a8a8a', BOXS = '#1e5fa8', RED = '#c62828';
+                const W = 340, H = 250;
+                const m = problem.m, g = problem.g, Hh = problem.H;
+                const total = m * g * Hh;                                   // 力学的エネルギーの総和 ＝ mgH
+                const isMid = (problem.formulaType === 'conserveMid');
+                const epObs = isMid ? m * g * problem.h : 0;                // 観察点の位置エネルギー
+                const ekObs = total - epObs;                               // 観察点の運動エネルギー
+                const fmt = (x) => (Math.round(x * 10) / 10).toString().replace(/\.0$/, '');
+                const baseY = H - 56, topMargin = 54, barMaxH = baseY - topMargin, barW = 76;
+                const leftX = 56, rightX = W - 56 - barW;
+                const topY = baseY - barMaxH;
+                let s = `<div class="drawing-wrapper" style="pointer-events:none;"><svg class="drawing-svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="cursor:default;">`;
+                s += `<rect x="3" y="3" width="${W - 6}" height="${H - 6}" rx="8" ry="8" fill="#fffdf4" stroke="#e0d4a8" stroke-width="1.5"/>`;
+                s += `<text x="${W / 2}" y="22" text-anchor="middle" font-size="12.5" fill="#7a5c00" font-weight="700">総和（位置E ＋ 運動E）は変わらない</text>`;
+                // 床
+                s += `<line x1="20" y1="${baseY}" x2="${W - 20}" y2="${baseY}" stroke="${GRAY}" stroke-width="1.4"/>`;
+                // 共通の総和（高さ）の破線
+                s += `<line x1="34" y1="${topY}" x2="${W - 34}" y2="${topY}" stroke="${RED}" stroke-width="1.2" stroke-dasharray="5,3"/>`;
+                s += `<text x="${W / 2}" y="${topY - 6}" text-anchor="middle" font-size="10.5" fill="${RED}" font-weight="700">総和は同じ ＝ ${fmt(total)} J</text>`;
+                // 左棒（最初）：全部 位置エネルギー
+                s += `<rect x="${leftX}" y="${topY}" width="${barW}" height="${barMaxH}" fill="${BLUEP}" opacity="0.9" stroke="${BOXS}" stroke-width="1.2"/>`;
+                s += `<text x="${leftX + barW / 2}" y="${topY + barMaxH / 2 + 4}" text-anchor="middle" font-size="11.5" fill="#fff" font-weight="700">${fmt(total)} J</text>`;
+                s += `<text x="${leftX + barW / 2}" y="${baseY + 16}" text-anchor="middle" font-size="11" fill="#333" font-weight="600">最初</text>`;
+                s += `<text x="${leftX + barW / 2}" y="${baseY + 30}" text-anchor="middle" font-size="9.5" fill="#666">高さ H・止まっている</text>`;
+                // 右棒（観察点）：位置E（下）＋ 運動E（上）
+                const epH = Math.round(barMaxH * (epObs / total));
+                const ekH = barMaxH - epH;
+                if (epObs > 0) {
+                    s += `<rect x="${rightX}" y="${baseY - epH}" width="${barW}" height="${epH}" fill="${BLUEP}" opacity="0.9" stroke="${BOXS}" stroke-width="1.2"/>`;
+                    s += `<text x="${rightX + barW / 2}" y="${baseY - epH / 2 + 4}" text-anchor="middle" font-size="10.5" fill="#fff" font-weight="700">${fmt(epObs)} J</text>`;
+                }
+                s += `<rect x="${rightX}" y="${topY}" width="${barW}" height="${ekH}" fill="${ORANGE}" opacity="0.92" stroke="#b56a14" stroke-width="1.2"/>`;
+                s += `<text x="${rightX + barW / 2}" y="${topY + ekH / 2 + 4}" text-anchor="middle" font-size="10.5" fill="#fff" font-weight="700">${fmt(ekObs)} J</text>`;
+                s += `<text x="${rightX + barW / 2}" y="${baseY + 16}" text-anchor="middle" font-size="11" fill="#333" font-weight="600">${isMid ? '高さ h（途中）' : '地面'}</text>`;
+                s += `<text x="${rightX + barW / 2}" y="${baseY + 30}" text-anchor="middle" font-size="9.5" fill="#666">${isMid ? '動いている' : '高さ0・動いている'}</text>`;
+                // 凡例
+                s += `<rect x="${W / 2 - 70}" y="${H - 15}" width="11" height="11" fill="${BLUEP}"/><text x="${W / 2 - 55}" y="${H - 5}" font-size="10" fill="#333">位置エネルギー</text>`;
+                s += `<rect x="${W / 2 + 18}" y="${H - 15}" width="11" height="11" fill="${ORANGE}"/><text x="${W / 2 + 33}" y="${H - 5}" font-size="10" fill="#333">運動エネルギー</text>`;
+                s += `</svg></div>`;
+                return s;
             }
 
             // 4-4（動力）の問題図。build4_3EnergyCanvas を雛形に canvas.kind で分岐。
