@@ -15317,25 +15317,12 @@
                                 <details style="margin-top:14px; border:1px solid var(--color-border); border-radius:4px; background:#fafbfc;">
                                     <summary style="cursor:pointer; padding:11px 15px; font-size:14px; font-weight:600; color:#1e5fa8;">なぜ Ek ＝ ½ × m × v² になるの？（しくみを知りたい人へ）</summary>
                                     <div style="padding:2px 18px 16px; font-size:14px; line-height:1.9; color:#333;">
-                                        <strong>ひとことで言うと</strong>──運動エネルギーは「<strong>手に入れた勢い（運動量）</strong> × <strong>ならした速さ（平均の速さ）</strong>」です。
-                                        <div style="margin:8px 0; padding:12px; background:#fff; border:1px solid var(--color-border); border-radius:3px; text-align:center; font-size:15px;">
-                                            Ek ＝（m × v）×（v ÷ 2）＝ <strong>½ × m × v²</strong><br>
-                                            <span style="font-size:11px; color:#777;">　運動量（勢い）　平均の速さ</span>
-                                        </div>
-                                        <div style="margin:10px 0; padding:10px 13px; background:#fff8e1; border-left:3px solid #f0ad4e; border-radius:3px;">
-                                            <strong>イメージ：なぜ「2乗」なの？</strong><br>
-                                            質量はそのままなので、エネルギーの大きさは<strong>速さ</strong>で決まります。速さを 2 倍にすると──手に入れる<strong>勢い（運動量）が2倍</strong>、しかもその間ずっと速く動くので<strong>進む距離（＝平均の速さ）も2倍</strong>。だからエネルギーは <strong>2 × 2 ＝ 4 倍</strong>。速さが<strong>2か所</strong>で効くので、v²（2乗）になります。
-                                        </div>
-                                        ・<strong>m × v</strong> ＝ 物体が手に入れた<strong>運動量</strong>（勢い。3-4）。止まっていたので、これがそのまま増えた分。<br>
-                                        ・<strong>v ÷ 2</strong> ＝ <strong>平均の速さ</strong>。速さが 0 から v までまっすぐ増えるので、ならすとちょうど真ん中（半分）。
-                                        <div style="margin-top:10px; padding:10px 13px; background:#fff; border:1px solid var(--color-border); border-radius:3px;">
-                                            <strong>なぜ「面積」がエネルギーなの？</strong><br>
-                                            力積（運動量の変化）が積み重なると速さが増え、それにつれて<strong>運動エネルギーが増えます</strong>。その<strong>増えたぶん（与えられた仕事）が、下のグラフの線の下の面積</strong>です。<br>
-                                            横軸は<strong>運動量</strong>。<strong>底辺の長さ ＝ 運動量の変化量 ＝ 力積</strong>（0 から m×v まで）。縦軸の<strong>速さ</strong>は 0 から v までまっすぐ増えます。<br>
-                                            だから面積（三角形）＝ <strong>底辺（力積）× 平均の速さ</strong> ＝（m×v）×（v÷2）＝ <strong>½ × m × v²</strong>。
-                                            <div style="display:flex; justify-content:center; margin:10px 0 2px;">${this.build4_3WorkAreaFigure()}</div>
-                                            <span style="color:#555;">「½」が出るのは、速さが 0 からまっすぐ増える三角形だから（平均の速さがちょうど半分）。</span>
-                                        </div>
+                                        運動エネルギーは、<strong>止まっている物体を速さ v まで加速するのに与えた仕事</strong>と同じ大きさです。それは<strong>グラフの面積</strong>で考えると分かります。<br>
+                                        力積（運動量の変化）が積み重なると速さが増え、それにつれて<strong>運動エネルギーが増えます</strong>。その<strong>増えたぶん（与えた仕事）が、下のグラフの線の下の面積</strong>です。<br>
+                                        横軸は<strong>運動量</strong>。<strong>底辺の長さ ＝ 運動量の変化量 ＝ 力積</strong>（0 から m×v まで）。縦軸の<strong>速さ</strong>は 0 から v までまっすぐ増えます。<br>
+                                        だから面積（三角形）＝ <strong>底辺（力積）× 平均の速さ</strong> ＝（m×v）×（v÷2）＝ <strong>½ × m × v²</strong>。
+                                        <div style="display:flex; justify-content:center; margin:10px 0 2px;">${this.build4_3WorkAreaFigure()}</div>
+                                        <span style="color:#555;">「½」が出るのは、速さが 0 からまっすぐ増える三角形だから（平均の速さがちょうど半分）。</span>
                                     </div>
                                 </details>`;
                         } else if (problem.formulaType === 'potential') {
