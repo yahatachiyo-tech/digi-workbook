@@ -13625,9 +13625,18 @@
                         //   出し入れは render1_10DerivAccordion 内で #trigDecompSlot を更新する（2-5 の補助図と同じ方式）。
                         const showTrigHelper = (is4_2 && problem.formulaType === 'incline')
                             || (is4_1 && problem.formulaType === 'workAngle');
-                        const figBlock4_2 = showTrigHelper
-                            ? `<div class="vt-kihaji-row" style="display:flex; flex-wrap:wrap; gap:8px 24px; align-items:flex-start; justify-content:center;">${staticCanvas1_6}<div id="trigDecompSlot" data-on="0"></div></div>`
-                            : staticCanvas1_6;
+                        // 4-3 保存則（問3・問4）: 立式中に「最初の総和＝観察点の総和」を支える積み上げ棒グラフを
+                        //   問題図の右に併置（数値は伏せた symbolic 版＝答えを先に見せない）。
+                        const showConserveBars = is4_3
+                            && (problem.formulaType === 'conserveGround' || problem.formulaType === 'conserveMid');
+                        let figBlock4_2;
+                        if (showTrigHelper) {
+                            figBlock4_2 = `<div class="vt-kihaji-row" style="display:flex; flex-wrap:wrap; gap:8px 24px; align-items:flex-start; justify-content:center;">${staticCanvas1_6}<div id="trigDecompSlot" data-on="0"></div></div>`;
+                        } else if (showConserveBars) {
+                            figBlock4_2 = `<div class="vt-kihaji-row" style="display:flex; flex-wrap:wrap; gap:8px 24px; align-items:flex-start; justify-content:center;">${staticCanvas1_6}${this.build4_3ConserveBarsCompare(problem, true)}</div>`;
+                        } else {
+                            figBlock4_2 = staticCanvas1_6;
+                        }
                         content.innerHTML = header + figBlock4_2 + `
                             <div class="calc-stage-container">
                                 <div class="calc-question-text">${singleStep ? '使う式を考えてください。' : '使う式を、一段ずつ自分で導いてください。'}</div>
@@ -19336,8 +19345,9 @@
             // 4-3 問3・問4（保存則）の振り返り図：左「最初の総和」右「観察点の総和」を、位置E＋運動E の
             //   積み上げ棒で左右に並べる。両方とも同じ高さ（＝総和は変わらない）。位置E が運動E に
             //   移るようす（問4 は途中なので両方が残る）を視覚化し、保存則の式と対応させる。
-            build4_3ConserveBarsCompare(problem) {
+            build4_3ConserveBarsCompare(problem, symbolic) {
                 const BLUEP = '#4a7fc8', ORANGE = '#e0892e', GRAY = '#8a8a8a', BOXS = '#1e5fa8', RED = '#c62828';
+                const sym = !!symbolic;                                      // true: 数値を伏せ、立式（Stage 2）の補助に使う
                 const W = 340, H = 250;
                 const m = problem.m, g = problem.g, Hh = problem.H;
                 const total = m * g * Hh;                                   // 力学的エネルギーの総和 ＝ mgH
@@ -19355,10 +19365,10 @@
                 s += `<line x1="20" y1="${baseY}" x2="${W - 20}" y2="${baseY}" stroke="${GRAY}" stroke-width="1.4"/>`;
                 // 共通の総和（高さ）の破線
                 s += `<line x1="34" y1="${topY}" x2="${W - 34}" y2="${topY}" stroke="${RED}" stroke-width="1.2" stroke-dasharray="5,3"/>`;
-                s += `<text x="${W / 2}" y="${topY - 6}" text-anchor="middle" font-size="10.5" fill="${RED}" font-weight="700">総和は同じ ＝ ${fmt(total)} J</text>`;
+                s += `<text x="${W / 2}" y="${topY - 6}" text-anchor="middle" font-size="10.5" fill="${RED}" font-weight="700">${sym ? '総和は同じ高さ' : '総和は同じ ＝ ' + fmt(total) + ' J'}</text>`;
                 // 左棒（最初）：全部 位置エネルギー
                 s += `<rect x="${leftX}" y="${topY}" width="${barW}" height="${barMaxH}" fill="${BLUEP}" opacity="0.9" stroke="${BOXS}" stroke-width="1.2"/>`;
-                s += `<text x="${leftX + barW / 2}" y="${topY + barMaxH / 2 + 4}" text-anchor="middle" font-size="11.5" fill="#fff" font-weight="700">${fmt(total)} J</text>`;
+                s += `<text x="${leftX + barW / 2}" y="${topY + barMaxH / 2 + 4}" text-anchor="middle" font-size="11.5" fill="#fff" font-weight="700">${sym ? '位置E' : fmt(total) + ' J'}</text>`;
                 s += `<text x="${leftX + barW / 2}" y="${baseY + 16}" text-anchor="middle" font-size="11" fill="#333" font-weight="600">最初</text>`;
                 s += `<text x="${leftX + barW / 2}" y="${baseY + 30}" text-anchor="middle" font-size="9.5" fill="#666">高さ H・止まっている</text>`;
                 // 右棒（観察点）：位置E（下）＋ 運動E（上）
@@ -19366,10 +19376,10 @@
                 const ekH = barMaxH - epH;
                 if (epObs > 0) {
                     s += `<rect x="${rightX}" y="${baseY - epH}" width="${barW}" height="${epH}" fill="${BLUEP}" opacity="0.9" stroke="${BOXS}" stroke-width="1.2"/>`;
-                    s += `<text x="${rightX + barW / 2}" y="${baseY - epH / 2 + 4}" text-anchor="middle" font-size="10.5" fill="#fff" font-weight="700">${fmt(epObs)} J</text>`;
+                    s += `<text x="${rightX + barW / 2}" y="${baseY - epH / 2 + 4}" text-anchor="middle" font-size="10.5" fill="#fff" font-weight="700">${sym ? '位置E' : fmt(epObs) + ' J'}</text>`;
                 }
                 s += `<rect x="${rightX}" y="${topY}" width="${barW}" height="${ekH}" fill="${ORANGE}" opacity="0.92" stroke="#b56a14" stroke-width="1.2"/>`;
-                s += `<text x="${rightX + barW / 2}" y="${topY + ekH / 2 + 4}" text-anchor="middle" font-size="10.5" fill="#fff" font-weight="700">${fmt(ekObs)} J</text>`;
+                s += `<text x="${rightX + barW / 2}" y="${topY + ekH / 2 + 4}" text-anchor="middle" font-size="10.5" fill="#fff" font-weight="700">${sym ? '運動E' : fmt(ekObs) + ' J'}</text>`;
                 s += `<text x="${rightX + barW / 2}" y="${baseY + 16}" text-anchor="middle" font-size="11" fill="#333" font-weight="600">${isMid ? '高さ h（途中）' : '地面'}</text>`;
                 s += `<text x="${rightX + barW / 2}" y="${baseY + 30}" text-anchor="middle" font-size="9.5" fill="#666">${isMid ? '動いている' : '高さ0・動いている'}</text>`;
                 // 凡例
