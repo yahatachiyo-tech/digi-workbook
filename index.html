@@ -6826,10 +6826,11 @@
                 ],
                 formula: 'F = mg + ma',
                 substitutions: {
-                    slots: ['mA', 'mB', 'a'],
-                    slotToCardRoleMap: { mA: 'm', mB: 'm', a: 'a' },
+                    slots: ['mA', 'g', 'mB', 'a'],
+                    slotToCardRoleMap: { mA: 'm', g: 'g', mB: 'm', a: 'a' },
                     cards: [
                         { role: 'm', label: 'm', value: 60, unit: 'kg' },
+                        { role: 'g', label: 'g（重力の強さ。必ず掛ける数）', value: 9.8, unit: 'm/s²' },
                         { role: 'a', label: 'a', value: 2,  unit: 'm/s²' }
                     ]
                 }
@@ -6879,10 +6880,11 @@
                 ],
                 formula: 'F = mg - ma',
                 substitutions: {
-                    slots: ['mA', 'mB', 'a'],
-                    slotToCardRoleMap: { mA: 'm', mB: 'm', a: 'a' },
+                    slots: ['mA', 'g', 'mB', 'a'],
+                    slotToCardRoleMap: { mA: 'm', g: 'g', mB: 'm', a: 'a' },
                     cards: [
                         { role: 'm', label: 'm', value: 50,  unit: 'kg' },
+                        { role: 'g', label: 'g（重力の強さ。必ず掛ける数）', value: 9.8, unit: 'm/s²' },
                         { role: 'a', label: 'a', value: 1.5, unit: 'm/s²' }
                     ]
                 }
@@ -6932,10 +6934,11 @@
                 ],
                 formula: 'S = mg + ma',
                 substitutions: {
-                    slots: ['mA', 'mB', 'a'],
-                    slotToCardRoleMap: { mA: 'm', mB: 'm', a: 'a' },
+                    slots: ['mA', 'g', 'mB', 'a'],
+                    slotToCardRoleMap: { mA: 'm', g: 'g', mB: 'm', a: 'a' },
                     cards: [
                         { role: 'm', label: 'm', value: 20, unit: 'kg' },
+                        { role: 'g', label: 'g（重力の強さ。必ず掛ける数）', value: 9.8, unit: 'm/s²' },
                         { role: 'a', label: 'a', value: 2,  unit: 'm/s²' }
                     ]
                 }
@@ -6995,11 +6998,12 @@
                 ],
                 formula: 'a = \\dfrac{F - mg}{m}',
                 substitutions: {
-                    slots: ['F', 'mA', 'mB'],
-                    slotToCardRoleMap: { F: 'F', mA: 'm', mB: 'm' },
+                    slots: ['F', 'mA', 'g', 'mB'],
+                    slotToCardRoleMap: { F: 'F', mA: 'm', g: 'g', mB: 'm' },
                     cards: [
                         { role: 'F', label: 'F', value: 170, unit: 'N' },
-                        { role: 'm', label: 'm', value: 10,  unit: 'kg' }
+                        { role: 'm', label: 'm', value: 10,  unit: 'kg' },
+                        { role: 'g', label: 'g（重力の強さ。必ず掛ける数）', value: 9.8, unit: 'm/s²' }
                     ]
                 }
             }
@@ -7023,7 +7027,7 @@
                 c: '教科書49〜50ページ 例題14 の式「F ＝ mg ＋ ma」を確認してください。'
             },
             stage3: {
-                b: '式 F ＝ mg ＋ ma ＝ m × 9.8 ＋ m × a に、m（2 か所）と a を入れます。m ＝ 60、a ＝ 2 です。',
+                b: '式 F ＝ mg ＋ ma ＝ m × g ＋ m × a に、m（2 か所）・g・a を入れます。m ＝ 60、g ＝ 9.8、a ＝ 2 です。',
                 a: 'mg の m と ma の m に 60、a に 2 を入れて、F ＝ 60 × 9.8 ＋ 60 × 2 になります。',
                 c: '教科書50ページ 例題14 の代入の流れを確認してください。'
             },
@@ -7052,7 +7056,7 @@
                 c: '教科書49ページ 問31、図2-56 を確認してください。'
             },
             stage3: {
-                b: '式 F ＝ mg − ma ＝ m × 9.8 − m × a に、m（2 か所）と a を入れます。m ＝ 50、a ＝ 1.5 です。',
+                b: '式 F ＝ mg − ma ＝ m × g − m × a に、m（2 か所）・g・a を入れます。m ＝ 50、g ＝ 9.8、a ＝ 1.5 です。',
                 a: 'mg の m と ma の m に 50、a に 1.5 を入れて、F ＝ 50 × 9.8 − 50 × 1.5 になります。',
                 c: '教科書49ページ 問31 を確認してください。'
             },
@@ -7081,7 +7085,7 @@
                 c: '教科書49ページ 問30、図2-56 を確認してください。'
             },
             stage3: {
-                b: '式 S ＝ mg ＋ ma ＝ m × 9.8 ＋ m × a に、m（2 か所）と a を入れます。m ＝ 20、a ＝ 2 です。',
+                b: '式 S ＝ mg ＋ ma ＝ m × g ＋ m × a に、m（2 か所）・g・a を入れます。m ＝ 20、g ＝ 9.8、a ＝ 2 です。',
                 a: 'mg の m と ma の m に 20、a に 2 を入れて、S ＝ 20 × 9.8 ＋ 20 × 2 になります。',
                 c: '教科書49ページ 問30 を確認してください。'
             },
@@ -7110,7 +7114,7 @@
                 c: '教科書49ページ 問32、47ページ 式(2-35) を確認してください。'
             },
             stage3: {
-                b: '式 a ＝ (F − mg) ÷ m ＝ (F − m × 9.8) ÷ m に、F・m（2 か所）を入れます。F ＝ 170、m ＝ 10 です。',
+                b: '式 a ＝ (F − mg) ÷ m ＝ (F − m × g) ÷ m に、F・m（2 か所）・g を入れます。F ＝ 170、m ＝ 10、g ＝ 9.8 です。',
                 a: 'F に 170、mg の m と分母の m に 10 を入れて、a ＝ (170 − 10 × 9.8) ÷ 10 になります。',
                 c: '教科書49ページ 問32 を確認してください。'
             },
@@ -13849,10 +13853,10 @@
                                 formulaHTML = `F ＝ ${slotSpans[0]} × ${slotSpans[1]}`;
                             }
                         } else if (is3_3) {
-                            // 3-3（慣性力 −ma）: 立式 F=mg±ma の意味を残しつつ mg=m×9.8・ma=m×a に展開し、
-                            //   生徒に m（2 か所）と a を代入させる（g=9.8 は定数で固定表示。カードにしない）。
-                            //   inertiaUp/Down/Rope → slots=['mA','mB','a']（mA=mg の m, mB=ma の m, a）
-                            //   inertiaAccel        → slots=['F','mA','mB']（F, mA=mg の m, mB=分母 m）
+                            // 3-3（慣性力 −ma）: 立式 F=mg±ma の意味を残しつつ mg=m×g・ma=m×a に展開し、
+                            //   生徒に m（2 か所）・g・a を代入させる（g もカード化して他単元（2-3/4-3/4-4）と統一）。
+                            //   inertiaUp/Down/Rope → slots=['mA','g','mB','a']（mA=mg の m, g, mB=ma の m, a）
+                            //   inertiaAccel        → slots=['F','mA','g','mB']（F, mA=mg の m, g, mB=分母 m）
                             //   同じ m カードを 2 スロットに使うため slotToCardRoleMap で照合する。
                             slotToCardRoleMap = problem.substitutions.slotToCardRoleMap || null;
                             // 1 行で F ＝ m×9.8 ＋ m×a を表示。m×9.8 を枠で囲って「重力 mg」、m×a を枠で囲って「慣性力 ma」と
@@ -13873,18 +13877,18 @@
                                     + `<span style="font-weight:600;">a ＝</span>`
                                     + fbox3_3('合力（正味の力）', GGREEN_3_3,
                                         `${slotSpans[0]} <span style="font-weight:600;">−</span> `
-                                        + fbox3_3('重力 mg', GBLUE_3_3, `${slotSpans[1]} <span>× 9.8</span>`))
+                                        + fbox3_3('重力 mg', GBLUE_3_3, `${slotSpans[1]} <span>×</span> ${slotSpans[2]}`))
                                     + `<span style="font-weight:600;">÷</span>`
-                                    + slotSpans[2]
+                                    + slotSpans[3]
                                     + `</div>`;
                             } else {
                                 const head3_3 = (problem.formulaType === 'inertiaRope') ? 'S' : 'F';
                                 const op3_3 = (problem.formulaType === 'inertiaDown') ? '−' : '＋';
                                 formulaHTML = rowOpen3_3
                                     + `<span style="font-weight:600;">${head3_3} ＝</span>`
-                                    + fbox3_3('重力 mg', GBLUE_3_3, `${slotSpans[0]} <span>× 9.8</span>`)
+                                    + fbox3_3('重力 mg', GBLUE_3_3, `${slotSpans[0]} <span>×</span> ${slotSpans[1]}`)
                                     + `<span style="font-weight:600;">${op3_3}</span>`
-                                    + fbox3_3('慣性力 ma', GGRAY_3_3, `${slotSpans[1]} <span>× ${slotSpans[2]}</span>`)
+                                    + fbox3_3('慣性力 ma', GGRAY_3_3, `${slotSpans[2]} <span>× ${slotSpans[3]}</span>`)
                                     + `</div>`;
                             }
                         } else if (is3_4) {
