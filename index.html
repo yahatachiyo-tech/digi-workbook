@@ -1045,6 +1045,9 @@
             color: var(--color-text);
             overflow-x: auto;
         }
+        /* 2 つの図（問題図＋補助図）を横に並べる。各図を固定幅（約282px）に縮め、1 行に収める */
+        .vt-fit-row { display: flex; flex-wrap: nowrap; gap: 12px; align-items: flex-start; justify-content: center; width: 100%; }
+        .vt-fit-row .drawing-svg { width: 282px; height: auto; max-width: 100%; }
 
         .calc-formula-input {
             font-size: 24px;
@@ -13633,7 +13636,9 @@
                         if (showTrigHelper) {
                             figBlock4_2 = `<div class="vt-kihaji-row" style="display:flex; flex-wrap:wrap; gap:8px 24px; align-items:flex-start; justify-content:center;">${staticCanvas1_6}<div id="trigDecompSlot" data-on="0"></div></div>`;
                         } else if (showConserveBars) {
-                            figBlock4_2 = `<div class="vt-kihaji-row" style="display:flex; flex-wrap:wrap; gap:8px 24px; align-items:flex-start; justify-content:center;">${staticCanvas1_6}${this.build4_3ConserveBarsCompare(problem, true)}</div>`;
+                            // 問題図（左・約320px）と棒グラフ（右・約340px）を横に並べる。幅が足りなければ
+                            //   flex で同じ倍率に縮めて 1 行に収める（vt-fit-row の CSS で SVG を可変幅に）。
+                            figBlock4_2 = `<div class="vt-fit-row">${staticCanvas1_6}${this.build4_3ConserveBarsCompare(problem, true)}</div>`;
                         } else {
                             figBlock4_2 = staticCanvas1_6;
                         }
