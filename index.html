@@ -15317,17 +15317,24 @@
                                 <details style="margin-top:14px; border:1px solid var(--color-border); border-radius:4px; background:#fafbfc;">
                                     <summary style="cursor:pointer; padding:11px 15px; font-size:14px; font-weight:600; color:#1e5fa8;">なぜ Ek ＝ ½ × m × v² になるの？（しくみを知りたい人へ）</summary>
                                     <div style="padding:2px 18px 16px; font-size:14px; line-height:1.9; color:#333;">
-                                        運動エネルギーは、<strong>止まっている物体を速さ v まで加速するのに必要な仕事</strong>と同じ大きさです。すでに習った 3 つの式を組み合わせると導けます。
+                                        運動エネルギーは、<strong>止まっている物体を速さ v まで加速するのに必要な仕事</strong>と同じ大きさです。その仕事を計算すると、<strong>½</strong> と <strong>v²（速さが2回）</strong>がどこから出てくるのかが見えてきます。
                                         <div style="margin:8px 0; padding:8px 12px; background:#fff; border:1px solid var(--color-border); border-radius:3px;">
-                                            ① 仕事の式：A ＝ F × s（力 × 動いた距離。4-1）<br>
-                                            ② 運動方程式：F ＝ m × a（3-2）<br>
-                                            ③ 等加速度の式：v² ＝ 2 × a × s（はじめの速さが 0 のとき。2-2）
+                                            <strong>場面：</strong>止まっている物体を、一定の力で押して速さ v まで加速する。
                                         </div>
-                                        ③ を変形すると、a × s ＝ v² ÷ 2。<br>
-                                        ① の F に ② を入れると、A ＝（m × a）× s ＝ m ×（a × s）（掛ける順番を入れ替えただけ）。<br>
-                                        ここに a × s ＝ v² ÷ 2 を入れると、<br>
-                                        <strong>A ＝ m ×（v² ÷ 2）＝ ½ × m × v²</strong>。<br>
-                                        この「加えた仕事」がそっくり運動エネルギーになるので、<strong>Ek ＝ ½ × m × v²</strong>。速さ v を 2 回掛ける（v²）のも、2 で割る（½）のも、ここから出てきます。
+                                        <strong>① 進んだ距離 s を出す</strong><br>
+                                        速さは 0 から v まで、一定の割合でまっすぐ増えます。だから途中の<strong>平均の速さは、ちょうど真ん中の v ÷ 2</strong>。<br>
+                                        距離は「平均の速さ × 時間」なので、s ＝（v ÷ 2）× t。<span style="color:#777;">（速さが変わるときは、2-1 の「速さ × 時間」を平均の速さで考える）</span><br>
+                                        <strong>② 速さ v を出す</strong><br>
+                                        加速度 a で t 秒進むと、速さは a × t だけ増えます。0 から増えたので v ＝ a × t。<span style="color:#777;">（2-2）</span><br>
+                                        <strong>③ 加えた仕事 A を計算する</strong><br>
+                                        A ＝ F × s（仕事の式 4-1）。F ＝ m × a（運動方程式 3-2）を入れて、<br>
+                                        A ＝ m × a ×（v ÷ 2）× t ＝ m ×（a × t）×（v ÷ 2）。<br>
+                                        ② の a × t ＝ v を入れて、<strong>A ＝ m × v ×（v ÷ 2）＝ ½ × m × v²</strong>。
+                                        <div style="margin-top:10px; padding:8px 12px; background:#eef6ee; border-left:3px solid #4CAF50; border-radius:3px;">
+                                            この仕事がそっくり運動エネルギーになるので、<strong>Ek ＝ ½ × m × v²</strong>。<br>
+                                            ・<strong>v が 2 回かかる（v²）</strong>のは、「平均の速さ（v ÷ 2）」と「増えた速さ（a × t ＝ v）」の両方に v が出てくるから。<br>
+                                            ・<strong>2 で割る（½）</strong>のは、止まってから加速すると「平均の速さが最後の速さのちょうど半分」になるから。
+                                        </div>
                                     </div>
                                 </details>`;
                         } else if (problem.formulaType === 'potential') {
