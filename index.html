@@ -7854,8 +7854,9 @@
                 stage1Choices: [ { value: 'conserve', label: '落ちていくあいだ、運動エネルギーと位置エネルギーの和（力学的エネルギー）は変わらない問題である' }, { value: 'staystill', label: '物体がずっと止まっていて、エネルギーが変わらない問題である' }, { value: 'newforce', label: '落ちていくあいだに、外から新しいエネルギーが加わってふえていく問題である' } ],
                 stage1Correct: 'conserve',
                 derivationSteps: [
-                    { prompt: '空気の抵抗がないとき、落ちていくあいだ「運動エネルギーと位置エネルギーの和」は変わりません（力学的エネルギーが保存される）。手をはなしたときは止まっているので運動エネルギーは 0、もっているのは位置エネルギー Ep ＝ m × g × H だけです。地面に着くと高さが 0 になり、位置エネルギーは 0 になります。このとき、最初の位置エネルギーはどうなりますか。', choices: [ { value: 'allToEk', label: '位置エネルギーが減った分だけ、運動エネルギーがふえる（位置エネルギーがそっくり運動エネルギーに移る）' }, { value: 'disappear', label: '位置エネルギーは消えてなくなり、運動エネルギーはふえない' }, { value: 'extra', label: '位置エネルギーはそのまま残り、その上に運動エネルギーが新しく加わる' } ], correct: 'allToEk', onCorrectText: '位置エネルギーが減った分だけ運動エネルギーがふえます。しかも、エネルギーの量（J）そのものは変わりません。位置エネルギーという入れ物の中身が、そっくり運動エネルギーの入れ物に移るだけです。地面では位置エネルギーが 0 になるので、最初にあった位置エネルギーが全部、運動エネルギーに移ります。' },
-                    { prompt: '最初にあった位置エネルギーが全部、地面での運動エネルギーに移ります。「位置エネルギーという入れ物の中身が、そっくり運動エネルギーの入れ物に移る」ので、量は変わりません。地面に着いた瞬間の運動エネルギー Ek を求める式はどれですか。', choices: [ { value: 'mgh', label: 'Ek ＝ m × g × H（最初の位置エネルギーが全部、運動エネルギーに移る）' }, { value: 'half_mgh', label: 'Ek ＝ ½ × m × g × H（半分だけ運動エネルギーに移る）' }, { value: 'double', label: 'Ek ＝ m × g × H × 2（落ちるあいだに 2 倍にふえる）' } ], correct: 'mgh', onCorrectText: '量は変わらず、そっくり移るだけなので、地面での運動エネルギー Ek は、最初の位置エネルギーと同じ大きさです。だから Ek ＝ m × g × H。半分になることも、2 倍になることもありません。これに数値を代入します。' }
+                    { prompt: '空気の抵抗がないとき、落ちるあいだ「運動エネルギー ＋ 位置エネルギー」の総和は変わりません（力学的エネルギーが保存される）。そこで「最初の総和 ＝ 地面での総和」を式にします。まず、手をはなした瞬間（高さ H、まだ止まっている）の総和はどれですか。', choices: [ { value: 'top_mgh', label: 'm × g × H ＋ 0（位置エネルギー ＝ m×g×H、運動エネルギー ＝ 0）' }, { value: 'top_ek', label: '0 ＋ ½ × m × v²（位置エネルギー ＝ 0、運動エネルギーがある）' }, { value: 'top_both', label: 'm × g × H ＋ ½ × m × v²（位置・運動の両方がある）' } ], correct: 'top_mgh', onCorrectText: '手をはなした瞬間は高さ H で止まっているので、位置エネルギー ＝ m × g × H、運動エネルギー ＝ 0。総和は m × g × H ＋ 0 ＝ m × g × H です。' },
+                    { prompt: '次に、地面に着いた瞬間（高さ 0、動いている）の総和はどれですか。求めたい運動エネルギーを Ek とします。', choices: [ { value: 'ground_ek', label: '0 ＋ Ek（位置エネルギー ＝ 0、運動エネルギー ＝ Ek）' }, { value: 'ground_mgh', label: 'm × g × H ＋ Ek（位置エネルギーも残っている）' }, { value: 'ground_zero', label: '0 ＋ 0（どちらも 0）' } ], correct: 'ground_ek', onCorrectText: '地面は高さ 0 なので位置エネルギー ＝ 0。運動エネルギーが Ek。総和は 0 ＋ Ek ＝ Ek です。' },
+                    { prompt: '総和は変わらないので「最初の総和 ＝ 地面での総和」。つまり m × g × H ＝ Ek。運動エネルギー Ek を求める式はどれですか。', choices: [ { value: 'mgh', label: 'Ek ＝ m × g × H' }, { value: 'half_mgh', label: 'Ek ＝ ½ × m × g × H' }, { value: 'double', label: 'Ek ＝ m × g × H × 2' } ], correct: 'mgh', onCorrectText: '保存則「最初の総和 ＝ 地面での総和」より m × g × H ＝ Ek。だから Ek ＝ m × g × H。これに数値を代入します。' }
                 ],
                 formula: 'E_k = m\\,g\\,H',
                 substitutions: { slots: ['m', 'g', 'H'], cards: [ { role: 'm', label: 'm', value: 3, unit: 'kg' }, { role: 'g', label: 'g（重力の強さ。必ず掛ける数）', value: 9.8, unit: 'm/s²' }, { role: 'H', label: 'H', value: 5, unit: 'm' } ] }
@@ -7871,8 +7872,9 @@
                 stage1Choices: [ { value: 'midway', label: '落ちている途中（まだ地面に着いていない）の運動エネルギーを求める問題である' }, { value: 'ground', label: '物体が地面に着いて、落ちきった瞬間の運動エネルギーを求める問題である' }, { value: 'top', label: '手をはなした高さで、まだ落ち始めていないときの運動エネルギーを求める問題である' } ],
                 stage1Correct: 'midway',
                 derivationSteps: [
-                    { prompt: '空気の抵抗がないので、落ちるあいだ「運動エネルギーと位置エネルギーの和」は変わりません（力学的エネルギーが保存される）。物体が高さ H から高さ h まで落ちると、その分だけ高さが減ります。運動エネルギーに移ったのは、減った高さの分の位置エネルギーです。減った高さはいくつですか。', choices: [ { value: 'Hminus_h', label: 'H − h（最初の高さから、今いる高さを引く）' }, { value: 'h', label: 'h（今いる高さがそのまま減った高さ）' }, { value: 'Hplus_h', label: 'H ＋ h（最初の高さと今いる高さを足す）' } ], correct: 'Hminus_h', onCorrectText: '減った高さは H − h です。最初の高さ H から、今いる高さ h を引きます。この減った高さの分だけ位置エネルギーが減り、その分が運動エネルギーに移っています。' },
-                    { prompt: '減った高さ（H − h）の分の位置エネルギーが、そっくり運動エネルギーに移ります。位置エネルギーは「質量 × 重力加速度 × 高さ」でした。途中の運動エネルギー Ek を求める式はどれですか。', choices: [ { value: 'mg_Hh', label: 'Ek ＝ m × g ×（H − h）（減った高さの分が運動エネルギーに移る）' }, { value: 'mg_h', label: 'Ek ＝ m × g × h（今いる高さを使う）' }, { value: 'mg_H', label: 'Ek ＝ m × g × H（最初の高さを使う）' } ], correct: 'mg_Hh', onCorrectText: '減った高さ（H − h）の分の位置エネルギーが運動エネルギーに移るので、Ek ＝ m × g ×（H − h）です。まず H − h を計算してから、m と g を掛けます。これに数値を代入します。' }
+                    { prompt: '空気の抵抗がないので、落ちるあいだ「運動エネルギー ＋ 位置エネルギー」の総和は変わりません（力学的エネルギーが保存される）。「最初の総和 ＝ 今いる場所の総和」を式にします。まず、手をはなした瞬間（高さ H、止まっている）の総和はどれですか。', choices: [ { value: 'top_mgH', label: 'm × g × H ＋ 0（位置エネルギー ＝ m×g×H、運動エネルギー ＝ 0）' }, { value: 'top_ek', label: '0 ＋ Ek（位置エネルギーは 0）' }, { value: 'top_mgh', label: 'm × g × h ＋ 0（今いる高さ h を使う）' } ], correct: 'top_mgH', onCorrectText: '手をはなした瞬間は高さ H で止まっているので、総和 ＝ m × g × H ＋ 0 ＝ m × g × H です。' },
+                    { prompt: '次に、高さ h まで落ちてきた瞬間（まだ動いている）の総和はどれですか。求めたい運動エネルギーを Ek とします。', choices: [ { value: 'now_mgh_ek', label: 'm × g × h ＋ Ek（位置エネルギー ＝ m×g×h、運動エネルギー ＝ Ek）' }, { value: 'now_ek', label: '0 ＋ Ek（位置エネルギーは 0）' }, { value: 'now_mgH_ek', label: 'm × g × H ＋ Ek（最初の高さ H を使う）' } ], correct: 'now_mgh_ek', onCorrectText: '高さ h なので位置エネルギー ＝ m × g × h、運動エネルギーが Ek。総和は m × g × h ＋ Ek です。' },
+                    { prompt: '総和は変わらないので「最初の総和 ＝ 今いる場所の総和」。つまり m × g × H ＝ m × g × h ＋ Ek。運動エネルギー Ek を求める式はどれですか。', choices: [ { value: 'mg_Hh', label: 'Ek ＝ m × g × H − m × g × h ＝ m × g ×（H − h）' }, { value: 'mg_h', label: 'Ek ＝ m × g × h' }, { value: 'mg_H', label: 'Ek ＝ m × g × H' } ], correct: 'mg_Hh', onCorrectText: 'm × g × H ＝ m × g × h ＋ Ek を Ek について解くと、Ek ＝ m × g × H − m × g × h ＝ m × g ×（H − h）。まず H − h を計算してから m と g を掛けます。これに数値を代入します。' }
                 ],
                 formula: 'E_k = m\\,g\\,(H - h)',
                 substitutions: { slots: ['m', 'g', 'H', 'h'], cards: [ { role: 'm', label: 'm', value: 2, unit: 'kg' }, { role: 'g', label: 'g（重力の強さ。必ず掛ける数）', value: 9.8, unit: 'm/s²' }, { role: 'H', label: 'H', value: 10, unit: 'm' }, { role: 'h', label: 'h', value: 4, unit: 'm' } ] }
@@ -15314,9 +15316,9 @@
                         let derivExplain_4_3 = '';
                         if (problem.formulaType === 'kinetic') {
                             derivExplain_4_3 = `
-                                <details style="margin-top:14px; border:1px solid var(--color-border); border-radius:4px; background:#fafbfc;">
-                                    <summary style="cursor:pointer; padding:11px 15px; font-size:14px; font-weight:600; color:#1e5fa8;">なぜ Ek ＝ ½ × m × v² になるの？（しくみを知りたい人へ）</summary>
-                                    <div style="padding:2px 18px 16px; font-size:14px; line-height:1.9; color:#333;">
+                                <div style="margin-top:14px; border:1px solid var(--color-border); border-radius:4px; background:#fafbfc; padding:11px 16px 14px;">
+                                    <div style="font-size:14px; font-weight:600; color:#1e5fa8; margin-bottom:6px;">なぜ Ek ＝ ½ × m × v² になるの？（しくみを知りたい人へ）</div>
+                                    <div style="font-size:14px; line-height:1.9; color:#333;">
                                         運動エネルギーは、<strong>止まっている物体を速さ v まで加速するのに与えた仕事</strong>と同じ大きさです。それは<strong>グラフの面積</strong>で考えると分かります。<br>
                                         力積（運動量の変化）が積み重なると速さが増え、それにつれて<strong>運動エネルギーが増えます</strong>。その<strong>増えたぶん（与えた仕事）が、下のグラフの線の下の面積</strong>です。<br>
                                         横軸は<strong>運動量</strong>。<strong>底辺の長さ ＝ 運動量の変化量 ＝ 力積</strong>（0 から m×v まで）。縦軸の<strong>速さ</strong>は 0 から v までまっすぐ増えます。<br>
@@ -15324,18 +15326,18 @@
                                         <div style="display:flex; justify-content:center; margin:10px 0 2px;">${this.build4_3WorkAreaFigure()}</div>
                                         <span style="color:#555;">「½」が出るのは、速さが 0 からまっすぐ増える三角形だから（平均の速さがちょうど半分）。</span>
                                     </div>
-                                </details>`;
+                                </div>`;
                         } else if (problem.formulaType === 'potential') {
                             derivExplain_4_3 = `
-                                <details style="margin-top:14px; border:1px solid var(--color-border); border-radius:4px; background:#fafbfc;">
-                                    <summary style="cursor:pointer; padding:11px 15px; font-size:14px; font-weight:600; color:#1e5fa8;">なぜ Ep ＝ m × g × H になるの？（しくみを知りたい人へ）</summary>
-                                    <div style="padding:2px 18px 16px; font-size:14px; line-height:1.9; color:#333;">
+                                <div style="margin-top:14px; border:1px solid var(--color-border); border-radius:4px; background:#fafbfc; padding:11px 16px 14px;">
+                                    <div style="font-size:14px; font-weight:600; color:#1e5fa8; margin-bottom:6px;">なぜ Ep ＝ m × g × H になるの？（しくみを知りたい人へ）</div>
+                                    <div style="font-size:14px; line-height:1.9; color:#333;">
                                         位置エネルギーは、<strong>物体を高さ H まで持ち上げるのに必要な仕事</strong>と同じ大きさです。<br>
                                         物体には下向きに重力 m × g がかかっています。これに逆らって、上向きに m × g の力で、高さ H だけゆっくり持ち上げます。<br>
                                         持ち上げる仕事：A ＝ 力 × 距離 ＝（m × g）× H ＝ m × g × H（4-1 の仕事の式）。<br>
                                         この仕事がそっくり位置エネルギーとしてたくわえられるので、<strong>Ep ＝ m × g × H</strong>。
                                     </div>
-                                </details>`;
+                                </div>`;
                         }
                         content.innerHTML = header + staticCanvas1_6 + `
                             <div class="calc-stage-container">
