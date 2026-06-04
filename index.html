@@ -16240,9 +16240,17 @@
                         }
                         trigSlot.innerHTML = fig;
                         trigSlot.setAttribute('data-on', wantTri ? '1' : '0');
+                        // 斜面（incline）: 取り出す三角形の色付けは最初からでなく三角比の段でのみ。
+                        //   補助図の出し入れに合わせて問題図を再描画し、琥珀色をオン/オフする。
+                        if (problem.formulaType === 'incline') {
+                            const trigRow = document.getElementById('trigFigRow');
+                            const probWrap = trigRow && trigRow.firstElementChild;
+                            if (probWrap && probWrap.classList && probWrap.classList.contains('drawing-wrapper')) {
+                                probWrap.outerHTML = this.build4_2ToolCanvas(problem, wantTri);
+                            }
+                        }
                     }
-                    // 補助図は原寸のまま表示する（縮めると見えにくいため）。幅が足りなければ
-                    //   自動で折り返して縦に並ぶ（trig-fig-row は flex-wrap:wrap）。
+                    // 補助図は原寸のまま表示する（縮めると見えにくいため）。問題図・補助図とも中央に縦積み。
                 }
                 // 全ステップ完了 → 「次へ」ボタンを表示
                 const nextSlot = document.getElementById('stage2NextSlot');
@@ -18377,7 +18385,9 @@
                 s += `<line x1="${ox}" y1="${yTop}" x2="${xEnd}" y2="${yTop}" stroke="${GRAY}" stroke-width="1" stroke-dasharray="4,3"/>`;
                 s += `<line x1="${xEnd}" y1="${oy}" x2="${xEnd}" y2="${yTop}" stroke="${GRAY}" stroke-width="1" stroke-dasharray="4,3"/>`;
                 // 面積ラベル（三角形の中）
-                s += `<text x="${ox + 66}" y="${oy - 24}" text-anchor="middle" font-size="11.5" fill="${BLUE}" font-weight="700">エネルギー</text>`;
+                // 「エネルギー」は三角形の重心（中心）あたりに置く
+                const triCx = (ox + 2 * xEnd) / 3, triCy = (2 * oy + yTop) / 3;
+                s += `<text x="${triCx.toFixed(1)}" y="${(triCy + 4).toFixed(1)}" text-anchor="middle" font-size="11.5" fill="${BLUE}" font-weight="700">エネルギー</text>`;
                 // 軸ラベル（速さ＝縦軸の上、運動量＝横軸の右。タイトルとは余白で分ける）
                 s += `<text x="${ox - 2}" y="${yTop - 22}" text-anchor="middle" font-size="11" fill="${GRAY}">速さ</text>`;
                 s += `<text x="${xEnd + 9}" y="${oy + 15}" text-anchor="start" font-size="11" fill="${GRAY}">運動量</text>`;
@@ -18943,7 +18953,8 @@
             // 4-2（道具と機械の仕事）の問題図。canvas.kind で 4 種（lever / incline / pulley / wheelset）を描き分ける。
             //   配色：力 F（赤 #d23a2a）／分力（青 #4a7fc8 点線）／補助線・寸法（グレー #8a8a8a）／物体 塗り #dce9f7・線 #1e5fa8。
             //   マーカー id は他キャンバスと衝突しないよう接頭辞 stc42- を使う。
-            build4_2ToolCanvas(problem) {
+            build4_2ToolCanvas(problem, highlightTri) {
+                // highlightTri: true のとき斜面の「取り出す直角三角形」を琥珀色で塗る（三角比の段でのみ）。
                 const c = problem.canvas || { width: 380, height: 200, kind: 'lever' };
                 const W = c.width, H = c.height;
                 const kind = c.kind || 'lever';
@@ -19050,7 +19061,10 @@
                     const perpX = gx + perp.x * perpLen, perpY = gy + perp.y * perpLen;
                     // ★取り出す直角三角形（斜辺＝W、底辺＝W cosθ、高さ＝W sinθ）を琥珀色で塗る。補助図と
                     //   同じ色にして「問題図のどの三角形を取り出したか」を一目で対応づける。矢印はこの上に描く。
-                    svg += `<polygon points="${gx.toFixed(1)},${gy.toFixed(1)} ${perpX.toFixed(1)},${perpY.toFixed(1)} ${wTipX.toFixed(1)},${wTipY.toFixed(1)}" fill="#f6d999" stroke="#cf9a3a" stroke-width="1.2"/>`;
+                    //   ただし最初からではなく、三角比の段（補助図が出る場面）でのみ塗る（highlightTri）。
+                    if (highlightTri) {
+                        svg += `<polygon points="${gx.toFixed(1)},${gy.toFixed(1)} ${perpX.toFixed(1)},${perpY.toFixed(1)} ${wTipX.toFixed(1)},${wTipY.toFixed(1)}" fill="#f6d999" stroke="#cf9a3a" stroke-width="1.2"/>`;
+                    }
                     // 重力 W（真下、グレー）
                     svg += `<line x1="${gx.toFixed(1)}" y1="${gy.toFixed(1)}" x2="${gx.toFixed(1)}" y2="${(gy + wLen).toFixed(1)}" stroke="${GRAY}" stroke-width="2.4" marker-end="url(#stc42-gray)"/>`;
                     svg += `<text x="${(gx + 6).toFixed(1)}" y="${(gy + wLen).toFixed(1)}" text-anchor="start" font-size="12" fill="${GRAY}" font-weight="700">W</text>`;
