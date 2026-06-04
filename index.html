@@ -1045,9 +1045,11 @@
             color: var(--color-text);
             overflow-x: auto;
         }
-        /* 2 つの図（問題図＋補助図）を横に並べる。各図を固定幅（約282px）に縮め、1 行に収める */
-        .vt-fit-row { display: flex; flex-wrap: nowrap; gap: 12px; align-items: flex-start; justify-content: center; width: 100%; }
-        .vt-fit-row .drawing-svg { width: 282px; height: auto; max-width: 100%; }
+        /* 2 つの図（問題図＋補助図）を横に並べる。各図を行幅の半分ずつ（最大400px）に広げて
+           余白を使い切る。狭い画面では半分ずつに縮む */
+        .vt-fit-row { display: flex; flex-wrap: nowrap; gap: 14px; align-items: flex-start; justify-content: center; width: 100%; }
+        .vt-fit-row > .drawing-wrapper { flex: 1 1 0; min-width: 0; max-width: 400px; }
+        .vt-fit-row .drawing-svg { width: 100%; height: auto; }
         /* 三角比の補助図（段階表示）: 問題図と補助図はどちらも原寸で、縦に並べて中央ぞろえ
            （縮めると見えにくいため、横並びにせず原寸のまま縦に積む） */
         .trig-fig-row { display: flex; flex-direction: column; align-items: center; gap: 14px; }
@@ -1208,8 +1210,7 @@
            幅の広い画面では横に並び、狭い画面では flex-wrap で下に回り込む。 */
         .vt-kihaji-row > .drawing-wrapper,
         .vt-pair-row > .drawing-wrapper,
-        .trig-fig-row > .drawing-wrapper,
-        .vt-fit-row > .drawing-wrapper {
+        .trig-fig-row > .drawing-wrapper {
             width: auto;
             flex: 0 1 auto;
             max-width: 100%;
