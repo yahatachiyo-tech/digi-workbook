@@ -1551,6 +1551,45 @@
             color: var(--color-primary);
             font-weight: 600;
         }
+        /* 各考査カードの印刷ボタン群（教員のみ表示）。考査ごとに正しい内容を出力する。 */
+        .ep-section-print {
+            margin-top: 14px;
+            padding-top: 12px;
+            border-top: 1px dashed var(--color-border);
+        }
+        .ep-section-print-label {
+            font-size: 11px;
+            color: var(--color-text-muted);
+            margin-bottom: 8px;
+        }
+        .ep-print-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .ep-print-row:last-child { margin-bottom: 0; }
+        .ep-print-kind {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--color-text);
+            min-width: 78px;
+        }
+        .ep-print-btn {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 5px 12px;
+            border: 1px solid var(--color-primary);
+            border-radius: 6px;
+            background: #fff;
+            color: var(--color-primary);
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s;
+        }
+        .ep-print-btn:hover { background: var(--color-primary); color: #fff; }
+        .ep-print-btn.ans { border-color: var(--color-danger); color: var(--color-danger); }
+        .ep-print-btn.ans:hover { background: var(--color-danger); color: #fff; }
         .ep-question-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
@@ -2203,10 +2242,10 @@
                     <div class="menu-header-actions">
                         <button class="btn dashboard-btn" id="examPrepBtn" onclick="app.goToExamPrep()">対策モード</button>
                         <button class="btn dashboard-btn" id="dashboardBtn" onclick="app.goToDashboard()" style="display:none;">ダッシュボード</button>
-                        <button class="btn dashboard-btn" id="prepPrintBtn"    onclick="app.openPrepPrint('midterm-1', false)" style="display:none;">対策プリント（配布）</button>
-                        <button class="btn dashboard-btn" id="prepPrintAnsBtn" onclick="app.openPrepPrint('midterm-1', true)"  style="display:none;">対策プリント（解答・解説）</button>
-                        <button class="btn dashboard-btn" id="examPrintBtn"    onclick="app.openExamPrint('midterm-1', false)" style="display:none;">考査問題（配布）</button>
-                        <button class="btn dashboard-btn" id="examPrintAnsBtn" onclick="app.openExamPrint('midterm-1', true)"  style="display:none;">考査問題（解答・解説）</button>
+                        <button class="btn dashboard-btn" id="prepPrintBtn"    onclick="app.openPrepPrint(app.currentExamKey(), false)" style="display:none;">対策プリント（配布）</button>
+                        <button class="btn dashboard-btn" id="prepPrintAnsBtn" onclick="app.openPrepPrint(app.currentExamKey(), true)"  style="display:none;">対策プリント（解答・解説）</button>
+                        <button class="btn dashboard-btn" id="examPrintBtn"    onclick="app.openExamPrint(app.currentExamKey(), false)" style="display:none;">考査問題（配布）</button>
+                        <button class="btn dashboard-btn" id="examPrintAnsBtn" onclick="app.openExamPrint(app.currentExamKey(), true)"  style="display:none;">考査問題（解答・解説）</button>
                         <button class="btn logout-btn" onclick="app.logout()">ログアウト</button>
                     </div>
                 </div>
@@ -10295,6 +10334,14 @@
             //   B4 サイズは @page で指定。KaTeX は CDN から再ロード。
             //   教員モード限定で動作（isTeacherMode() でガード）。
 
+            // メニュー上部の「対策プリント／考査問題」ショートカットが対象とする考査キー。
+            //   学期が進んで対象考査が変わったら、この 1 か所だけ書き換える。
+            //   （各考査カードの印刷ボタンは考査ごとに正しい内容を出力するので、
+            //     midterm-1 など他の考査もそちらから印刷できる。）
+            currentExamKey() {
+                return 'final-1';
+            }
+
             // 対策プリントを直接生成。
             //   showAnswers=false → 配布版（空欄、workflow 領域は予約され見えない）
             //   showAnswers=true  → 解答・解説版（赤字解答 + workflow 表示）
@@ -11598,11 +11645,26 @@
                     const badge = (!isPublic && teacher)
                         ? '<span style="margin-left:8px; padding:2px 8px; background:#888; color:#fff; font-size:11px; border-radius:3px;">非公開</span>'
                         : '';
+                    const printPanel = teacher ? `
+                            <div class="ep-section-print" onclick="event.stopPropagation();">
+                                <div class="ep-section-print-label">印刷（教員のみ・この考査の内容を出力）</div>
+                                <div class="ep-print-row">
+                                    <span class="ep-print-kind">対策プリント</span>
+                                    <button class="ep-print-btn" onclick="event.stopPropagation(); app.openPrepPrint('${key}', false)">配布</button>
+                                    <button class="ep-print-btn ans" onclick="event.stopPropagation(); app.openPrepPrint('${key}', true)">解答・解説</button>
+                                </div>
+                                <div class="ep-print-row">
+                                    <span class="ep-print-kind">考査問題</span>
+                                    <button class="ep-print-btn" onclick="event.stopPropagation(); app.openExamPrint('${key}', false)">配布</button>
+                                    <button class="ep-print-btn ans" onclick="event.stopPropagation(); app.openExamPrint('${key}', true)">解答・解説</button>
+                                </div>
+                            </div>` : '';
                     html += `
                         <div class="ep-section-card" onclick="app.selectExamSection('${key}')">
                             <div class="ep-section-title">${data.meta.title}${badge}</div>
                             <div class="ep-section-meta">${data.meta.scope}　／　全 ${total} 問</div>
                             <div class="ep-section-progress">進捗: ${correct} / ${total} 問正解</div>
+                            ${printPanel}
                         </div>`;
                 });
                 // 期末対策など、未公開のプレースホルダ
