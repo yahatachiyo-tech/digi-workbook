@@ -19597,30 +19597,39 @@
                 }
 
                 if (kind === 'powerLift') {
-                    // 縦長：物体を上向きの力 F で引き上げる。上向き力矢印「F ＝ 1000 N」、引き上げ高さ「h ＝ 30 m」の縦寸法、時計「t ＝ 5 秒」。
-                    const groundY = H - 30;
-                    const boxW = 48, boxH = 36;
-                    const colX = W / 2 - 16;               // 物体・矢印の縦軸 x（左に寸法線の余白）
+                    // 縦長：物体を上向きの力 F で h だけ引き上げる場面。
+                    //   物体は「持ち上げた後」の位置（地面より上）に実線で描き、元の位置は破線の箱で示す。
+                    //   引き上げ高さ h は、持ち上げ後の下端〜地面 の縦寸法でしっかり長く取る。
+                    //   力矢印 F は向きを示すだけなので短め（以前は canvas 全高で長すぎた）。
+                    const groundY = H - 26;                 // 地面の y
+                    const boxW = 46, boxH = 34;
+                    const colX = W / 2 - 2;                  // 物体・矢印の縦軸 x（左に寸法線の余白）
                     const boxX = colX - boxW / 2;
-                    const boxY = groundY - boxH;
+                    const liftBottomY = 104;                // 持ち上げ後の物体下端
+                    const boxTopY = liftBottomY - boxH;     // 持ち上げ後の物体上端
                     // 地面（ハッチング）
                     svg += `<line x1="20" y1="${groundY}" x2="${W - 20}" y2="${groundY}" stroke="${GRAY}" stroke-width="1.6"/>`;
                     for (let hx = 28; hx < W - 18; hx += 16) {
                         svg += `<line x1="${hx}" y1="${groundY}" x2="${hx - 8}" y2="${groundY + 9}" stroke="#bbb" stroke-width="1"/>`;
                     }
-                    // 物体（箱、地面付近）
-                    svg += `<rect x="${boxX}" y="${boxY}" width="${boxW}" height="${boxH}" rx="5" ry="5" fill="${BOXF}" stroke="${BOXS}" stroke-width="1.8"/>`;
-                    // 上向き力矢印 F（物体上端から上へ）。先端が canvas 上端を超えないよう y=24 で止める。
-                    const fTop = 24;
-                    svg += `<line x1="${colX}" y1="${boxY - 4}" x2="${colX}" y2="${fTop}" stroke="${RED}" stroke-width="2.8" marker-end="url(#stc44-red)"/>`;
-                    svg += `<text x="${colX + 8}" y="${fTop + 14}" text-anchor="start" font-size="13" fill="${RED}" font-weight="700">F ＝ 1000 N</text>`;
-                    // 引き上げ高さ h の縦寸法線（左外側、地面〜物体上端）
-                    const dimX = 38;
-                    svg += `<line x1="${dimX}" y1="${boxY}" x2="${dimX}" y2="${groundY}" stroke="${GRAY}" stroke-width="1.2" marker-start="url(#stc44-grayS)" marker-end="url(#stc44-gray)"/>`;
-                    svg += `<line x1="${dimX}" y1="${boxY}" x2="${boxX}" y2="${boxY}" stroke="${GRAY}" stroke-width="0.6" stroke-dasharray="3,3"/>`;
-                    svg += `<text x="${dimX + 6}" y="${(boxY + groundY) / 2 + 4}" text-anchor="start" font-size="12" fill="${GRAY}" font-weight="700">h ＝ 30 m</text>`;
-                    // 時計（時間 t、右下の余白）
-                    svg += clockIcon(W - 40, groundY - 30, 13, 't ＝ 5 秒');
+                    // 元の位置（破線の箱、地面の上）。ここから h だけ持ち上げた。
+                    const origTopY = groundY - boxH;
+                    svg += `<rect x="${boxX}" y="${origTopY}" width="${boxW}" height="${boxH}" rx="5" ry="5" fill="none" stroke="${GRAY}" stroke-width="1.2" stroke-dasharray="4,3"/>`;
+                    svg += `<text x="${boxX + boxW + 6}" y="${origTopY + boxH / 2 + 4}" text-anchor="start" font-size="11" fill="${GRAY}">はじめの位置</text>`;
+                    // 持ち上げ後の物体（実線の箱）
+                    svg += `<rect x="${boxX}" y="${boxTopY}" width="${boxW}" height="${boxH}" rx="5" ry="5" fill="${BOXF}" stroke="${BOXS}" stroke-width="1.8"/>`;
+                    // 上向き力矢印 F（持ち上げ後の物体上端から上へ・短め。向きを示すだけ）
+                    const fLen = 42;
+                    const fTop = (boxTopY - 4) - fLen;
+                    svg += `<line x1="${colX}" y1="${boxTopY - 4}" x2="${colX}" y2="${fTop}" stroke="${RED}" stroke-width="2.8" marker-end="url(#stc44-red)"/>`;
+                    svg += `<text x="${colX + 8}" y="${(fTop + boxTopY) / 2 + 1}" text-anchor="start" font-size="13" fill="${RED}" font-weight="700">F ＝ 1000 N</text>`;
+                    // 引き上げ高さ h の縦寸法線（左外側、持ち上げ後の下端〜地面）
+                    const dimX = 40;
+                    svg += `<line x1="${dimX}" y1="${liftBottomY}" x2="${dimX}" y2="${groundY}" stroke="${GRAY}" stroke-width="1.2" marker-start="url(#stc44-grayS)" marker-end="url(#stc44-gray)"/>`;
+                    svg += `<line x1="${dimX}" y1="${liftBottomY}" x2="${boxX}" y2="${liftBottomY}" stroke="${GRAY}" stroke-width="0.6" stroke-dasharray="3,3"/>`;
+                    svg += `<text x="${dimX + 6}" y="${(liftBottomY + groundY) / 2 + 4}" text-anchor="start" font-size="12" fill="${GRAY}" font-weight="700">h ＝ 30 m</text>`;
+                    // 時計（時間 t、右上の余白。下は元位置の箱とラベルがあるため上に置く）
+                    svg += clockIcon(W - 44, 44, 13, 't ＝ 5 秒');
                     svg += `</svg></div>`;
                     return svg;
                 }
