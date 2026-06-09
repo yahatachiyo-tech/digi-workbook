@@ -10538,8 +10538,9 @@
           document.body.appendChild(probe);
           var MM = probe.getBoundingClientRect().width / 100;
           probe.remove();
-          // B4 横 257mm − 上下余白 20mm ＝ 237mm。切り上げによる白紙ページを防ぐため 1mm 控える。
-          var PAGE_H = 236 * MM;
+          // B4 横 257mm − 上下余白 20mm ＝ 237mm。印刷エンジンの丸めによる
+          // 白紙ページ（あふれた数 px が次ページに送られる）を防ぐため 2mm 控える。
+          var PAGE_H = 235 * MM;
           var hdr1 = document.getElementById('tpl-header-p1').innerHTML;
           var hdrOdd = document.getElementById('tpl-header-odd').innerHTML;
           // 事前測定: 実際の段と同じ幅の隠し段に入れて各問題の高さを測る
@@ -10563,6 +10564,10 @@
               if (pageNum % 2 === 1) {
                   var h = document.createElement('div');
                   h.innerHTML = (pageNum === 1 ? hdr1 : hdrOdd);
+                  // 子要素の margin-bottom がラッパーの外へ抜ける（マージン相殺）と、
+                  // 測定値よりページが数 px 高くなり、印刷時にあふれて白紙ページが
+                  // 生まれる。overflow: hidden で BFC 化し、margin を高さに含める。
+                  h.style.overflow = 'hidden';
                   sheet.appendChild(h);
                   root.appendChild(sheet);
                   headerH = h.getBoundingClientRect().height;
