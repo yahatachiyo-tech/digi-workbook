@@ -10627,6 +10627,7 @@
                     case 'incline-decompose':   body = this._renderInclineDecompose(p, showAnswers); break;
                     case 'calc-couple-applied': body = this._renderCalcCoupleApplied(p, showAnswers); break;
                     case 'signed-moment':       body = this._renderSignedMoment(p, showAnswers); break;
+                    case 'calc-applied':        body = this._renderCalcApplied(p, showAnswers); break;
                     default: body = '<div style="color:#888;">（未対応 pattern: ' + p.pattern + '）</div>';
                 }
                 return `
@@ -10712,19 +10713,53 @@
                 <div class="workflow">${wf}</div>`;
             }
 
-            _renderComposite(p, showAnswers) {
-                // 図は問題ごとの figureSvg で切り替える（従来は inclinedAxisR 固定で、
-                //   v-t グラフや L 字図心の合成問題に誤った図が出ていた）。
-                let fig = '';
+            // 印刷用：problem.figureSvg のキーから生の SVG を返す共通ディスパッチャ。
+            //   対話モードの _epRenderFigure と同じ対応表（あちらは div で包む）。
+            _svgByFigureKey(p) {
+                if (!p || !p.figureSvg) return '';
                 switch (p.figureSvg) {
-                    case 'vtConstant':     fig = this._svgVtConstant(p); break;
-                    case 'vtAccel':        fig = this._svgVtAccel(p); break;
-                    case 'vtVelocity':     fig = this._svgVtVelocity(p); break;
-                    case 'vtDisplacement': fig = this._svgVtDisplacement(p); break;
-                    case 'lShapeCentroid': fig = this._svgLShapeCentroid(p); break;
-                    case 'inclinedAxisR':  fig = this._svgInclinedAxisR(p); break;
-                    default:               fig = ''; break;
+                    case 'rightTriangleFilled':    return this._svgRightTriangleFilled(p);
+                    case 'rightTriangleEmpty':     return this._svgRightTriangleEmpty(p, false);
+                    case 'wrenchOnBolt':           return this._svgWrenchOnBolt(p);
+                    case 'inclinedAxisR':          return this._svgInclinedAxisR(p);
+                    case 'handleWheelCouple':      return this._svgHandleWheelCouple(p);
+                    case 'inclineForceTriangle':   return this._svgInclineForceTriangle(p);
+                    case 'lShapeFrame':            return this._svgLShapeFrame(p);
+                    case 'bellCrank':              return this._svgBellCrank(p);
+                    case 'lShapeCentroid':         return this._svgLShapeCentroid(p);
+                    case 'rightTriangleResultant': return this._svgRightTriangleResultant(p);
+                    case 'vtConstant':             return this._svgVtConstant(p);
+                    case 'vtAccel':                return this._svgVtAccel(p);
+                    case 'vtVelocity':             return this._svgVtVelocity(p);
+                    case 'vtDisplacement':         return this._svgVtDisplacement(p);
+                    default:                       return '';
                 }
+            }
+
+            // calc-applied（逆算）の印刷レンダラ。figureSvg の図 ＋ answerSlots の解答欄 ＋ workflow。
+            //   従来はこのパターンの case が無く「未対応」になり、図も解答欄も出ていなかった。
+            _renderCalcApplied(p, showAnswers) {
+                const fig = this._svgByFigureKey(p);
+                const slots = (p.answerSlots || []).map(s =>
+                    `<div class="answer-area">
+                        <span>${s.label} ＝</span><span class="answer-box answer-shown">${s.expected}</span><span>[${s.unit}]</span>
+                    </div>`).join('');
+                const wf = (p.workflow || []).map(s => `<div>${s}</div>`).join('');
+                return `
+                ${fig}
+                ${slots}
+                <div class="workflow">${wf}</div>`;
+            }
+
+            _renderComposite(p, showAnswers) {
+                // 図は問題ごとの figureSvg で切り替える（共通ディスパッチャ。従来は
+                //   inclinedAxisR 固定で v-t グラフ等に誤った図が出ていた）。
+                // ただし問1〜問4の v-t グラフは、印刷（対策プリント・考査問題）では出さない。
+                //   ・対策プリントは授業中に全員で一緒に解くため、図でイメージを与える必要がない。
+                //   ・考査問題では、グラフ内に s＝v×t 等の解法の数式が見えてしまい、出題意図に反する。
+                //   対話モードの考査対策モード（_epRenderFigure）では引き続き表示する。
+                const VT_FIGURE_KEYS = ['vtConstant', 'vtAccel', 'vtVelocity', 'vtDisplacement'];
+                const fig = VT_FIGURE_KEYS.includes(p.figureSvg) ? '' : this._svgByFigureKey(p);
                 const subs = (p.subQuestions || []).map(sq => {
                     const wf = (sq.workflow || []).map(s => `<div>${s}</div>`).join('');
                     return `
