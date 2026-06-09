@@ -10603,7 +10603,10 @@
 
             _buildProblemHTML(p, opts) {
                 const showAnswers = opts.showAnswers;
+                // 観点（知識・技術／思考・判断・表現）は考査問題プリントのみ表示。
+                //   対策プリントには不要なので付けない。
                 const cat = p.category === 'knowledge' ? '（知識・技術）' : '（思考・判断・表現）';
+                const catSpan = opts.isExam ? `<span class="problem-category">${cat}</span>` : '';
                 // タイトル（テンプレート展開）
                 let title = p.title || p.titleTemplate || '';
                 if (p.params && p.titleTemplate) {
@@ -10629,7 +10632,7 @@
                 return `
                 <div class="problem">
                     <div class="problem-title">
-                        <span class="problem-num">問 ${p.num}</span>　${title}<span class="problem-category">${cat}</span>
+                        <span class="problem-num">問 ${p.num}</span>　${title}${catSpan}
                     </div>
                     ${body}
                 </div>`;
