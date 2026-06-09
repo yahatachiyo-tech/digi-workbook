@@ -10373,7 +10373,15 @@
                 const today = new Date();
                 const era = today.getFullYear() - 2018;
                 const date = `R${String(era).padStart(2, '0')}.${today.getMonth() + 1}.${today.getDate()}`;
-                const examData = this._generateExamFromPrep(data);
+                // 数値はランダム生成のため、同一セッション内では考査ごとに 1 回だけ生成して
+                // キャッシュを使い回す。これにより「配布」→「解答・解説」と続けて押しても
+                // 同じ数値の問題・解答が出る（別々に生成すると解答が配布版と合わなくなる）。
+                // 数値を引き直したいときはページを再読み込みする。
+                this._examPrintCache = this._examPrintCache || {};
+                if (!this._examPrintCache[examKey]) {
+                    this._examPrintCache[examKey] = this._generateExamFromPrep(data);
+                }
+                const examData = this._examPrintCache[examKey];
                 const html = this._buildPrintHTML(examData, { mode: 'exam', showAnswers: !!showAnswers, date });
                 const w = window.open('about:blank', '_blank', 'width=1200,height=900');
                 if (!w) {
@@ -10484,6 +10492,141 @@
                     : '';
                 const problemsHTML = data.problems.map(p => this._buildProblemHTML(p, { isExam, showAnswers })).join('\n');
 
+                // ヘッダー左側（機械設計の枠 + タイトル + 番号・氏名欄）。考査・対策共通。
+                const headerLeft = `
+          <div>
+            <span class="header-title">機械設計</span>
+            <span style="margin-left:6px;">${headerTitle.replace('機械設計　', '')}</span>${versionBadge}
+            <span style="margin-left:14px;">${meta.paperHeader.classLabel}（　　）番　氏名（　　　　　　　　）</span>
+          </div>`;
+
+                // 本文の構造を考査／対策で切り替える。
+                //   対策プリント: 従来どおり <thead> で全ページにヘッダーを自動繰り返し。
+                //   考査問題:     両面印刷対応（仕様 §12.1）。ヘッダーは奇数ページのみ、
+                //                 点数記入欄・注意書きは 1 ページ目のみ。ブラウザの自動繰り返し
+                //                 では「奇数のみ」を表現できないため、ページごとの .sheet に
+                //                 問題を測定して詰める方式（後述の paginate スクリプト）をとる。
+                const bodyMain = isExam ? `
+  <!-- 1 ページ目用ヘッダー（点数記入欄 + 注意書き付き） -->
+  <div id="tpl-header-p1" style="display:none;">
+    <div class="header-row">${headerLeft}
+      ${this._buildScoreTable()}
+    </div>
+    <div class="instructions">${meta.instructions}</div>
+  </div>
+  <!-- 3 ページ目以降の奇数ページ用ヘッダー（点数欄・注意書きなし） -->
+  <div id="tpl-header-odd" style="display:none;">
+    <div class="header-row">${headerLeft}</div>
+  </div>
+  <div id="exam-pages"></div>
+  <div id="exam-src" style="position:absolute; left:-9999px; top:0; width:164mm;">
+    ${problemsHTML}
+  </div>
+  <script>
+  (function () {
+      // 問題をページ（.sheet）へ詰める。各ページは 2 段（.sheet-col × 2）。
+      //   奇数ページにはヘッダーを置き、1 ページ目のみ点数欄付きテンプレートを使う。
+      //   偶数ページはヘッダーなしで全高を使う。
+      function paginate() {
+          var src = document.getElementById('exam-src');
+          var root = document.getElementById('exam-pages');
+          if (!src || !root) return;
+          var problems = Array.prototype.slice.call(src.children);
+          // mm → px 換算（環境差を吸収するため実測）
+          var probe = document.createElement('div');
+          probe.style.cssText = 'position:absolute; width:100mm; height:0;';
+          document.body.appendChild(probe);
+          var MM = probe.getBoundingClientRect().width / 100;
+          probe.remove();
+          // B4 横 257mm − 上下余白 20mm ＝ 237mm。切り上げによる白紙ページを防ぐため 1mm 控える。
+          var PAGE_H = 236 * MM;
+          var hdr1 = document.getElementById('tpl-header-p1').innerHTML;
+          var hdrOdd = document.getElementById('tpl-header-odd').innerHTML;
+          // 事前測定: 実際の段と同じ幅の隠し段に入れて各問題の高さを測る
+          var meas = document.createElement('div');
+          meas.className = 'sheet-col';
+          meas.style.cssText = 'position:absolute; left:-9999px; top:0;';
+          document.body.appendChild(meas);
+          var heights = problems.map(function (p) {
+              meas.appendChild(p);
+              var h = p.getBoundingClientRect().height;
+              meas.removeChild(p);
+              return h + 10; /* .problem の margin-bottom ぶん */
+          });
+          meas.remove();
+          var pageNum = 0, cols = null, colIdx = 0, used = [0, 0], colH = 0;
+          function newPage() {
+              pageNum++;
+              var sheet = document.createElement('div');
+              sheet.className = 'sheet';
+              var headerH = 0;
+              if (pageNum % 2 === 1) {
+                  var h = document.createElement('div');
+                  h.innerHTML = (pageNum === 1 ? hdr1 : hdrOdd);
+                  sheet.appendChild(h);
+                  root.appendChild(sheet);
+                  headerH = h.getBoundingClientRect().height;
+              } else {
+                  root.appendChild(sheet);
+              }
+              colH = PAGE_H - headerH;
+              var row = document.createElement('div');
+              row.className = 'sheet-cols';
+              row.style.height = colH + 'px';
+              sheet.appendChild(row);
+              cols = [document.createElement('div'), document.createElement('div')];
+              cols.forEach(function (c) { c.className = 'sheet-col'; row.appendChild(c); });
+              colIdx = 0; used = [0, 0];
+          }
+          newPage();
+          function place(p, h) {
+              if (used[colIdx] + h > colH) {
+                  if (used[colIdx] === 0) {
+                      // 空の段にも収まらない大物 → そのまま置く（次の段へ送ると空段が残るため）
+                  } else if (colIdx === 0) {
+                      colIdx = 1;
+                      return place(p, h);
+                  } else {
+                      newPage();
+                      return place(p, h);
+                  }
+              }
+              cols[colIdx].appendChild(p);
+              used[colIdx] += h;
+          }
+          problems.forEach(function (p, i) { place(p, heights[i]); });
+          src.remove();
+          document.body.classList.add('exam-paged');
+      }
+      window.addEventListener('load', function () {
+          // KaTeX 描画とフォント読み込みが終わってから測定する
+          if (document.fonts && document.fonts.ready) {
+              document.fonts.ready.then(function () { setTimeout(paginate, 60); });
+          } else {
+              setTimeout(paginate, 400);
+          }
+      });
+  })();
+  <\/script>` : `
+  <!-- ページヘッダーを各ページに繰り返すため <thead> + display: table-header-group。
+       Chrome / Firefox / Safari のいずれも、印刷時に thead を各ページ上部へ自動繰り返し。 -->
+  <table class="exam-page-table">
+    <thead class="exam-page-thead">
+      <tr><td>
+        <div class="header-row">${headerLeft}
+        </div>
+        <div class="instructions">${meta.instructions}</div>
+      </td></tr>
+    </thead>
+    <tbody>
+      <tr><td>
+        <div class="problems-grid">
+          ${problemsHTML}
+        </div>
+      </td></tr>
+    </tbody>
+  </table>`;
+
                 return `<!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -10517,12 +10660,29 @@
   .score-table { border-collapse: collapse; font-size: 9pt; table-layout: fixed; }
   .score-table th, .score-table td { border: 1px solid #000; padding: 2px 4px; width: 75px; height: 22px; text-align: center; vertical-align: middle; box-sizing: border-box; white-space: nowrap; }
   .instructions { font-size: 9pt; color: #333; margin-bottom: 8px; }
-  /* 2 段組レイアウト（B4 横向き） */
+  /* 2 段組レイアウト（B4 横向き）: 対策プリント用（自然なページ分割に任せる） */
   .problems-grid {
       column-count: 2;
       column-gap: 10mm;
       column-fill: auto;
       column-rule: 1px solid #ccc;
+  }
+  /* 考査問題用の明示ページ組み（両面印刷対応）:
+     ヘッダーは奇数ページのみ・点数欄は 1 ページ目のみ、のためスクリプトで
+     問題を 1 ページずつ .sheet に詰める。1 ページ ＝ .sheet、中身は 2 段。 */
+  .sheet { width: 340mm; box-sizing: border-box; break-after: page; page-break-after: always; break-inside: avoid; page-break-inside: avoid; }
+  .sheet:last-child { break-after: auto; page-break-after: auto; }
+  .sheet-cols { display: flex; align-items: stretch; overflow: hidden; }
+  .sheet-col { flex: 0 0 164mm; width: 164mm; box-sizing: border-box; overflow: hidden; }
+  .sheet-col + .sheet-col { margin-left: 5mm; border-left: 1px solid #ccc; padding-left: 5mm; }
+  /* 画面ではページの区切りが見えるように枠を表示（印刷時は消す）。
+     幅は画面でも 340mm 固定のまま（ウィンドウ幅に依存させない）。
+     → ヘッダーや注意書きの折り返し・高さ測定が画面と印刷で一致する。 */
+  @media screen {
+      .sheet { border: 1px dashed #aaa; margin-bottom: 14px; }
+  }
+  @media print {
+      body.exam-paged { padding: 0; margin: 0; }
   }
   .problem {
       margin-bottom: 10px;
@@ -10565,30 +10725,7 @@
     <button onclick="window.close()">閉じる</button>
     <span style="margin-left:auto; color:#666;">ブラウザの「印刷 → PDF として保存」で配布用ファイルが作れます。</span>
   </div>
-  <!-- ページヘッダーを各ページに繰り返すため <thead> + display: table-header-group。
-       Chrome / Firefox / Safari のいずれも、印刷時に thead を各ページ上部へ自動繰り返し。 -->
-  <table class="exam-page-table">
-    <thead class="exam-page-thead">
-      <tr><td>
-        <div class="header-row">
-          <div>
-            <span class="header-title">機械設計</span>
-            <span style="margin-left:6px;">${headerTitle.replace('機械設計　', '')}</span>${versionBadge}
-            <span style="margin-left:14px;">${meta.paperHeader.classLabel}（　　）番　氏名（　　　　　　　　）</span>
-          </div>
-          ${isExam ? this._buildScoreTable() : ''}
-        </div>
-        <div class="instructions">${meta.instructions}</div>
-      </td></tr>
-    </thead>
-    <tbody>
-      <tr><td>
-        <div class="problems-grid">
-          ${problemsHTML}
-        </div>
-      </td></tr>
-    </tbody>
-  </table>
+  ${bodyMain}
 </body>
 </html>`;
             }
