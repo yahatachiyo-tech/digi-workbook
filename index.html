@@ -10647,7 +10647,7 @@
       .no-print { display: none !important; }
       .answer-shown { color: ${showAnswers ? '#c00' : 'transparent'} !important; }
   }
-  body { font-family: 'Hiragino Mincho ProN', 'Yu Mincho', 'MS Mincho', serif; font-size: 10pt; line-height: 1.5; color: #000; margin: 0; padding: 12px; }
+  body { font-family: 'Hiragino Mincho ProN', 'Yu Mincho', 'MS Mincho', serif; font-size: 10pt; line-height: 1.35; color: #000; margin: 0; padding: 12px; }
   .print-toolbar { background:#f0f0f0; border:1px solid #ccc; padding:8px 12px; margin-bottom:14px; display:flex; gap:10px; align-items:center; }
   .print-toolbar button { padding:6px 14px; cursor:pointer; }
   /* ページヘッダーを各ページに自動繰り返しするための table 構造 */
@@ -10690,19 +10690,19 @@
       body.exam-paged { padding: 0; margin: 0; }
   }
   .problem {
-      margin-bottom: 10px;
+      margin-bottom: 6px;
       break-inside: avoid;
       -webkit-column-break-inside: avoid;
       page-break-inside: avoid;
   }
   .problem-num { font-weight: bold; }
-  .problem-title { font-weight: normal; margin-bottom: 4px; }
+  .problem-title { font-weight: normal; margin-bottom: 2px; }
   .problem-category { font-size: 9pt; color: #444; margin-left: 6px; }
-  .problem-figures { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0; align-items: flex-start; }
+  .problem-figures { display: flex; flex-wrap: wrap; gap: 6px; margin: 2px 0; align-items: flex-start; }
   .problem-figures > div { font-size: 9pt; }
-  .answer-area { display: flex; gap: 10px; align-items: center; margin-top: 6px; flex-wrap: wrap; }
+  .answer-area { display: flex; gap: 8px; align-items: center; margin-top: 2px; flex-wrap: wrap; }
   .answer-line { border-bottom: 1px solid #000; min-width: 60px; padding: 2px 6px; display: inline-block; }
-  .answer-box { border: 1px solid #000; padding: 3px 8px; min-width: 70px; text-align: center; display: inline-block; }
+  .answer-box { border: 1px solid #000; padding: 2px 6px; min-width: 60px; text-align: center; display: inline-block; }
   /* 語句穴埋めの解答欄（Q1）: 段幅に収めるため 2 列グリッドで縦に並べる */
   .blanks-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 8px; margin-top: 6px; }
   .blank-cell { display: flex; align-items: center; gap: 4px; font-size: 9pt; }
@@ -10716,9 +10716,14 @@
      配布版でも workflow ブロックは block で配置し、visibility: hidden で
      見えない状態にする → 解答版（解説あり）と vertical 位置が完全一致。
      これにより採点システムで配布版を overlay 比較する際に解答欄位置がズレない。 */
+  /* 解説（workflow）領域は配布版では生徒の計算スペースを兼ねるため、
+     サイズを縮めない（フォント・行間は従来どおり確保する）。 */
   .workflow { font-size: 9pt; color: #c00; line-height: 1.4; margin-top: 4px; padding-left: 10px; visibility: ${showAnswers ? 'visible' : 'hidden'}; }
   .workflow div { margin-bottom: 2px; }
-  .figure-svg { display: block; max-width: 100%; }
+  /* 図は 85% に縮小して紙面を節約（viewBox の有無に依存しない zoom を使用）。
+     ただし作図問題の図（.problem-figures 内、生徒が矢印を書き込む方眼）は原寸を維持。 */
+  .figure-svg { display: block; max-width: 100%; zoom: 0.85; }
+  .problem-figures .figure-svg { zoom: 1; }
   .figure-caption { font-size: 9pt; text-align: center; }
   h1 { font-size: 13pt; margin: 0; }
   hr { border: none; border-top: 1px solid #999; margin: 10px 0; }
@@ -10905,7 +10910,7 @@
                 const subs = (p.subQuestions || []).map(sq => {
                     const wf = (sq.workflow || []).map(s => `<div>${s}</div>`).join('');
                     return `
-                    <div style="margin-top:6px;">
+                    <div style="margin-top:2px;">
                         <span>${sq.sub}</span>　${sq.title}
                         <div class="answer-area">
                             <span>答え：</span><span class="answer-box answer-shown">${sq.expected}</span><span>[${sq.unit}]</span>
