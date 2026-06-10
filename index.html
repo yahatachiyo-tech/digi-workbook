@@ -8747,7 +8747,7 @@
                     // 問5: 力のモーメント M = F × r（1-8 復習）/ 知・技
                     {
                         id: 'fp1-q5', num: 5, category: 'knowledge', pattern: 'calc-moment',
-                        unitTags: ['1-8'], points: 6,
+                        unitTags: ['1-8'], points: 4,
                         titleTemplate: '下図で、r = {r} mm、F = {F} N のとき、点 O のまわりの力 F のモーメントを求めよ。',
                         figureSvg: 'wrenchOnBolt',
                         params: { r: 300, F: 150 },
@@ -8764,7 +8764,7 @@
                     // 問6: ベルクランクのつり合い（モーメントのつり合いから逆算）（1-11 復習）/ 思・判・表
                     {
                         id: 'fp1-q6', num: 6, category: 'thinking', pattern: 'calc-applied',
-                        unitTags: ['1-11'], points: 8,
+                        unitTags: ['1-11'], points: 12,
                         title: '下図は、点 O で支えられたベルクランクである。点 A に 60 N の力が水平に働いている。図のようにつり合うとき、OB に垂直な力 F [N] を求めよ。',
                         // 印刷時は params で展開される（考査生成で数値を引き直しても題文が追従する）。
                         //   対話モード（考査対策）は title を優先表示するため従来どおり。
@@ -8786,15 +8786,15 @@
                     // 問7: L 字平面図形の重心（1-12 復習）/ 思・判・表
                     {
                         id: 'fp1-q7', num: 7, category: 'thinking', pattern: 'composite',
-                        unitTags: ['1-12'], points: 10,
+                        unitTags: ['1-12'], points: 14,
                         title: '下図のような平面図形の重心を求めよ。（単位 mm）',
                         figureSvg: 'lShapeCentroid',
                         params: { topW: 120, totalH: 250, bottomW: 260, bottomH: 100 },
                         subQuestions: [
-                            { sub: '(1)', title: '重心の x 座標 x̄ [mm] を求めよ。', expected: 101.4, unit: 'mm', tolerance: 0.6, points: 5,
+                            { sub: '(1)', title: '重心の x 座標 x̄ [mm] を求めよ。', expected: 101.4, unit: 'mm', tolerance: 0.6, points: 7,
                               workflow: ['下の長方形（260×100）＝面積 26000・重心 (130, 50)、左上の長方形（120×150）＝面積 18000・重心 (60, 175) に分ける。',
                                          '$\\bar{x} = \\dfrac{26000 \\times 130 + 18000 \\times 60}{26000 + 18000} = \\dfrac{4460000}{44000} \\fallingdotseq 101.4$ [mm]'] },
-                            { sub: '(2)', title: '重心の y 座標 ȳ [mm] を求めよ。', expected: 101.1, unit: 'mm', tolerance: 0.6, points: 5,
+                            { sub: '(2)', title: '重心の y 座標 ȳ [mm] を求めよ。', expected: 101.1, unit: 'mm', tolerance: 0.6, points: 7,
                               workflow: ['$\\bar{y} = \\dfrac{26000 \\times 50 + 18000 \\times 175}{44000} = \\dfrac{4450000}{44000} \\fallingdotseq 101.1$ [mm]'] }
                         ],
                         hint_b: 'L 字形を 2 つの長方形に分けて考えます。それぞれの面積と重心の位置に注目します。',
@@ -8804,7 +8804,7 @@
                     // 問8: 用語（力のつり合い）（プ2問1）/ 知・技
                     {
                         id: 'fp2-q1', num: 8, category: 'knowledge', pattern: 'fill-in-blank',
-                        unitTags: ['1-10', '1-11'], points: 6,
+                        unitTags: ['1-10', '1-11'], points: 3,
                         title: '次の文章中の（　）に当てはまる適切な語句を答えなさい。',
                         stems: [
                             '(1) 多くの力が物体に働いていても運動状態に変化が現れず、全体として力が働かないのと同様の場合がある。このとき、これらの力はたがいに（①）という。',
@@ -8820,7 +8820,7 @@
                     // 問9: 用語（重心・図心）（プ2問2）/ 知・技
                     {
                         id: 'fp2-q2', num: 9, category: 'knowledge', pattern: 'fill-in-blank',
-                        unitTags: ['1-12'], points: 4,
+                        unitTags: ['1-12'], points: 2,
                         title: '次の文章中の（　）に当てはまる適切な語句を答えなさい。',
                         stems: [
                             '(1) 物体には、その点を支えるとき、物体の姿勢にかかわらず必ずつり合いを保つ点がある。この点を（①）または質量中心という。',
@@ -8874,7 +8874,7 @@
                     // 問12: 用語（回転運動・向心力）（プ2問5）/ 知・技
                     {
                         id: 'fp2-q5', num: 12, category: 'knowledge', pattern: 'fill-in-blank',
-                        unitTags: ['2-4', '2-5'], points: 6,
+                        unitTags: ['2-4', '2-5'], points: 5,
                         title: '次の文章中の（　）に当てはまる適切な語句を答えなさい。',
                         stems: [
                             '(1) 円周上の速度を（①）といい、向きは円周の接線方向である。',
