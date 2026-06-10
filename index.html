@@ -10449,8 +10449,15 @@
                     result.problems = result.problems
                         .filter(p => !p.examExclude)
                         .concat(result.examOnlyProblems);
-                    result.problems.forEach((p, i) => { p.num = i + 1; });
                 }
+                // 計算・作図問題を前半、語句（穴埋め）問題を後半にまとめる。
+                //   グループ内の相対順序は維持（安定パーティション）。
+                //   → 期末: 問1〜7 は対策プリントと同じ並びのまま、新問（計算系）が問8・9、
+                //     語句が問10〜12 に来る。番号は 1 から振り直す。
+                const calcProbs  = result.problems.filter(p => p.pattern !== 'fill-in-blank');
+                const vocabProbs = result.problems.filter(p => p.pattern === 'fill-in-blank');
+                result.problems = calcProbs.concat(vocabProbs);
+                result.problems.forEach((p, i) => { p.num = i + 1; });
                 result.problems.forEach(p => {
                     // 期末の運動計算（小問群）・ベルクランク・重心は専用の引き直し処理。
                     //   小問ごとの題文・解答・途中式まで作り直すため、汎用 paramRanges では扱えない。
