@@ -8835,6 +8835,7 @@
                     {
                         id: 'fp2-q3', num: 10, category: 'knowledge', pattern: 'fill-in-blank',
                         unitTags: ['2-1', '2-2'], points: 8,
+                        examExclude: true,   // 考査では出題しない（対策プリント外20点分の枠。内容は問1〜4の計算で問われる）
                         title: '次の文章中の（　）に当てはまる適切な語句を答えなさい。',
                         stems: [
                             '(1) 物体が運動して位置を変えるとき、その位置の変化を（①）という。',
@@ -8860,6 +8861,7 @@
                     {
                         id: 'fp2-q4', num: 11, category: 'knowledge', pattern: 'fill-in-blank',
                         unitTags: ['2-3'], points: 4,
+                        examExclude: true,   // 考査では出題しない（対策プリント外20点分の枠）
                         title: '次の文章中の（　）に当てはまる適切な語句を答えなさい。',
                         stems: [
                             '(1) 空中に支えられた物体は、支えをはずすと鉛直下方に速度をしだいに増しながら落下する。これは、地球上で物体に引力が働き、一定の加速度を生じるためで、この引力を（①）、加速度を（②）という。'
@@ -8893,6 +8895,7 @@
                     {
                         id: 'fp2-q6', num: 13, category: 'knowledge', pattern: 'fill-in-blank',
                         unitTags: ['3-1', '3-3'], points: 8,
+                        examExclude: true,   // 考査では出題しない（F=ma は考査専用の新問で計算として問う）
                         title: '次の文章中の（　）に当てはまる適切な語句または式を答えなさい。',
                         stems: [
                             '(1) 「物体に外から力が働かないかぎり、その運動の状態はかわらない。」（運動の第一法則）。力が加わらなければ、動いている物体は動き続け、静止している物体は静止し続ける。このような性質を（①）という。',
@@ -8907,6 +8910,41 @@
                             { id: '③', answer: '運動方程式' },
                             { id: '④', answer: '作用反作用' },
                             { id: '⑤', answer: '慣性力' }
+                        ]
+                    }
+                ],
+                // ============================================================
+                // 考査専用問題（対策プリント外の 20 点分、仕様 §11.3）。
+                //   対策プリント・考査対策モードには出さず、考査問題プリントにのみ
+                //   examExclude の語句 20 点分と入れ替えて出題する（思考・判断・表現）。
+                // ============================================================
+                examOnlyProblems: [
+                    // 新問A: v-t グラフの読み取り（傾き＝加速度、面積＝変位）/ 思・判・表
+                    {
+                        id: 'fx1-a', num: 99, category: 'thinking', pattern: 'composite',
+                        unitTags: ['2-2'], points: 10,
+                        figureSvg: 'vtReadGraph',
+                        params: { v0: 4, v1: 16, t: 6 },
+                        title: '下図は、ある物体の運動のようすを表した v-t グラフ（縦軸: 速さ [m/s]、横軸: 時間 [s]）である。次の各問いに答えなさい。',
+                        subQuestions: [
+                            { sub: '(1)', title: 'この物体の加速度 a [m/s²] を求めよ。', expected: 2, unit: 'm/s²', points: 5,
+                              workflow: ['グラフの直線の傾きが加速度を表す。$a = \\dfrac{v - v_0}{t} = \\dfrac{16 - 4}{6} = \\dfrac{12}{6} = 2$ [m/s²]'] },
+                            { sub: '(2)', title: '0 秒から 6 秒までの間に進んだ変位 s [m] を求めよ。', expected: 60, unit: 'm', points: 5,
+                              workflow: ['v-t グラフと時間軸で囲まれた面積が変位を表す。台形の面積 $s = \\dfrac{(4 + 16) \\times 6}{2} = \\dfrac{120}{2} = 60$ [m]'] }
+                        ]
+                    },
+                    // 新問B: 力と運動の法則 F ＝ ma → 等加速度運動 v ＝ at（3節 × 2節の複合）/ 思・判・表
+                    {
+                        id: 'fx1-b', num: 99, category: 'thinking', pattern: 'composite',
+                        unitTags: ['3-1', '2-2'], points: 10,
+                        figureSvg: 'forceAccel',
+                        params: { m: 50, F: 100, t: 4 },
+                        title: 'なめらかな水平な床の上に、質量 m ＝ 50 kg の物体が静止している。この物体に水平に一定の力 F ＝ 100 N を加え続けた。摩擦は考えないものとする。次の各問いに答えなさい。',
+                        subQuestions: [
+                            { sub: '(1)', title: 'この物体に生じる加速度 a [m/s²] を求めよ。', expected: 2, unit: 'm/s²', points: 5,
+                              workflow: ['運動の法則（運動方程式）$F = ma$ より $a = \\dfrac{F}{m} = \\dfrac{100}{50} = 2$ [m/s²]'] },
+                            { sub: '(2)', title: '力を加え始めてから 4 秒後の速度 v [m/s] を求めよ。', expected: 8, unit: 'm/s', points: 5,
+                              workflow: ['静止から動き出すので初速度 $v_0 = 0$。$v = v_0 + a t = 0 + 2 \\times 4 = 8$ [m/s]'] }
                         ]
                     }
                 ]
@@ -10403,6 +10441,16 @@
             //   expected も再計算する。formula や workflow も新しい値で書き換え。
             _generateExamFromPrep(prepData) {
                 const result = JSON.parse(JSON.stringify(prepData));  // deep clone
+                // 考査の構成（仕様 §11.3: 80 点は対策プリント由来＋20 点は対策プリント外）:
+                //   examExclude の問題（語句 20 点分）を除き、examOnlyProblems（考査専用の
+                //   思考問題 20 点分）を末尾に加えて、問番号を 1 から振り直す。
+                //   対策プリント・考査対策モードは prepData.problems をそのまま使うため影響なし。
+                if (result.examOnlyProblems && result.examOnlyProblems.length) {
+                    result.problems = result.problems
+                        .filter(p => !p.examExclude)
+                        .concat(result.examOnlyProblems);
+                    result.problems.forEach((p, i) => { p.num = i + 1; });
+                }
                 result.problems.forEach(p => {
                     // 期末の運動計算（小問群）・ベルクランク・重心は専用の引き直し処理。
                     //   小問ごとの題文・解答・途中式まで作り直すため、汎用 paramRanges では扱えない。
@@ -11022,6 +11070,8 @@
                     case 'vtAccel':                return this._svgVtAccel(p);
                     case 'vtVelocity':             return this._svgVtVelocity(p);
                     case 'vtDisplacement':         return this._svgVtDisplacement(p);
+                    case 'vtReadGraph':            return this._svgVtReadGraph(p);
+                    case 'forceAccel':             return this._svgForceAccel(p);
                     default:                       return '';
                 }
             }
@@ -11836,6 +11886,67 @@
                     <text x="${ox - 32}" y="${(Y(0) + Y(tH)) / 2}" font-size="9pt">${tH}</text>
                     <text x="${(X(0) + X(bW)) / 2 - 9}" y="${oy + 16}" font-size="9pt">${bW}</text>
                     <text x="${X(bW) + 4}" y="${(Y(0) + Y(bH)) / 2}" font-size="9pt">${bH}</text>
+                </svg>`;
+            }
+
+            // 考査専用 新問A: v-t グラフの読み取り図。数値つきの素のグラフのみ
+            //   （傾き＝加速度・面積＝変位のヒント注記は入れない。読み取り自体が出題のため）。
+            _svgVtReadGraph(p) {
+                const W = 320, H = 210;
+                const v0 = p.params.v0, v1 = p.params.v1, tEnd = p.params.t;
+                const ox = 52, oy = 172, xR = 305, yT = 26;
+                const sx = (xR - ox - 30) / (tEnd + 1);          // px per 秒
+                const sy = (oy - yT - 26) / (v1 + 2);            // px per m/s
+                const px = (t) => ox + t * sx;
+                const py = (v) => oy - v * sy;
+                const GRAY = '#8a8a8a', BLUE = '#1e5fa8';
+                return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" class="figure-svg">
+                    <defs>
+                        <marker id="mvtread" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0,0 8,3 0,6" fill="${GRAY}"/></marker>
+                    </defs>
+                    <line x1="${ox}" y1="${oy}" x2="${ox}" y2="${yT}" stroke="${GRAY}" stroke-width="1.6" marker-end="url(#mvtread)"/>
+                    <line x1="${ox}" y1="${oy}" x2="${xR}" y2="${oy}" stroke="${GRAY}" stroke-width="1.6" marker-end="url(#mvtread)"/>
+                    <text x="${ox + 10}" y="${yT - 4}" font-size="11" fill="${GRAY}" font-weight="700">速さ [m/s]</text>
+                    <text x="${xR}" y="${oy + 16}" text-anchor="end" font-size="11" fill="${GRAY}" font-weight="700">時間 [s]</text>
+                    <text x="${ox - 8}" y="${oy + 14}" text-anchor="end" font-size="11" fill="${GRAY}">0</text>
+                    <!-- 値の読み取り用ガイド（破線）と目盛り値 -->
+                    <line x1="${ox}" y1="${py(v1)}" x2="${px(tEnd)}" y2="${py(v1)}" stroke="#aaa" stroke-width="1" stroke-dasharray="4,3"/>
+                    <line x1="${px(tEnd)}" y1="${py(v1)}" x2="${px(tEnd)}" y2="${oy}" stroke="#aaa" stroke-width="1" stroke-dasharray="4,3"/>
+                    <text x="${ox - 8}" y="${py(v1) + 4}" text-anchor="end" font-size="11" fill="#333" font-weight="700">${v1}</text>
+                    <text x="${ox - 8}" y="${py(v0) + 4}" text-anchor="end" font-size="11" fill="#333" font-weight="700">${v0}</text>
+                    <text x="${px(tEnd)}" y="${oy + 14}" text-anchor="middle" font-size="11" fill="#333" font-weight="700">${tEnd}</text>
+                    <!-- 運動を表す直線 -->
+                    <line x1="${px(0)}" y1="${py(v0)}" x2="${px(tEnd)}" y2="${py(v1)}" stroke="${BLUE}" stroke-width="2.6"/>
+                    <circle cx="${px(0)}" cy="${py(v0)}" r="3" fill="${BLUE}"/>
+                    <circle cx="${px(tEnd)}" cy="${py(v1)}" r="3" fill="${BLUE}"/>
+                </svg>`;
+            }
+
+            // 考査専用 新問B: なめらかな床の上の物体に水平力 F を加える図（F ＝ ma）。
+            _svgForceAccel(p) {
+                const W = 320, H = 150;
+                const RED = '#d23a2a', GRAY = '#8a8a8a', BOXF = '#dce9f7', BOXS = '#1e5fa8';
+                const floorY = 112;
+                const boxW = 76, boxH = 42;
+                const boxX = 70;
+                const boxY = floorY - boxH;
+                const fY = boxY + boxH / 2;
+                const fStart = boxX + boxW + 8;
+                const fEnd = fStart + 92;
+                let hatches = '';
+                for (let hx = 28; hx < W - 18; hx += 16) {
+                    hatches += `<line x1="${hx}" y1="${floorY}" x2="${hx - 8}" y2="${floorY + 9}" stroke="#bbb" stroke-width="1"/>`;
+                }
+                return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" class="figure-svg">
+                    <defs>
+                        <marker id="mfacc" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><polygon points="0,0 9,3.5 0,7" fill="${RED}"/></marker>
+                    </defs>
+                    <line x1="20" y1="${floorY}" x2="${W - 20}" y2="${floorY}" stroke="${GRAY}" stroke-width="1.6"/>
+                    ${hatches}
+                    <rect x="${boxX}" y="${boxY}" width="${boxW}" height="${boxH}" rx="5" ry="5" fill="${BOXF}" stroke="${BOXS}" stroke-width="1.8"/>
+                    <text x="${boxX + boxW / 2}" y="${boxY + boxH / 2 + 4}" text-anchor="middle" font-size="11" fill="#333" font-weight="700">m ＝ ${p.params.m} kg</text>
+                    <line x1="${fStart}" y1="${fY}" x2="${fEnd}" y2="${fY}" stroke="${RED}" stroke-width="2.8" marker-end="url(#mfacc)"/>
+                    <text x="${(fStart + fEnd) / 2}" y="${fY - 10}" text-anchor="middle" font-size="12" fill="${RED}" font-weight="700">F ＝ ${p.params.F} N</text>
                 </svg>`;
             }
 
