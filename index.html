@@ -19977,6 +19977,7 @@
                   <marker id="stc51-red" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><polygon points="0,0 9,3.5 0,7" fill="${RED}"/></marker>
                   <marker id="stc51-comp" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><polygon points="0,0 9,3.5 0,7" fill="${COMP}"/></marker>
                   <marker id="stc51-gray" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto"><polygon points="0,0 8,3.5 0,7" fill="${GRAY}"/></marker>
+                  <marker id="stc51-green" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><polygon points="0,0 9,3.5 0,7" fill="#2e7d32"/></marker>
                 </defs>`;
 
                 if (kind === 'staticFric' || kind === 'kineticFric' || kind === 'coeffFric') {
@@ -20015,6 +20016,17 @@
                     const fEnd = Math.min(fStart + 84, W - 18);
                     svg += `<line x1="${fStart}" y1="${fY}" x2="${fEnd}" y2="${fY}" stroke="${RED}" stroke-width="2.8" marker-end="url(#stc51-red)"/>`;
                     svg += `<text x="${(fStart + fEnd) / 2}" y="${fY - 9}" text-anchor="middle" font-size="13" fill="${RED}" font-weight="700">${fLabel}</text>`;
+                    // 摩擦力（緑、左向き）。動かす力とつり合うので同じ長さ。
+                    //   摩擦は物体と床の接地面に生じるため、箱の底面（床すれすれ）から左へ描く。
+                    const GREEN = '#2e7d32';
+                    const fricSym = (kind === 'kineticFric') ? "f′" : 'f₀';
+                    const fricLen = fEnd - fStart;
+                    const fricY = floorY - 4;
+                    const fricTailX = boxX + 4;
+                    const fricTipX = fricTailX - fricLen;
+                    svg += `<circle cx="${fricTailX}" cy="${fricY}" r="2.5" fill="${GREEN}"/>`;
+                    svg += `<line x1="${fricTailX}" y1="${fricY}" x2="${fricTipX}" y2="${fricY}" stroke="${GREEN}" stroke-width="2.8" marker-end="url(#stc51-green)"/>`;
+                    svg += `<text x="${(fricTailX + fricTipX) / 2}" y="${fricY - 10}" text-anchor="middle" font-size="13" fill="${GREEN}" font-weight="700">摩擦力 ${fricSym}</text>`;
                     svg += `</svg></div>`;
                     return svg;
                 }
@@ -20062,6 +20074,14 @@
                     const perpX = gx + perp.x * pl, perpY = gy + perp.y * pl;
                     svg += `<line x1="${gx.toFixed(1)}" y1="${gy.toFixed(1)}" x2="${perpX.toFixed(1)}" y2="${perpY.toFixed(1)}" stroke="${COMP}" stroke-width="2" stroke-dasharray="6,3" marker-end="url(#stc51-comp)"/>`;
                     svg += `<text x="${(perpX + 6).toFixed(1)}" y="${(perpY + 4).toFixed(1)}" text-anchor="start" font-size="10" fill="${COMP}" font-weight="600">W cosρ</text>`;
+                    // 摩擦力（緑、斜面に沿って上向き）。物体と斜面の接地面に生じ、
+                    //   すべり落ちる向きの分力 W sinρ とつり合うので同じ長さ（pl）で描く。
+                    const GREEN = '#2e7d32';
+                    const up = { x: Math.cos(rho), y: -Math.sin(rho) };
+                    const fricTipX = px + up.x * pl, fricTipY = py + up.y * pl;
+                    svg += `<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="2.5" fill="${GREEN}"/>`;
+                    svg += `<line x1="${px.toFixed(1)}" y1="${py.toFixed(1)}" x2="${fricTipX.toFixed(1)}" y2="${fricTipY.toFixed(1)}" stroke="${GREEN}" stroke-width="2.4" marker-end="url(#stc51-green)"/>`;
+                    svg += `<text x="${(fricTipX + 6).toFixed(1)}" y="${(fricTipY - 4).toFixed(1)}" text-anchor="start" font-size="10" fill="${GREEN}" font-weight="600">摩擦力</text>`;
                     svg += `</svg></div>`;
                     return svg;
                 }
