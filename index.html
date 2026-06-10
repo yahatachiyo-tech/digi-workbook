@@ -10889,6 +10889,7 @@
   .problem-num { font-weight: bold; }
   .problem-title { font-weight: normal; margin-bottom: 2px; }
   .problem-category { font-size: 9pt; color: #444; margin-left: 6px; }
+  .problem-points { font-size: 9pt; color: #444; margin-left: 4px; }
   .problem-figures { display: flex; flex-wrap: wrap; gap: 6px; margin: 2px 0; align-items: flex-start; }
   .problem-figures > div { font-size: 9pt; }
   .answer-area { display: flex; gap: 8px; align-items: center; margin-top: 2px; flex-wrap: wrap; }
@@ -10945,6 +10946,21 @@
                 //   対策プリントには不要なので付けない。
                 const cat = p.category === 'knowledge' ? '（知識・技術）' : '（思考・判断・表現）';
                 const catSpan = opts.isExam ? `<span class="problem-category">${cat}</span>` : '';
+                // 配点も考査問題プリントのみ表示（配布版・解答版とも同一表記 → レイアウト一致を維持）。
+                //   小問・空欄が均等配点なら「各N点」、それ以外は合計「N点」。
+                let ptsLabel = '';
+                if (opts.isExam && p.points) {
+                    if (p.subQuestions && p.subQuestions.length > 1
+                        && p.subQuestions.every(s => s.points === p.subQuestions[0].points)) {
+                        ptsLabel = `（各${p.subQuestions[0].points}点）`;
+                    } else if (p.pattern === 'fill-in-blank' && p.blanks && p.blanks.length > 1
+                        && p.points % p.blanks.length === 0) {
+                        ptsLabel = `（各${p.points / p.blanks.length}点）`;
+                    } else {
+                        ptsLabel = `（${p.points}点）`;
+                    }
+                }
+                const ptsSpan = ptsLabel ? `<span class="problem-points">${ptsLabel}</span>` : '';
                 // タイトル（テンプレート展開）
                 let title = p.title || p.titleTemplate || '';
                 if (p.params && p.titleTemplate) {
@@ -10971,7 +10987,7 @@
                 return `
                 <div class="problem">
                     <div class="problem-title">
-                        <span class="problem-num">問 ${p.num}</span>　${title}${catSpan}
+                        <span class="problem-num">問 ${p.num}</span>　${title}${catSpan}${ptsSpan}
                     </div>
                     ${body}
                 </div>`;
