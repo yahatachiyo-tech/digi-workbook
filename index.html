@@ -19993,17 +19993,21 @@
                     const boxY = floorY - boxH;
                     const cx = boxX + boxW / 2;
                     svg += `<rect x="${boxX}" y="${boxY}" width="${boxW}" height="${boxH}" rx="5" ry="5" fill="${BOXF}" stroke="${BOXS}" stroke-width="1.8"/>`;
-                    // 重力 W（箱の中心から下へ、グレー）。floorY の下に出ないよう短めに。
+                    // 重力 W と床の抗力 R はつり合っている（|W| ＝ |R|）ので、矢印は同じ長さで描く。
+                    //   W ＝ 重心（箱の中心）から真下へ。床線を貫いて下に伸びてよい（力のベクトル表現）。
+                    //   R ＝ 物体と床の接地面から真上へ（箱を貫いて上に出る）。
+                    const FLEN = 50;
                     const wLabel = (kind === 'staticFric') ? 'W ＝ 100 N' : (kind === 'kineticFric') ? 'W ＝ 200 N' : 'W ＝ 60 N';
-                    const wStartY = boxY + boxH / 2;
-                    const wEndY = floorY - 4;
-                    svg += `<line x1="${cx}" y1="${wStartY}" x2="${cx}" y2="${wEndY}" stroke="${GRAY}" stroke-width="2.4" marker-end="url(#stc51-gray)"/>`;
-                    svg += `<text x="${cx - 8}" y="${(wStartY + wEndY) / 2 + 4}" text-anchor="end" font-size="12" fill="${GRAY}" font-weight="700">${wLabel}</text>`;
-                    // 床が物体を押し返す力 R（箱中心から上へ、青）。canvas 上端を超えないよう y=20 で止める。
-                    //   矢印は上向き（＝床が物体を押し返す向き）なので、ラベルも向きと一致させる。
-                    const rTop = 22;
-                    svg += `<line x1="${cx}" y1="${boxY - 2}" x2="${cx}" y2="${rTop}" stroke="${COMP}" stroke-width="2.4" marker-end="url(#stc51-comp)"/>`;
-                    svg += `<text x="${cx + 8}" y="${rTop + 14}" text-anchor="start" font-size="12" fill="${COMP}" font-weight="700">床が物体を押し返す力 R</text>`;
+                    const cyc = boxY + boxH / 2;
+                    // 重心の点
+                    svg += `<circle cx="${cx}" cy="${cyc}" r="2.5" fill="#555"/>`;
+                    svg += `<line x1="${cx}" y1="${cyc}" x2="${cx}" y2="${cyc + FLEN}" stroke="${GRAY}" stroke-width="2.4" marker-end="url(#stc51-gray)"/>`;
+                    svg += `<text x="${cx - 8}" y="${cyc + FLEN - 2}" text-anchor="end" font-size="12" fill="${GRAY}" font-weight="700">${wLabel}</text>`;
+                    // 接地面の作用点（W の線と重ならないよう、底面の範囲内で少し右にずらす）
+                    const rx = cx + 10;
+                    svg += `<circle cx="${rx}" cy="${floorY}" r="2.5" fill="${COMP}"/>`;
+                    svg += `<line x1="${rx}" y1="${floorY}" x2="${rx}" y2="${floorY - FLEN}" stroke="${COMP}" stroke-width="2.4" marker-end="url(#stc51-comp)"/>`;
+                    svg += `<text x="${rx + 8}" y="${floorY - FLEN - 6}" text-anchor="start" font-size="12" fill="${COMP}" font-weight="700">床が物体を押し返す力 R</text>`;
                     // 水平の駆動力（赤、右向き）。箱右端から右へ。
                     const fLabel = (kind === 'kineticFric') ? "動かす力 f′" : '動かす力 f₀';
                     const fY = boxY + boxH / 2;
