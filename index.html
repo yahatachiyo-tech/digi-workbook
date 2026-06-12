@@ -1590,6 +1590,27 @@
         .ep-print-btn:hover { background: var(--color-primary); color: #fff; }
         .ep-print-btn.ans { border-color: var(--color-danger); color: var(--color-danger); }
         .ep-print-btn.ans:hover { background: var(--color-danger); color: #fff; }
+        /* 生徒への公開トグル（教員のみ）。公開中＝緑、非公開＝グレー。 */
+        .ep-pub-btn {
+            font-size: 12px;
+            font-weight: 700;
+            padding: 5px 14px;
+            border: 1px solid #888;
+            border-radius: 6px;
+            background: #fff;
+            color: #666;
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s, border-color 0.15s;
+        }
+        .ep-pub-btn:hover { border-color: #555; color: #333; }
+        .ep-pub-btn.on { border-color: #2e7d32; background: #2e7d32; color: #fff; }
+        .ep-pub-btn.on:hover { background: #256628; }
+        .ep-pub-note {
+            font-size: 11px;
+            color: var(--color-text-muted);
+            margin-bottom: 6px;
+            min-height: 0;
+        }
         .ep-question-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
@@ -2423,14 +2444,18 @@
         //   ハッシュ生成例: echo -n '新パスワード' | shasum -a 256
         const TEACHER_PASS_HASH = '86bdc2d91119ebe3b69301bd1dcf097a357a0a3c0514647d69f849195f091ac8';
 
-        // 対策モードの公開設定（教員が中間考査前に true に変更してデプロイ）
+        // 対策モードの公開設定（HTML 上の既定値）
         //   true: 生徒もメニューから対策モードにアクセス可
         //   false: 生徒には対策モードボタン非表示／セクション一覧から非公開
         //   教員モードでは値に関わらず常時アクセス可能
+        //   ★ 教員は対策モードの各考査カードの「生徒への公開」トグルから切り替え可能。
+        //     トグルの状態は GAS（スクリプトプロパティ）に保存され、全端末が起動時・
+        //     対策モード表示時に読み込んで、この既定値より優先する
+        //     （GAS 側の対応手順は GAS_DASHBOARD_SETUP.md を参照）。
         const EXAM_PREP_PUBLIC_FOR_STUDENTS = {
             'midterm-1': true,            // 1 学期中間考査（5/12-15）に向け公開
             'midterm-1-advanced': true,   // 1 学期中間考査 応用問題（発展、生徒公開）
-            'final-1':   false
+            'final-1':   true             // 1 学期期末考査（6/10 ごろ）に向け公開（2026-06-11）
         };
         // 単元ごとの問題数（ダッシュボード集計用）
         const DASHBOARD_UNIT_COUNTS = {
@@ -9847,6 +9872,11 @@
                 this.dashboardTimer = null;
                 this.dashboardLastLogs = null;
 
+                // 対策モードの公開設定（GAS スクリプトプロパティから取得するリモート設定）。
+                //   null = 未取得・GAS 未対応・オフライン → HTML 既定値で動作する。
+                this.examPrepRemoteConfig = null;
+                this._fetchExamPrepRemoteConfig();
+
                 this.loadStoredUser();
                 // 復帰ユーザーがいない場合は入力フォームを初期表示する
                 if (!this.currentUser) {
@@ -10298,7 +10328,7 @@
                 if (examPrepBtn) {
                     let visibleForUser = teacher;
                     if (!teacher && typeof EXAM_PREP_PUBLIC_FOR_STUDENTS !== 'undefined') {
-                        visibleForUser = Object.values(EXAM_PREP_PUBLIC_FOR_STUDENTS).some(v => v === true);
+                        visibleForUser = this._examPrepAnyPublicForStudents();
                     }
                     examPrepBtn.style.display = visibleForUser ? 'inline-block' : 'none';
                 }
@@ -11989,12 +12019,77 @@
             //     selectExamProblem(idx) → solve ビュー
             //     submitExamPrepAnswer() → 正誤判定 → 正解なら次へ、不正解なら誘導 or 再挑戦
 
+            // ===== 対策モードの公開状態（リモート設定 > HTML 既定値） =====
+            //   教員がトグルで切り替えた状態は GAS のスクリプトプロパティに保存され、
+            //   全端末が起動時・対策モード表示時に読み込む。GAS 未対応／オフライン時は
+            //   HTML の EXAM_PREP_PUBLIC_FOR_STUDENTS（既定値）で動作する。
+            isExamPrepPublicForStudents(examKey) {
+                const rc = this.examPrepRemoteConfig;
+                if (rc && Object.prototype.hasOwnProperty.call(rc, examKey)) return !!rc[examKey];
+                return !!EXAM_PREP_PUBLIC_FOR_STUDENTS[examKey];
+            }
+
+            _examPrepAnyPublicForStudents() {
+                const keys = Object.keys(typeof EXAM_PREP_MASTER !== 'undefined' ? EXAM_PREP_MASTER : {});
+                return keys.some(k => this.isExamPrepPublicForStudents(k));
+            }
+
+            // GAS から公開設定を取得（サイレント）。取得できたら表示中の画面だけ静かに再描画する。
+            //   旧バージョンの GAS（prepconfig 未対応）はログ JSON を返すため、
+            //   data.prepConfig が無ければ何もしない（既定値のまま）。
+            async _fetchExamPrepRemoteConfig() {
+                try {
+                    const url = LOG_ENDPOINT + '?key=' + encodeURIComponent(DASHBOARD_KEY) + '&action=prepconfig';
+                    const resp = await fetch(url, { method: 'GET' });
+                    const data = await resp.json();
+                    if (data && data.prepConfig && typeof data.prepConfig === 'object') {
+                        this.examPrepRemoteConfig = data.prepConfig;
+                        // メニュー表示中なら対策モードボタンの表示/非表示を更新
+                        const menuEl = document.getElementById('menuScreen');
+                        if (menuEl && menuEl.classList.contains('active') && this.currentUser) {
+                            this.renderMenu();
+                        }
+                        // 対策モードのセクション一覧表示中なら公開状態の表示を更新
+                        const prepEl = document.getElementById('examPrepScreen');
+                        if (prepEl && prepEl.classList.contains('active') && this.examPrepView === 'section') {
+                            this._renderExamPrepView();
+                        }
+                    }
+                } catch (e) { /* オフライン等は HTML 既定値のまま動作 */ }
+            }
+
+            // 教員トグル: 公開状態を反転して GAS に保存し、応答（保存後の設定）で確定する。
+            //   GAS が未対応（応答に prepConfig が無い）場合はその旨を表示し、状態は変えない。
+            async toggleExamPrepPublic(examKey) {
+                if (!this.isTeacherMode()) return;
+                const next = !this.isExamPrepPublicForStudents(examKey);
+                const noteEl = document.getElementById('epPubNote-' + examKey);
+                if (noteEl) noteEl.textContent = '保存中…';
+                try {
+                    const url = LOG_ENDPOINT + '?key=' + encodeURIComponent(DASHBOARD_KEY)
+                        + '&action=setprepconfig&examKey=' + encodeURIComponent(examKey)
+                        + '&value=' + (next ? 'true' : 'false');
+                    const resp = await fetch(url, { method: 'GET' });
+                    const data = await resp.json();
+                    if (data && data.prepConfig && typeof data.prepConfig === 'object') {
+                        this.examPrepRemoteConfig = data.prepConfig;
+                        this._renderExamPrepView();
+                        const n2 = document.getElementById('epPubNote-' + examKey);
+                        if (n2) n2.textContent = next ? '公開しました（全端末に反映されます）' : '非公開にしました（全端末に反映されます）';
+                    } else {
+                        if (noteEl) noteEl.textContent = '切替できません（GAS が未対応です。GAS_DASHBOARD_SETUP.md の「公開トグル対応」手順を実行してください）';
+                    }
+                } catch (e) {
+                    if (noteEl) noteEl.textContent = '通信エラーで保存できませんでした: ' + e.message;
+                }
+            }
+
             goToExamPrep() {
+                // 公開設定の最新化（取得でき次第、表示中なら静かに再描画される）
+                this._fetchExamPrepRemoteConfig();
                 // アクセス制御: 教員以外は、公開中のセクションが 1 つも無ければアクセス不可。
                 if (!this.isTeacherMode()) {
-                    const anyPublic = (typeof EXAM_PREP_PUBLIC_FOR_STUDENTS !== 'undefined')
-                        && Object.values(EXAM_PREP_PUBLIC_FOR_STUDENTS).some(v => v === true);
-                    if (!anyPublic) {
+                    if (!this._examPrepAnyPublicForStudents()) {
                         alert('現在、考査対策モードは公開されていません。先生からの案内をお待ちください。');
                         return;
                     }
@@ -12029,7 +12124,7 @@
             selectExamSection(examKey) {
                 if (typeof EXAM_PREP_MASTER === 'undefined' || !EXAM_PREP_MASTER[examKey]) return;
                 // アクセス制御: 生徒は非公開セクションに入れない（万一クリックパスが残っていても弾く）。
-                if (!this.isTeacherMode() && !EXAM_PREP_PUBLIC_FOR_STUDENTS[examKey]) {
+                if (!this.isTeacherMode() && !this.isExamPrepPublicForStudents(examKey)) {
                     alert('このセクションは現在非公開です。');
                     return;
                 }
@@ -12100,7 +12195,7 @@
                     data.problems.forEach(p => {
                         if (this.examPrepProgress[p.id] && this.examPrepProgress[p.id].status === 'correct') correct++;
                     });
-                    const isPublic = !!(EXAM_PREP_PUBLIC_FOR_STUDENTS[key]);
+                    const isPublic = this.isExamPrepPublicForStudents(key);
                     // 生徒は非公開セクションを表示しない（誤アクセスを防ぐため一覧から完全除外）。
                     // 教員には [非公開] バッジ付きで表示。
                     if (!teacher && !isPublic) return;
@@ -12109,6 +12204,11 @@
                         : '';
                     const printPanel = teacher ? `
                             <div class="ep-section-print" onclick="event.stopPropagation();">
+                                <div class="ep-print-row">
+                                    <span class="ep-print-kind">生徒への公開</span>
+                                    <button class="ep-pub-btn ${isPublic ? 'on' : ''}" onclick="event.stopPropagation(); app.toggleExamPrepPublic('${key}')">${isPublic ? '公開中（クリックで非公開に）' : '非公開（クリックで公開に）'}</button>
+                                </div>
+                                <div class="ep-pub-note" id="epPubNote-${key}"></div>
                                 <div class="ep-section-print-label">印刷（教員のみ・この考査の内容を出力）</div>
                                 <div class="ep-print-row">
                                     <span class="ep-print-kind">対策プリント</span>
