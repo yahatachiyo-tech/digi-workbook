@@ -10436,26 +10436,34 @@
                 w.document.title = showAnswers ? '対策プリント（解答・解説）' : '対策プリント（配布）';
             }
 
-            // 考査問題プリントを直接生成。日付はシステム日付から「R0X.M.D」を自動生成。
+            // 考査問題プリントを直接生成。考査の実施日は教員が指定する（出力日＝システム日付ではない）。
             //   配布版・解答版は採点システム連携のため完全に同じレイアウト
             //   （workflow 領域は配布版でも予約されており見えないだけ）。
             openExamPrint(examKey, showAnswers) {
                 if (!this.isTeacherMode()) return;
                 const data = (typeof EXAM_PREP_MASTER !== 'undefined') ? EXAM_PREP_MASTER[examKey] : null;
                 if (!data) { alert('考査問題のデータが見つかりません: ' + examKey); return; }
-                const today = new Date();
-                const era = today.getFullYear() - 2018;
-                const date = `R${String(era).padStart(2, '0')}.${today.getMonth() + 1}.${today.getDate()}`;
                 // 数値はランダム生成のため、同一セッション内では考査ごとに 1 回だけ生成して
-                // キャッシュを使い回す。これにより「配布」→「解答・解説」と続けて押しても
-                // 同じ数値の問題・解答が出る（別々に生成すると解答が配布版と合わなくなる）。
-                // 数値を引き直したいときはページを再読み込みする。
+                // キャッシュ（問題データ＋指定日付）を使い回す。これにより「配布」→「解答・解説」と
+                // 続けて押しても同じ数値・同じ日付で出る。数値・日付を変えたいときはページを再読み込み。
                 this._examPrintCache = this._examPrintCache || {};
                 if (!this._examPrintCache[examKey]) {
-                    this._examPrintCache[examKey] = this._generateExamFromPrep(data);
+                    // 考査の実施日を教員に確認（前回入力値を初期値に。無ければシステム日付を R 表記で提示）。
+                    const today = new Date();
+                    const era = today.getFullYear() - 2018;
+                    const sysDate = `R${String(era).padStart(2, '0')}.${today.getMonth() + 1}.${today.getDate()}`;
+                    const remembered = localStorage.getItem('examPrintDate') || sysDate;
+                    const input = window.prompt(
+                        '考査の実施日を入力してください（例: R08.6.20）。\n配布版・解答版は同じ日付・同じ数値で出力されます。\n日付を変えたいときはページを再読み込みしてから印刷してください。',
+                        remembered
+                    );
+                    if (input === null) return; // キャンセル → 印刷しない
+                    const date = (input.trim() || remembered);
+                    localStorage.setItem('examPrintDate', date);
+                    this._examPrintCache[examKey] = { data: this._generateExamFromPrep(data), date: date };
                 }
-                const examData = this._examPrintCache[examKey];
-                const html = this._buildPrintHTML(examData, { mode: 'exam', showAnswers: !!showAnswers, date });
+                const cached = this._examPrintCache[examKey];
+                const html = this._buildPrintHTML(cached.data, { mode: 'exam', showAnswers: !!showAnswers, date: cached.date });
                 const w = window.open('about:blank', '_blank', 'width=1200,height=900');
                 if (!w) {
                     alert('ポップアップがブロックされました。\nブラウザの URL バー右側のアイコンから、このサイトのポップアップを「許可」に設定してください。');
@@ -11486,7 +11494,8 @@
 
             _svgWrenchOnBolt(p) {
                 // シンプル化：回転中心 O、腕 r（横）、力 F（上向き）
-                const W = 240, H = 140;
+                // W は F ラベル（"F = 200 N" 等）が右端で切れないよう余裕を持たせる。
+                const W = 290, H = 140;
                 const ox = 50, oy = H / 2;
                 const ax = ox + 130, ay = oy;
                 return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" class="figure-svg">
