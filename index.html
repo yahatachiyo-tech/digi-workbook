@@ -20584,15 +20584,17 @@
                     svg += `<line x1="${W / 2}" y1="${ropeTop}" x2="${W / 2}" y2="${objY}" stroke="${GRAY}" stroke-width="2.2"/>`;
                     // 物体（箱）
                     svg += `<rect x="${objX}" y="${objY}" width="${objW}" height="${objH}" rx="5" ry="5" fill="#eef2f6" stroke="${BOXS}" stroke-width="1.8"/>`;
-                    svg += `<text x="${W / 2}" y="${objY + objH / 2 + 5}" text-anchor="middle" font-size="12" fill="${BOXS}" font-weight="700">m ＝ ${problem.m} kg</text>`;
+                    // 質量ラベルは上寄せ（重力ベクトルが重心から下へ通るため、中央を空ける）
+                    svg += `<text x="${W / 2}" y="${objY + 16}" text-anchor="middle" font-size="12" fill="${BOXS}" font-weight="700">m ＝ ${problem.m} kg</text>`;
                     // 上向き速さ矢印 v（物体の右側、上向き）
                     const vX = objX + objW + 22, vBot = objY + objH, vTop = objY - 6;
                     svg += `<line x1="${vX}" y1="${vBot}" x2="${vX}" y2="${vTop}" stroke="${RED}" stroke-width="2.8" marker-end="url(#stc52-red)"/>`;
                     svg += `<text x="${vX + 8}" y="${(vBot + vTop) / 2}" text-anchor="start" font-size="12" fill="${RED}" font-weight="700">v ＝ ${problem.v} m/s</text>`;
-                    // 重力 W（物体の中心から下へ、グレー）
-                    const wTop = objY + objH / 2, wBot = objY + objH + 18;
-                    svg += `<line x1="${objX + objW / 2 - 14}" y1="${wTop}" x2="${objX + objW / 2 - 14}" y2="${wBot}" stroke="${GRAY}" stroke-width="2.2" marker-end="url(#stc52-gray)"/>`;
-                    svg += `<text x="${objX + objW / 2 - 20}" y="${wBot}" text-anchor="end" font-size="11" fill="${GRAY}" font-weight="600">重さ mg</text>`;
+                    // 重力 W（荷物の重心から真下へ、グレー）。重心に点を打って作用点を示す。
+                    const cgX = objX + objW / 2, cgY = objY + objH / 2, wBot = objY + objH + 20;
+                    svg += `<circle cx="${cgX}" cy="${cgY}" r="2.5" fill="${GRAY}"/>`;
+                    svg += `<line x1="${cgX}" y1="${cgY}" x2="${cgX}" y2="${wBot}" stroke="${GRAY}" stroke-width="2.2" marker-end="url(#stc52-gray)"/>`;
+                    svg += `<text x="${cgX - 8}" y="${wBot - 2}" text-anchor="end" font-size="11" fill="${GRAY}" font-weight="600">重さ mg</text>`;
                     svg += `</svg></div>`;
                     return svg;
                 }
