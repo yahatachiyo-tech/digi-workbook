@@ -13904,9 +13904,11 @@
                         '計算する',
                         '答えの意味を確認'
                     ];
-                // 1-10 問1・問2（T = W）は代入で答えが確定し計算が無いため、
-                //   Stage 4 の見出しを「計算する」→「答えを確認する」に置き換える。
-                if (is1_10 && problem.formulaType === 'TeqW' && stageLabels[4]) {
+                // 代入した時点で答えが確定し計算が無い問題（1-10 問1・問2 の T = W、
+                //   5-1 問4 の μ₀ = tanρ）は、Stage 4 の見出しを「計算する」→「答えを確認する」に。
+                if (((is1_10 && problem.formulaType === 'TeqW')
+                        || (is5_1 && problem.formulaType === 'frictionAngle'))
+                        && stageLabels[4]) {
                     stageLabels[4] = '答えを確認する';
                 }
                 // Always shown at the top: persistent problem statement + stage label
@@ -15459,6 +15461,7 @@
                         const unitTeX_5_1 = problem.unit ? `\\ \\mathrm{[${problem.unit}]}` : '';
                         const unitHTML_5_1 = problem.unit ? `[${problem.unit}]` : '';
                         let formulaLine_5_1, ansLabel_5_1;
+                        let questionText_5_1 = '計算結果を入力してください（電卓を使って構いません）。';
                         if (problem.formulaType === 'staticFric') {
                             formulaLine_5_1 = `$f_0 = ${problem.mu0} \\times ${problem.R} = {\\color{#c62828}?}${unitTeX_5_1}$`;
                             ansLabel_5_1 = 'f₀';
@@ -15469,13 +15472,15 @@
                             formulaLine_5_1 = `$\\mu_0 = ${problem.f0} \\div ${problem.R} = {\\color{#c62828}?}${unitTeX_5_1}$`;
                             ansLabel_5_1 = 'μ₀';
                         } else {
-                            // frictionAngle
-                            formulaLine_5_1 = `$\\mu_0 = \\tan ${problem.rho}° = {\\color{#c62828}?}${unitTeX_5_1}$`;
+                            // frictionAngle: μ₀ ＝ tanρ は tan30° の値（＝答え）を入れた時点で確定し計算が無い。
+                            //   TeqW（T＝W）と同じく「計算」ではなく「答えを確認する」形にそろえ、= ? は出さず答えを明示。
+                            formulaLine_5_1 = `$\\mu_0 = \\tan ${problem.rho}° = ${problem.expectedAns}${unitTeX_5_1}$`;
                             ansLabel_5_1 = 'μ₀';
+                            questionText_5_1 = '代入した時点で答えが決まっています。答えを下の欄に書いて確認してください。';
                         }
                         content.innerHTML = header + staticCanvas1_6 + `
                             <div class="calc-stage-container">
-                                <div class="calc-question-text">計算結果を入力してください（電卓を使って構いません）。</div>
+                                <div class="calc-question-text">${questionText_5_1}</div>
                                 <div class="calc-formula-display">
                                     ${formulaLine_5_1}
                                 </div>
